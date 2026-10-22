@@ -32,17 +32,17 @@
     }
   },
   "sidebar": {
-    "noBook": "No book open",
+    "noProject": "No project open",
     "words": "words",
     "openItemNone": "No item open",
     "placeholder": "Coming soon"
   },
   "welcome": {
     "title": "Welcome to Storyworks",
-    "newBook": "New book",
-    "openBook": "Open book",
-    "recent": "Recent books",
-    "noRecent": "No recent books",
+    "newProject": "New project",
+    "openProject": "Open project",
+    "recent": "Recent projects",
+    "noRecent": "No recent projects",
     "previewWorkspace": "Preview workspace",
     "comingSoon": "Coming soon"
   },

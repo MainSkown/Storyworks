@@ -16,7 +16,7 @@ const { t } = useI18n()
           no-caps
           color="primary"
           icon="add"
-          :label="t('welcome.newBook')"
+          :label="t('welcome.newProject')"
           disable
           :title="t('welcome.comingSoon')"
         />
@@ -25,7 +25,7 @@ const { t } = useI18n()
           no-caps
           class="btn-secondary"
           icon="folder_open"
-          :label="t('welcome.openBook')"
+          :label="t('welcome.openProject')"
           disable
           :title="t('welcome.comingSoon')"
         />

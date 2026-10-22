@@ -43,7 +43,7 @@ function colorStyle(s: AppSection) {
 
     <div class="sidebar">
       <div class="book">
-        <div class="book-title">{{ t('sidebar.noBook') }}</div>
+        <div class="book-title">{{ t('sidebar.noProject') }}</div>
         <div class="book-words">0 {{ t('sidebar.words') }}</div>
       </div>
       <nav class="nav" :aria-label="t('a11y.mainNavigation')">
