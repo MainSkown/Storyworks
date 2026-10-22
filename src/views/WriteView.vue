@@ -9,7 +9,6 @@ import type { ManuscriptNode } from '../project/schemas/manifest'
 import type { Issue } from '../project/types'
 import { sceneSchema, type Scene } from '../project/schemas/scene'
 
-const SAVE_DELAY_MS = 400
 const vFocus = { mounted: (el: HTMLElement) => el.focus() }
 
 const { t } = useI18n()
@@ -55,11 +54,8 @@ const current = ref<Scene | null>(null)
 const loadError = ref('')
 const title = ref('')
 const text = ref('')
-let timer: ReturnType<typeof setTimeout> | undefined
 
 async function applyEdit(): Promise<void> {
-  clearTimeout(timer)
-  timer = undefined
   const scene = current.value
   const node = selected.value
   if (!scene || !node?.path || locked.value) return
@@ -73,14 +69,13 @@ async function applyEdit(): Promise<void> {
   next.wordCount = text.value.split(/\s+/).filter(Boolean).length
   if (store.updateItem(node.path, sceneSchema, next)) current.value = next
 }
+// No view-level debounce: the edit must count as unsaved at once, or an outside change
+// within that delay would silently replace it. The autosaver debounces the disk write.
 function scheduleEdit(): void {
-  clearTimeout(timer)
-  timer = setTimeout(applyEdit, SAVE_DELAY_MS)
+  void applyEdit()
 }
 
 async function load(path: string | undefined): Promise<void> {
-  clearTimeout(timer)
-  timer = undefined
   current.value = null
   loadError.value = ''
   if (!path) return
