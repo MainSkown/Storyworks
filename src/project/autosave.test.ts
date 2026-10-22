@@ -176,4 +176,16 @@ describe('autosaver', () => {
     await tick(1000)
     expect(save).not.toHaveBeenCalled()
   })
+
+  it('onStatusChange fires when a save starts and when it settles', async () => {
+    const seen: string[] = []
+    const a: ReturnType<typeof createAutosaver> = createAutosaver({
+      save: async () => {},
+      delayMs: 10,
+      onStatusChange: () => seen.push(a.status),
+    })
+    a.markDirty('a')
+    await tick(10)
+    expect(seen).toEqual(['saving', 'saved'])
+  })
 })

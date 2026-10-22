@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { sha256Hex } from './hash'
 import { createMemoryProjectIO, type MemoryProjectIO } from './io/memory'
 import { createProject, openProject } from './open'
 import { createManifest, manifestSchema, type Manifest } from './schemas/manifest'
@@ -261,5 +262,52 @@ describe('saveItem / saveManifest', () => {
     p.manifest.title = 5 as unknown as string
     await expect(p.saveManifest()).rejects.toThrow()
     expect(io.files.get('project.json')).toBe(before)
+  })
+})
+
+describe('forceReadOnly and reloadItem', () => {
+  it('forceReadOnly opens read-only and writes nothing', async () => {
+    const { io, env, project } = await newBook()
+    const path = scenePathOf(project.manifest)
+    const r = await openProject(io, env, { forceReadOnly: 'locked-elsewhere' })
+    if (r.status !== 'ok') throw new Error('open failed')
+    expect(r.project.readOnly).toEqual({ reason: 'locked-elsewhere' })
+    await expect(r.project.saveManifest()).rejects.toThrow(/read-only/)
+    const scene = loadScene(io, path)
+    await expect(
+      r.project.saveItem(path, sceneSchema, { ...scene, title: 'X' }),
+    ).rejects.toThrow(/read-only/)
+  })
+
+  it('reloadItem takes the outside version as the known hash', async () => {
+    const { io, env, project } = await newBook()
+    const path = scenePathOf(project.manifest)
+    const { project: p } = await openOk(io, env)
+    const outside = serialize(sceneSchema, { ...loadScene(io, path), title: 'Outside' })
+    io.files.set(path, outside)
+    expect(await p.reloadItem(path)).toEqual({ status: 'ok' })
+    expect(p.knownHash(path)).toBe(await sha256Hex(outside))
+  })
+
+  it('reloadItem flags a now-invalid scene and clears it once fixed', async () => {
+    const { io, env, project } = await newBook()
+    const path = scenePathOf(project.manifest)
+    const { project: p } = await openOk(io, env)
+    const good = io.files.get(path) as string
+    io.files.set(path, '{"version":1}')
+    const bad = await p.reloadItem(path)
+    expect(bad.status).toBe('invalid')
+    expect(p.isInvalid(path)).toBe(true)
+    io.files.set(path, good)
+    expect((await p.reloadItem(path)).status).toBe('ok')
+    expect(p.isInvalid(path)).toBe(false)
+  })
+
+  it('reloadItem reports a missing file', async () => {
+    const { io, env, project } = await newBook()
+    const path = scenePathOf(project.manifest)
+    const { project: p } = await openOk(io, env)
+    io.files.delete(path)
+    expect((await p.reloadItem(path)).status).toBe('missing')
   })
 })

@@ -36,6 +36,8 @@ const INTERNAL_PREFIX = '.storyworks/'
 
 export interface OpenOptions {
   migrations?: Migration[]
+  /** Opens read-only for this reason (e.g. 'locked-elsewhere'); never writes. Ignored if the file is read-only anyway. */
+  forceReadOnly?: ReadOnlyReason
 }
 
 interface ListedItem {
@@ -84,7 +86,7 @@ function parseManifest(text: string, readOnly: boolean): ParseResult<Manifest> {
     : r
 }
 
-function readOnlyReasonOf(header: { version: number | null; kind: string | null } | null) {
+export function readOnlyReasonOf(header: { version: number | null; kind: string | null } | null) {
   if (!header) return null
   if (header.version !== null && header.version > MANIFEST_VERSION) return 'newer-version' as const
   if (header.kind !== null && header.kind !== BOOK_KIND) return 'unknown-kind' as const
@@ -157,6 +159,20 @@ function buildProject(
     },
     knownHash: (path) => hashes.get(path),
     isInvalid: (path) => invalid.has(path),
+    async reloadItem(path) {
+      const text = await io.readText(path)
+      if (text === null) return { status: 'missing' }
+      hashes.set(path, await sha256Hex(text))
+      const isScene = listedItems(manifest).some((i) => i.path === path && i.scene)
+      if (!isScene) return { status: 'ok' }
+      const r = parseFile(sceneSchema, text, path)
+      if (r.ok) {
+        invalid.delete(path)
+        return { status: 'ok' }
+      }
+      invalid.add(path)
+      return { status: 'invalid', error: r.error }
+    },
     deleteItem: (id) => deleteItemImpl(host, id),
     restoreItem: (id) => restoreItemImpl(host, id),
   }
@@ -244,6 +260,7 @@ export async function openProject(
     ...(await checkItems(io, items, tracking)),
     ...(await findUnlisted(io, manifest, items)),
   ]
-  const project = buildProject(io, env, manifest, reason ? { reason } : null, tracking)
+  const effective = reason ?? options.forceReadOnly ?? null
+  const project = buildProject(io, env, manifest, effective ? { reason: effective } : null, tracking)
   return { status: 'ok', project, issues }
 }

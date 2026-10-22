@@ -57,6 +57,11 @@ export interface Env {
   newId(): string
 }
 
+export type ReloadResult =
+  | { status: 'ok' }
+  | { status: 'missing' }
+  | { status: 'invalid'; error: FileError }
+
 export interface OpenProject {
   manifest: import('./schemas/manifest').Manifest
   readOnly: { reason: ReadOnlyReason } | null
@@ -68,6 +73,8 @@ export interface OpenProject {
   knownHash(path: string): string | undefined
   /** root-relative paths of items marked invalid on open (never overwritten) */
   isInvalid(path: string): boolean
+  /** Re-reads the file from disk: updates the known hash and the invalid flag. Does not return the content. */
+  reloadItem(path: string): Promise<ReloadResult>
   deleteItem(id: string): Promise<TrashEntry>
   restoreItem(id: string): Promise<void>
 }

@@ -3,6 +3,8 @@ export type SaveStatus = 'saved' | 'saving' | 'error'
 export interface AutosaverOptions {
   save: (path: string) => Promise<void>
   delayMs?: number
+  /** Called when a save starts and when it settles (status may have changed). */
+  onStatusChange?: () => void
 }
 
 export interface Autosaver {
@@ -26,7 +28,7 @@ interface Entry {
   writing: Promise<void>
 }
 
-export function createAutosaver({ save, delayMs = 800 }: AutosaverOptions): Autosaver {
+export function createAutosaver({ save, delayMs = 800, onStatusChange }: AutosaverOptions): Autosaver {
   const entries = new Map<string, Entry>()
   const failed = new Set<string>()
   let inFlight = 0
@@ -50,6 +52,7 @@ export function createAutosaver({ save, delayMs = 800 }: AutosaverOptions): Auto
       const version = e.version
       if (version === e.saved) return
       inFlight++
+      onStatusChange?.()
       try {
         await save(path)
         e.saved = version
@@ -59,6 +62,7 @@ export function createAutosaver({ save, delayMs = 800 }: AutosaverOptions): Auto
       } finally {
         inFlight--
       }
+      onStatusChange?.()
     })
     return e.writing
   }

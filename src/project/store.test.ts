@@ -1,0 +1,257 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { createMemoryProjectIO, type MemoryProjectIO } from './io/memory'
+import { sceneSchema, SCENE_VERSION } from './schemas/scene'
+import { serialize } from './serialize'
+import { LOCK_PATH } from './lock'
+import { createMemoryFileIO } from '../io/fileIO'
+import { resetFileIOFactory, setFileIOFactory, useSettingsStore } from '../settings/store'
+import { resetProjectIOFactory, setProjectIOFactory, useProjectStore } from './store'
+
+const META = { title: 'My Book', author: 'Ann', language: 'en' }
+let io: MemoryProjectIO
+
+beforeEach(() => {
+  io = createMemoryProjectIO()
+  setProjectIOFactory(() => io)
+  const settingsIO = createMemoryFileIO()
+  setFileIOFactory(() => settingsIO)
+})
+afterEach(() => {
+  resetProjectIOFactory()
+  resetFileIOFactory()
+})
+
+function freshStore() {
+  setActivePinia(createPinia())
+  return useProjectStore()
+}
+
+async function openedStore() {
+  const s = freshStore()
+  expect(await s.create('book', META)).toBe('opened')
+  const scene = s.tree[0].children[0]
+  return { s, scene, path: scene.path as string }
+}
+
+const otherHolder = () => JSON.stringify({ machine: 'elsewhere', pid: 42, timestamp: Date.now() })
+
+describe('project store', () => {
+  it('create, close, open shows the scene', async () => {
+    const { s, path } = await openedStore()
+    await s.close()
+    expect(s.project).toBeNull()
+    expect(await s.open('book/project.json')).toBe('opened')
+    expect(s.rootPath).toBe('book')
+    expect(s.tree[0].title).toBe('Chapter 1')
+    const r = await s.loadScene(path)
+    expect(r.ok).toBe(true)
+  })
+
+  it('opening adds the project to the recent list', async () => {
+    const { s } = await openedStore()
+    const recent = useSettingsStore().settings.recentProjects
+    expect(recent.map((r) => [r.path, r.title])).toEqual([['book', 'My Book']])
+    await s.close()
+  })
+
+  it('a held lock asks first; read-only opens the project without writing', async () => {
+    const { s } = await openedStore()
+    await s.close()
+    io.files.set(LOCK_PATH, otherHolder())
+    expect(await s.open('book')).toBe('needs-choice')
+    expect(s.lockPrompt?.holder.machine).toBe('elsewhere')
+    expect(s.project).toBeNull()
+    expect(await s.resolveLockPrompt('readOnly')).toBe('opened')
+    expect(s.lockPrompt).toBeNull()
+    expect(s.readOnly).toEqual({ reason: 'locked-elsewhere' })
+    expect(JSON.parse(io.files.get(LOCK_PATH) as string).machine).toBe('elsewhere')
+  })
+
+  it('cancelling the lock prompt opens nothing', async () => {
+    const { s } = await openedStore()
+    await s.close()
+    io.files.set(LOCK_PATH, otherHolder())
+    await s.open('book')
+    expect(await s.resolveLockPrompt('cancel')).toBe('cancelled')
+    expect(s.project).toBeNull()
+    expect(s.lockPrompt).toBeNull()
+  })
+
+  it('edits are saved after flush; read-only edits are refused', async () => {
+    const { s, path } = await openedStore()
+    const r = await s.loadScene(path)
+    if (!r.ok) throw new Error('scene invalid')
+    expect(s.updateItem(path, sceneSchema, { ...r.value, synopsis: 'Hello' })).toBe(true)
+    await s.flush()
+    expect(io.files.get(path)).toContain('Hello')
+    expect(s.saveStatus).toBe('saved')
+
+    await s.close()
+    io.files.set(LOCK_PATH, otherHolder())
+    await s.open('book')
+    await s.resolveLockPrompt('readOnly')
+    expect(s.updateItem(path, sceneSchema, { ...r.value, synopsis: 'Nope' })).toBe(false)
+    await s.flush()
+    expect(io.files.get(path)).not.toContain('Nope')
+  })
+
+  it('deleting moves the item to the trash; restore puts it back', async () => {
+    const { s, scene, path } = await openedStore()
+    await s.deleteItem(scene.id)
+    expect(s.trash.map((t) => t.id)).toContain(scene.id)
+    expect(s.tree[0].children).toHaveLength(0)
+    expect(io.files.has(path)).toBe(false)
+    await s.restoreItem(scene.id)
+    expect(s.trash).toHaveLength(0)
+    expect(s.tree[0].children[0].id).toBe(scene.id)
+    expect(io.files.has(path)).toBe(true)
+  })
+
+  it('a link to a trashed scene counts as broken until restore', async () => {
+    const { s, scene, path } = await openedStore()
+    const other = await s.addScene(s.tree[0].id, 'Second')
+    const otherPath = s.tree[0].children[1].path as string
+    const r = await s.loadScene(otherPath)
+    if (!r.ok) throw new Error('scene invalid')
+    s.updateItem(otherPath, sceneSchema, {
+      ...r.value,
+      links: [{ id: 'l1', from: { item: other }, to: { item: scene.id }, kind: 'ref' }],
+    })
+    expect(s.brokenLinkCount).toBe(0)
+    await s.deleteItem(scene.id)
+    expect(s.brokenLinkCount).toBe(1)
+    await s.restoreItem(scene.id)
+    expect(s.brokenLinkCount).toBe(0)
+    expect(io.files.has(path)).toBe(true)
+  })
+
+  it('addScene, rename and moveUpDown change the manifest on disk', async () => {
+    const { s, scene } = await openedStore()
+    const second = await s.addScene(s.tree[0].id, 'Second')
+    await s.rename(second, 'Renamed')
+    expect(await s.moveUpDown(second, 'up')).toBe(true)
+    expect(await s.moveUpDown(second, 'up')).toBe(false)
+    await s.flush()
+    const manifest = JSON.parse(io.files.get('project.json') as string)
+    expect(manifest.manuscript[0].children.map((c: { id: string }) => c.id)).toEqual([
+      second,
+      scene.id,
+    ])
+    expect(manifest.manuscript[0].children[0].title).toBe('Renamed')
+  })
+
+  it('outside change on an edited item prompts; keep does not touch the file', async () => {
+    const { s, path } = await openedStore()
+    const r = await s.loadScene(path)
+    if (!r.ok) throw new Error('scene invalid')
+    s.updateItem(path, sceneSchema, { ...r.value, title: 'Mine' })
+    const theirs = serialize(sceneSchema, { ...r.value, title: 'Theirs' })
+    io.files.set(path, theirs)
+    io.emit([path])
+    await expect.poll(() => s.externalPrompts.length).toBe(1)
+    expect(s.externalPrompts[0].path).toBe(path)
+
+    await s.resolveExternal(path, 'keep')
+    expect(s.externalPrompts).toHaveLength(0)
+    expect(io.files.get(path)).toBe(theirs)
+    await s.flush()
+    expect(io.files.get(path)).toContain('Mine')
+  })
+
+  it('outside change with no edits reloads silently', async () => {
+    const { s, path } = await openedStore()
+    const r = await s.loadScene(path)
+    if (!r.ok) throw new Error('scene invalid')
+    io.files.set(path, serialize(sceneSchema, { ...r.value, title: 'Theirs' }))
+    io.emit([path])
+    await expect.poll(() => s.itemVersion(path)).toBe(1)
+    expect(s.externalPrompts).toHaveLength(0)
+  })
+
+  it('reload drops my unsaved version', async () => {
+    const { s, path } = await openedStore()
+    const r = await s.loadScene(path)
+    if (!r.ok) throw new Error('scene invalid')
+    s.updateItem(path, sceneSchema, { ...r.value, title: 'Mine' })
+    io.files.set(path, serialize(sceneSchema, { ...r.value, title: 'Theirs' }))
+    io.emit([path])
+    await expect.poll(() => s.externalPrompts.length).toBe(1)
+    await s.resolveExternal(path, 'reload')
+    const again = await s.loadScene(path)
+    expect(again.ok && again.value.title).toBe('Theirs')
+    await s.flush()
+    expect(io.files.get(path)).toContain('Theirs')
+  })
+
+  it('project.json changed outside raises the flag; reloadManifest picks it up', async () => {
+    const { s } = await openedStore()
+    const m = JSON.parse(io.files.get('project.json') as string)
+    m.title = 'Changed Outside'
+    io.files.set('project.json', JSON.stringify(m))
+    io.emit(['project.json'])
+    await expect.poll(() => s.manifestChanged).toBe(true)
+    await s.reloadManifest()
+    expect(s.manifestChanged).toBe(false)
+    expect(s.project?.manifest.title).toBe('Changed Outside')
+  })
+
+  it('unlisted scene files can be imported or ignored', async () => {
+    const { s, scene } = await openedStore()
+    await s.close()
+    const mk = (id: string) =>
+      serialize(sceneSchema, {
+        version: SCENE_VERSION,
+        id,
+        title: id,
+        status: 'draft',
+        synopsis: '',
+        wordCount: 0,
+        content: { type: 'doc', content: [] },
+        comments: [],
+        links: [],
+      })
+    io.files.set('manuscript/a.json', mk('a'))
+    io.files.set('manuscript/b.json', mk('b'))
+    io.files.set('manuscript/bad.json', '{ nope')
+    await s.open('book')
+    expect(s.issues.filter((i) => i.kind === 'unlisted')).toHaveLength(3)
+    const out = await s.importUnlisted(['manuscript/a.json', 'manuscript/bad.json'])
+    expect(out.imported).toEqual(['manuscript/a.json'])
+    expect(out.skipped.map((x) => x.path)).toEqual(['manuscript/bad.json'])
+    expect(s.tree[0].children.map((c) => c.id)).toEqual([scene.id, 'a'])
+    s.ignoreUnlisted(['manuscript/b.json', 'manuscript/bad.json'])
+    expect(s.issues.filter((i) => i.kind === 'unlisted')).toHaveLength(0)
+    await s.flush()
+    expect(io.files.get('manuscript/b.json')).toBeDefined()
+  })
+
+  it('an invalid manifest is refused and left untouched', async () => {
+    io.files.set('project.json', '{ not json')
+    const s = freshStore()
+    expect(await s.open('book')).toBe('failed')
+    expect(s.openError?.kind).toBe('refused')
+    expect(s.project).toBeNull()
+    expect(io.files.get('project.json')).toBe('{ not json')
+    expect(io.files.has(LOCK_PATH)).toBe(false)
+  })
+
+  it('opening takes the lock; closing releases it and clears state', async () => {
+    const { s } = await openedStore()
+    expect(io.files.has(LOCK_PATH)).toBe(true)
+    await s.close()
+    expect(io.files.has(LOCK_PATH)).toBe(false)
+    expect(s.project).toBeNull()
+    expect(s.rootPath).toBeNull()
+    expect(s.issues).toEqual([])
+  })
+
+  it('close saves pending edits first', async () => {
+    const { s, path } = await openedStore()
+    const r = await s.loadScene(path)
+    if (!r.ok) throw new Error('scene invalid')
+    s.updateItem(path, sceneSchema, { ...r.value, synopsis: 'Saved on close' })
+    await s.close()
+    expect(io.files.get(path)).toContain('Saved on close')
+  })
+})
