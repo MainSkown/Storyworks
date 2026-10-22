@@ -1,0 +1,77 @@
+{
+  "app": { "name": "BookWriter" },
+  "sections": {
+    "write": "Write",
+    "timelines": "Timelines",
+    "rules": "Rules",
+    "codex": "Codex",
+    "checks": "Checks",
+    "stats": "Stats",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "contextPanel": {
+    "title": "Context",
+    "hide": "Hide panel",
+    "show": "Show panel",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "empty": "Nothing to show for this section yet."
+  },
+  "contextSections": {
+    "write": {
+      "thisParagraph": "This paragraph",
+      "inThisScene": "In this scene",
+      "problems": "Problems"
+    },
+    "timelines": {
+      "selectedEvent": "Selected event",
+      "writtenIn": "Written in",
+      "whoLearnsWhat": "Who learns what here",
+      "linked": "Linked"
+    }
+  },
+  "sidebar": {
+    "noBook": "No book open",
+    "words": "words",
+    "openItemNone": "No item open",
+    "placeholder": "Coming soon"
+  },
+  "welcome": {
+    "title": "Welcome to BookWriter",
+    "newBook": "New book",
+    "openBook": "Open book",
+    "recent": "Recent books",
+    "noRecent": "No recent books",
+    "previewWorkspace": "Preview workspace",
+    "comingSoon": "Coming soon"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "Follow system",
+    "language": "Language",
+    "languageEn": "English",
+    "languagePl": "Polski",
+    "uiZoom": "UI zoom",
+    "editorFontSize": "Editor font size",
+    "editorSample": "The quick brown fox jumps over the lazy dog.",
+    "decrease": "Decrease",
+    "increase": "Increase",
+    "dismiss": "Dismiss",
+    "samplePreview": "Preview",
+    "readOnlyHint": "Settings are read-only.",
+    "loadError": "The settings file is invalid and was not loaded.",
+    "readOnlyNewer": "This settings file was saved by a newer version of BookWriter and is read-only."
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "mainNavigation": "Main navigation",
+    "contextPanel": "Context panel"
+  },
+  "common": {
+    "placeholderPage": "This section is not built yet."
+  }
+}

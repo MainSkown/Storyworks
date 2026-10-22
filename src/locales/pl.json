@@ -1,0 +1,77 @@
+{
+  "app": { "name": "BookWriter" },
+  "sections": {
+    "write": "Pisanie",
+    "timelines": "Osie czasu",
+    "rules": "Zasady",
+    "codex": "Kodeks",
+    "checks": "Kontrole",
+    "stats": "Statystyki",
+    "history": "Historia",
+    "settings": "Ustawienia"
+  },
+  "contextPanel": {
+    "title": "Kontekst",
+    "hide": "Ukryj panel",
+    "show": "Pokaż panel",
+    "collapse": "Zwiń",
+    "expand": "Rozwiń",
+    "empty": "Nie ma jeszcze nic do pokazania w tej sekcji."
+  },
+  "contextSections": {
+    "write": {
+      "thisParagraph": "Ten akapit",
+      "inThisScene": "W tej scenie",
+      "problems": "Problemy"
+    },
+    "timelines": {
+      "selectedEvent": "Wybrane wydarzenie",
+      "writtenIn": "Zapisane w",
+      "whoLearnsWhat": "Kto tu czego się dowiaduje",
+      "linked": "Powiązane"
+    }
+  },
+  "sidebar": {
+    "noBook": "Brak otwartej książki",
+    "words": "słów",
+    "openItemNone": "Brak otwartego elementu",
+    "placeholder": "Wkrótce"
+  },
+  "welcome": {
+    "title": "Witaj w BookWriter",
+    "newBook": "Nowa książka",
+    "openBook": "Otwórz książkę",
+    "recent": "Ostatnie książki",
+    "noRecent": "Brak ostatnich książek",
+    "previewWorkspace": "Podgląd obszaru roboczego",
+    "comingSoon": "Wkrótce"
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "theme": "Motyw",
+    "themeLight": "Jasny",
+    "themeDark": "Ciemny",
+    "themeSystem": "Zgodnie z systemem",
+    "language": "Język",
+    "languageEn": "English",
+    "languagePl": "Polski",
+    "uiZoom": "Powiększenie interfejsu",
+    "editorFontSize": "Rozmiar czcionki edytora",
+    "editorSample": "Zażółć gęślą jaźń. Pchnąć w tę łódź jeża lub ośm skrzyń fig.",
+    "decrease": "Zmniejsz",
+    "increase": "Zwiększ",
+    "dismiss": "Zamknij",
+    "samplePreview": "Podgląd",
+    "readOnlyHint": "Ustawienia są tylko do odczytu.",
+    "loadError": "Plik ustawień jest nieprawidłowy i nie został wczytany.",
+    "readOnlyNewer": "Ten plik ustawień zapisała nowsza wersja BookWriter i jest tylko do odczytu."
+  },
+  "a11y": {
+    "skipToContent": "Przejdź do treści",
+    "mainNavigation": "Nawigacja główna",
+    "contextPanel": "Panel kontekstu"
+  },
+  "common": {
+    "placeholderPage": "Ta sekcja nie jest jeszcze gotowa."
+  }
+}
