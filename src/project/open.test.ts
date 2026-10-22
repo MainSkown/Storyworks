@@ -99,6 +99,27 @@ describe('openProject', () => {
     expect(io.files.get(path)).toBe(bad)
   })
 
+  it('scene whose id differs from project.json is invalid', async () => {
+    const { io, env, project } = await newBook()
+    const path = scenePathOf(project.manifest)
+    const edited = JSON.stringify({ ...loadScene(io, path), id: 'broken-id' })
+    io.files.set(path, edited)
+    const r = await openOk(io, env)
+    const issue = r.issues[0]
+    expect(issue.kind).toBe('invalid')
+    if (issue.kind === 'invalid') expect(issue.error.field).toBe('id')
+    expect(r.project.isInvalid(path)).toBe(true)
+    expect(io.files.get(path)).toBe(edited)
+  })
+
+  it('reloadItem flags a scene whose id no longer matches', async () => {
+    const { io, project } = await newBook()
+    const path = scenePathOf(project.manifest)
+    io.files.set(path, JSON.stringify({ ...loadScene(io, path), id: 'broken-id' }))
+    const r = await project.reloadItem(path)
+    expect(r.status).toBe('invalid')
+  })
+
   it('saveItem refuses an item that was invalid on open', async () => {
     const { io, env, project } = await newBook()
     const path = scenePathOf(project.manifest)

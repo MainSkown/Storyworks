@@ -165,7 +165,7 @@ function buildProject(
       hashes.set(path, await sha256Hex(text))
       const isScene = listedItems(manifest).some((i) => i.path === path && i.scene)
       if (!isScene) return { status: 'ok' }
-      const r = parseFile(sceneSchema, text, path)
+      const r = parseScene(text, path, listedItems(manifest).find((i) => i.path === path)?.id)
       if (r.ok) {
         invalid.delete(path)
         return { status: 'ok' }
@@ -200,6 +200,18 @@ export async function createProject(
   return project
 }
 
+/** A scene file must carry the id project.json lists it under, or links and trash would point at the wrong item. */
+function parseScene(text: string, path: string, expectedId: string | undefined) {
+  const r = parseFile(sceneSchema, text, path)
+  if (r.ok && expectedId !== undefined && r.value.id !== expectedId) {
+    return {
+      ok: false as const,
+      error: { file: path, field: 'id', message: `id "${r.value.id}" does not match "${expectedId}" in project.json` },
+    }
+  }
+  return r
+}
+
 async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Promise<Issue[]> {
   const results = await Promise.all(
     items.map(async (item): Promise<Issue | null> => {
@@ -207,7 +219,7 @@ async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Prom
       if (text === null) return { kind: 'missing', itemId: item.id, path: item.path }
       t.hashes.set(item.path, await sha256Hex(text))
       if (!item.scene) return null
-      const r = parseFile(sceneSchema, text, item.path)
+      const r = parseScene(text, item.path, item.id)
       if (r.ok) return null
       t.invalid.add(item.path)
       return { kind: 'invalid', itemId: item.id, path: item.path, error: r.error }
