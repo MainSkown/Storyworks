@@ -43,8 +43,25 @@
     "openProject": "Otwórz projekt",
     "recent": "Ostatnie projekty",
     "noRecent": "Brak ostatnich projektów",
-    "previewWorkspace": "Podgląd obszaru roboczego",
-    "comingSoon": "Wkrótce"
+    "removeRecent": "Usuń {title} z ostatnich projektów",
+    "browserProjects": "Projekty w tej przeglądarce",
+    "noBrowserProjects": "Brak projektów w tej przeglądarce",
+    "close": "Zamknij"
+  },
+  "newProject": {
+    "title": "Nowy projekt",
+    "bookTitle": "Tytuł książki",
+    "author": "Autor",
+    "language": "Język książki",
+    "folder": "Folder projektu",
+    "folderName": "Nazwa projektu",
+    "folderHint": "Zapisywany w tej przeglądarce (poza aplikacją nie ma prawdziwego folderu).",
+    "chooseFolder": "Wybierz folder",
+    "noFolder": "Nie wybrano folderu",
+    "create": "Utwórz projekt",
+    "cancel": "Anuluj",
+    "exists": "Ten folder zawiera już projekt. Wybierz inny folder albo otwórz ten projekt.",
+    "failed": "Nie udało się utworzyć projektu: {message}"
   },
   "settings": {
     "title": "Ustawienia",
@@ -66,10 +83,107 @@
     "loadError": "Plik ustawień jest nieprawidłowy i nie został wczytany.",
     "readOnlyNewer": "Ten plik ustawień zapisała nowsza wersja Storyworks i jest tylko do odczytu."
   },
+  "status": {
+    "saved": "Zapisano",
+    "saving": "Zapisywanie…",
+    "error": "Nie zapisano"
+  },
+  "project": {
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "closeProject": "Zamknij projekt",
+    "file": "Plik",
+    "field": "Pole",
+    "message": "Problem",
+    "lock": {
+      "title": "Ten projekt jest otwarty gdzie indziej",
+      "body": "Jest otwarty w innym oknie lub na innym komputerze ({machine}). Otwórz go tylko do odczytu albo anuluj.",
+      "openReadOnly": "Otwórz tylko do odczytu"
+    },
+    "lockTookOver": "Projekt został pozostawiony otwarty przez sesję, która już nie działa. Teraz należy do Ciebie.",
+    "lockLost": "Inna sesja przejęła ten projekt. Zmiany mogą się tu nie zapisać; zamknij projekt i otwórz go ponownie.",
+    "error": {
+      "refusedTitle": "Nie można otworzyć tego projektu",
+      "migrationTitle": "Nie udało się uaktualnić projektu",
+      "failedTitle": "Nie udało się otworzyć projektu",
+      "invalidJson": "Plik nie jest poprawnym JSON-em (np. pozostałość po konflikcie scalania).",
+      "invalidSchema": "Plik nie ma oczekiwanej zawartości.",
+      "untouched": "Plik nie został zmieniony.",
+      "asItWas": "Projekt pozostał bez zmian."
+    },
+    "external": {
+      "title": "Plik {file} zmienił się na dysku",
+      "body": "Został zmieniony poza aplikacją, a masz w nim niezapisane zmiany.",
+      "more": "Zmieniło się jeszcze plików na dysku: {n}.",
+      "reload": "Wczytaj z dysku",
+      "keep": "Zachowaj moją wersję"
+    },
+    "manifest": {
+      "title": "Struktura projektu zmieniła się na dysku",
+      "body": "Plik project.json został zmieniony poza aplikacją. Wczytaj go ponownie albo zachowaj swoją wersję, która nadpisze go przy następnym zapisie.",
+      "reload": "Wczytaj ponownie",
+      "keep": "Zachowaj moją"
+    },
+    "readOnly": {
+      "title": "Tylko do odczytu.",
+      "reason": {
+        "newer-version": "Ten projekt zapisała nowsza wersja Storyworks. Zaktualizuj aplikację, aby go edytować.",
+        "unknown-kind": "W tym folderze jest projekt nieznanego rodzaju, więc nie można go edytować.",
+        "locked-elsewhere": "Projekt jest otwarty gdzie indziej, więc edycja jest tu wyłączona."
+      }
+    },
+    "missing": {
+      "title": "Brakujące pliki ({n})",
+      "hint": "Projekt wymienia te pliki, ale ich nie znaleziono. Odwołania zostały zachowane."
+    },
+    "invalid": {
+      "title": "Nieprawidłowe pliki ({n})",
+      "hint": "Tych plików nie udało się odczytać. Nie zostały zmienione."
+    },
+    "unlisted": {
+      "title": "Pliki spoza projektu ({n})",
+      "hint": "Te pliki są w folderze projektu, ale nie ma ich na liście. Zaimportuj je albo zignoruj; nic nie jest usuwane.",
+      "hintReadOnly": "Te pliki są w folderze projektu, ale nie ma ich na liście. Nic nie jest usuwane.",
+      "import": "Importuj",
+      "ignore": "Ignoruj",
+      "skipped": "Nie zaimportowano ({n})"
+    }
+  },
   "a11y": {
     "skipToContent": "Przejdź do treści",
     "mainNavigation": "Nawigacja główna",
     "contextPanel": "Panel kontekstu"
+  },
+  "write": {
+    "title": "Rękopis",
+    "actions": "Działania na rękopisie",
+    "tree": "Drzewo rękopisu",
+    "addScene": "Dodaj scenę",
+    "newScene": "Nowa scena",
+    "rename": "Zmień nazwę",
+    "moveUp": "Przesuń w górę",
+    "moveDown": "Przesuń w dół",
+    "delete": "Usuń",
+    "cancel": "Anuluj",
+    "trash": "Kosz",
+    "readOnly": "Ten projekt jest tylko do odczytu. Możesz go przeglądać, ale nie zmieniać.",
+    "emptyTree": "Brak scen. Dodaj pierwszą scenę.",
+    "nothingSelected": "Wybierz scenę, aby zacząć pisać.",
+    "notScene": "Wybierz scenę, aby edytować jej tekst.",
+    "sceneTitle": "Tytuł sceny",
+    "sceneText": "Tekst sceny (jeden akapit w wierszu)",
+    "loadError": "Nie można otworzyć tej sceny: {message}",
+    "deleteTitle": "Usunąć ten element?",
+    "deleteBody": "„{title}” i cała jego zawartość trafią do kosza. Możesz je stamtąd przywrócić.",
+    "kind": { "part": "Część", "chapter": "Rozdział", "scene": "Scena" }
+  },
+  "trash": {
+    "title": "Kosz",
+    "empty": "Kosz jest pusty.",
+    "restore": "Przywróć",
+    "restoreItem": "Przywróć: {title}",
+    "close": "Zamknij",
+    "type": { "part": "Część", "chapter": "Rozdział", "scene": "Scena" }
   },
   "common": {
     "placeholderPage": "Ta sekcja nie jest jeszcze gotowa."

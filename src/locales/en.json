@@ -43,8 +43,25 @@
     "openProject": "Open project",
     "recent": "Recent projects",
     "noRecent": "No recent projects",
-    "previewWorkspace": "Preview workspace",
-    "comingSoon": "Coming soon"
+    "removeRecent": "Remove {title} from recent projects",
+    "browserProjects": "Projects in this browser",
+    "noBrowserProjects": "No projects in this browser yet",
+    "close": "Close"
+  },
+  "newProject": {
+    "title": "New project",
+    "bookTitle": "Book title",
+    "author": "Author",
+    "language": "Book language",
+    "folder": "Project folder",
+    "folderName": "Project name",
+    "folderHint": "Saved in this browser (no real folder outside the app).",
+    "chooseFolder": "Choose folder",
+    "noFolder": "No folder chosen",
+    "create": "Create project",
+    "cancel": "Cancel",
+    "exists": "This folder already contains a project. Choose another folder or open it instead.",
+    "failed": "Could not create the project: {message}"
   },
   "settings": {
     "title": "Settings",
@@ -66,10 +83,107 @@
     "loadError": "The settings file is invalid and was not loaded.",
     "readOnlyNewer": "This settings file was saved by a newer version of Storyworks and is read-only."
   },
+  "status": {
+    "saved": "Saved",
+    "saving": "Saving…",
+    "error": "Not saved"
+  },
+  "project": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "closeProject": "Close project",
+    "file": "File",
+    "field": "Field",
+    "message": "Problem",
+    "lock": {
+      "title": "This project is open elsewhere",
+      "body": "It is open in another window or on another computer ({machine}). Open it read-only, or cancel.",
+      "openReadOnly": "Open read-only"
+    },
+    "lockTookOver": "The project was left open by a session that is no longer running. You now have it.",
+    "lockLost": "Another session took over this project. Your changes may not be saved here; close and reopen it.",
+    "error": {
+      "refusedTitle": "This project cannot be opened",
+      "migrationTitle": "The project could not be upgraded",
+      "failedTitle": "The project could not be opened",
+      "invalidJson": "The file is not valid JSON (for example a leftover merge conflict).",
+      "invalidSchema": "The file does not have the expected content.",
+      "untouched": "The file was not changed.",
+      "asItWas": "The project was left as it was."
+    },
+    "external": {
+      "title": "{file} changed on disk",
+      "body": "It was changed outside the app, and you have unsaved edits in it.",
+      "more": "{n} more files changed on disk.",
+      "reload": "Reload from disk",
+      "keep": "Keep my version"
+    },
+    "manifest": {
+      "title": "The project structure changed on disk",
+      "body": "project.json was changed outside the app. Reload it, or keep your version and overwrite it on the next save.",
+      "reload": "Reload",
+      "keep": "Keep mine"
+    },
+    "readOnly": {
+      "title": "Read-only.",
+      "reason": {
+        "newer-version": "This project was saved by a newer version of Storyworks. Update the app to edit it.",
+        "unknown-kind": "This folder holds a kind of project this app does not know, so it cannot be edited.",
+        "locked-elsewhere": "The project is open elsewhere, so changes are disabled here."
+      }
+    },
+    "missing": {
+      "title": "Missing files ({n})",
+      "hint": "The project lists these files, but they were not found. The references are kept."
+    },
+    "invalid": {
+      "title": "Invalid files ({n})",
+      "hint": "These files could not be read. They were not changed."
+    },
+    "unlisted": {
+      "title": "Files not in the project ({n})",
+      "hint": "These files are in the project folder but not listed. Import them or ignore them; nothing is deleted.",
+      "hintReadOnly": "These files are in the project folder but not listed. Nothing is deleted.",
+      "import": "Import",
+      "ignore": "Ignore",
+      "skipped": "Not imported ({n})"
+    }
+  },
   "a11y": {
     "skipToContent": "Skip to content",
     "mainNavigation": "Main navigation",
     "contextPanel": "Context panel"
+  },
+  "write": {
+    "title": "Manuscript",
+    "actions": "Manuscript actions",
+    "tree": "Manuscript tree",
+    "addScene": "Add scene",
+    "newScene": "New scene",
+    "rename": "Rename",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "trash": "Trash",
+    "readOnly": "This project is read-only. You can look around but not change anything.",
+    "emptyTree": "No scenes yet. Add your first scene.",
+    "nothingSelected": "Select a scene to start writing.",
+    "notScene": "Select a scene to edit its text.",
+    "sceneTitle": "Scene title",
+    "sceneText": "Scene text (one paragraph per line)",
+    "loadError": "Could not open this scene: {message}",
+    "deleteTitle": "Delete this item?",
+    "deleteBody": "\"{title}\" and everything inside it will move to the trash. You can restore it from there.",
+    "kind": { "part": "Part", "chapter": "Chapter", "scene": "Scene" }
+  },
+  "trash": {
+    "title": "Trash",
+    "empty": "The trash is empty.",
+    "restore": "Restore",
+    "restoreItem": "Restore {title}",
+    "close": "Close",
+    "type": { "part": "Part", "chapter": "Chapter", "scene": "Scene" }
   },
   "common": {
     "placeholderPage": "This section is not built yet."

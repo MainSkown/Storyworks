@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { setLanguage } from './i18n'
 import { useSettingsStore } from './settings/store'
 import { useTheme } from './theme/useTheme'
+import { useProjectStore } from './project/store'
+import { isTauri } from './project/pickFolder'
+import ProjectDialogs from './components/ProjectDialogs.vue'
 
 const { t } = useI18n()
 const { settings, loadError } = storeToRefs(useSettingsStore())
@@ -17,6 +20,30 @@ useTheme({
 })
 watch(() => settings.value.language, setLanguage)
 const dismissed = ref(false)
+
+// Release the lock and flush pending saves before the window goes away.
+const project = useProjectStore()
+let unlistenClose: (() => void) | undefined
+let disposed = false
+onMounted(async () => {
+  if (!isTauri()) return
+  const { getCurrentWindow } = await import('@tauri-apps/api/window')
+  const win = getCurrentWindow()
+  const un = await win.onCloseRequested(async (event) => {
+    event.preventDefault()
+    try {
+      await project.close()
+    } finally {
+      await win.destroy()
+    }
+  })
+  if (disposed) un()
+  else unlistenClose = un
+})
+onBeforeUnmount(() => {
+  disposed = true
+  unlistenClose?.()
+})
 </script>
 
 <template>
@@ -34,6 +61,7 @@ const dismissed = ref(false)
     </template>
   </QBanner>
   <RouterView />
+  <ProjectDialogs />
 </template>
 
 <style scoped>

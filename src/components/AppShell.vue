@@ -1,21 +1,29 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { sectionByRouteName, sections, type AppSection } from '../sections'
 import { useSettingsStore } from '../settings/store'
 import { usePanelShortcut } from '../composables/panelShortcut'
+import { useProjectStore } from '../project/store'
 import ContextPanel from './ContextPanel.vue'
+import ProjectBanners from './ProjectBanners.vue'
 
 const { t } = useI18n()
 const route = useRoute()
+const router = useRouter()
+const project = useProjectStore()
 const store = useSettingsStore()
 const { settings } = storeToRefs(store)
 
 const active = computed(() => sectionByRouteName(route.name) ?? sections[0]!)
 const panelHidden = computed(() => settings.value.contextPanel.hidden)
 const mainEl = ref<HTMLElement | null>(null)
+
+const statusIcon = computed(
+  () => ({ saved: 'check_circle', saving: 'sync', error: 'error_outline' })[project.saveStatus],
+)
 
 const mainSections = sections.filter((s) => s.position === 'main')
 const bottomSections = sections.filter((s) => s.position === 'bottom')
@@ -28,6 +36,11 @@ usePanelShortcut(togglePanel)
 // A plain "#id" link would change the hash-router route.
 function skipToContent(): void {
   mainEl.value?.focus()
+}
+
+async function closeProject(): Promise<void> {
+  await project.close()
+  await router.push({ name: 'welcome' })
 }
 
 function colorStyle(s: AppSection) {
@@ -43,8 +56,24 @@ function colorStyle(s: AppSection) {
 
     <div class="sidebar">
       <div class="book">
-        <div class="book-title">{{ t('sidebar.noProject') }}</div>
+        <div class="book-title">
+          {{ project.project?.manifest.title ?? t('sidebar.noProject') }}
+        </div>
         <div class="book-words">0 {{ t('sidebar.words') }}</div>
+        <div v-if="project.project" class="book-status" role="status" aria-live="polite">
+          <QIcon :name="statusIcon" aria-hidden="true" />
+          {{ t(`status.${project.saveStatus}`) }}
+        </div>
+        <QBtn
+          v-if="project.project"
+          flat
+          dense
+          no-caps
+          icon="close"
+          class="book-close"
+          :label="t('project.closeProject')"
+          @click="closeProject"
+        />
       </div>
       <nav class="nav" :aria-label="t('a11y.mainNavigation')">
         <template v-for="group in [mainSections, bottomSections]" :key="group[0]!.position">
@@ -86,6 +115,7 @@ function colorStyle(s: AppSection) {
           </button>
         </div>
       </header>
+      <ProjectBanners />
       <main id="main-content" ref="mainEl" class="central" tabindex="-1">
         <RouterView />
       </main>
@@ -135,6 +165,19 @@ function colorStyle(s: AppSection) {
 .book-words {
   color: var(--text-secondary);
   font-size: 0.75rem;
+}
+.book-status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+.book-close {
+  margin-top: 0.25rem;
+  margin-inline-start: -0.5rem;
+  color: var(--text-secondary);
 }
 .nav {
   display: flex;
