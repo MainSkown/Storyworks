@@ -1,0 +1,129 @@
+/* Maps Quasar's brand/surface variables onto our tokens (loaded after quasar.css). */
+:root {
+  --q-primary: var(--section-write);
+  --q-secondary: var(--text-secondary);
+  --q-accent: var(--section-codex);
+  --q-positive: var(--section-rules);
+  --q-negative: var(--section-checks);
+  --q-warning: var(--section-timelines);
+  --q-info: var(--section-write);
+  --q-dark: var(--bg-sheet);
+  --q-dark-page: var(--bg-app);
+}
+
+body,
+body.body--dark,
+body.body--light {
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+}
+
+.q-btn.bg-primary {
+  color: var(--section-write-on) !important;
+}
+.q-btn.btn-secondary {
+  background: var(--bg-selected);
+  color: var(--text-primary);
+}
+.q-btn.disabled {
+  opacity: 0.55 !important;
+}
+
+.q-field--outlined .q-field__control {
+  background: var(--bg-sheet);
+  color: var(--text-primary);
+}
+.q-field--outlined .q-field__control:before {
+  border-color: var(--border-strong);
+}
+.q-field--outlined .q-field__control:hover:before {
+  border-color: var(--text-primary);
+}
+.q-field--outlined.q-field--focused .q-field__control:after {
+  border-color: var(--focus-ring);
+}
+.q-field__native,
+.q-field__input,
+.q-field__suffix {
+  color: var(--text-primary);
+}
+.q-field__suffix {
+  color: var(--text-secondary);
+}
+
+.q-btn-toggle {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-sheet);
+}
+.q-btn-toggle .q-btn:not(.bg-primary) {
+  color: var(--text-primary);
+}
+
+.q-slider__track {
+  color: var(--border-strong);
+}
+.q-slider__selection {
+  background: var(--section-write);
+}
+.q-slider__thumb {
+  color: var(--section-write);
+}
+.q-slider__pin,
+.q-slider__pin:before {
+  color: var(--section-write);
+}
+.q-slider__pin-text {
+  color: var(--section-write-on);
+}
+
+.q-banner {
+  background: var(--bg-raised);
+  color: var(--text-primary);
+}
+.q-banner.warn-banner {
+  border: 1px solid var(--section-timelines);
+  border-inline-start-width: 4px;
+}
+
+.q-tooltip {
+  background: var(--bg-sheet);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+/* Quasar's h1-h6 are display-sized and light; keep browser-like headings. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+h1 {
+  font-size: 2em;
+}
+h2 {
+  font-size: 1.5em;
+}
+h3 {
+  font-size: 1.17em;
+}
+
+.q-menu {
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+}
+.q-item--active {
+  color: var(--text-primary);
+  background: var(--bg-selected);
+}

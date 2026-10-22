@@ -1,0 +1,84 @@
+/* Workshop palette. Colour tokens must stay 6-digit hex (parsed by the contrast test). */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg-app: #f1efea;
+  --bg-sidebar: #e3dfd6;
+  --bg-panel: #e9e6de;
+  --bg-header: #2f5d8a;
+  --bg-editor: #f1efea;
+  --bg-sheet: #fbfaf7;
+  --bg-raised: #fbfaf7;
+  --bg-selected: #dce7f2;
+  --text-primary: #26241f;
+  --text-secondary: #5e5a52;
+  --text-header: #ffffff;
+  --border: #dad6cc;
+  --border-strong: #77726a;
+  --focus-ring: #1f5fa8;
+
+  --section-write: #2f5d8a;
+  --section-write-on: #ffffff;
+  --section-timelines: #a4560f;
+  --section-timelines-on: #ffffff;
+  --section-rules: #3e7b5a;
+  --section-rules-on: #ffffff;
+  --section-codex: #7a4e8c;
+  --section-codex-on: #ffffff;
+  --section-checks: #a8403a;
+  --section-checks-on: #ffffff;
+
+  --tag-event: #a4560f;
+  --tag-event-on: #ffffff;
+  --tag-rule: #3e7b5a;
+  --tag-rule-on: #ffffff;
+  --tag-character: #7a4e8c;
+  --tag-character-on: #ffffff;
+  --tag-scene: #2f5d8a;
+  --tag-scene-on: #ffffff;
+  --tag-problem: #a8403a;
+  --tag-problem-on: #ffffff;
+
+  --ui-zoom: 1;
+  --editor-font-size: 16.5px;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-app: #1a1916;
+  --bg-sidebar: #121110;
+  --bg-panel: #121110;
+  --bg-header: #2f5d8a;
+  --bg-editor: #1a1916;
+  --bg-sheet: #26241f;
+  --bg-raised: #24231f;
+  --bg-selected: #2a3948;
+  --text-primary: #ece8dd;
+  --text-secondary: #a39e92;
+  --text-header: #ffffff;
+  --border: #36342e;
+  --border-strong: #7a766b;
+  --focus-ring: #7fb0e0;
+
+  --section-write: #7fb0e0;
+  --section-write-on: #14120f;
+  --section-timelines: #e58a3a;
+  --section-timelines-on: #14120f;
+  --section-rules: #5fb587;
+  --section-rules-on: #14120f;
+  --section-codex: #b98fcb;
+  --section-codex-on: #14120f;
+  --section-checks: #e0746b;
+  --section-checks-on: #14120f;
+
+  --tag-event: #e58a3a;
+  --tag-event-on: #14120f;
+  --tag-rule: #5fb587;
+  --tag-rule-on: #14120f;
+  --tag-character: #b98fcb;
+  --tag-character-on: #14120f;
+  --tag-scene: #7fb0e0;
+  --tag-scene-on: #14120f;
+  --tag-problem: #e0746b;
+  --tag-problem-on: #14120f;
+}
