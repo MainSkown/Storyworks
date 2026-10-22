@@ -1,0 +1,24 @@
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import { Quasar, Dark } from 'quasar'
+import '@quasar/extras/material-icons/material-icons.css'
+import 'quasar/dist/quasar.css'
+import './styles/tokens.css'
+import './styles/base.css'
+import './styles/quasar-overrides.css'
+import App from './App.vue'
+import { router } from './router'
+import { i18n, setLanguage } from './i18n'
+import { useSettingsStore } from './settings/store'
+
+const pinia = createPinia()
+const settings = useSettingsStore(pinia)
+await settings.load()
+setLanguage(settings.settings.language)
+
+createApp(App)
+  .use(pinia)
+  .use(router)
+  .use(i18n)
+  .use(Quasar, { plugins: { Dark }, config: { dark: false } })
+  .mount('#app')
