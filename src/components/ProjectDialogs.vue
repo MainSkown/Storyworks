@@ -3,12 +3,27 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '../project/store'
+import type { ManuscriptNode } from '../project/schemas/manifest'
 
 const { t } = useI18n()
 const store = useProjectStore()
 const { lockPrompt, openError, externalPrompts, manifestChanged, lockNote } = storeToRefs(store)
 
 const externalFirst = computed(() => externalPrompts.value[0] ?? null)
+
+function findByPath(nodes: ManuscriptNode[], path: string): ManuscriptNode | null {
+  for (const n of nodes) {
+    if (n.path === path) return n
+    const hit = findByPath(n.children, path)
+    if (hit) return hit
+  }
+  return null
+}
+const externalName = computed(() =>
+  externalFirst.value
+    ? (findByPath(store.tree, externalFirst.value.path)?.title ?? externalFirst.value.path)
+    : '',
+)
 
 // Open errors come from opening or from reloading; only dismiss the message so
 // an already open project stays as it was.
@@ -123,8 +138,9 @@ onBeforeUnmount(() => clearTimeout(noteTimer))
     <QCard class="dialog" role="alertdialog" aria-labelledby="dlg-ext-title">
       <QCardSection v-if="externalFirst">
         <h2 id="dlg-ext-title" class="dlg-title">
-          {{ t('project.external.title', { file: externalFirst.path }) }}
+          {{ t('project.external.title', { file: externalName }) }}
         </h2>
+        <p v-if="externalName !== externalFirst.path" class="dlg-path">{{ externalFirst.path }}</p>
         <p>{{ t('project.external.body') }}</p>
         <p v-if="externalPrompts.length > 1">
           {{ t('project.external.more', { n: externalPrompts.length - 1 }) }}

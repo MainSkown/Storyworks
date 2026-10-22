@@ -3,10 +3,23 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '../project/store'
+import type { ManuscriptNode } from '../project/schemas/manifest'
 
 const { t } = useI18n()
 const store = useProjectStore()
 const { project, issues, readOnly, lockNote } = storeToRefs(store)
+
+function findNode(nodes: ManuscriptNode[], id: string): ManuscriptNode | null {
+  for (const n of nodes) {
+    if (n.id === id) return n
+    const hit = findNode(n.children, id)
+    if (hit) return hit
+  }
+  return null
+}
+function titleOf(id: string): string | null {
+  return findNode(store.tree, id)?.title ?? null
+}
 
 const missing = computed(() => issues.value.flatMap((i) => (i.kind === 'missing' ? [i] : [])))
 const invalid = computed(() => issues.value.flatMap((i) => (i.kind === 'invalid' ? [i] : [])))
@@ -69,6 +82,7 @@ function ignoreAll(): void {
       {{ t('project.missing.hint') }}
       <ul class="file-list">
         <li v-for="i in missing" :key="i.path">
+          <strong v-if="titleOf(i.itemId)">{{ titleOf(i.itemId) }}</strong>
           <code>{{ i.path }}</code>
         </li>
       </ul>
@@ -86,6 +100,7 @@ function ignoreAll(): void {
       {{ t('project.invalid.hint') }}
       <ul class="file-list">
         <li v-for="i in invalid" :key="i.path">
+          <strong v-if="titleOf(i.itemId)">{{ titleOf(i.itemId) }}</strong>
           <code>{{ i.path }}</code>
           <span v-if="i.error.field">
             {{ t('project.field') }}: <code>{{ i.error.field }}</code>

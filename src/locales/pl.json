@@ -166,7 +166,13 @@
     "delete": "Usuń",
     "cancel": "Anuluj",
     "trash": "Kosz",
-    "readOnly": "Ten projekt jest tylko do odczytu. Możesz go przeglądać, ale nie zmieniać.",
+    "problem": {
+      "missing": "Brak pliku",
+      "invalid": "Nieprawidłowy plik",
+      "missingBody": "Nie znaleziono pliku tego elementu. Odwołanie zostało zachowane.",
+      "invalidBody": "Nie można odczytać pliku i został on pozostawiony bez zmian.",
+      "item": "{title}: {problem}"
+    },
     "emptyTree": "Brak scen. Dodaj pierwszą scenę.",
     "nothingSelected": "Wybierz scenę, aby zacząć pisać.",
     "notScene": "Wybierz scenę, aby edytować jej tekst.",

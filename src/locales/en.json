@@ -166,7 +166,13 @@
     "delete": "Delete",
     "cancel": "Cancel",
     "trash": "Trash",
-    "readOnly": "This project is read-only. You can look around but not change anything.",
+    "problem": {
+      "missing": "Missing file",
+      "invalid": "Invalid file",
+      "missingBody": "The file for this item was not found. The reference is kept.",
+      "invalidBody": "The file could not be read, and it was left untouched.",
+      "item": "{title}: {problem}"
+    },
     "emptyTree": "No scenes yet. Add your first scene.",
     "nothingSelected": "Select a scene to start writing.",
     "notScene": "Select a scene to edit its text.",

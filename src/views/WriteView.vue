@@ -6,6 +6,7 @@ import TrashDialog from '../components/TrashDialog.vue'
 import { docToText, textToDoc } from '../project/plainText'
 import { useProjectStore } from '../project/store'
 import type { ManuscriptNode } from '../project/schemas/manifest'
+import type { Issue } from '../project/types'
 import { sceneSchema, type Scene } from '../project/schemas/scene'
 
 const SAVE_DELAY_MS = 400
@@ -37,6 +38,17 @@ const scenePath = computed(() =>
   selected.value?.type === 'scene' ? selected.value.path : undefined,
 )
 const locked = computed(() => !!store.readOnly)
+
+const problems = computed(() => {
+  const m = new Map<string, Extract<Issue, { kind: 'missing' | 'invalid' }>>()
+  for (const i of store.issues) if (i.kind !== 'unlisted') m.set(i.itemId, i)
+  return m
+})
+const selectedProblem = computed(() =>
+  selectedId.value ? (problems.value.get(selectedId.value) ?? null) : null,
+)
+// Controls that change an item stay off while the item's file is unusable.
+const noEdit = computed(() => locked.value || !!selectedProblem.value)
 
 // ---- scene editing ----
 const current = ref<Scene | null>(null)
@@ -142,9 +154,6 @@ const trashOpen = ref(false)
   <section class="write" :aria-label="t('write.title')">
     <aside class="tree-pane">
       <h1 class="heading">{{ t('write.title') }}</h1>
-      <QBanner v-if="locked" rounded class="note" role="status">
-        {{ t('write.readOnly') }}
-      </QBanner>
 
       <div class="toolbar" role="toolbar" :aria-label="t('write.actions')">
         <QBtn
@@ -165,7 +174,7 @@ const trashOpen = ref(false)
           icon="edit"
           :aria-label="t('write.rename')"
           :title="t('write.rename')"
-          :disable="locked || !selected"
+          :disable="noEdit || !selected"
           @click="selected && startRename(selected)"
         />
         <QBtn
@@ -175,7 +184,7 @@ const trashOpen = ref(false)
           icon="arrow_upward"
           :aria-label="t('write.moveUp')"
           :title="t('write.moveUp')"
-          :disable="locked || !selected"
+          :disable="noEdit || !selected"
           @click="move('up')"
         />
         <QBtn
@@ -185,7 +194,7 @@ const trashOpen = ref(false)
           icon="arrow_downward"
           :aria-label="t('write.moveDown')"
           :title="t('write.moveDown')"
-          :disable="locked || !selected"
+          :disable="noEdit || !selected"
           @click="move('down')"
         />
         <QBtn
@@ -195,7 +204,7 @@ const trashOpen = ref(false)
           icon="delete"
           :aria-label="t('write.delete')"
           :title="t('write.delete')"
-          :disable="locked || !selected"
+          :disable="noEdit || !selected"
           @click="confirmDelete = true"
         />
         <QBtn
@@ -232,13 +241,52 @@ const trashOpen = ref(false)
           >
             <span class="kind">{{ t(`write.kind.${r.node.type}`) }}</span>
             {{ r.node.title }}
+            <span
+              v-if="problems.get(r.node.id)"
+              class="problem"
+              role="img"
+              :aria-label="
+                t('write.problem.item', {
+                  title: r.node.title,
+                  problem: t(`write.problem.${problems.get(r.node.id)!.kind}`),
+                })
+              "
+            >
+              <QIcon
+                :name="problems.get(r.node.id)!.kind === 'missing' ? 'report_problem' : 'error_outline'"
+                size="1rem"
+                aria-hidden="true"
+              />
+              <span aria-hidden="true">{{ t(`write.problem.${problems.get(r.node.id)!.kind}`) }}</span>
+            </span>
           </button>
         </li>
       </ul>
     </aside>
 
     <div class="editor-pane">
-      <p v-if="loadError" class="empty" role="alert">
+      <div v-if="selectedProblem" class="empty" role="alert" data-testid="item-problem">
+        <p class="problem">
+          <QIcon
+            :name="selectedProblem.kind === 'missing' ? 'report_problem' : 'error_outline'"
+            size="1rem"
+            aria-hidden="true"
+          />
+          <strong>{{ t(`write.problem.${selectedProblem.kind}`) }}</strong>
+        </p>
+        <p v-if="selectedProblem.kind === 'missing'">{{ t('write.problem.missingBody') }}</p>
+        <template v-else>
+          <p v-if="selectedProblem.error.field">
+            {{ t('project.field') }}: <code>{{ selectedProblem.error.field }}</code>
+          </p>
+          <p>{{ selectedProblem.error.message }}</p>
+          <p>{{ t('write.problem.invalidBody') }}</p>
+        </template>
+        <p class="path">
+          <code>{{ selectedProblem.path }}</code>
+        </p>
+      </div>
+      <p v-else-if="loadError" class="empty" role="alert">
         {{ t('write.loadError', { message: loadError }) }}
       </p>
       <template v-else-if="current">
@@ -307,10 +355,18 @@ const trashOpen = ref(false)
   margin: 0 0 0.75rem;
   font-size: 1.15rem;
 }
-.note {
-  margin-bottom: 0.75rem;
-  background: var(--bg-selected);
-  color: var(--text-primary);
+.problem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-inline-start: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+.path code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
 }
 .toolbar {
   display: flex;
