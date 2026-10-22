@@ -3,12 +3,14 @@ import { defineStore } from 'pinia'
 import { createFileIO, type FileIO } from '../io/fileIO'
 import {
   defaultSettings,
+  MAX_RECENT_PROJECTS,
   SETTINGS_VERSION,
   settingsSchema,
   type Language,
   type Settings,
   type Theme,
 } from './schema'
+import { migrateSettings } from './migrate'
 import { resolveLanguage } from '../i18n/resolveLanguage'
 
 export const SETTINGS_FILE = 'settings.json'
@@ -45,6 +47,11 @@ function serialize(s: Settings): string {
     uiZoom: s.uiZoom,
     editorFontSize: s.editorFontSize,
     contextPanel: { hidden: s.contextPanel.hidden, collapsed },
+    recentProjects: s.recentProjects.map((r) => ({
+      path: r.path,
+      title: r.title,
+      openedAt: r.openedAt,
+    })),
   }
   return JSON.stringify(settingsSchema.parse(ordered), null, 2) + '\n'
 }
@@ -64,6 +71,7 @@ export const useSettingsStore = defineStore('settings', () => {
     systemLocale = typeof navigator === 'undefined' ? 'en' : navigator.language,
   ): Promise<void> {
     loadError.value = null
+    let migratedOnLoad = false
     settings.value = cloneDefaults()
     const text = await io.readText(SETTINGS_FILE)
     if (text === null) {
@@ -84,9 +92,11 @@ export const useSettingsStore = defineStore('settings', () => {
             message: `settings.json version ${version} is newer than supported (${SETTINGS_VERSION})`,
           }
         } else {
-          const result = settingsSchema.safeParse(raw)
+          const migrated = migrateSettings(raw)
+          const result = settingsSchema.safeParse(migrated)
           if (result.success) {
             settings.value = result.data
+            if (migrated !== raw) migratedOnLoad = true
           } else {
             const issue = result.error.issues[0]!
             loadError.value = {
@@ -99,6 +109,7 @@ export const useSettingsStore = defineStore('settings', () => {
       }
     }
     loaded.value = true
+    if (migratedOnLoad) scheduleSave()
   }
 
   let timer: ReturnType<typeof setTimeout> | null = null
@@ -158,6 +169,16 @@ export const useSettingsStore = defineStore('settings', () => {
     setContextPanelHidden: (v: boolean) => update((d) => void (d.contextPanel.hidden = v)),
     toggleSection: (id: string) =>
       update((d) => void (d.contextPanel.collapsed[id] = !d.contextPanel.collapsed[id])),
+    addRecentProject: (p: { path: string; title: string }) =>
+      update((d) => {
+        const entry = { path: p.path, title: p.title, openedAt: new Date().toISOString() }
+        d.recentProjects = [entry, ...d.recentProjects.filter((r) => r.path !== p.path)].slice(
+          0,
+          MAX_RECENT_PROJECTS,
+        )
+      }),
+    removeRecentProject: (path: string) =>
+      update((d) => void (d.recentProjects = d.recentProjects.filter((r) => r.path !== path))),
     isCollapsed: (id: string) => settings.value.contextPanel.collapsed[id] === true,
   }
 })

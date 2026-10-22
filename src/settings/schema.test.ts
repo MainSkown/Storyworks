@@ -24,4 +24,16 @@ describe('settings schema', () => {
     delete rest.theme
     expect(settingsSchema.safeParse(rest).success).toBe(false)
   })
+  it('rejects a malformed recent project entry', () => {
+    expect(
+      settingsSchema.safeParse(with_({ recentProjects: [{ path: '/a', title: 'A' }] })).success,
+    ).toBe(false)
+  })
+  it('rejects more than 10 recent projects', () => {
+    const e = { path: '/a', title: 'A', openedAt: '2026-01-01T00:00:00.000Z' }
+    expect(
+      settingsSchema.safeParse(with_({ recentProjects: Array.from({ length: 11 }, () => e) }))
+        .success,
+    ).toBe(false)
+  })
 })

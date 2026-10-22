@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
-export const SETTINGS_VERSION = 1
+export const SETTINGS_VERSION = 2
+export const MAX_RECENT_PROJECTS = 10
 
 export const settingsSchema = z.strictObject({
   version: z.literal(SETTINGS_VERSION),
@@ -12,6 +13,9 @@ export const settingsSchema = z.strictObject({
     hidden: z.boolean(),
     collapsed: z.record(z.string(), z.boolean()),
   }),
+  recentProjects: z
+    .array(z.strictObject({ path: z.string(), title: z.string(), openedAt: z.string() }))
+    .max(MAX_RECENT_PROJECTS),
 })
 
 export type Settings = z.infer<typeof settingsSchema>
@@ -25,4 +29,5 @@ export const defaultSettings: Settings = {
   uiZoom: 100,
   editorFontSize: 18,
   contextPanel: { hidden: false, collapsed: {} },
+  recentProjects: [],
 }
