@@ -5,6 +5,6 @@ export const isTauri = (): boolean =>
 export async function pickFolder(): Promise<string | null> {
   if (!isTauri()) return null
   const { open } = await import('@tauri-apps/plugin-dialog')
-  const picked = await open({ directory: true, multiple: false })
+  const picked = await open({ directory: true, multiple: false, recursive: true })
   return typeof picked === 'string' ? picked : null
 }
