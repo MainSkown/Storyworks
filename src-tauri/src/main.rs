@@ -1,5 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    bookwriter_lib::run()
+    storyworks_lib::run()
 }

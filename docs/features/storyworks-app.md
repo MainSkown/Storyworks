@@ -1,4 +1,4 @@
-# BookWriter: desktop app for writing a book
+# Storyworks: desktop app for writing books and scripts
 
 ## Summary
 A greenfield desktop application for planning and writing a book. It combines a rich-text manuscript editor, branching timelines whose nodes can be linked to specific headings and paragraphs, a structured "rules of the world" page, a codex of characters/places/items, and PDF/DOCX export. Each book is a portable project on disk. The repo is currently empty, so this spec also defines the stack and project shape.
@@ -124,7 +124,7 @@ A greenfield desktop application for planning and writing a book. It combines a 
 - [ ] Creating a snapshot takes an optional message (default: timestamp). Snapshots record the full state of the project, so any snapshot can be inspected as a whole.
 - [ ] History view: list of snapshots (message, time, number of changed items); open one to see its changed items; view an item's content as of that snapshot; text diff against the current version or the previous snapshot.
 - [ ] Restore: restore a single item, or the whole project, to a snapshot state. Restoring first creates an automatic safety backup of the current state and asks for confirmation.
-- [ ] Snapshots are implemented with real git, embedded in the app via libgit2 (Rust `git2` crate, bundled/vendored so users do not need git installed, on Linux and Windows alike). The git directory is hidden inside the project folder (e.g. `.bookwriter/history.git`, listed in `project.json` as one entry) with the project folder as the work tree, so it travels with the book and does not collide with a git repository the user may keep in the same folder. Autosaved working files are never committed automatically; only the user's snapshots create commits.
+- [ ] Snapshots are implemented with real git, embedded in the app via libgit2 (Rust `git2` crate, bundled/vendored so users do not need git installed, on Linux and Windows alike). The git directory is hidden inside the project folder (e.g. `.storyworks/history.git`, listed in `project.json` as one entry) with the project folder as the work tree, so it travels with the book and does not collide with a git repository the user may keep in the same folder. Autosaved working files are never committed automatically; only the user's snapshots create commits.
 - [ ] The snapshot UI must not use git jargon. Wording: "Snapshot" (not commit), "Changes" (not staging area), "Include in snapshot" checkbox (not stage), "History", "Restore this version". No branches, remotes, merges or hashes shown in v1. Each snapshot shows its message, date and the list of changed items in plain words (e.g. "Chapter 3 – Scene 2: edited").
 - [ ] Automatic backups of the whole project at a configurable interval (default: on close and every 30 minutes while editing), keeping a configurable number of recent backups (default 20).
 - [ ] Trash for deleted scenes/chapters/entries, restorable.
@@ -170,7 +170,7 @@ A greenfield desktop application for planning and writing a book. It combines a 
 - [ ] Save-as dialog for the output path; success/failure message with "open folder" action.
 
 ### App safety and recovery
-- [ ] Single-writer lock: opening a book writes a lock file (`.bookwriter/book.lock`: machine name, process id, timestamp), refreshed every 30 seconds and removed on close. Opening a book whose lock is fresh (under 2 minutes old, or its process is alive on this machine) shows "This book is open elsewhere" with options "Open read-only" and "Cancel". A stale lock is taken over silently with a note.
+- [ ] Single-writer lock: opening a book writes a lock file (`.storyworks/project.lock`: machine name, process id, timestamp), refreshed every 30 seconds and removed on close. Opening a book whose lock is fresh (under 2 minutes old, or its process is alive on this machine) shows "This book is open elsewhere" with options "Open read-only" and "Cancel". A stale lock is taken over silently with a note.
 - [ ] External-change detection: while a book is open, watch the project folder. If an open item's file changes on disk (cloud sync, git pull, hand edit): with no unsaved in-app edits, reload it silently; with unsaved edits, ask "Reload from disk" or "Keep my version". App's own writes are ignored (compare content hash). If `project.json` changes externally, offer to reload the book structure.
 - [ ] Crash-safe startup: the app writes a "running" marker in its data directory and removes it on clean exit. If the marker is found at startup, show "The app closed unexpectedly", offer to reopen the last book, verify its files against their schemas, and offer the latest automatic backup if any file is invalid.
 - [ ] Local diagnostics log: rolling log files in the app data directory (last 5 files, up to 1 MB each) recording errors and key events (no manuscript text). Help menu: "Open log folder". Nothing is ever sent anywhere.
@@ -343,7 +343,7 @@ Reference mockups: the Artifact "BookWriter UI Directions" (boards "C · Worksho
 - **UI direction "C · Workshop"** (user decision): sidebar with section colours, header band, centred sheet, collapsible context panel; chosen over the dark icon-rail layout (A) and the margin-notes layout (B) as the most comfortable. Light and dark themes both supported.
 - **Knowledge is assigned to characters and tied to the timeline** (user decision): editable from the character page, the knowledge item page and the timeline node.
 - **App-level settings** (theme, zoom, shortcuts, language) live in the app data directory, not in the book.
-- **App name and identifier** (user decision): `BookWriter`, `io.github.mainskown.bookwriter`. The identifier fixes the app-data path, so it should not change.
+- **App name and identifier** (user decision): `Storyworks`, `io.github.mainskown.storyworks` (renamed from `BookWriter` before any release, when scripts joined v1). The identifier fixes the app-data path, so it should not change.
 
 ## Open questions
 - Should staging go below item level (per paragraph / per change hunk) later? Assumed no for v1.
@@ -357,4 +357,4 @@ Reference mockups: the Artifact "BookWriter UI Directions" (boards "C · Worksho
 - Verify at implementation time that `pdfmake` meets the PDF needs (TOC with page numbers, justified text, headers, images). It has no native footnotes as far as I know, hence the end-of-chapter notes fallback in PDF; if that is unacceptable, switch the PDF exporter to Typst or another engine.
 
 ## Relevant code
-- None: the repository at `/home/mainskown/Pulpit/Coding/BookWriter` is empty (not a git repository) at the time of writing. Everything above is new.
+- None: the repository at `/home/mainskown/Pulpit/Coding/Storyworks` is empty (not a git repository) at the time of writing. Everything above is new.

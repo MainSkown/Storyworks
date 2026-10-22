@@ -1,11 +1,11 @@
 [package]
-name = "bookwriter"
+name = "storyworks"
 version = "0.1.0"
-description = "BookWriter"
+description = "Storyworks"
 edition = "2021"
 
 [lib]
-name = "bookwriter_lib"
+name = "storyworks_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

@@ -26,7 +26,7 @@ const settings = (over = {}) =>
 async function shot(name, route, over) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } })
   const page = await ctx.newPage()
-  await page.addInitScript((s) => localStorage.setItem('bookwriter:settings.json', s), settings(over))
+  await page.addInitScript((s) => localStorage.setItem('storyworks:settings.json', s), settings(over))
   const errors = []
   page.on('pageerror', (e) => errors.push(e.message))
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))

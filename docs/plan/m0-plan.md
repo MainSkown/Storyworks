@@ -4,7 +4,7 @@ Scope and "Done when" are in [milestones.md](milestones.md#m0--foundation-and-ap
 Difficulty tags: **T** trivial → Haiku · **N** normal → Sonnet. Nothing in M0 is "hard".
 
 ## Decisions to settle first
-- **App name / identifier:** decided by the user: `BookWriter`, `io.github.mainskown.bookwriter` (recorded in the spec).
+- **App name / identifier:** decided by the user: `Storyworks`, `io.github.mainskown.storyworks` (renamed from BookWriter before release; recorded in the spec).
 - **Package manager:** yarn (1.22 classic, installed); commit `yarn.lock`.
 - **Rust toolchain is missing** on this machine (`cargo`/`rustc` not found; webkit2gtk-4.1 is present). User must install via rustup before step 1 can build the Tauri shell.
 - **Zoom:** scale the root `font-size` (all sizes in `rem`), not CSS `zoom`; works the same in WebKitGTK and WebView2.

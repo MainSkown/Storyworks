@@ -1,5 +1,5 @@
 {
-  "app": { "name": "BookWriter" },
+  "app": { "name": "Storyworks" },
   "sections": {
     "write": "Pisanie",
     "timelines": "Osie czasu",
@@ -38,7 +38,7 @@
     "placeholder": "Wkrótce"
   },
   "welcome": {
-    "title": "Witaj w BookWriter",
+    "title": "Witaj w Storyworks",
     "newBook": "Nowa książka",
     "openBook": "Otwórz książkę",
     "recent": "Ostatnie książki",
@@ -64,7 +64,7 @@
     "samplePreview": "Podgląd",
     "readOnlyHint": "Ustawienia są tylko do odczytu.",
     "loadError": "Plik ustawień jest nieprawidłowy i nie został wczytany.",
-    "readOnlyNewer": "Ten plik ustawień zapisała nowsza wersja BookWriter i jest tylko do odczytu."
+    "readOnlyNewer": "Ten plik ustawień zapisała nowsza wersja Storyworks i jest tylko do odczytu."
   },
   "a11y": {
     "skipToContent": "Przejdź do treści",

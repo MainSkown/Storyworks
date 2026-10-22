@@ -1,7 +1,7 @@
-# BookWriter
+# Storyworks
 
 Desktop app for writing a book (Tauri + Vue 3 + TypeScript + Vite + Quasar, TipTap editor).
-Source of truth for what to build: `docs/features/book-writer-app.md`. Read the relevant section before starting; don't re-derive decisions listed there.
+Source of truth for what to build: `docs/features/storyworks-app.md`. Read the relevant section before starting; don't re-derive decisions listed there.
 
 ## Workflow
 

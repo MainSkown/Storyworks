@@ -3,5 +3,5 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .run(tauri::generate_context!())
-        .expect("error while running BookWriter");
+        .expect("error while running Storyworks");
 }

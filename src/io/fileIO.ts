@@ -26,7 +26,7 @@ export function createMemoryFileIO(initial: Record<string, string> = {}): Memory
   }
 }
 
-const LS_PREFIX = 'bookwriter:'
+const LS_PREFIX = 'storyworks:'
 
 /** Browser-only fallback (no Tauri). */
 export function createLocalStorageFileIO(): FileIO {

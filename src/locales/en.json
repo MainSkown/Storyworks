@@ -1,5 +1,5 @@
 {
-  "app": { "name": "BookWriter" },
+  "app": { "name": "Storyworks" },
   "sections": {
     "write": "Write",
     "timelines": "Timelines",
@@ -38,7 +38,7 @@
     "placeholder": "Coming soon"
   },
   "welcome": {
-    "title": "Welcome to BookWriter",
+    "title": "Welcome to Storyworks",
     "newBook": "New book",
     "openBook": "Open book",
     "recent": "Recent books",
@@ -64,7 +64,7 @@
     "samplePreview": "Preview",
     "readOnlyHint": "Settings are read-only.",
     "loadError": "The settings file is invalid and was not loaded.",
-    "readOnlyNewer": "This settings file was saved by a newer version of BookWriter and is read-only."
+    "readOnlyNewer": "This settings file was saved by a newer version of Storyworks and is read-only."
   },
   "a11y": {
     "skipToContent": "Skip to content",
