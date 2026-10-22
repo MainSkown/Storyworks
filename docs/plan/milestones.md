@@ -96,6 +96,7 @@ From an empty repository to the complete v1 described in [docs/features/storywor
 **Needs:** M1 (M2 not required).
 
 **Scope**
+- New books get the Gregorian calendar and one empty "Main timeline" (M1 creates only Chapter 1 and one scene); create them on open when missing.
 - Custom calendar in its own `calendar.json` with editor in Book settings and Gregorian preset; date entry/display/validation; flagging of dates that no longer fit after a calendar change; fallback when the file is missing or invalid.
 - Multiple timelines; nodes with title, description, optional date, colour/tag; edges forming a graph with branches and merges; cycle rejection in the flow view.
 - Branches: named and coloured, distinguishable by line style as well as colour.
@@ -137,6 +138,7 @@ From an empty repository to the complete v1 described in [docs/features/storywor
 **Needs:** M4.
 
 **Scope**
+- New books get the default rule categories (M1 creates none); create them on open when missing.
 - Rules page: categorised entries (title, category, description, tags, exceptions), category management, filter and search; links to nodes, codex entries and manuscript blocks with back-links.
 - Codex: user-defined entry types (starter set Character, Item, Place, Country, Town, Building; rename/recolour/delete), entries with name, image, rich-text notes, tags, **aliases**; links to nodes, rules and blocks with back-links.
 - Scene POV now resolvable to a Character entry.

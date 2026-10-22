@@ -345,6 +345,10 @@ Reference mockups: the Artifact "BookWriter UI Directions" (boards "C · Worksho
 - **App-level settings** (theme, zoom, shortcuts, language) live in the app data directory, not in the book.
 - **App name and identifier** (user decision): `Storyworks`, `io.github.mainskown.storyworks` (renamed from `BookWriter` before any release, when scripts joined v1). The identifier fixes the app-data path, so it should not change.
 
+- **Item file format (M1)**: every item file is `{ version, id, ...fields }`, pretty-printed with keys in schema order. Block IDs are `attrs.id` on ProseMirror nodes inside the scene `content` and must be unique per file. `project.json` indexes every area as generic `{ id, path, title? }` references (empty until the area exists), so later milestones add item-file schemas without a manifest migration. Fixed folders: `assets/`, `dictionaries/`, `.storyworks/` (lock, trash, backups, history).
+- **Trash (M1)**: deleting moves the item file to `.storyworks/trash/<id>/` and records it in the manifest `trash` list (original parent and position); IDs stay, so links un-break on restore. Deleting a chapter or part trashes its children as separate entries; restoring the container restores only the container.
+- **Lock freshness (M1)**: on the same machine a lock is live while its process is alive (whatever its age); on another machine it is live for under 2 minutes.
+
 ## Open questions
 - Should staging go below item level (per paragraph / per change hunk) later? Assumed no for v1.
 - Do codex entry types need custom fields (e.g. "population" for Town, "age" for Character)? Not discussed; assumed no for v1, only the common fields plus rich-text notes.
