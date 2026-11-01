@@ -24,7 +24,7 @@ export const Footnote = Node.create({
   },
 
   renderHTML() {
-    return ['span', { 'data-footnote': '', class: 'footnote' }, 0]
+    return ['span', { 'data-footnote': '', class: 'footnote', contenteditable: 'false' }, 0]
   },
 
   addCommands() {

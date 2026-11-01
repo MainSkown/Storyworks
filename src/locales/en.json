@@ -239,6 +239,7 @@
     "title": "Corkboard",
     "view": "Writing view",
     "editor": "Editor",
+    "corkboard": "Corkboard",
     "noSynopsis": "No synopsis",
     "emptyContainer": "No scenes yet. Drop a scene here.",
     "moved": "{title} moved",

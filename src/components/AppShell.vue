@@ -85,7 +85,7 @@ function colorStyle(s: AppSection) {
         <div class="book-title">
           {{ project.project?.manifest.title ?? t('sidebar.noProject') }}
         </div>
-        <div class="book-words">0 {{ t('sidebar.words') }}</div>
+        <div class="book-words">{{ project.wordCounts.get('') ?? 0 }} {{ t('sidebar.words') }}</div>
         <div v-if="project.project" class="book-status" role="status" aria-live="polite">
           <QIcon :name="statusIcon" aria-hidden="true" />
           {{ t(`status.${project.saveStatus}`) }}
@@ -182,6 +182,7 @@ function colorStyle(s: AppSection) {
 .shell {
   display: grid;
   grid-template-columns: 14.5rem minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
   height: 100vh;
   background: var(--bg-app);
   color: var(--text-primary);
@@ -310,12 +311,16 @@ function colorStyle(s: AppSection) {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
 }
 .band {
+  position: relative;
+  z-index: 11;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.25rem 1rem;
   min-height: 3rem;
   padding: 0.5rem 1rem;
   background: var(--sec);
@@ -326,9 +331,11 @@ function colorStyle(s: AppSection) {
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 .band-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 }
@@ -347,8 +354,19 @@ function colorStyle(s: AppSection) {
 .band-button:focus-visible {
   outline-color: var(--sec-on);
 }
+/* Too narrow for a third column: the context panel floats over the editor instead. */
+@media (max-width: 1100px) {
+  .shell:not(.focus) :deep(.context-panel) {
+    position: fixed;
+    inset-block: 3rem 0;
+    inset-inline-end: 0;
+    z-index: 10;
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
+  }
+}
 .central {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   outline: none;
 }

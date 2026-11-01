@@ -239,6 +239,7 @@
     "title": "Tablica",
     "view": "Widok pisania",
     "editor": "Edytor",
+    "corkboard": "Tablica",
     "noSynopsis": "Brak streszczenia",
     "emptyContainer": "Brak scen. Upuść tutaj scenę.",
     "moved": "Przeniesiono: {title}",

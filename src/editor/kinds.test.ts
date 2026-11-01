@@ -91,6 +91,19 @@ describe('book editor kind', () => {
     expect(new Set(ids).size).toBe(3)
   })
 
+  it('leaves the cursor after an inserted scene break so typing does not replace it', () => {
+    const editor = new Editor({
+      extensions: editorKinds.book!.extensions(),
+      content: { type: 'doc', content: [{ type: 'paragraph' }] },
+    })
+    editors.push(editor)
+    editor.commands.focus('end')
+    editor.chain().setSceneBreak().insertContent('after').run()
+    const types = editor.getJSON().content!.map((n) => n.type)
+    expect(types).toContain('sceneBreak')
+    expect(JSON.stringify(editor.getJSON())).toContain('after')
+  })
+
   it('rejects a duplicate id through the scene schema', () => {
     const dup = {
       type: 'doc',

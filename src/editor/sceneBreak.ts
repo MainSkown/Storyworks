@@ -1,4 +1,5 @@
 import { mergeAttributes, Node } from '@tiptap/core'
+import { TextSelection } from '@tiptap/pm/state'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -25,8 +26,18 @@ export const SceneBreak = Node.create({
     return {
       setSceneBreak:
         () =>
-        ({ commands }) =>
-          commands.insertContent({ type: this.name }),
+        ({ chain }) =>
+          chain()
+            .insertContent({ type: this.name })
+            // Leave the cursor in the text after the break; a selected break would be replaced by typing.
+            .command(({ tr, state }) => {
+              const pos = tr.selection.to
+              if (!tr.doc.resolve(pos).nodeAfter)
+                tr.insert(pos, state.schema.nodes.paragraph!.create())
+              tr.setSelection(TextSelection.near(tr.doc.resolve(pos), 1))
+              return true
+            })
+            .run(),
     }
   },
 })

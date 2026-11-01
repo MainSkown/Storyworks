@@ -78,6 +78,8 @@ watch(locked, refreshEditable)
 // ---- footnote popover ----
 const footnote = ref<{ pos: number; text: string; x: number; y: number } | null>(null)
 
+const POPOVER_HEIGHT = 150
+
 function openFootnote(pos: number): void {
   const ed = editor.value
   const node = ed?.state.doc.nodeAt(pos)
@@ -88,7 +90,11 @@ function openFootnote(pos: number): void {
     pos,
     text: node.textContent,
     x: Math.max(8, Math.min(rect?.left ?? 8, window.innerWidth - 328)),
-    y: (rect?.bottom ?? 0) + 6,
+    // Flip above the footnote when the popover would run off the bottom of the window.
+    y:
+      (rect?.bottom ?? 0) + POPOVER_HEIGHT + 6 > window.innerHeight
+        ? Math.max(8, (rect?.top ?? 0) - POPOVER_HEIGHT - 6)
+        : (rect?.bottom ?? 0) + 6,
   }
 }
 
@@ -428,12 +434,12 @@ onBeforeUnmount(() => {
 .scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 1.5rem 1rem 3rem;
+  padding: 1.5rem 0.75rem 3rem;
   background: var(--bg-editor);
 }
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 37.5rem) minmax(12rem, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 37.5rem) minmax(10rem, 1fr);
   min-height: 100%;
 }
 .rail {
@@ -513,7 +519,15 @@ onBeforeUnmount(() => {
 .content :deep(.scene-break.ProseMirror-selectednode) {
   outline: 2px solid var(--focus-ring);
 }
+.content :deep(.image-node) {
+  width: fit-content;
+  max-width: 100%;
+}
+.content :deep(.image-node.is-missing) {
+  width: auto;
+}
 .content :deep(img) {
+  display: block;
   max-width: 100%;
 }
 .content :deep(.image-node.is-missing img) {
