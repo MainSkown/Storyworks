@@ -4,6 +4,186 @@
   "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
   "milestones": [
     {
+      "id": "m4",
+      "title": "M4 · Linking text to events",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Link a paragraph to an event",
+          "intro": "Select paragraphs, press Link to event (Ctrl+Shift+K), pick an event. A diamond with a count appears in the left margin.",
+          "figures": [
+            {
+              "img": "shots/m4/01-editor-no-links-light.png",
+              "alt": "Editor, no links",
+              "bold": "Before linking.",
+              "muted": "Plain scene; the toolbar fits one row at 1280 wide (Link to event shows its label when wide enough, icon-only otherwise). With no comments the sheet is centred and uses the width."
+            },
+            {
+              "img": "shots/m4/03-picker-light.png",
+              "alt": "Event picker, light",
+              "bold": "Picker.",
+              "muted": "Search, events grouped by timeline, arrows and Enter."
+            },
+            {
+              "img": "shots/m4/03-picker-dark.png",
+              "alt": "Event picker, dark",
+              "bold": "Picker, dark."
+            },
+            {
+              "img": "shots/m4/08-editor-markers-badges-light.png",
+              "alt": "Editor with markers and badges",
+              "bold": "Linked paragraphs.",
+              "muted": "Diamond and count per paragraph; several paragraphs linked in one go."
+            },
+            {
+              "img": "shots/m4/08-editor-markers-badges-dark.png",
+              "alt": "Editor with markers and badges, dark",
+              "bold": "Linked paragraphs, dark."
+            },
+            {
+              "img": "shots/m4/05-badge-popover-light.png",
+              "alt": "Badge popover",
+              "bold": "Badge popover.",
+              "muted": "Event, date, timeline; Jump or Unlink."
+            },
+            {
+              "img": "shots/m4/05-badge-popover-dark.png",
+              "alt": "Badge popover, dark",
+              "bold": "Badge popover, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Context panel: This paragraph",
+          "intro": "The placeholder section now shows the events linked to the paragraph with the cursor.",
+          "figures": [
+            {
+              "img": "shots/m2/07-scene-properties.png",
+              "alt": "Write context panel before M4",
+              "bold": "Before (M3).",
+              "muted": "This paragraph, In this scene and Problems were placeholders."
+            },
+            {
+              "img": "shots/m4/02-this-paragraph-empty-light.png",
+              "alt": "This paragraph, empty",
+              "bold": "After, no links.",
+              "muted": "Link to event button in the panel."
+            },
+            {
+              "img": "shots/m4/04-this-paragraph-linked-light.png",
+              "alt": "This paragraph, linked",
+              "bold": "After, linked.",
+              "muted": "Event card with Jump and Unlink."
+            },
+            {
+              "img": "shots/m4/04-this-paragraph-linked-dark.png",
+              "alt": "This paragraph, linked, dark",
+              "bold": "After, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Follow a link both ways",
+          "intro": "Jump goes from the paragraph to the event in Timelines; Written in lists the passages and jumps back, highlighting the paragraph.",
+          "figures": [
+            {
+              "img": "shots/m3/10-flow-light.png",
+              "alt": "Timelines context panel before M4",
+              "bold": "Before (M3).",
+              "muted": "Written in was a placeholder under the inspector."
+            },
+            {
+              "img": "shots/m4/06-written-in-light.png",
+              "alt": "Written in panel",
+              "bold": "After, Written in.",
+              "muted": "Scene title and a snippet of the passage; Jump."
+            },
+            {
+              "img": "shots/m4/06-written-in-dark.png",
+              "alt": "Written in panel, dark",
+              "bold": "After, dark."
+            },
+            {
+              "img": "shots/m4/07-jump-back-light.png",
+              "alt": "Jump back to the paragraph",
+              "bold": "Back in the text.",
+              "muted": "Paragraph briefly highlighted."
+            },
+            {
+              "img": "shots/m4/13-cut-paste-link-follows-light.png",
+              "alt": "Link after cut and paste",
+              "bold": "Cut and paste.",
+              "muted": "A linked paragraph moved to another scene keeps its link."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Deleting and repairing",
+          "intro": "Delete confirms say how many linked passages will break. Links are never removed: they show as broken and come back when the event is restored.",
+          "figures": [
+            {
+              "img": "shots/m4/09-delete-confirm-counts-light.png",
+              "alt": "Delete event confirm with link count",
+              "bold": "Delete event.",
+              "muted": "Says how many linked passages will show as broken."
+            },
+            {
+              "img": "shots/m4/09-delete-confirm-counts-dark.png",
+              "alt": "Delete event confirm, dark",
+              "bold": "Delete event, dark."
+            },
+            {
+              "img": "shots/m4/14-scene-delete-confirm-light.png",
+              "alt": "Delete scene confirm with link count",
+              "bold": "Delete scene.",
+              "muted": "Same count for a scene with linked passages."
+            },
+            {
+              "img": "shots/m4/10-broken-marker-problems-light.png",
+              "alt": "Broken marker and Problems panel",
+              "bold": "Broken link.",
+              "muted": "Red triangle marker; Problems lists it with Relink and Remove."
+            },
+            {
+              "img": "shots/m4/10-broken-marker-problems-dark.png",
+              "alt": "Broken marker and Problems panel, dark",
+              "bold": "Broken link, dark."
+            },
+            {
+              "img": "shots/m4/11-broken-popover-light.png",
+              "alt": "Broken link popover",
+              "bold": "Broken popover.",
+              "muted": "Missing event with Relink and Remove."
+            },
+            {
+              "img": "shots/m4/12-trash-event-light.png",
+              "alt": "Trash with an event",
+              "bold": "Trash.",
+              "muted": "Event row names its timeline; Restore repairs the links."
+            },
+            {
+              "img": "shots/m4/12-trash-event-dark.png",
+              "alt": "Trash with an event, dark",
+              "bold": "Trash, dark."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Driven through the UI in the browser build, Light and Dark: link one paragraph, link two selected paragraphs, badge popover, Jump to the event, Written in lists the passage, Jump back.",
+            "Delete the event: confirm shows the count, marker turns broken, Problems lists it; restore from Trash repairs it; relink a broken link; cut and paste a linked paragraph into another scene and the link follows.",
+            "Keyboard: Enter on a marker opens the popover, Escape closes it. 27 checks per theme pass, no console errors.",
+            "Not yet checked: the real Tauri window (link, close, reopen, inspect files)."
+          ]
+        }
+      ]
+    },
+    {
       "id": "m3",
       "title": "M3 · Timelines and calendar",
       "sections": [
