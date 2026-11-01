@@ -345,7 +345,7 @@ function colorStyle(s: AppSection) {
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border: 1px solid currentColor;
+  border: 1px solid var(--sec-on);
   border-radius: 0.375rem;
   background: transparent;
   color: inherit;

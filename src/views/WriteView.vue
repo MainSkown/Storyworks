@@ -253,7 +253,7 @@ watch(corkboard, (v) => {
 .band-focus {
   height: 2rem;
   padding: 0 0.5rem;
-  border: 1px solid currentColor;
+  border: 1px solid var(--sec-on);
   border-radius: 0.375rem;
   background: transparent;
   color: inherit;
@@ -269,7 +269,7 @@ watch(corkboard, (v) => {
   gap: 0.25rem;
   height: 2rem;
   padding: 0 0.5rem;
-  border: 1px solid currentColor;
+  border: 1px solid var(--sec-on);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -308,9 +308,11 @@ watch(corkboard, (v) => {
   background: var(--section-write-on);
   color: var(--section-write);
 }
+/* Dim only the content (Quasar fades the whole disabled button): a faded border looks thinner. */
 .band-select:disabled,
 .band-focus:disabled {
-  opacity: 0.6;
+  opacity: 1 !important;
+  color: color-mix(in srgb, var(--sec-on) 60%, transparent);
   cursor: default;
 }
 .band-select:focus-visible,
