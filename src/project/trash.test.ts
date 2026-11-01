@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createMemoryProjectIO, type MemoryProjectIO } from './io/memory'
 import { createProject, openProject } from './open'
 import { manifestSchema, type Manifest } from './schemas/manifest'
-import { sceneSchema } from './schemas/scene'
+import { sceneSchema, SCENE_VERSION } from './schemas/scene'
 import { parseFile, serialize } from './serialize'
 import type { Env, OpenProject } from './types'
 
@@ -15,7 +15,7 @@ function makeEnv(): Env {
 
 const sceneFile = (id: string, title: string) =>
   serialize(sceneSchema, {
-    version: 1,
+    version: SCENE_VERSION,
     id,
     title,
     synopsis: '',

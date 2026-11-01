@@ -1,0 +1,17 @@
+/* Footnote numbers are derived, never stored. */
+.ProseMirror {
+  counter-reset: footnote;
+}
+.ProseMirror .footnote {
+  counter-increment: footnote;
+  font-size: 0;
+}
+.ProseMirror .footnote::after {
+  content: counter(footnote);
+  font-size: 0.75rem;
+  vertical-align: super;
+  cursor: pointer;
+}
+.ProseMirror .comment {
+  background: var(--sw-comment-bg, rgba(255, 200, 0, 0.25));
+}

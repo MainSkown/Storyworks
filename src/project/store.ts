@@ -1,4 +1,4 @@
-import { computed, ref, shallowRef } from 'vue'
+import { computed, ref, shallowRef, triggerRef } from 'vue'
 import { defineStore } from 'pinia'
 import type { z } from 'zod'
 import { createAutosaver, type Autosaver, type SaveStatus } from './autosave'
@@ -9,6 +9,8 @@ import { createProjectLock, type ProjectLock } from './lock'
 import { MANIFEST_FILE } from './migrations'
 import { createProject, defaultEnv, openProject, readOnlyReasonOf } from './open'
 import { createProjectIO } from './io'
+import { rollUp } from '../editor/wordCount'
+import { moveTo } from './tree'
 import { isTauri } from './pickFolder'
 import {
   MANIFEST_VERSION,
@@ -33,6 +35,21 @@ import type {
   ReloadResult,
   TrashEntry,
 } from './types'
+
+/** What the tree needs to know about a scene, kept in memory so it never reads files per render. */
+export interface SceneMeta {
+  status: Scene['status']
+  synopsis: string
+  povId: string | undefined
+  wordCount: number
+}
+
+const metaOfScene = (sc: Scene): SceneMeta => ({
+  status: sc.status,
+  synopsis: sc.synopsis,
+  povId: sc.povId,
+  wordCount: sc.wordCount,
+})
 
 let ioFactory: (root: string) => ProjectIO = createProjectIO
 export function setProjectIOFactory(factory: (root: string) => ProjectIO): void {
@@ -185,6 +202,9 @@ export const useProjectStore = defineStore('project', () => {
   const linkRevision = ref(0)
   const epoch = ref(0)
   const itemVersions = ref<Record<string, number>>({})
+  /** scene id -> metadata; mutated in place, then triggerRef (cheap for hundreds of scenes) */
+  const sceneMeta = shallowRef(new Map<string, SceneMeta>())
+  const selectedId = ref<string | null>(null)
 
   const readOnly = computed(() => project.value?.readOnly ?? null)
   const tree = computed<ManuscriptNode[]>(() => {
@@ -194,6 +214,12 @@ export const useProjectStore = defineStore('project', () => {
   const trash = computed<TrashEntry[]>(() => {
     void revision.value
     return project.value?.manifest.trash ?? []
+  })
+  /** Words per node id (containers sum their scenes); the book total is under ''. */
+  const wordCounts = computed(() => {
+    const counts = new Map<string, number>()
+    for (const [id, m] of sceneMeta.value) counts.set(id, m.wordCount)
+    return rollUp(tree.value, counts)
   })
   const brokenLinkCount = computed(() => {
     void revision.value
@@ -257,10 +283,29 @@ export const useProjectStore = defineStore('project', () => {
     return text === null ? null : parseFile(sceneSchema, text, path)
   }
 
+  /** Sets or drops one index entry; true when something changed. Callers trigger. */
+  function putMeta(id: string, scene: Scene | null): boolean {
+    const map = sceneMeta.value
+    if (!scene) return map.delete(id)
+    const next = metaOfScene(scene)
+    const cur = map.get(id)
+    if (
+      cur &&
+      cur.status === next.status &&
+      cur.synopsis === next.synopsis &&
+      cur.povId === next.povId &&
+      cur.wordCount === next.wordCount
+    )
+      return false
+    map.set(id, next)
+    return true
+  }
+
   async function indexScene(s: Session, id: string, path: string): Promise<void> {
     const r = await readScene(s.io, path)
     if (r?.ok) s.index.setLinks(id, r.value.links)
     else s.index.removeOwner(id)
+    putMeta(id, r?.ok ? r.value : null)
   }
 
   async function rebuildLinks(s: Session, p: OpenProject): Promise<void> {
@@ -273,6 +318,7 @@ export const useProjectStore = defineStore('project', () => {
     }
     walk(p.manifest.manuscript)
     await Promise.all(scenes.map((n) => indexScene(s, n.id, n.path as string)))
+    triggerRef(sceneMeta)
     linkRevision.value++
   }
 
@@ -318,6 +364,7 @@ export const useProjectStore = defineStore('project', () => {
         setItemIssue(path, res)
         bumpItem(path)
         await indexScene(s, nodeIdOfPath(path), path)
+        triggerRef(sceneMeta)
         linkRevision.value++
       },
       onEvent: (e: ChangeEvent) => {
@@ -350,6 +397,8 @@ export const useProjectStore = defineStore('project', () => {
     externalPrompts.value = []
     manifestChanged.value = false
     itemVersions.value = {}
+    sceneMeta.value = new Map()
+    selectedId.value = null
     revision.value++
     saveStatus.value = 'saved'
 
@@ -495,6 +544,8 @@ export const useProjectStore = defineStore('project', () => {
     externalPrompts.value = []
     manifestChanged.value = false
     itemVersions.value = {}
+    sceneMeta.value = new Map()
+    selectedId.value = null
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -525,6 +576,7 @@ export const useProjectStore = defineStore('project', () => {
       const scene = value as Scene
       s.index.setLinks(scene.id, scene.links)
       linkRevision.value++
+      if (putMeta(scene.id, scene)) triggerRef(sceneMeta)
     }
     mark(path)
     return true
@@ -555,6 +607,7 @@ export const useProjectStore = defineStore('project', () => {
     setItemIssue(path, await p.reloadItem(path))
     bumpItem(path)
     await indexScene(s, nodeIdOfPath(path), path)
+    triggerRef(sceneMeta)
     linkRevision.value++
     refreshStatus()
   }
@@ -585,6 +638,7 @@ export const useProjectStore = defineStore('project', () => {
       content: { type: 'doc', content: [] },
     })
     await p.saveItem(path, sceneSchema, scene)
+    if (session && putMeta(id, scene)) triggerRef(sceneMeta)
     const node: ManuscriptNode = { id, type: 'scene', title, path, children: [] }
     setManuscript(
       parentId === null
@@ -592,6 +646,59 @@ export const useProjectStore = defineStore('project', () => {
         : mapNode(manuscript, parentId, (n) => ({ ...n, children: [...n.children, node] })),
     )
     return id
+  }
+
+  function addContainer(type: 'part' | 'chapter', parentId: string | null, title: string): string {
+    const p = assertWritable()
+    const manuscript = p.manifest.manuscript
+    const parent = parentId === null ? null : findNode(manuscript, parentId)
+    if (parentId !== null && !parent) throw new Error(`Unknown parent ${parentId}`)
+    if (type === 'part' ? parent : parent && parent.type !== 'part')
+      throw new Error(`Cannot add a ${type} under ${parentId}`)
+    const node: ManuscriptNode = { id: newId(), type, title, children: [] }
+    setManuscript(
+      parent
+        ? mapNode(manuscript, parent.id, (n) => ({ ...n, children: [...n.children, node] }))
+        : [...manuscript, node],
+    )
+    return node.id
+  }
+
+  async function addPart(title = 'New part'): Promise<string> {
+    return addContainer('part', null, title)
+  }
+
+  /** At the root, or inside the given part. */
+  async function addChapter(
+    parentId: string | null = null,
+    title = 'New chapter',
+  ): Promise<string> {
+    return addContainer('chapter', parentId, title)
+  }
+
+  /** Re-nests or reorders. `index` is the final position among the new parent's children. false = invalid move. */
+  async function moveItem(id: string, parentId: string | null, index: number): Promise<boolean> {
+    const p = assertWritable()
+    const next = moveTo(p.manifest.manuscript, id, parentId, index)
+    if (!next) return false
+    setManuscript(next)
+    return true
+  }
+
+  /** Writes status and/or synopsis to the scene file (autosaved). false = refused. */
+  async function setSceneMeta(
+    id: string,
+    patch: { status?: Scene['status']; synopsis?: string },
+  ): Promise<boolean> {
+    const p = assertWritable()
+    const node = findNode(p.manifest.manuscript, id)
+    if (!node || node.type !== 'scene' || !node.path || p.isInvalid(node.path)) return false
+    const cur = await loadScene(node.path)
+    if (!cur.ok) return false
+    const next = { ...cur.value }
+    if (patch.status !== undefined) next.status = patch.status
+    if (patch.synopsis !== undefined) next.synopsis = patch.synopsis
+    return updateItem(node.path, sceneSchema, next)
   }
 
   async function rename(id: string, title: string): Promise<void> {
@@ -623,9 +730,12 @@ export const useProjectStore = defineStore('project', () => {
     const gone = p.manifest.trash.filter((t) => t.deletedAt === entry.deletedAt)
     for (const t of gone) {
       s.index.removeOwner(t.id)
+      putMeta(t.id, null)
       s.pending.delete(t.originalPath)
     }
     const goneIds = new Set(gone.map((t) => t.id))
+    triggerRef(sceneMeta)
+    if (selectedId.value && goneIds.has(selectedId.value)) selectedId.value = null
     issues.value = issues.value.filter(
       (i) => !((i.kind === 'missing' || i.kind === 'invalid') && goneIds.has(i.itemId)),
     )
@@ -642,6 +752,7 @@ export const useProjectStore = defineStore('project', () => {
     if (node?.path) {
       if (await s.io.exists(node.path)) await indexScene(s, id, node.path)
       else setItemIssue(node.path, { status: 'missing' })
+      triggerRef(sceneMeta)
     }
     linkRevision.value++
   }
@@ -673,6 +784,7 @@ export const useProjectStore = defineStore('project', () => {
     manifestChanged.value = false
     epoch.value++
     itemVersions.value = {}
+    sceneMeta.value = new Map()
     revision.value++
     saveStatus.value = 'saved'
     await s.watcher.start().catch((e) => console.error(e))
@@ -748,6 +860,9 @@ export const useProjectStore = defineStore('project', () => {
     manifestChanged,
     trash,
     tree,
+    sceneMeta,
+    wordCounts,
+    selectedId,
     brokenLinkCount,
     create,
     open,
@@ -758,6 +873,10 @@ export const useProjectStore = defineStore('project', () => {
     loadScene,
     itemVersion,
     addScene,
+    addPart,
+    addChapter,
+    moveItem,
+    setSceneMeta,
     rename,
     moveUpDown,
     deleteItem,

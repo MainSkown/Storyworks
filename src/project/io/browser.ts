@@ -1,4 +1,5 @@
 import type { ProjectIO } from '../types'
+import { fromBase64, toBase64 } from './base64'
 
 const PREFIX = 'storyworks:project:'
 const META = 'storyworks:projectmeta:'
@@ -39,6 +40,13 @@ export function createBrowserProjectIO(rootName: string): ProjectIO {
     },
     async writeTextAtomic(path, text) {
       put(path, text)
+    },
+    async writeBytes(path, bytes) {
+      put(path, toBase64(bytes))
+    },
+    async readBytes(path) {
+      const text = localStorage.getItem(key(path))
+      return text === null ? null : fromBase64(text)
     },
     async exists(path) {
       return localStorage.getItem(key(path)) !== null

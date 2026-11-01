@@ -41,6 +41,14 @@ describe.each(impls)('ProjectIO contract: %s', (_name, make) => {
     expect(await io.exists('a/b.json')).toBe(true)
   })
 
+  it('round-trips binary bytes and reads null when missing', async () => {
+    const bytes = new Uint8Array([0, 1, 127, 128, 200, 255])
+    expect(await io.readBytes('assets/a.png')).toBeNull()
+    await io.writeBytes('assets/a.png', bytes)
+    expect(await io.readBytes('assets/a.png')).toEqual(bytes)
+    expect(await io.exists('assets/a.png')).toBe(true)
+  })
+
   it('overwrites an existing file', async () => {
     await io.writeTextAtomic('f.json', 'old')
     await io.writeTextAtomic('f.json', 'new')

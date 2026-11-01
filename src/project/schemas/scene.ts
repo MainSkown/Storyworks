@@ -1,8 +1,21 @@
 import { z } from 'zod'
 
-export const SCENE_VERSION = 1
+export const SCENE_VERSION = 2
 
 export const sceneStatusSchema = z.enum(['idea', 'draft', 'revising', 'final'])
+
+export const commentSchema = z.strictObject({
+  id: z.string(),
+  text: z.string(),
+  createdAt: z.string(),
+  resolved: z.boolean(),
+})
+
+export const todoSchema = z.strictObject({
+  id: z.string(),
+  text: z.string(),
+  done: z.boolean(),
+})
 
 const linkRefSchema = z.strictObject({ item: z.string(), block: z.string().optional() })
 
@@ -32,7 +45,8 @@ export const sceneSchema = z
     povId: z.string().optional(),
     wordCount: z.number().int().min(0).default(0),
     content: z.record(z.string(), z.unknown()),
-    comments: z.array(z.looseObject({ id: z.string() })).default([]),
+    todos: z.array(todoSchema).default([]),
+    comments: z.array(commentSchema).default([]),
     links: z.array(linkSchema).default([]),
   })
   .refine((s) => new Set(blockIds(s.content)).size === blockIds(s.content).length, {

@@ -39,6 +39,11 @@
   --tag-problem: #a8403a;
   --tag-problem-on: #ffffff;
 
+  --status-idea: #5e5a52;
+  --status-draft: #a4560f;
+  --status-revising: #7a4e8c;
+  --status-final: #3e7b5a;
+
   --ui-zoom: 1;
   --editor-font-size: 16.5px;
 }
@@ -81,4 +86,9 @@
   --tag-scene-on: #14120f;
   --tag-problem: #e0746b;
   --tag-problem-on: #14120f;
+
+  --status-idea: #a39e92;
+  --status-draft: #e58a3a;
+  --status-revising: #b98fcb;
+  --status-final: #5fb587;
 }

@@ -39,6 +39,20 @@ export function createTauriProjectIO(rootDir: string): ProjectIO {
       await writeTextFile(tmp, text)
       await rename(tmp, p)
     },
+    async writeBytes(path, bytes) {
+      const { writeFile, rename, mkdir } = await fs()
+      const p = abs(path)
+      await mkdir(parentOf(p), { recursive: true })
+      const tmp = `${p}.tmp`
+      await writeFile(tmp, bytes)
+      await rename(tmp, p)
+    },
+    async readBytes(path) {
+      const { readFile, exists } = await fs()
+      const p = abs(path)
+      if (!(await exists(p))) return null
+      return readFile(p)
+    },
     async exists(path) {
       const { exists } = await fs()
       return exists(abs(path))

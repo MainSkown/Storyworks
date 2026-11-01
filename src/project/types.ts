@@ -6,6 +6,10 @@ export interface ProjectIO {
   readText(path: string): Promise<string | null>
   /** temp file + rename; never leaves a half-written target */
   writeTextAtomic(path: string, text: string): Promise<void>
+  /** binary counterpart of writeTextAtomic */
+  writeBytes(path: string, bytes: Uint8Array): Promise<void>
+  /** null when the file does not exist */
+  readBytes(path: string): Promise<Uint8Array | null>
   exists(path: string): Promise<boolean>
   /** all files under dir, recursively, as root-relative paths */
   listFiles(dir: string): Promise<string[]>
@@ -37,7 +41,7 @@ export type Issue =
 
 export interface TrashEntry {
   id: string
-  type: 'part' | 'chapter' | 'scene'
+  type: 'part' | 'chapter' | 'scene' | 'note'
   title: string
   originalPath: string
   trashPath: string

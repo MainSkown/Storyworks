@@ -8,6 +8,7 @@ import { useSettingsStore } from '../settings/store'
 import { usePanelShortcut } from '../composables/panelShortcut'
 import { useProjectStore } from '../project/store'
 import ContextPanel from './ContextPanel.vue'
+import OutlineTree from './OutlineTree.vue'
 import ProjectBanners from './ProjectBanners.vue'
 
 const { t } = useI18n()
@@ -84,7 +85,15 @@ function colorStyle(s: AppSection) {
                 <span class="nav-label">{{ t(s.i18nKey) }}</span>
                 <span v-if="s.id === 'checks'" class="badge-slot" />
               </RouterLink>
-              <div v-if="s.id === active.id" class="expand">{{ t('sidebar.placeholder') }}</div>
+              <div
+                v-if="s.id === active.id && s.id === 'write' && project.project"
+                class="expand tree"
+              >
+                <OutlineTree />
+              </div>
+              <div v-else-if="s.id === active.id" class="expand">
+                {{ t('sidebar.placeholder') }}
+              </div>
             </li>
           </ul>
         </template>
@@ -234,6 +243,11 @@ function colorStyle(s: AppSection) {
   border-inline-start: 2px solid var(--sec);
   color: var(--text-secondary);
   font-size: 0.8125rem;
+}
+
+.expand.tree {
+  margin-inline-start: 1.25rem;
+  padding-inline-start: 0.375rem;
 }
 
 .main-column {

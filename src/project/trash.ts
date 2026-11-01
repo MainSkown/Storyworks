@@ -124,6 +124,7 @@ export async function restoreItemImpl(host: TrashHost, id: string): Promise<void
   const { manifest, io } = host
   const entry = manifest.trash.find((t) => t.id === id)
   if (!entry) throw new Error(`Cannot restore ${id}: not in the trash`)
+  if (entry.type === 'note') throw new Error(`Cannot restore ${id}: inbox notes are not in the tree`)
   if (entry.originalPath && (await io.exists(entry.originalPath))) {
     throw new Error(`Cannot restore ${id}: ${entry.originalPath} already exists`)
   }

@@ -2,6 +2,7 @@
 // TEMPORARY UI: M2 replaces this view with the TipTap editor.
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { storeToRefs } from 'pinia'
 import TrashDialog from '../components/TrashDialog.vue'
 import { docToText, textToDoc } from '../project/plainText'
 import { useProjectStore } from '../project/store'
@@ -29,7 +30,7 @@ const rows = computed<Row[]>(() => {
   return out
 })
 
-const selectedId = ref<string | null>(null)
+const { selectedId } = storeToRefs(store)
 const selected = computed(
   () => rows.value.find((r) => r.node.id === selectedId.value)?.node ?? null,
 )

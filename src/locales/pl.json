@@ -183,6 +183,27 @@
     "deleteBody": "„{title}” i cała jego zawartość trafią do kosza. Możesz je stamtąd przywrócić.",
     "kind": { "part": "Część", "chapter": "Rozdział", "scene": "Scena" }
   },
+  "outline": {
+    "addPart": "Dodaj część",
+    "addChapter": "Dodaj rozdział",
+    "newPart": "Nowa część",
+    "newChapter": "Nowy rozdział",
+    "filter": "Filtruj według statusu",
+    "allStatuses": "Wszystkie statusy",
+    "noMatch": "Brak scen o tym statusie.",
+    "status": {
+      "idea": "Pomysł",
+      "draft": "Szkic",
+      "revising": "Poprawki",
+      "final": "Ostateczna"
+    },
+    "statusLabel": "Status: {status}",
+    "words": "Słowa: {n}",
+    "expand": "Rozwiń {title}",
+    "collapse": "Zwiń {title}",
+    "moved": "Przeniesiono: {title}",
+    "keyboardHint": "Alt+strzałka w górę lub w dół zmienia kolejność, Alt+strzałka w lewo lub w prawo zmienia zagnieżdżenie, F2 zmienia nazwę, Delete usuwa."
+  },
   "trash": {
     "title": "Kosz",
     "empty": "Kosz jest pusty.",

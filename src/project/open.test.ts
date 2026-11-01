@@ -295,9 +295,9 @@ describe('forceReadOnly and reloadItem', () => {
     expect(r.project.readOnly).toEqual({ reason: 'locked-elsewhere' })
     await expect(r.project.saveManifest()).rejects.toThrow(/read-only/)
     const scene = loadScene(io, path)
-    await expect(
-      r.project.saveItem(path, sceneSchema, { ...scene, title: 'X' }),
-    ).rejects.toThrow(/read-only/)
+    await expect(r.project.saveItem(path, sceneSchema, { ...scene, title: 'X' })).rejects.toThrow(
+      /read-only/,
+    )
   })
 
   it('reloadItem takes the outside version as the known hash', async () => {

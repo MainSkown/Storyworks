@@ -183,6 +183,27 @@
     "deleteBody": "\"{title}\" and everything inside it will move to the trash. You can restore it from there.",
     "kind": { "part": "Part", "chapter": "Chapter", "scene": "Scene" }
   },
+  "outline": {
+    "addPart": "Add part",
+    "addChapter": "Add chapter",
+    "newPart": "New part",
+    "newChapter": "New chapter",
+    "filter": "Filter by status",
+    "allStatuses": "All statuses",
+    "noMatch": "No scenes with this status.",
+    "status": {
+      "idea": "Idea",
+      "draft": "Draft",
+      "revising": "Revising",
+      "final": "Final"
+    },
+    "statusLabel": "Status: {status}",
+    "words": "Words: {n}",
+    "expand": "Expand {title}",
+    "collapse": "Collapse {title}",
+    "moved": "{title} moved",
+    "keyboardHint": "Alt+Up or Down reorders, Alt+Left or Right changes nesting, F2 renames, Delete removes."
+  },
   "trash": {
     "title": "Trash",
     "empty": "The trash is empty.",

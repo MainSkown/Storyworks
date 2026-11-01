@@ -11,8 +11,53 @@ export interface Migration {
   migrate(files: Map<string, unknown>): Map<string, unknown>
 }
 
-/** Real migrations; empty while v1 is the first format. */
-export const migrations: Migration[] = []
+/** Scene file paths named by a raw manifest (live tree and trash). */
+function rawScenePaths(manifest: unknown): Set<string> {
+  const out = new Set<string>()
+  const walk = (nodes: unknown) => {
+    if (!Array.isArray(nodes)) return
+    for (const n of nodes as Record<string, unknown>[]) {
+      if (n?.type === 'scene' && typeof n.path === 'string') out.add(n.path)
+      walk(n?.children)
+    }
+  }
+  const m = manifest as { manuscript?: unknown; trash?: unknown }
+  walk(m?.manuscript)
+  if (Array.isArray(m?.trash))
+    for (const t of m.trash as Record<string, unknown>[])
+      if (t?.type === 'scene' && typeof t.trashPath === 'string') out.add(t.trashPath)
+  return out
+}
+
+/** v1 -> v2: scene `todos`, strict comment shape, manifest version. */
+const v1to2: Migration = {
+  from: 1,
+  to: 2,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, { ...manifest, version: 2 })
+    for (const path of rawScenePaths(manifest)) {
+      const scene = files.get(path) as Record<string, unknown> | undefined
+      if (!scene) continue
+      const comments = Array.isArray(scene.comments) ? scene.comments : []
+      out.set(path, {
+        ...scene,
+        version: 2,
+        todos: scene.todos ?? [],
+        comments: comments.map((c: Record<string, unknown>) => ({
+          id: c.id,
+          text: typeof c.text === 'string' ? c.text : '',
+          createdAt: typeof c.createdAt === 'string' ? c.createdAt : '',
+          resolved: typeof c.resolved === 'boolean' ? c.resolved : false,
+        })),
+      })
+    }
+    return out
+  },
+}
+
+export const migrations: Migration[] = [v1to2]
 
 export const MANIFEST_FILE = 'project.json'
 const INTERNAL_DIR = '.storyworks'

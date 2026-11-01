@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { createMemoryProjectIO, type MemoryProjectIO } from './io/memory'
-import type { Migration } from './migrations'
+import { migrations, type Migration } from './migrations'
 import { openProject, createProject } from './open'
-import { manifestSchema } from './schemas/manifest'
+import { manifestSchema, MANIFEST_VERSION } from './schemas/manifest'
 import { sceneSchema } from './schemas/scene'
 import { parseFile } from './serialize'
 import type { Env } from './types'
@@ -44,12 +44,12 @@ const rename: Migration = {
 const originals = (io: MemoryProjectIO) => new Map(io.files)
 
 describe('migrations', () => {
-  it('v0 fixture opens as v1', async () => {
+  it('v0 fixture opens as the current version', async () => {
     const io = await v0Project()
-    const r = await openProject(io, makeEnv(), { migrations: [rename] })
+    const r = await openProject(io, makeEnv(), { migrations: [rename, ...migrations] })
     expect(r.status).toBe('ok')
     if (r.status === 'ok') {
-      expect(r.project.manifest.version).toBe(1)
+      expect(r.project.manifest.version).toBe(MANIFEST_VERSION)
       expect(r.project.manifest.title).toBe('Old Book')
       expect(r.project.readOnly).toBeNull()
       expect(r.issues).toEqual([])
@@ -58,7 +58,7 @@ describe('migrations', () => {
 
   it('migrated files on disk validate against the current schemas', async () => {
     const io = await v0Project()
-    const r = await openProject(io, makeEnv(), { migrations: [rename] })
+    const r = await openProject(io, makeEnv(), { migrations: [rename, ...migrations] })
     if (r.status !== 'ok') throw new Error('open failed')
     expect(
       parseFile(manifestSchema, io.files.get('project.json') as string, 'project.json').ok,
@@ -69,7 +69,7 @@ describe('migrations', () => {
 
   it('a migrated project opens again without running migrations', async () => {
     const io = await v0Project()
-    await openProject(io, makeEnv(), { migrations: [rename] })
+    await openProject(io, makeEnv(), { migrations: [rename, ...migrations] })
     const boom: Migration = {
       from: 0,
       to: 1,
@@ -77,7 +77,7 @@ describe('migrations', () => {
         throw new Error('should not run')
       },
     }
-    const r = await openProject(io, makeEnv(), { migrations: [boom] })
+    const r = await openProject(io, makeEnv(), { migrations: [boom, ...migrations] })
     expect(r.status).toBe('ok')
   })
 
@@ -95,7 +95,7 @@ describe('migrations', () => {
       }
       return false
     }
-    await openProject(io, makeEnv(), { migrations: [rename] })
+    await openProject(io, makeEnv(), { migrations: [rename, ...migrations] })
     expect(backupSeenAtFirstWrite).toBe(true)
     const backupManifest = [...io.files.keys()].find(
       (k) => k.startsWith(BACKUP_V0) && k.endsWith('/project.json'),
@@ -114,7 +114,7 @@ describe('migrations', () => {
         throw new Error('boom')
       },
     }
-    const r = await openProject(io, makeEnv(), { migrations: [bad] })
+    const r = await openProject(io, makeEnv(), { migrations: [bad, ...migrations] })
     expect(r.status).toBe('migration-failed')
     expect(io.files).toEqual(before)
   })
@@ -131,7 +131,7 @@ describe('migrations', () => {
         return out
       },
     }
-    const r = await openProject(io, makeEnv(), { migrations: [bad] })
+    const r = await openProject(io, makeEnv(), { migrations: [bad, ...migrations] })
     expect(r.status).toBe('migration-failed')
     expect(io.files).toEqual(before)
   })
@@ -145,7 +145,7 @@ describe('migrations', () => {
       writes++
       return writes === 2
     }
-    const r = await openProject(io, makeEnv(), { migrations: [rename] })
+    const r = await openProject(io, makeEnv(), { migrations: [rename, ...migrations] })
     expect(writes).toBeGreaterThanOrEqual(2)
     expect(r.status).toBe('migration-failed')
     for (const [path, text] of before) expect(io.files.get(path)).toBe(text)

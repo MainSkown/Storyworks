@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { docToText, textToDoc } from './plainText'
-import { sceneSchema } from './schemas/scene'
+import { sceneSchema, SCENE_VERSION } from './schemas/scene'
 
 const para = (id: string, text?: string) => ({
   type: 'paragraph',
@@ -75,7 +75,7 @@ describe('textToDoc', () => {
 
   it('result passes the scene schema', () => {
     const content = textToDoc('x\ny\nz', doc(para('a', 'x')))
-    const scene = { version: 1, id: 's', title: 't', content }
+    const scene = { version: SCENE_VERSION, id: 's', title: 't', content }
     expect(sceneSchema.safeParse(scene).success).toBe(true)
   })
 })

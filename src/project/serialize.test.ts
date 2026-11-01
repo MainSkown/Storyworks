@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Env } from './types'
-import { manifestSchema, createManifest } from './schemas/manifest'
-import { sceneSchema } from './schemas/scene'
+import { manifestSchema, createManifest, MANIFEST_VERSION } from './schemas/manifest'
+import { sceneSchema, SCENE_VERSION } from './schemas/scene'
 import { parseFile, serialize } from './serialize'
 
 const env: Env = { now: () => 1_700_000_000_000, newId: () => 'id-1' }
@@ -11,7 +11,7 @@ describe('serialize', () => {
   it('pretty-prints with 2 spaces and a trailing newline', () => {
     const text = serialize(manifestSchema, manifest)
     expect(text.endsWith('}\n')).toBe(true)
-    expect(text).toContain('\n  "version": 1')
+    expect(text).toContain(`\n  "version": ${MANIFEST_VERSION}`)
   })
   it('key order follows the schema, whatever the input order', () => {
     const reversed = Object.fromEntries(Object.entries(manifest).reverse()) as typeof manifest
@@ -40,7 +40,7 @@ describe('parseFile', () => {
     if (!r.ok) expect(r.error.file).toBe('project.json')
   })
   it('schema violation names file and field', () => {
-    const text = JSON.stringify({ version: 1, id: 's1', title: 3, content: {} })
+    const text = JSON.stringify({ version: SCENE_VERSION, id: 's1', title: 3, content: {} })
     const r = parseFile(sceneSchema, text, 'manuscript/s1.json')
     expect(r.ok).toBe(false)
     if (!r.ok) {
@@ -51,7 +51,7 @@ describe('parseFile', () => {
   it('rejects duplicate block ids in a file', () => {
     const b = { type: 'paragraph', attrs: { id: 'a' } }
     const text = JSON.stringify({
-      version: 1,
+      version: SCENE_VERSION,
       id: 's1',
       title: 'S',
       content: { type: 'doc', content: [b, b] },

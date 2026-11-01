@@ -208,6 +208,7 @@ describe('project store', () => {
         synopsis: '',
         wordCount: 0,
         content: { type: 'doc', content: [] },
+        todos: [],
         comments: [],
         links: [],
       })
@@ -253,5 +254,120 @@ describe('project store', () => {
     s.updateItem(path, sceneSchema, { ...r.value, synopsis: 'Saved on close' })
     await s.close()
     expect(io.files.get(path)).toContain('Saved on close')
+  })
+
+  describe('outline', () => {
+    const order = (nodes: { id: string; children: unknown[] }[]): string[] => nodes.map((n) => n.id)
+    const manifestTree = () => JSON.parse(io.files.get('project.json') as string).manuscript
+
+    it('addPart, addChapter (root or in a part) and addScene build the tree', async () => {
+      const { s } = await openedStore()
+      const part = await s.addPart('Part I')
+      const ch = await s.addChapter(part, 'Ch A')
+      const rootCh = await s.addChapter(null, 'Ch B')
+      const sc = await s.addScene(ch, 'S')
+      await s.flush()
+      const m = manifestTree()
+      expect(m.map((n: { id: string; type: string }) => [n.id, n.type])).toEqual([
+        [s.tree[0].id, 'chapter'],
+        [part, 'part'],
+        [rootCh, 'chapter'],
+      ])
+      expect(m[1].children[0].children[0].id).toBe(sc)
+    })
+
+    it('addChapter under a chapter or scene is refused', async () => {
+      const { s, scene } = await openedStore()
+      await expect(s.addChapter(s.tree[0].id)).rejects.toThrow()
+      await expect(s.addChapter(scene.id)).rejects.toThrow()
+    })
+
+    it('moveItem re-nests and writes the order; invalid moves change nothing', async () => {
+      const { s, scene } = await openedStore()
+      const ch2 = await s.addChapter(null, 'Two')
+      expect(await s.moveItem(scene.id, ch2, 0)).toBe(true)
+      expect(await s.moveItem(ch2, scene.id, 0)).toBe(false) // chapter under a scene
+      expect(await s.moveItem('nope', null, 0)).toBe(false)
+      await s.flush()
+      expect(manifestTree()[1].children.map((c: { id: string }) => c.id)).toEqual([scene.id])
+      expect(order(manifestTree()[0].children)).toEqual([])
+    })
+
+    it('moveItem is refused when the project is read-only', async () => {
+      const { s, scene } = await openedStore()
+      await s.close()
+      io.files.set(LOCK_PATH, otherHolder())
+      await s.open('book')
+      await s.resolveLockPrompt('readOnly')
+      await expect(s.moveItem(scene.id, null, 0)).rejects.toThrow()
+    })
+
+    it('a trashed item restores to its place after a move', async () => {
+      const { s, scene } = await openedStore()
+      const ch2 = await s.addChapter(null, 'Two')
+      await s.moveItem(scene.id, ch2, 0)
+      await s.deleteItem(scene.id)
+      await s.restoreItem(scene.id)
+      expect(s.tree[1].children.map((c) => c.id)).toEqual([scene.id])
+      expect(s.sceneMeta.has(scene.id)).toBe(true)
+    })
+
+    it('the metadata index is built at open from the scene files', async () => {
+      const { s, scene, path } = await openedStore()
+      const r = await s.loadScene(path)
+      if (!r.ok) throw new Error('scene invalid')
+      s.updateItem(path, sceneSchema, {
+        ...r.value,
+        status: 'final',
+        synopsis: 'Syn',
+        wordCount: 7,
+      })
+      await s.close()
+      await s.open('book')
+      expect(s.sceneMeta.get(scene.id)).toEqual({
+        status: 'final',
+        synopsis: 'Syn',
+        povId: undefined,
+        wordCount: 7,
+      })
+    })
+
+    it('editing a scene updates the index and the roll-up at once', async () => {
+      const { s, scene, path } = await openedStore()
+      const second = await s.addScene(s.tree[0].id, 'Second')
+      expect(s.wordCounts.get('')).toBe(0)
+      const r = await s.loadScene(path)
+      if (!r.ok) throw new Error('scene invalid')
+      s.updateItem(path, sceneSchema, { ...r.value, wordCount: 5 })
+      expect(s.sceneMeta.get(scene.id)?.wordCount).toBe(5)
+      expect(s.wordCounts.get(s.tree[0].id)).toBe(5)
+      const p2 = s.tree[0].children[1].path as string
+      const r2 = await s.loadScene(p2)
+      if (!r2.ok) throw new Error('scene invalid')
+      s.updateItem(p2, sceneSchema, { ...r2.value, wordCount: 3 })
+      expect(s.sceneMeta.get(second)?.wordCount).toBe(3)
+      expect(s.wordCounts.get('')).toBe(8)
+    })
+
+    it('setSceneMeta writes status and synopsis to the scene file', async () => {
+      const { s, scene, path } = await openedStore()
+      expect(await s.setSceneMeta(scene.id, { status: 'revising', synopsis: 'Dawn' })).toBe(true)
+      expect(s.sceneMeta.get(scene.id)?.status).toBe('revising')
+      await s.flush()
+      const file = JSON.parse(io.files.get(path) as string)
+      expect([file.status, file.synopsis]).toEqual(['revising', 'Dawn'])
+    })
+
+    it('setSceneMeta refuses non-scenes, unknown ids and invalid files', async () => {
+      const { s, scene, path } = await openedStore()
+      expect(await s.setSceneMeta(s.tree[0].id, { status: 'final' })).toBe(false)
+      expect(await s.setSceneMeta('nope', { status: 'final' })).toBe(false)
+      await s.close()
+      io.files.set(path, '{ broken')
+      await s.open('book')
+      expect(await s.setSceneMeta(scene.id, { status: 'final' })).toBe(false)
+      expect(io.files.get(path)).toBe('{ broken')
+      expect(s.sceneMeta.has(scene.id)).toBe(false)
+    })
   })
 })

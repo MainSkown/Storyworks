@@ -1,4 +1,5 @@
 import type { ProjectIO } from '../types'
+import { fromBase64, toBase64 } from './base64'
 
 export type MemoryProjectIO = ProjectIO & {
   files: Map<string, string>
@@ -32,6 +33,16 @@ export function createMemoryProjectIO(initial: Record<string, string> = {}): Mem
       check('writeTextAtomic', path)
       files.set(path, text)
       touch(path)
+    },
+    async writeBytes(path, bytes) {
+      check('writeBytes', path)
+      files.set(path, toBase64(bytes))
+      touch(path)
+    },
+    async readBytes(path) {
+      check('readBytes', path)
+      const text = files.get(path)
+      return text === undefined ? null : fromBase64(text)
     },
     async exists(path) {
       check('exists', path)
