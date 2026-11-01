@@ -6,6 +6,7 @@ import { SceneBreak } from './sceneBreak'
 import { Footnote } from './footnote'
 import { CommentMark } from './commentMark'
 import { ProjectImage, type ProjectImageOptions } from './projectImage'
+import { EventLinks, selectedBlockIds, type BlockLinkInfo } from './eventLinks'
 
 export interface ToolbarItem {
   id: string
@@ -14,12 +15,17 @@ export interface ToolbarItem {
   icon: string
   run: (editor: Editor) => void
   /** Needs UI of its own (popover, picker, prompt): the toolbar emits this instead of calling run. */
-  action?: 'footnote' | 'image' | 'comment'
+  action?: 'footnote' | 'image' | 'comment' | 'eventLink'
   canRun?: (editor: Editor) => boolean
   isActive?: (editor: Editor) => boolean
+  /** Accent button: shows its label next to the icon. */
+  accent?: boolean
 }
 
-export type EditorContext = Partial<ProjectImageOptions>
+export interface EditorContext extends Partial<ProjectImageOptions> {
+  /** Link count and broken flag of a block of the open scene. */
+  eventLinkInfo?: (blockId: string) => BlockLinkInfo | null
+}
 
 export interface EditorKind {
   extensions(ctx?: EditorContext): AnyExtension[]
@@ -35,7 +41,7 @@ const align = (value: string): ToolbarItem => ({
 })
 
 const book: EditorKind = {
-  extensions: (ctx = {}) => [
+  extensions: ({ eventLinkInfo, ...ctx } = {}) => [
     // Underline is part of StarterKit. Trailing paragraph stays (cursor target after a break/image).
     StarterKit.configure({
       heading: { levels: [1, 2, 3] },
@@ -51,6 +57,7 @@ const book: EditorKind = {
     Footnote,
     CommentMark,
     BlockIds,
+    EventLinks.configure({ info: eventLinkInfo ?? (() => null) }),
   ],
   toolbar: [
     ...[1, 2, 3].map((level) => ({
@@ -138,6 +145,15 @@ const book: EditorKind = {
       run: () => undefined,
       action: 'comment',
       canRun: (e) => !e.state.selection.empty,
+    },
+    {
+      id: 'eventLink',
+      labelKey: 'editor.toolbar.eventLink',
+      icon: 'event',
+      run: () => undefined,
+      action: 'eventLink',
+      accent: true,
+      canRun: (e) => selectedBlockIds(e.state).length > 0,
     },
   ],
 }

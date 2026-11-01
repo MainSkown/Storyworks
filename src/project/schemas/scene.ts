@@ -27,7 +27,7 @@ export const linkSchema = z.strictObject({
 })
 
 /** Collects every `attrs.id` in a ProseMirror-style tree (nodes nest through `content`). */
-function blockIds(node: unknown, out: string[] = []): string[] {
+export function blockIds(node: unknown, out: string[] = []): string[] {
   if (typeof node !== 'object' || node === null) return out
   const n = node as { attrs?: { id?: unknown }; content?: unknown }
   if (typeof n.attrs?.id === 'string') out.push(n.attrs.id)

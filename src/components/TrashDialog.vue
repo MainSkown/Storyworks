@@ -1,10 +1,46 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { Notify } from 'quasar'
 import { useProjectStore } from '../project/store'
+import type { TrashEntry } from '../project/types'
 
 const open = defineModel<boolean>({ required: true })
-const { t, locale } = useI18n()
+const { t, te, locale } = useI18n()
 const store = useProjectStore()
+
+function timelineName(e: TrashEntry): string {
+  const m = store.project?.manifest
+  const id = e.parentId
+  const title =
+    m?.timelines.find((r) => r.id === id)?.title ?? m?.trash.find((x) => x.id === id)?.title
+  return title || t('trash.unknownTimeline')
+}
+const label = (e: TrashEntry) =>
+  e.type === 'node'
+    ? t('trash.node', { title: e.title || t('timelines.untitled'), timeline: timelineName(e) })
+    : e.title
+
+async function restore(e: TrashEntry): Promise<void> {
+  try {
+    const r = await store.restoreItem(e.id)
+    if (r && r.skippedEdges > 0)
+      Notify.create({
+        type: 'warning',
+        message: t('trash.skippedEdges', r.skippedEdges),
+        position: 'bottom',
+        timeout: 6000,
+      })
+  } catch (err) {
+    const code = (err as { code?: string }).code
+    const key = `trash.restoreFailed.${code}`
+    Notify.create({
+      type: 'negative',
+      message: code && te(key) ? t(key, { title: label(e) }) : t('trash.restoreFailed.generic', { title: label(e) }),
+      position: 'bottom',
+      timeout: 6000,
+    })
+  }
+}
 
 const when = (iso: string) => {
   const date = new Date(iso)
@@ -22,15 +58,17 @@ const when = (iso: string) => {
         <p v-if="store.trash.length === 0" class="empty">{{ t('trash.empty') }}</p>
         <ul v-else class="list">
           <li v-for="e in store.trash" :key="e.id" class="entry">
-            <span class="name">{{ e.title }}</span>
-            <span class="meta">{{ t(`trash.type.${e.type}`) }} · {{ when(e.deletedAt) }}</span>
+            <span class="name">{{ label(e) }}</span>
+            <span class="meta">
+              {{ e.type === 'node' ? '' : `${t(`trash.type.${e.type}`)} · ` }}{{ when(e.deletedAt) }}
+            </span>
             <QBtn
               flat
               no-caps
               :label="t('trash.restore')"
-              :aria-label="t('trash.restoreItem', { title: e.title })"
+              :aria-label="t('trash.restoreItem', { title: label(e) })"
               :disable="!!store.readOnly"
-              @click="store.restoreItem(e.id)"
+              @click="restore(e)"
             />
           </li>
         </ul>

@@ -43,7 +43,7 @@ export type Issue =
 
 export interface TrashEntry {
   id: string
-  type: 'part' | 'chapter' | 'scene' | 'note' | 'timeline'
+  type: 'part' | 'chapter' | 'scene' | 'note' | 'timeline' | 'node'
   title: string
   originalPath: string
   trashPath: string
@@ -91,6 +91,18 @@ export interface OpenProject {
   trashTimeline(id: string, title: string): Promise<TrashEntry>
   /** Puts a trashed timeline back at its original index in the list. */
   restoreTimeline(id: string): Promise<void>
+  /** Saves a deleted timeline node and its edges in the trash and lists it. The timeline edit is the caller's job. */
+  trashNode(item: import('./schemas/trashedNode').TrashedNode): Promise<TrashEntry>
+  /** The timeline with the node put back (same id and place, edges that still fit); writes nothing. Throws NodeRestoreError. */
+  restoreNode(
+    id: string,
+    timelines: ReadonlyMap<string, import('../timeline/schema').Timeline>,
+  ): Promise<{
+    timeline: import('../timeline/schema').Timeline
+    skipped: import('../timeline/schema').Timeline['edges']
+  }>
+  /** Removes a trashed node's file and trash entry (after it was put back). */
+  dropTrashedNode(id: string): Promise<void>
 }
 
 export interface LockInfo {

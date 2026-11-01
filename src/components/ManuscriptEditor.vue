@@ -7,16 +7,31 @@ import { editorKinds } from '../editor/kinds'
 import { NodeSelection } from '@tiptap/pm/state'
 import { countWords } from '../editor/wordCount'
 import { commentRanges } from '../editor/comments'
+import { cursorBlockId, linkedBlocks, selectedBlockIds } from '../editor/eventLinks'
 import { imageExt } from '../editor/projectImage'
 import { newId } from '../project/ids'
 import { pickImage } from '../project/pickImage'
 import type { Scene } from '../project/schemas/scene'
 import { focusMode } from '../composables/focusMode'
 import { commentRailOpen } from '../composables/commentRail'
+import {
+  blockLinkInfoMap,
+  linksForBlock,
+  linkSelectionToNode,
+  relinkLink,
+  unlinkLink,
+  type BlockLink,
+} from '../composables/eventLinks'
+import { jumpToNode } from '../composables/useJump'
+import { currentBlock } from '../composables/currentBlock'
+import { Notify } from 'quasar'
 import { useProjectStore } from '../project/store'
 import EditorToolbar from './EditorToolbar.vue'
 import FootnotePopover from './FootnotePopover.vue'
 import CommentRail from './CommentRail.vue'
+import NodePickerDialog from './NodePickerDialog.vue'
+import EventLinkGutter, { type GutterMarker } from './EventLinkGutter.vue'
+import EventLinkPopover from './EventLinkPopover.vue'
 import '../editor/editor.css'
 
 const props = defineProps<{ sceneId: string; path: string; nodeTitle: string }>()
@@ -36,11 +51,15 @@ let lastSave: Promise<unknown> = Promise.resolve()
 let titleDirty = false
 let lastTitle = props.nodeTitle
 
+// Link count / broken flag per block of the open scene; changes only on link actions and saves.
+const linkInfo = computed(() => (loaded.value ? blockLinkInfoMap(loaded.value.id) : new Map()))
+
 const actionError = ref('')
 const editor = useEditor({
   extensions: kind.extensions({
     readAsset: (path) => store.readAsset(path),
     missingLabel: (path) => t('image.missing', { path }),
+    eventLinkInfo: (blockId) => linkInfo.value.get(blockId) ?? null,
   }),
   editable: false,
   editorProps: {
@@ -55,6 +74,11 @@ const editor = useEditor({
       return false
     },
     handleKeyDown: (view, event) => {
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && !event.altKey && event.code === 'KeyK') {
+        event.preventDefault()
+        startEventLink()
+        return true
+      }
       const sel = view.state.selection
       if (event.key !== 'Enter' || !(sel instanceof NodeSelection)) return false
       if (sel.node.type.name !== 'footnote') return false
@@ -211,6 +235,7 @@ function layoutRail(docChanged = true): void {
   } catch {
     // Editor view not ready or detached; the next update lays it out.
   }
+  layoutMarkers()
 }
 
 function startComment(): void {
@@ -263,10 +288,130 @@ function jumpToComment(id: string): void {
   if (r) editor.value?.chain().focus().setTextSelection(r).scrollIntoView().run()
 }
 
-function onToolbarAction(action: 'footnote' | 'image' | 'comment'): void {
+function onToolbarAction(action: 'footnote' | 'image' | 'comment' | 'eventLink'): void {
   if (action === 'footnote') addFootnote()
   else if (action === 'image') void addImageFile()
+  else if (action === 'eventLink') startEventLink()
   else startComment()
+}
+
+// ---- event links ----
+const sheetEl = ref<HTMLElement | null>(null)
+const markers = ref<GutterMarker[]>([])
+const pickerOpen = ref(false)
+const picking = ref<{ mode: 'link'; blockIds: string[] } | { mode: 'relink'; linkId: string }>({
+  mode: 'link',
+  blockIds: [],
+})
+const pop = ref<{ blockId: string; x: number; y: number } | null>(null)
+const popRows = computed<BlockLink[]>(() =>
+  pop.value && loaded.value ? linksForBlock(loaded.value.id, pop.value.blockId) : [],
+)
+const menuOpen = ref(false)
+const canLinkSelection = computed(
+  () => canEdit.value && !!editor.value && selectedBlockIds(editor.value.state).length > 0,
+)
+
+function layoutMarkers(): void {
+  const ed = editor.value
+  const sheet = sheetEl.value
+  if (!ed || !sheet) return
+  try {
+    const base = sheet.getBoundingClientRect().top
+    markers.value = linkedBlocks(ed.state.doc, (id) => linkInfo.value.get(id) ?? null).flatMap(
+      (b) => {
+        const dom = ed.view.nodeDOM(b.pos)
+        if (!(dom instanceof HTMLElement)) return []
+        return [
+          { id: b.id, count: b.count, broken: b.broken, top: dom.getBoundingClientRect().top - base + 2 },
+        ]
+      },
+    )
+  } catch {
+    // Editor view not ready or detached; the next update lays it out.
+  }
+}
+
+watch(linkInfo, () => {
+  editor.value?.commands.refreshEventLinks()
+  void nextTick(layoutMarkers)
+})
+
+function startEventLink(): void {
+  const ed = editor.value
+  if (!ed || !canEdit.value) return
+  const blockIds = selectedBlockIds(ed.state)
+  if (blockIds.length === 0) return
+  closePopover(false)
+  picking.value = { mode: 'link', blockIds }
+  pickerOpen.value = true
+}
+
+const warn = (message: string) =>
+  Notify.create({ type: 'warning', message, position: 'bottom', timeout: 5000 })
+
+async function onPick(timelineId: string, nodeId: string): Promise<void> {
+  const target = picking.value
+  const scene = loaded.value
+  if (!scene) return
+  if (target.mode === 'link') {
+    const r = await linkSelectionToNode(scene.id, target.blockIds, timelineId, nodeId)
+    if (!r.ok) warn(t('eventLink.failed'))
+    else if (r.added === 0) warn(t('eventLink.alreadyLinked', target.blockIds.length))
+  } else {
+    const r = await relinkLink(target.linkId, timelineId, nodeId)
+    if (!r.ok) warn(t(r.reason === 'duplicate' ? 'eventLink.alreadyLinked' : 'eventLink.failed', 1))
+  }
+  editor.value?.commands.focus()
+}
+
+function openPopover(blockId: string, el: HTMLElement): void {
+  if (pop.value?.blockId === blockId) return closePopover(false)
+  const rect = el.getBoundingClientRect()
+  const height = 140
+  pop.value = {
+    blockId,
+    x: Math.max(8, Math.min(rect.right + 6, window.innerWidth - 360)),
+    y:
+      rect.top + height > window.innerHeight
+        ? Math.max(8, window.innerHeight - height - 8)
+        : rect.top,
+  }
+}
+
+function closePopover(refocus = true): void {
+  const p = pop.value
+  pop.value = null
+  if (!refocus || !p) return
+  void nextTick(() =>
+    document
+      .querySelector<HTMLElement>(`[data-marker-block="${CSS.escape(p.blockId)}"]`)
+      ?.focus(),
+  )
+}
+
+watch(popRows, (rows) => {
+  if (pop.value && rows.length === 0) closePopover()
+})
+
+function jumpFromPopover(row: BlockLink): void {
+  closePopover(false)
+  if (row.link.to.block) void jumpToNode(row.link.to.item, row.link.to.block)
+}
+
+async function unlinkFromPopover(linkId: string): Promise<void> {
+  if (!(await unlinkLink(linkId)).ok) warn(t('eventLink.failed'))
+}
+
+function relinkFromPopover(linkId: string): void {
+  closePopover(false)
+  picking.value = { mode: 'relink', linkId }
+  pickerOpen.value = true
+}
+
+// Shift + right-click keeps the browser's own menu (copy, paste, spelling).
+function nativeMenuWithShift(e: MouseEvent): void {
+  if (e.shiftKey) e.stopPropagation()
 }
 
 watch(
@@ -279,10 +424,19 @@ watch(
         if (fn && ed.state.doc.nodeAt(fn.pos)?.type.name !== 'footnote') footnote.value = null
         layoutRail()
       } else if (transaction.selectionSet) refreshActive()
+      if (transaction.docChanged || transaction.selectionSet) publishCurrentBlock()
     })
   },
   { immediate: true },
 )
+
+// Shared with the context panel ("This paragraph").
+function publishCurrentBlock(): void {
+  const ed = editor.value
+  const scene = loaded.value
+  currentBlock.value =
+    ed && scene ? { sceneId: scene.id, blockId: cursorBlockId(ed.state) } : null
+}
 
 let resizeObs: ResizeObserver | null = null
 onMounted(() => {
@@ -314,6 +468,7 @@ async function load(): Promise<void> {
   const r = await store.loadScene(props.path)
   if (token !== loadToken) return
   loaded.value = null
+  currentBlock.value = null
   if (!r.ok) {
     loadError.value = r.error.message
     ed.setEditable(false, false)
@@ -336,12 +491,14 @@ async function load(): Promise<void> {
   }
   loadError.value = ''
   footnote.value = null
+  pop.value = null
   draft.value = null
   comments.value = r.value.comments
   loaded.value = { id: r.value.id }
   title.value = lastTitle = r.value.title
   titleDirty = false
   refreshEditable()
+  publishCurrentBlock()
   await nextTick()
   layoutRail()
 }
@@ -362,6 +519,7 @@ watch(
 
 onBeforeUnmount(() => {
   resizeObs?.disconnect()
+  currentBlock.value = null
   void commitTitle()
   if (loaded.value && !locked.value)
     void store.pruneSceneComments(loaded.value.id).catch(() => false)
@@ -393,9 +551,9 @@ onBeforeUnmount(() => {
         </button>
       </template>
     </EditorToolbar>
-    <div class="scroll" @scroll.passive="closeFootnote(false)">
-      <div ref="layoutEl" class="layout" :class="{ collapsed: !showRail }">
-        <div class="sheet">
+    <div class="scroll" @scroll.passive="closeFootnote(false); closePopover(false)">
+      <div ref="layoutEl" class="layout" :class="{ collapsed: !showRail || (!visibleComments.length && !draft) }">
+        <div ref="sheetEl" class="sheet">
           <p v-if="locked" class="notice" role="note">{{ t('write.readOnlyNotice') }}</p>
           <p v-if="loadError" class="notice" role="alert">
             {{ t('write.loadError', { message: loadError }) }}
@@ -411,7 +569,22 @@ onBeforeUnmount(() => {
             @change="commitTitle"
             @keydown.enter.prevent="($event.target as HTMLInputElement).blur()"
           />
-          <EditorContent :editor="editor" class="content" />
+          <div class="content-wrap" @contextmenu.capture="nativeMenuWithShift">
+            <EditorContent :editor="editor" class="content" />
+            <QMenu v-model="menuOpen" context-menu auto-close>
+              <QList dense>
+                <QItem clickable :disable="!canLinkSelection" @click="startEventLink">
+                  <QItemSection>{{ t('editor.toolbar.eventLink') }}</QItemSection>
+                  <QItemSection side>Ctrl+Shift+K</QItemSection>
+                </QItem>
+              </QList>
+            </QMenu>
+          </div>
+          <EventLinkGutter
+            :markers="markers"
+            :expanded="pop?.blockId ?? null"
+            @open="openPopover"
+          />
         </div>
         <CommentRail
           v-if="showRail"
@@ -431,6 +604,22 @@ onBeforeUnmount(() => {
         />
       </div>
     </div>
+    <NodePickerDialog
+      v-model="pickerOpen"
+      :title="picking.mode === 'link' ? t('eventLink.picker.titleLink') : t('eventLink.picker.titleRelink')"
+      @pick="onPick"
+    />
+    <EventLinkPopover
+      v-if="pop && popRows.length"
+      :x="pop.x"
+      :y="pop.y"
+      :rows="popRows"
+      :readonly="!canEdit"
+      @close="closePopover()"
+      @jump="jumpFromPopover"
+      @unlink="unlinkFromPopover"
+      @relink="relinkFromPopover"
+    />
     <FootnotePopover
       v-if="footnote"
       :x="footnote.x"
@@ -508,6 +697,7 @@ onBeforeUnmount(() => {
   text-align: center;
 }
 .sheet {
+  position: relative;
   grid-column: 2;
   box-sizing: border-box;
   min-width: 0;

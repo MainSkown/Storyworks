@@ -69,7 +69,19 @@ const v2to3: Migration = {
   },
 }
 
-export const migrations: Migration[] = [v1to2, v2to3]
+/** v3 -> v4: manifest version only (trash entries gain the 'node' type; none exist yet). */
+const v3to4: Migration = {
+  from: 3,
+  to: 4,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, { ...manifest, version: 4 })
+    return out
+  },
+}
+
+export const migrations: Migration[] = [v1to2, v2to3, v3to4]
 
 export const MANIFEST_FILE = 'project.json'
 const INTERNAL_DIR = '.storyworks'

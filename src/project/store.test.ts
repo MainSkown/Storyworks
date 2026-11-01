@@ -494,4 +494,45 @@ describe('project store', () => {
       expect(s.sceneMeta.has(scene.id)).toBe(false)
     })
   })
+  describe('re-home after save', () => {
+    const para = (id: string) => ({ type: 'paragraph', attrs: { id } })
+    const doc = (...ids: string[]) => ({ type: 'doc', content: ids.map(para) })
+    const link = (from: string) => ({
+      id: 'l1',
+      kind: 'event',
+      from: { item: from, block: 'b1' },
+      to: { item: 'tl', block: 'n1' },
+    })
+    const linksOf = (path: string) => JSON.parse(io.files.get(path) as string).links
+
+    async function twoScenes() {
+      const { s, scene, path } = await openedStore()
+      const b = await s.addScene(s.tree[0].id, 'Second')
+      const bPath = s.tree[0].children[1].path as string
+      await s.setSceneContent(scene.id, doc('b1'), 1)
+      await s.setSceneContent(b, doc(), 0)
+      await s.flush()
+      const r = await s.loadScene(path)
+      if (!r.ok) throw new Error('invalid')
+      s.updateItem(path, sceneSchema, { ...r.value, links: [link(scene.id)] })
+      await s.flush()
+      return { s, a: scene.id, aPath: path, b, bPath }
+    }
+
+    it('moves a link with its block to the other scene', async () => {
+      const { s, a, aPath, b, bPath } = await twoScenes()
+      await s.setSceneContent(a, doc(), 0)
+      await s.setSceneContent(b, doc('b1'), 1)
+      await s.flush()
+      expect(linksOf(aPath)).toEqual([])
+      expect(linksOf(bPath)).toEqual([link(b)])
+    })
+
+    it('keeps the link where it is when the block was deleted', async () => {
+      const { s, a, aPath } = await twoScenes()
+      await s.setSceneContent(a, doc(), 0)
+      await s.flush()
+      expect(linksOf(aPath)).toEqual([link(a)])
+    })
+  })
 })

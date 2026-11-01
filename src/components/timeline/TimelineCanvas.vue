@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Notify } from 'quasar'
 import { formatDate, toOrdinal, validateDate } from '../../calendar'
+import { pendingNodeJump, takePendingNodeJump } from '../../composables/useJump'
 import { useSettingsStore } from '../../settings/store'
 import { useProjectStore } from '../../project/store'
 import { thinTicks } from '../../timeline/axis'
@@ -18,6 +19,7 @@ import TimelineNodeBody from './TimelineNodeBody.vue'
 type View = 'flow' | 'date'
 interface CanvasHandle {
   focusNode(id: string): Promise<void>
+  centerOn(id: string, duration?: number): void
   fit(): unknown
   zoomIn(): unknown
   zoomOut(): unknown
@@ -158,17 +160,19 @@ async function addEvent(afterId: string | null | undefined): Promise<void> {
   }
 }
 
-const pendingDelete = ref<{ id: string; title: string; count: number } | null>(null)
+const pendingDelete = ref<{ id: string; title: string; count: number; links: number } | null>(null)
 function onDelete(id: string, count: number): void {
-  if (count === 0) return void removeNode(id)
+  const links = tl.value ? project.linksBrokenByDeletingNode(tl.value.id, id) : 0
+  if (count === 0 && links === 0) return void removeNode(id)
   pendingDelete.value = {
     id,
     count,
+    links,
     title: nodeById.value.get(id)?.title || t('timelines.untitled'),
   }
 }
-function removeNode(id: string): void {
-  const r = store.deleteNode(id)
+async function removeNode(id: string): Promise<void> {
+  const r = await store.deleteNode(id)
   if (!r.ok) toast(reasonText(r.reason))
   pendingDelete.value = null
 }
@@ -185,6 +189,25 @@ watch(
   (has) => {
     if (has) setTimeout(() => canvas.value?.fit(), 80)
   },
+)
+
+// Jump from a linked passage: centre on the node once the canvas has it.
+watch(
+  pendingNodeJump,
+  async (p) => {
+    if (!p) return
+    for (let i = 0; i < 30; i++) {
+      await nextTick()
+      if (store.currentId === p.timelineId && canvas.value && nodes.value.some((n) => n.id === p.nodeId))
+        break
+      await new Promise((r) => requestAnimationFrame(r))
+    }
+    if (!takePendingNodeJump(p.timelineId, p.nodeId)) return
+    const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    // Vue Flow measures its pane a moment after mounting.
+    setTimeout(() => canvas.value?.centerOn(p.nodeId, calm ? 0 : 200), 120)
+  },
+  { immediate: true },
 )
 
 // ---- filters ----
@@ -417,13 +440,17 @@ const canvasKey = computed(() => `${tl.value?.id}:${view.value}`)
       <QCard v-if="pendingDelete" class="confirm" role="alertdialog" aria-labelledby="tl-del-title">
         <QCardSection>
           <h2 id="tl-del-title" class="confirm-title">{{ t('timelineView.deleteEventTitle') }}</h2>
-          <p>
+          <p v-if="pendingDelete.count > 0">
             {{
               t('timelineView.deleteEventBody', {
                 title: pendingDelete.title,
                 n: pendingDelete.count,
               })
             }}
+          </p>
+          <p v-else>{{ t('timelineView.deleteEventPlain', { title: pendingDelete.title }) }}</p>
+          <p v-if="pendingDelete.links > 0">
+            {{ t('deleteImpact.links', { n: pendingDelete.links }, pendingDelete.links) }}
           </p>
         </QCardSection>
         <QCardActions align="right">

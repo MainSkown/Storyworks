@@ -220,7 +220,8 @@
       "sceneBreak": "Przerwa między scenami",
       "footnote": "Przypis",
       "image": "Wstaw obraz",
-      "comment": "Dodaj komentarz"
+      "comment": "Dodaj komentarz",
+      "eventLink": "Powiąż z wydarzeniem"
     },
     "body": "Tekst sceny"
   },
@@ -459,6 +460,9 @@
       "erasUnique": "Nazwy er muszą być różne."
     }
   },
+  "deleteImpact": {
+    "links": "Brak powiązanych fragmentów | {n} powiązany fragment pokaże się jako uszkodzony do czasu przywrócenia. | {n} powiązane fragmenty pokażą się jako uszkodzone do czasu przywrócenia. | {n} powiązanych fragmentów pokaże się jako uszkodzone do czasu przywrócenia."
+  },
   "timelineView": {
     "toolbar": "Narzędzia osi czasu",
     "viewLabel": "Układ",
@@ -476,6 +480,7 @@
     "emptyBody": "Dodaj pierwsze wydarzenie, aby zacząć tę oś czasu.",
     "noDates": "Żadne wydarzenie nie ma jeszcze daty. Wydarzenia z datą trafiają na oś czasu.",
     "deleteEventTitle": "Usunąć to wydarzenie?",
+    "deleteEventPlain": "Usunąć „{title}”? Możesz je przywrócić z kosza.",
     "deleteEventBody": "„{title}” ma połączeń: {n}. Zostaną usunięte razem z nim.",
     "cancel": "Anuluj",
     "delete": "Usuń",
@@ -498,7 +503,23 @@
       "part": "Część",
       "chapter": "Rozdział",
       "scene": "Scena",
-      "note": "Notatka"
+      "note": "Notatka",
+      "timeline": "Oś czasu",
+      "node": "Wydarzenie"
+    },
+    "node": "Wydarzenie · {title} · z: {timeline}",
+    "unknownTimeline": "osi czasu, która już nie istnieje",
+    "skippedEdges": "Nie pominięto żadnych połączeń | Nie udało się przywrócić 1 połączenia | Nie udało się przywrócić {n} połączeń | Nie udało się przywrócić {n} połączeń",
+    "restoreFailed": {
+      "generic": "Nie udało się przywrócić: {title}.",
+      "timeline-trashed": "Nie udało się przywrócić: {title}. Jego oś czasu jest w koszu. Najpierw przywróć oś czasu.",
+      "timeline-gone": "Nie udało się przywrócić: {title}. Jego oś czasu już nie istnieje.",
+      "file-missing": "Nie udało się przywrócić: {title}. W koszu brakuje zapisanej kopii.",
+      "file-invalid": "Nie udało się przywrócić: {title}. Zapisana kopia jest uszkodzona. Nie zmieniono jej.",
+      "node-exists": "Nie udało się przywrócić: {title}. Wydarzenie o tej samej tożsamości jest już na osi czasu.",
+      "not-in-trash": "Nie udało się przywrócić: {title}. Nie ma go już w koszu.",
+      "read-only": "Nie udało się przywrócić: {title}. Projekt jest tylko do odczytu.",
+      "unknown": "Nie udało się przywrócić: {title}."
     }
   },
   "common": {
@@ -531,5 +552,48 @@
     "show": "Pokaż komentarze",
     "hide": "Ukryj komentarze",
     "count": "Komentarze: {n}"
+  },
+  "eventLink": {
+    "marker": {
+      "linked": "Brak powiązanych wydarzeń | Powiązano z 1 wydarzeniem | Powiązano z {n} wydarzeniami | Powiązano z {n} wydarzeniami",
+      "broken": "Brak uszkodzonych powiązań | Uszkodzone powiązanie: wydarzenie nie istnieje | Powiązania z wydarzeniami ({n}), co najmniej jedno wydarzenie nie istnieje | Powiązania z wydarzeniami ({n}), co najmniej jedno wydarzenie nie istnieje"
+    },
+    "picker": {
+      "titleLink": "Powiąż z wydarzeniem",
+      "titleRelink": "Wybierz inne wydarzenie",
+      "search": "Szukaj wydarzeń",
+      "empty": "Nie ma jeszcze wydarzeń: utwórz je w Osiach czasu",
+      "noMatch": "Żadne wydarzenie nie pasuje",
+      "cancel": "Anuluj"
+    },
+    "popover": {
+      "title": "Powiązane wydarzenia",
+      "event": "Wydarzenie",
+      "problem": "Problem",
+      "missing": "Brakujące wydarzenie",
+      "jump": "Przejdź",
+      "unlink": "Odepnij",
+      "relink": "Powiąż ponownie",
+      "remove": "Usuń"
+    },
+    "failed": "Nie udało się zmienić powiązań.",
+    "alreadyLinked": "Brak nowych powiązań | Ten akapit jest już powiązany z tym wydarzeniem | Te {n} akapity są już powiązane z tym wydarzeniem | Tych {n} akapitów jest już powiązanych z tym wydarzeniem"
+  },
+  "linksPanel": {
+    "paragraph": {
+      "none": "Kliknij w akapit, aby zobaczyć powiązane wydarzenia.",
+      "empty": "Ten akapit nie jest powiązany z żadnym wydarzeniem.",
+      "link": "Powiąż z wydarzeniem"
+    },
+    "problems": {
+      "empty": "Brak problemów w tej scenie."
+    },
+    "passageGone": "Akapit już nie istnieje",
+    "writtenIn": {
+      "none": "Wybierz wydarzenie, aby zobaczyć, gdzie jest opisane.",
+      "empty": "Nie opisano go jeszcze w żadnej scenie.",
+      "gone": "Fragment już nie istnieje",
+      "untitledScene": "Scena bez tytułu"
+    }
   }
 }

@@ -160,7 +160,7 @@ describe('nodes, edges, branches', () => {
     const { t } = await opened()
     const a = must(t.addNode()).id
     const b = must(t.addNode({ connect: true })).id
-    must(t.deleteNode(b))
+    must(await t.deleteNode(b))
     expect(t.current?.edges).toEqual([])
     expect(t.selectedNodeId).toBeNull()
     expect(t.current?.nodes.map((n) => n.id)).toEqual([a])
@@ -254,5 +254,70 @@ describe('outside changes', () => {
     await p.resolveExternal(timelinePath(id), 'reload')
     await new Promise((r) => setTimeout(r, 10))
     expect(t.entries[0].name).toBe('Renamed outside')
+  })
+})
+
+describe('node trash', () => {
+  async function chain() {
+    const { p, t } = await opened()
+    const a = must(t.addNode({ title: 'A' })).id
+    const b = must(t.addNode({ title: 'B', connect: true })).id
+    const c = must(t.addNode({ title: 'C', connect: true })).id
+    return { p, t, a, b, c, tl: t.currentId as string }
+  }
+
+  it('delete moves the node and its edges to the trash', async () => {
+    const { p, t, a, b, c, tl } = await chain()
+    must(await t.deleteNode(b))
+    expect(t.current?.nodes.map((n) => n.id)).toEqual([a, c])
+    expect(t.current?.edges).toEqual([])
+    expect(p.trash.map((x) => [x.id, x.type, x.parentId, x.index])).toEqual([[b, 'node', tl, 1]])
+    expect(io.files.has(`.storyworks/trash/${b}/node.json`)).toBe(true)
+    await p.flush()
+    expect(disk(tl).nodes.map((n) => n.id)).toEqual([a, c])
+  })
+
+  it('restore brings back the same id, place and edges, and clears the trash', async () => {
+    const { p, t, a, b, c, tl } = await chain()
+    must(await t.deleteNode(b))
+    const r = await t.restoreNode(b)
+    expect(r).toEqual({ ok: true, skippedEdges: 0 })
+    expect(t.current?.nodes.map((n) => n.id)).toEqual([a, b, c])
+    expect(t.current?.edges.map((e) => [e.from, e.to])).toEqual([[a, b], [b, c]])
+    expect(p.trash).toEqual([])
+    expect(io.files.has(`.storyworks/trash/${b}/node.json`)).toBe(false)
+    await p.flush()
+    expect(disk(tl).nodes.map((n) => n.id)).toEqual([a, b, c])
+  })
+
+  it('restore reports edges it could not bring back', async () => {
+    const { t, a, b } = await chain()
+    must(await t.deleteNode(b))
+    must(await t.deleteNode(a))
+    expect(await t.restoreNode(b)).toEqual({ ok: true, skippedEdges: 1 })
+  })
+
+  it('restore through the project store works too', async () => {
+    const { p, t, b } = await chain()
+    must(await t.deleteNode(b))
+    const r = await p.restoreItem(b)
+    expect(r).toEqual({ skippedEdges: 0 })
+    expect(t.current?.nodes.map((n) => n.id)).toContain(b)
+  })
+
+  it('restore is refused while the timeline is in the trash', async () => {
+    const { p, t, b, tl } = await chain()
+    must(await t.deleteNode(b))
+    await t.deleteTimeline(tl)
+    expect(await t.restoreNode(b)).toEqual({ ok: false, reason: 'timeline-trashed' })
+    expect(p.trash.some((x) => x.id === b)).toBe(true)
+  })
+
+  it('restore of an invalid trashed file is refused and the file is untouched', async () => {
+    const { t, b } = await chain()
+    must(await t.deleteNode(b))
+    io.files.set(`.storyworks/trash/${b}/node.json`, '{"nope":1}')
+    expect(await t.restoreNode(b)).toEqual({ ok: false, reason: 'file-invalid' })
+    expect(io.files.get(`.storyworks/trash/${b}/node.json`)).toBe('{"nope":1}')
   })
 })

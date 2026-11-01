@@ -22,9 +22,12 @@ import { timelineSchema } from '../timeline/schema'
 import { parseFile, serialize } from './serialize'
 import {
   deleteItemImpl,
+  dropTrashedNodeImpl,
   dropTrashedNoteImpl,
   readTrashedNoteImpl,
   restoreItemImpl,
+  restoreNodeImpl,
+  trashNodeImpl,
   trashNoteImpl,
   type TrashHost,
 } from './trash'
@@ -198,6 +201,9 @@ function buildProject(
     dropTrashedNote: (id) => dropTrashedNoteImpl(host, id),
     trashTimeline: (id, title) => trashTimelineImpl(host, id, title),
     restoreTimeline: (id) => restoreTimelineImpl(host, id),
+    trashNode: (item) => trashNodeImpl(host, item),
+    restoreNode: (id, timelines) => restoreNodeImpl(host, id, timelines),
+    dropTrashedNode: (id) => dropTrashedNodeImpl(host, id),
   }
   return project
 }

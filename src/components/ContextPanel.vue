@@ -6,11 +6,30 @@ import type { SectionId } from '../sections'
 import CollapsibleSection from './CollapsibleSection.vue'
 import ScenePropertiesPanel from './ScenePropertiesPanel.vue'
 import NodeInspector from './timeline/NodeInspector.vue'
+import ThisParagraphPanel from './links/ThisParagraphPanel.vue'
+import SceneProblemsPanel from './links/SceneProblemsPanel.vue'
+import WrittenInPanel from './links/WrittenInPanel.vue'
+import { paragraphLinks, passagesForSelectedNode, sceneProblems } from '../composables/contextLinks'
 
 const props = defineProps<{ sectionId: SectionId }>()
 const { t } = useI18n()
 const openTodos = ref(0)
 const list = computed(() => panelSections[props.sectionId] ?? [])
+
+function countOf(id: string): number {
+  switch (id) {
+    case 'write.thisScene':
+      return openTodos.value
+    case 'write.thisParagraph':
+      return paragraphLinks.value.length
+    case 'write.problems':
+      return sceneProblems.value.length
+    case 'timelines.writtenIn':
+      return passagesForSelectedNode.value.length
+    default:
+      return 0
+  }
+}
 </script>
 
 <template>
@@ -22,10 +41,13 @@ const list = computed(() => panelSections[props.sectionId] ?? [])
         :id="p.id"
         :key="p.id"
         :title="t(p.i18nKey)"
-        :count="p.id === 'write.thisScene' ? openTodos : 0"
+        :count="countOf(p.id)"
       >
         <ScenePropertiesPanel v-if="p.id === 'write.thisScene'" @open-todos="openTodos = $event" />
+        <ThisParagraphPanel v-else-if="p.id === 'write.thisParagraph'" />
+        <SceneProblemsPanel v-else-if="p.id === 'write.problems'" />
         <NodeInspector v-else-if="p.id === 'timelines.selectedEvent'" />
+        <WrittenInPanel v-else-if="p.id === 'timelines.writtenIn'" />
         <p v-else-if="p.id.startsWith('timelines.')" class="later">{{ t('contextPanel.later') }}</p>
         <template v-else>{{ t('sidebar.placeholder') }}</template>
       </CollapsibleSection>

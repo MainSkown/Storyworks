@@ -4,7 +4,15 @@ import type { z } from 'zod'
 import { createAutosaver, type Autosaver, type SaveStatus } from './autosave'
 import { createChangeWatcher, type ChangeWatcher } from './changeWatcher'
 import { newId } from './ids'
-import { createLinkIndex, type LinkIndex } from './links'
+import { coverage, type Coverage } from './coverage'
+import {
+  brokenByDeletingNode,
+  brokenByDeletingScenes,
+  brokenByDeletingTimeline,
+  sceneIdsUnder,
+} from './deleteImpact'
+import { createLinkIndex, EVENT_KIND, type LinkIndex, type ResolveResult } from './links'
+import { findRehomes } from './rehome'
 import { createProjectLock, type ProjectLock } from './lock'
 import { MANIFEST_FILE } from './migrations'
 import { createProject, defaultEnv, openProject, readOnlyReasonOf } from './open'
@@ -23,7 +31,9 @@ import {
   type ManuscriptNode,
 } from './schemas/manifest'
 import { INBOX_VERSION, inboxSchema, type Inbox, type InboxNote } from './schemas/inbox'
-import { sceneSchema, SCENE_VERSION, type Scene } from './schemas/scene'
+import { blockIds, sceneSchema, SCENE_VERSION, type Scene } from './schemas/scene'
+import type { TrashedNode } from './schemas/trashedNode'
+import { NodeRestoreError } from './trash'
 import { parseFile } from './serialize'
 import { useSettingsStore } from '../settings/store'
 import { useTimelinesStore } from '../timeline/store'
@@ -178,6 +188,8 @@ interface Session {
   autosaver: Autosaver
   watcher: ChangeWatcher
   index: LinkIndex
+  /** item id (scene or timeline) -> block / node ids it holds; absent = unknown */
+  blocks: Map<string, Set<string>>
   /** latest unsaved value per item path */
   pending: Map<string, Pending>
   touched: Set<string>
@@ -313,8 +325,13 @@ export const useProjectStore = defineStore('project', () => {
 
   async function indexScene(s: Session, id: string, path: string): Promise<void> {
     const r = await readScene(s.io, path)
-    if (r?.ok) s.index.setLinks(id, r.value.links)
-    else s.index.removeOwner(id)
+    if (r?.ok) {
+      s.blocks.set(id, new Set(blockIds(r.value.content)))
+      s.index.setLinks(id, r.value.links)
+    } else {
+      s.blocks.delete(id)
+      s.index.removeOwner(id)
+    }
     putMeta(id, r?.ok ? r.value : null)
   }
 
@@ -351,13 +368,57 @@ export const useProjectStore = defineStore('project', () => {
     linkRevision.value++
   }
 
+  function trackLinks(): LinkIndex | null {
+    void revision.value
+    void linkRevision.value
+    if (!project.value || !session) return null
+    void session.index.revision.value
+    return session.index
+  }
+
+  /** Can a jump land here? `to` = timeline node, `from` = scene block. Never navigate on `ok: false`. */
+  function resolveLinkTarget(item: string, block: string, side: 'to' | 'from'): ResolveResult {
+    const ix = trackLinks()
+    if (!ix) return { ok: false, reason: side === 'to' ? 'missing-timeline' : 'missing-scene' }
+    const ref = { item, block }
+    return ix.resolveTarget({ id: '', kind: EVENT_KIND, from: ref, to: ref }, side)
+  }
+
+  /** Links that would show as broken if this scene, chapter or part were deleted. */
+  function linksBrokenByDeletingItem(id: string): number {
+    const ix = trackLinks()
+    return ix ? brokenByDeletingScenes(ix, sceneIdsUnder(tree.value, id)) : 0
+  }
+  function linksBrokenByDeletingTimeline(timelineId: string): number {
+    const ix = trackLinks()
+    return ix ? brokenByDeletingTimeline(ix, timelineId) : 0
+  }
+  function linksBrokenByDeletingNode(timelineId: string, nodeId: string): number {
+    const ix = trackLinks()
+    return ix ? brokenByDeletingNode(ix, timelineId, nodeId) : 0
+  }
+
+  /** Nodes with no (unbroken) passage and non-empty scenes with no (unbroken) link. No UI yet (M7). */
+  function coverageInfo(): Coverage {
+    const ix = trackLinks()
+    if (!ix) return { nodesWithoutPassages: [], scenesWithoutLinks: [] }
+    return coverage({
+      nodeIds: useTimelinesStore().allNodeIds,
+      scenes: [...sceneMeta.value].map(([id, m]) => ({ id, wordCount: m.wordCount })),
+      links: [...ix.byOwner().values()].flat(),
+      isBroken: ix.isAnyBroken,
+    })
+  }
+
   // ---- session pieces ----
 
   function buildPieces(s: Session): void {
     s.pending = new Map()
     s.touched = new Set()
+    s.blocks = new Map()
     let live: { rev: number; ids: Set<string> } | null = null
     s.index = createLinkIndex({
+      blockExists: (item, block) => s.blocks.get(item)?.has(block) ?? true,
       isLive: (id) => {
         const p = project.value
         if (!p) return false
@@ -374,6 +435,7 @@ export const useProjectStore = defineStore('project', () => {
         if (!entry) return
         await p.saveItem(path, entry.schema, entry.value as never)
         if (s.pending.get(path) === entry) s.pending.delete(path)
+        if ((entry.schema as unknown) === sceneSchema) await afterSceneSave(s, entry.value as Scene)
       },
       onStatusChange: refreshStatus,
     })
@@ -749,6 +811,66 @@ export const useProjectStore = defineStore('project', () => {
     return result
   }
 
+  /** Replaces the scene's links with `change(links)` (autosaved). false = refused or not a usable scene. */
+  function updateSceneLinks(
+    id: string,
+    change: (links: Scene['links']) => Scene['links'],
+  ): Promise<boolean> {
+    return patchScene(id, (sc) => ({ ...sc, links: change(sc.links) }))
+  }
+
+  /** The link index, or null with no project open. Read `linkRevision` to react to changes. */
+  function linkIndex(): LinkIndex | null {
+    return session?.index ?? null
+  }
+
+  /** Records the saved scene's block ids, then moves links whose block now lives in another scene. */
+  async function afterSceneSave(s: Session, scene: Scene): Promise<void> {
+    s.blocks.set(scene.id, new Set(blockIds(scene.content)))
+    const p = project.value
+    if (!p) return
+    const { moves, dupes } = findRehomes({
+      links: s.index.byOwner(),
+      blocks: s.blocks,
+      isLive: s.index.isLive,
+    })
+    if (moves.length === 0 && dupes.length === 0) {
+      linkRevision.value++
+      return
+    }
+    // Serial with patchScene; destination is written before the source loses the link.
+    const rewrite = async (id: string, change: (links: Scene['links']) => Scene['links']) => {
+      const node = findNode(p.manifest.manuscript, id)
+      if (!node?.path || p.isInvalid(node.path)) return
+      const cur = await loadScene(node.path)
+      if (!cur.ok) return
+      const next = { ...cur.value, links: change(cur.value.links) }
+      await p.saveItem(node.path, sceneSchema, next)
+      if (s.pending.has(node.path))
+        s.pending.set(node.path, { schema: sceneSchema as never, value: next })
+      s.index.setLinks(id, next.links)
+    }
+    const run = async () => {
+      for (const m of moves) {
+        await rewrite(m.to, (ls) => (ls.some((l) => l.id === m.link.id) ? ls : [...ls, m.link]))
+        await rewrite(m.from, (ls) => ls.filter((l) => l.id !== m.link.id))
+      }
+      for (const d of dupes) await rewrite(d.owner, (ls) => ls.filter((l) => l.id !== d.linkId))
+    }
+    const result = patchQueue.then(run)
+    patchQueue = result.catch(() => undefined)
+    await result.catch((e) => console.error('Could not move links with their text', e))
+    linkRevision.value++
+  }
+
+  /** Lets the timelines store report which node ids a timeline holds (for broken-link checks). */
+  function setBlockIds(itemId: string, ids: Iterable<string> | null): void {
+    if (!session) return
+    if (ids) session.blocks.set(itemId, new Set(ids))
+    else session.blocks.delete(itemId)
+    linkRevision.value++
+  }
+
   /** Writes status and/or synopsis to the scene file (autosaved). false = refused. */
   function setSceneMeta(
     id: string,
@@ -876,9 +998,14 @@ export const useProjectStore = defineStore('project', () => {
     return entry
   }
 
-  async function restoreItem(id: string): Promise<void> {
+  async function restoreItem(id: string): Promise<{ skippedEdges: number } | void> {
     const p = assertWritable()
     const s = session as Session
+    if (p.manifest.trash.some((t) => t.id === id && t.type === 'node')) {
+      const r = await useTimelinesStore().restoreNode(id)
+      if (!r.ok) throw new NodeRestoreError(r.reason, `Cannot restore ${id}: ${r.reason}`)
+      return { skippedEdges: r.skippedEdges }
+    }
     if (p.manifest.trash.some((t) => t.id === id && t.type === 'note')) return restoreNote(id)
     if (p.manifest.trash.some((t) => t.id === id && t.type === 'timeline')) {
       await p.restoreTimeline(id)
@@ -916,6 +1043,17 @@ export const useProjectStore = defineStore('project', () => {
     )
     revision.value++
     return entry
+  }
+
+  async function trashNode(item: TrashedNode): Promise<TrashEntry> {
+    const entry = await assertWritable().trashNode(item)
+    revision.value++
+    return entry
+  }
+
+  async function dropTrashedNode(id: string): Promise<void> {
+    await assertWritable().dropTrashedNode(id)
+    revision.value++
   }
 
   // ---- inbox ----
@@ -1140,6 +1278,7 @@ export const useProjectStore = defineStore('project', () => {
             : [...m, node],
         )
         await p.reloadItem(path) // from now on the file counts as known
+        s.blocks.set(node.id, new Set(blockIds(r.value.content)))
         s.index.setLinks(node.id, r.value.links)
         imported.push(path)
       }
@@ -1176,6 +1315,11 @@ export const useProjectStore = defineStore('project', () => {
     inboxNotes,
     inboxInvalid,
     brokenLinkCount,
+    resolveLinkTarget,
+    linksBrokenByDeletingItem,
+    linksBrokenByDeletingTimeline,
+    linksBrokenByDeletingNode,
+    coverageInfo,
     create,
     open,
     resolveLockPrompt,
@@ -1203,6 +1347,8 @@ export const useProjectStore = defineStore('project', () => {
     restoreItem,
     setTimelineRefs,
     trashTimeline,
+    trashNode,
+    dropTrashedNode,
     addNote,
     updateNote,
     moveNoteToScene,
@@ -1210,6 +1356,10 @@ export const useProjectStore = defineStore('project', () => {
     deleteNote,
     openNote,
     resolveExternal,
+    setBlockIds,
+    updateSceneLinks,
+    linkIndex,
+    linkRevision,
     reloadManifest,
     keepManifest,
     importUnlisted,

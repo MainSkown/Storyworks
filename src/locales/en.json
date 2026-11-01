@@ -220,7 +220,8 @@
       "sceneBreak": "Scene break",
       "footnote": "Footnote",
       "image": "Insert image",
-      "comment": "Add comment"
+      "comment": "Add comment",
+      "eventLink": "Link to event"
     },
     "body": "Scene text"
   },
@@ -459,6 +460,9 @@
       "erasUnique": "Era names must be different."
     }
   },
+  "deleteImpact": {
+    "links": "No linked passages | {n} linked passage will show as broken until restored. | {n} linked passages will show as broken until restored."
+  },
   "timelineView": {
     "toolbar": "Timeline tools",
     "viewLabel": "Layout",
@@ -476,6 +480,7 @@
     "emptyBody": "Add the first event to start this timeline.",
     "noDates": "No event has a date yet. Dated events are placed along the time axis.",
     "deleteEventTitle": "Delete this event?",
+    "deleteEventPlain": "Delete \"{title}\"? You can restore it from the trash.",
     "deleteEventBody": "\"{title}\" has {n} connection(s). They are removed with it.",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -498,7 +503,23 @@
       "part": "Part",
       "chapter": "Chapter",
       "scene": "Scene",
-      "note": "Note"
+      "note": "Note",
+      "timeline": "Timeline",
+      "node": "Event"
+    },
+    "node": "Event · {title} · from {timeline}",
+    "unknownTimeline": "a timeline that no longer exists",
+    "skippedEdges": "No connections were skipped | 1 connection could not be restored | {n} connections could not be restored",
+    "restoreFailed": {
+      "generic": "Could not restore {title}.",
+      "timeline-trashed": "Could not restore {title}: its timeline is in the trash. Restore the timeline first.",
+      "timeline-gone": "Could not restore {title}: its timeline no longer exists.",
+      "file-missing": "Could not restore {title}: the saved copy is missing from the trash.",
+      "file-invalid": "Could not restore {title}: the saved copy is damaged. It was left untouched.",
+      "node-exists": "Could not restore {title}: an event with the same identity is already in the timeline.",
+      "not-in-trash": "Could not restore {title}: it is no longer in the trash.",
+      "read-only": "Could not restore {title}: the project is read-only.",
+      "unknown": "Could not restore {title}."
     }
   },
   "common": {
@@ -531,5 +552,48 @@
     "show": "Show comments",
     "hide": "Hide comments",
     "count": "{n} comments"
+  },
+  "eventLink": {
+    "marker": {
+      "linked": "No linked events | Linked to 1 event | Linked to {n} events",
+      "broken": "No broken links | Broken event link: the event is missing | {n} event links, at least one event is missing"
+    },
+    "picker": {
+      "titleLink": "Link to event",
+      "titleRelink": "Choose another event",
+      "search": "Search events",
+      "empty": "No events yet: create one in Timelines",
+      "noMatch": "No events match",
+      "cancel": "Cancel"
+    },
+    "popover": {
+      "title": "Linked events",
+      "event": "Event",
+      "problem": "Problem",
+      "missing": "Missing event",
+      "jump": "Jump",
+      "unlink": "Unlink",
+      "relink": "Relink",
+      "remove": "Remove"
+    },
+    "failed": "Could not change the links.",
+    "alreadyLinked": "No new links | This paragraph is already linked to that event | These {n} paragraphs are already linked to that event"
+  },
+  "linksPanel": {
+    "paragraph": {
+      "none": "Click in a paragraph to see its linked events.",
+      "empty": "No events linked to this paragraph.",
+      "link": "Link to event"
+    },
+    "problems": {
+      "empty": "No problems in this scene."
+    },
+    "passageGone": "Paragraph no longer exists",
+    "writtenIn": {
+      "none": "Select an event to see where it is written.",
+      "empty": "Not written in any scene yet.",
+      "gone": "Passage no longer exists",
+      "untitledScene": "Untitled scene"
+    }
   }
 }

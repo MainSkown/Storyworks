@@ -179,6 +179,9 @@ const deleteOpen = computed({
   },
 })
 const deleteTitle = computed(() => parents.value.get(deleteId.value ?? '')?.node.title ?? '')
+const deleteLinks = computed(() =>
+  deleteId.value ? store.linksBrokenByDeletingItem(deleteId.value) : 0,
+)
 
 async function doDelete(): Promise<void> {
   const id = deleteId.value
@@ -591,6 +594,9 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
         <QCardSection>
           <h2 id="outline-del-title" class="confirm-title">{{ t('write.deleteTitle') }}</h2>
           <p>{{ t('write.deleteBody', { title: deleteTitle }) }}</p>
+          <p v-if="deleteLinks > 0">
+            {{ t('deleteImpact.links', { n: deleteLinks }, deleteLinks) }}
+          </p>
         </QCardSection>
         <QCardActions align="right">
           <QBtn flat no-caps autofocus :label="t('write.cancel')" @click="deleteId = null" />

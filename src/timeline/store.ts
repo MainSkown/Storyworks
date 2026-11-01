@@ -6,6 +6,8 @@ import { loadCalendar, saveCalendar as writeCalendar, type LoadedCalendar } from
 import { newId } from '../project/ids'
 import { loadTimelines, timelinePath, type TimelineStatus } from '../project/timelines'
 import { parseFile } from '../project/serialize'
+import { TRASHED_NODE_VERSION } from '../project/schemas/trashedNode'
+import { NodeRestoreError, type NodeRestoreErrorCode } from '../project/trash'
 import { useProjectStore } from '../project/store'
 import type { FileError } from '../project/types'
 import { applyFilter, isEmptyFilter, type Filter } from './filter'
@@ -39,6 +41,10 @@ export type Outcome =
   | { ok: true }
   | { ok: false; reason: OpRejection | 'read-only' | 'no-timeline' | 'unknown' }
 
+export type RestoreNodeOutcome =
+  | { ok: true; skippedEdges: number }
+  | { ok: false; reason: NodeRestoreErrorCode }
+
 const failed = (reason: Extract<Outcome, { ok: false }>['reason']) => ({ ok: false as const, reason })
 const EMPTY_FILTER: Filter = { tags: [], branchIds: [] }
 
@@ -59,6 +65,13 @@ export const useTimelinesStore = defineStore('timelines', () => {
   const seen = new Map<string, number>()
 
   const current = computed(() => (currentId.value ? (docs.value.get(currentId.value) ?? null) : null))
+  /** Every loaded (readable) timeline, in sidebar order. */
+  const loadedTimelines = computed(() =>
+    entries.value.flatMap((e) => {
+      const t = docs.value.get(e.id)
+      return t ? [t] : []
+    }),
+  )
   const calendar = computed<Calendar>(() => calendarState.value.calendar)
   const calendarWarning = computed(() => calendarState.value.warning ?? null)
   const usingFallbackCalendar = computed(() => calendarState.value.source === 'fallback')
@@ -79,6 +92,8 @@ export const useTimelinesStore = defineStore('timelines', () => {
     }
     return map
   })
+  /** Every node id in every loaded timeline. */
+  const allNodeIds = computed(() => [...docs.value.values()].flatMap((t) => t.nodes.map((n) => n.id)))
   /** Flagged dates in every loaded timeline. */
   const invalidDateCount = computed(
     () =>
@@ -186,6 +201,21 @@ export const useTimelinesStore = defineStore('timelines', () => {
     if (selectedEdgeId.value && !current.value?.edges.some((e) => e.id === selectedEdgeId.value))
       selectedEdgeId.value = null
   }
+
+  // Node ids per timeline feed the link index, so a deleted node shows its links as broken.
+  const indexed = new Set<string>()
+  watch(
+    docs,
+    (now) => {
+      for (const id of indexed) if (!now.has(id)) projectStore.setBlockIds(id, null)
+      indexed.clear()
+      for (const [id, t] of now) {
+        projectStore.setBlockIds(id, t.nodes.map((n) => n.id))
+        indexed.add(id)
+      }
+    },
+    { immediate: true },
+  )
 
   // Files changed on disk (the project store reloads them and bumps their version).
   watch(
@@ -323,10 +353,51 @@ export const useTimelinesStore = defineStore('timelines', () => {
   const updateNode = (id: string, patch: NodePatch): Outcome => edit((t) => opUpdateNode(t, id, patch))
   const moveNode = (id: string, pos: { x: number; y: number }): Outcome => updateNode(id, { pos })
 
-  function deleteNode(id: string): Outcome {
-    const r = edit((t) => removeNode(t, id))
-    if (r.ok && selectedNodeId.value === id) selectedNodeId.value = null
-    return r
+  /** Moves the node and its edges to the trash (the timeline keeps neither). */
+  async function deleteNode(id: string): Promise<Outcome> {
+    const t = current.value
+    if (!t) return failed('no-timeline')
+    if (projectStore.readOnly) return failed('read-only')
+    const index = t.nodes.findIndex((n) => n.id === id)
+    if (index < 0) return failed('missing-node')
+    const removed = removeNode(t, id)
+    if (!removed.ok) return failed(removed.reason)
+    if (!commit(removed.value)) return failed('read-only')
+    try {
+      await projectStore.trashNode({
+        version: TRASHED_NODE_VERSION,
+        id,
+        timelineId: t.id,
+        node: t.nodes[index],
+        edges: t.edges.filter((e) => e.from === id || e.to === id),
+        index,
+      })
+    } catch {
+      commit(t)
+      return failed('unknown')
+    }
+    if (selectedNodeId.value === id) selectedNodeId.value = null
+    return { ok: true }
+  }
+
+  /** Puts a trashed node back (same id and place, edges that still fit); says how many edges were skipped. */
+  async function restoreNode(id: string): Promise<RestoreNodeOutcome> {
+    const p = projectStore.project
+    if (!p || p.readOnly) return { ok: false, reason: 'read-only' }
+    let r: Awaited<ReturnType<typeof p.restoreNode>>
+    try {
+      r = await p.restoreNode(id, docs.value)
+    } catch (e) {
+      return { ok: false, reason: e instanceof NodeRestoreError ? e.code : 'unknown' }
+    }
+    if (!commit(r.timeline)) return { ok: false, reason: 'read-only' }
+    try {
+      await projectStore.flush() // the timeline is on disk before the trash copy goes
+      await projectStore.dropTrashedNode(id)
+    } catch {
+      return { ok: false, reason: 'unknown' }
+    }
+    return { ok: true, skippedEdges: r.skipped.length }
   }
 
   /** Rejections (cycle, self, duplicate) come back as the reason; nothing changes then. */
@@ -402,6 +473,7 @@ export const useTimelinesStore = defineStore('timelines', () => {
 
   return {
     entries,
+    loadedTimelines,
     currentId,
     current,
     selectedNodeId,
@@ -415,6 +487,7 @@ export const useTimelinesStore = defineStore('timelines', () => {
     usingFallbackCalendar,
     invalidDates,
     invalidDateCount,
+    allNodeIds,
     load,
     refresh,
     reset,
@@ -429,6 +502,7 @@ export const useTimelinesStore = defineStore('timelines', () => {
     updateNode,
     moveNode,
     deleteNode,
+    restoreNode,
     connectNodes,
     disconnectEdge,
     addBranch,

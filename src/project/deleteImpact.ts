@@ -1,0 +1,32 @@
+import type { LinkIndex } from './links'
+import { findNode } from './tree'
+import type { ManuscriptNode } from './schemas/manifest'
+
+type Reader = Pick<LinkIndex, 'linksFrom' | 'linksTo'>
+
+/** Links owned by these scenes (their passages disappear with them). */
+export function brokenByDeletingScenes(index: Reader, sceneIds: readonly string[]): number {
+  return [...new Set(sceneIds)].reduce((n, id) => n + index.linksFrom(id).length, 0)
+}
+
+/** Links pointing at this node. */
+export function brokenByDeletingNode(index: Reader, timelineId: string, nodeId: string): number {
+  return index.linksTo({ item: timelineId, block: nodeId }).length
+}
+
+/** Links pointing at any node of this timeline. */
+export function brokenByDeletingTimeline(index: Reader, timelineId: string): number {
+  return index.linksTo({ item: timelineId }).length
+}
+
+/** Scene ids in document order under a part, chapter or scene (itself included). */
+export function sceneIdsUnder(tree: ManuscriptNode[], id: string): string[] {
+  const out: string[] = []
+  const walk = (n: ManuscriptNode) => {
+    if (n.type === 'scene') out.push(n.id)
+    n.children.forEach(walk)
+  }
+  const root = findNode(tree, id)
+  if (root) walk(root)
+  return out
+}

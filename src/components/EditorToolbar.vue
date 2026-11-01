@@ -28,6 +28,7 @@ const SHORTCUTS: Record<string, string> = {
   'align-center': 'Ctrl+Shift+E',
   'align-right': 'Ctrl+Shift+R',
   'align-justify': 'Ctrl+Shift+J',
+  eventLink: 'Ctrl+Shift+K',
 }
 
 const styleItems = computed(() => props.items.filter((i) => GROUPS[0]!.includes(i.id)))
@@ -66,47 +67,53 @@ const tip = (i: ToolbarItem): string =>
 </script>
 
 <template>
-  <div class="toolbar" role="toolbar" :aria-label="t('editor.toolbar.label')">
-    <select
-      v-if="styleItems.length"
-      class="style-select"
-      :aria-label="t('editor.toolbar.paragraphStyle')"
-      :value="activeStyle"
-      :disabled="disabled || !editor"
-      @change="setStyle(($event.target as HTMLSelectElement).value)"
-    >
-      <option value="">{{ t('editor.toolbar.paragraph') }}</option>
-      <option v-for="i in styleItems" :key="i.id" :value="i.id">{{ t(i.labelKey) }}</option>
-    </select>
-    <div v-for="(g, n) in groups" :key="n" class="group" role="group">
-      <button
-        v-for="i in g"
-        :key="i.id"
-        type="button"
-        class="tool"
-        :class="{ active: isActive(i) }"
-        :aria-label="t(i.labelKey)"
-        :aria-pressed="i.isActive ? isActive(i) : undefined"
-        :aria-keyshortcuts="SHORTCUTS[i.id]"
-        :title="tip(i)"
-        :disabled="blocked(i)"
-        @mousedown.prevent
-        @click="click(i)"
+  <div class="toolbar-wrap">
+    <div class="toolbar" role="toolbar" :aria-label="t('editor.toolbar.label')">
+      <select
+        v-if="styleItems.length"
+        class="style-select"
+        :aria-label="t('editor.toolbar.paragraphStyle')"
+        :value="activeStyle"
+        :disabled="disabled || !editor"
+        @change="setStyle(($event.target as HTMLSelectElement).value)"
       >
-        <QIcon :name="i.icon" aria-hidden="true" />
-      </button>
+        <option value="">{{ t('editor.toolbar.paragraph') }}</option>
+        <option v-for="i in styleItems" :key="i.id" :value="i.id">{{ t(i.labelKey) }}</option>
+      </select>
+      <div v-for="(g, n) in groups" :key="n" class="group" role="group">
+        <button
+          v-for="i in g"
+          :key="i.id"
+          type="button"
+          class="tool"
+          :class="{ active: isActive(i), accent: i.accent }"
+          :aria-label="t(i.labelKey)"
+          :aria-pressed="i.isActive ? isActive(i) : undefined"
+          :aria-keyshortcuts="SHORTCUTS[i.id]"
+          :title="tip(i)"
+          :disabled="blocked(i)"
+          @mousedown.prevent
+          @click="click(i)"
+        >
+          <QIcon :name="i.icon" aria-hidden="true" />
+          <span v-if="i.accent" class="tool-label">{{ t(i.labelKey) }}</span>
+        </button>
+      </div>
+      <div v-if="$slots.end" class="end"><slot name="end" /></div>
     </div>
-    <div v-if="$slots.end" class="end"><slot name="end" /></div>
   </div>
 </template>
 
 <style scoped>
+.toolbar-wrap {
+  container-type: inline-size;
+}
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem 0.75rem;
-  padding: 0.375rem 1rem;
+  gap: 0.25rem 0.5rem;
+  padding: 0.375rem 0.75rem;
   border-bottom: 1px solid var(--border);
   background: var(--bg-panel);
 }
@@ -116,7 +123,7 @@ const tip = (i: ToolbarItem): string =>
 .group {
   display: flex;
   gap: 0.125rem;
-  padding-inline-start: 0.75rem;
+  padding-inline-start: 0.5rem;
   border-inline-start: 1px solid var(--border);
 }
 .style-select {
@@ -132,7 +139,7 @@ const tip = (i: ToolbarItem): string =>
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
+  width: 1.875rem;
   height: 2rem;
   border: 1px solid transparent;
   border-radius: 0.375rem;
@@ -147,6 +154,32 @@ const tip = (i: ToolbarItem): string =>
 .tool.active {
   border-color: var(--border-strong);
   background: var(--bg-selected);
+}
+.tool.accent {
+  width: auto;
+  gap: 0.375rem;
+  padding: 0 0.625rem;
+  border-color: var(--tag-event);
+  background: var(--tag-event);
+  color: var(--tag-event-on);
+}
+.tool.accent:hover:not(:disabled) {
+  background: var(--tag-event);
+  filter: brightness(1.12);
+}
+.tool-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+/* Narrow editor: icon only (name stays in the tooltip and aria-label) so the toolbar stays one row. */
+@container (max-width: 52rem) {
+  .tool.accent {
+    width: 1.875rem;
+    padding: 0;
+  }
+  .tool-label {
+    display: none;
+  }
 }
 .tool:disabled,
 .style-select:disabled {

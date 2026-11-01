@@ -23,6 +23,9 @@ const edgeCount = computed(
     tl.current?.edges.filter((e) => e.from === node.value?.id || e.to === node.value?.id).length ??
     0,
 )
+const linkCount = computed(() =>
+  tl.current && node.value ? project.linksBrokenByDeletingNode(tl.current.id, node.value.id) : 0,
+)
 const message = ref('')
 
 function report(r: Outcome): void {
@@ -145,13 +148,13 @@ function createBranch(): void {
 
 // ---- delete ----
 const confirmOpen = ref(false)
-function remove(): void {
+async function remove(): Promise<void> {
   if (!node.value) return
-  if (edgeCount.value > 0) confirmOpen.value = true
-  else report(tl.deleteNode(node.value.id))
+  if (edgeCount.value > 0 || linkCount.value > 0) confirmOpen.value = true
+  else report(await tl.deleteNode(node.value.id))
 }
-function confirmRemove(): void {
-  if (node.value) report(tl.deleteNode(node.value.id))
+async function confirmRemove(): Promise<void> {
+  if (node.value) report(await tl.deleteNode(node.value.id))
   confirmOpen.value = false
 }
 </script>
@@ -289,7 +292,12 @@ function confirmRemove(): void {
       <QCard class="dialog" role="dialog">
         <QCardSection>
           <h2 class="dlg-title">{{ t('timelines.inspector.delete') }}</h2>
-          <p>{{ t('timelines.inspector.deleteConfirm', { count: edgeCount }) }}</p>
+          <p v-if="edgeCount > 0">
+            {{ t('timelines.inspector.deleteConfirm', { count: edgeCount }) }}
+          </p>
+          <p v-if="linkCount > 0">
+            {{ t('deleteImpact.links', { n: linkCount }, linkCount) }}
+          </p>
         </QCardSection>
         <QCardActions align="right">
           <QBtn

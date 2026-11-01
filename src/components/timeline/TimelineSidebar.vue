@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useProjectStore } from '../../project/store'
@@ -13,6 +13,9 @@ const renamingId = ref<string | null>(null)
 const renameText = ref('')
 const deleteId = ref<string | null>(null)
 const deleteName = ref('')
+const deleteLinks = computed(() =>
+  deleteId.value ? project.linksBrokenByDeletingTimeline(deleteId.value) : 0,
+)
 
 const vFocus = {
   mounted: (el: HTMLInputElement) => {
@@ -120,6 +123,9 @@ async function doDelete(): Promise<void> {
         <QCardSection>
           <h2 id="tls-del-title" class="confirm-title">{{ t('timelines.deleteTimeline') }}</h2>
           <p>{{ t('timelines.deleteConfirm', { name: deleteName }) }}</p>
+          <p v-if="deleteLinks > 0">
+            {{ t('deleteImpact.links', { n: deleteLinks }, deleteLinks) }}
+          </p>
         </QCardSection>
         <QCardActions align="right">
           <QBtn flat no-caps autofocus :label="t('timelineView.cancel')" @click="deleteId = null" />

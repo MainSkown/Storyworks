@@ -82,3 +82,29 @@ export function removeBranch(t: Timeline, id: string): OpResult {
 
 export const setView = (t: Timeline, view: Timeline['view']): Timeline => ({ ...t, view })
 export const renameTimeline = (t: Timeline, name: string): Timeline => ({ ...t, name })
+
+/**
+ * Puts a deleted node back at `index` and re-adds each saved edge that still fits
+ * (other end exists, no cycle, no duplicate). Edges that do not fit come back as `skipped`.
+ * A branch that no longer exists is cleared on the node.
+ */
+export function reinsertNode(
+  t: Timeline,
+  node: TimelineNode,
+  edges: Timeline['edges'],
+  index: number,
+): OpResult<{ timeline: Timeline; skipped: Timeline['edges'] }> {
+  if (t.nodes.some((n) => n.id === node.id)) return reject('duplicate-id')
+  const branchOk = node.branchId === null || t.branches.some((b) => b.id === node.branchId)
+  const restored = branchOk ? node : { ...node, branchId: null }
+  const nodes = [...t.nodes]
+  nodes.splice(Math.min(index, nodes.length), 0, restored)
+  let next: Timeline = { ...t, nodes }
+  const skipped: Timeline['edges'] = []
+  for (const e of edges) {
+    const r = connect(next, e)
+    if (r.ok) next = r.value
+    else skipped.push(e)
+  }
+  return { ok: true, value: { timeline: next, skipped } }
+}

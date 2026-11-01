@@ -37,17 +37,16 @@ async function v2Project(): Promise<MemoryProjectIO> {
 }
 
 describe('migration v2 to v3', () => {
-  it('manifest version is 3 and the step is registered', () => {
-    expect(MANIFEST_VERSION).toBe(3)
+  it('the v2 to v3 step is registered', () => {
     expect(migrations.find((m) => m.from === 2)?.to).toBe(3)
   })
 
-  it('opens a v2 project as v3 and keeps trash entries', async () => {
+  it('opens a v2 project at the current version and keeps trash entries', async () => {
     const io = await v2Project()
     const r = await openProject(io, makeEnv())
     expect(r.status).toBe('ok')
     if (r.status === 'ok') {
-      expect(r.project.manifest.version).toBe(3)
+      expect(r.project.manifest.version).toBe(MANIFEST_VERSION)
       expect(r.project.manifest.trash).toEqual([trashed])
     }
   })

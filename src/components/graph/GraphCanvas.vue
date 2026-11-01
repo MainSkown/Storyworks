@@ -193,6 +193,12 @@ function ensureVisible(id: string) {
   if (!inside) void setCenter(b.x + b.w / 2, b.y + b.h / 2, { zoom, duration: 150 })
 }
 
+/** Centres the viewport on a node (keeps the zoom). */
+function centerOn(id: string, duration = 200) {
+  const b = boxes.value.find((x) => x.id === id)
+  if (b) void setCenter(b.x + b.w / 2, b.y + b.h / 2, { zoom: viewport.value.zoom, duration })
+}
+
 async function focusNode(id: string) {
   activeId.value = id
   await nextTick()
@@ -359,6 +365,7 @@ watch(
 const fit = () => fitView({ padding: 0.2, maxZoom: 1, duration: 150 })
 defineExpose({
   focusNode,
+  centerOn,
   announce,
   fit,
   zoomIn: () => zoomIn({ duration: 100 }),

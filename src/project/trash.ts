@@ -1,6 +1,9 @@
 import { docToText } from './plainText'
+import { reinsertNode } from '../timeline/ops'
+import type { Timeline } from '../timeline/schema'
 import { inboxNoteSchema, type InboxNote } from './schemas/inbox'
 import type { Manifest } from './schemas/manifest'
+import { trashedNodeSchema, type TrashedNode } from './schemas/trashedNode'
 import { parseFile, serialize } from './serialize'
 import type { Env, ProjectIO, TrashEntry } from './types'
 
@@ -131,6 +134,8 @@ export async function restoreItemImpl(host: TrashHost, id: string): Promise<void
     throw new Error(`Cannot restore ${id}: inbox notes are restored through the store`)
   if (entry.type === 'timeline')
     throw new Error(`Cannot restore ${id}: timelines are restored through the store`)
+  if (entry.type === 'node')
+    throw new Error(`Cannot restore ${id}: timeline events are restored through the store`)
   if (entry.originalPath && (await io.exists(entry.originalPath))) {
     throw new Error(`Cannot restore ${id}: ${entry.originalPath} already exists`)
   }
@@ -218,6 +223,100 @@ export async function dropTrashedNoteImpl(host: TrashHost, id: string): Promise<
   host.assertWritable()
   const { manifest, io } = host
   const entry = manifest.trash.find((t) => t.id === id && t.type === 'note')
+  if (!entry) return
+  const before = manifest.trash
+  manifest.trash = before.filter((t) => t !== entry)
+  try {
+    await host.saveManifest()
+  } catch (e) {
+    manifest.trash = before
+    throw e
+  }
+  await io.remove(entry.trashPath).catch(() => {})
+}
+
+export type NodeRestoreErrorCode =
+  | 'not-in-trash'
+  | 'timeline-trashed'
+  | 'timeline-gone'
+  | 'file-missing'
+  | 'file-invalid'
+  | 'node-exists'
+  | 'read-only'
+  | 'unknown'
+
+export class NodeRestoreError extends Error {
+  constructor(
+    readonly code: NodeRestoreErrorCode,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'NodeRestoreError'
+  }
+}
+
+/** Saves a deleted timeline node (with its edges) in the trash and lists it. The timeline edit is the caller's job. */
+export async function trashNodeImpl(host: TrashHost, item: TrashedNode): Promise<TrashEntry> {
+  host.assertWritable()
+  const { manifest, io } = host
+  const trashPath = `${TRASH_DIR}/${item.id}/node.json`
+  const entry: TrashEntry = {
+    id: item.id,
+    type: 'node',
+    title: item.node.title,
+    originalPath: '',
+    trashPath,
+    parentId: item.timelineId,
+    index: item.index,
+    deletedAt: new Date(host.env.now()).toISOString(),
+  }
+  await io.mkdir(dirOf(trashPath))
+  await io.writeTextAtomic(trashPath, serialize(trashedNodeSchema, item))
+  const before = manifest.trash
+  manifest.trash = [...before, entry]
+  try {
+    await host.saveManifest()
+  } catch (e) {
+    manifest.trash = before
+    await io.remove(trashPath).catch(() => {})
+    throw e
+  }
+  return entry
+}
+
+/**
+ * Computes the timeline with the trashed node put back (same id, old position, edges that still
+ * fit). Writes nothing: the caller saves the timeline, then calls dropTrashedNodeImpl.
+ */
+export async function restoreNodeImpl(
+  host: TrashHost,
+  id: string,
+  timelines: ReadonlyMap<string, Timeline>,
+): Promise<{ timeline: Timeline; skipped: Timeline['edges'] }> {
+  host.assertWritable()
+  const { manifest, io } = host
+  const entry = manifest.trash.find((t) => t.id === id && t.type === 'node')
+  if (!entry) throw new NodeRestoreError('not-in-trash', `Cannot restore ${id}: not in the trash`)
+  const text = await io.readText(entry.trashPath)
+  if (text === null)
+    throw new NodeRestoreError('file-missing', `Cannot restore ${id}: ${entry.trashPath} is missing`)
+  const r = parseFile(trashedNodeSchema, text, entry.trashPath)
+  if (!r.ok) throw new NodeRestoreError('file-invalid', `Cannot restore ${id}: ${r.error.message}`)
+  const item = r.value
+  if (manifest.trash.some((t) => t.type === 'timeline' && t.id === item.timelineId))
+    throw new NodeRestoreError('timeline-trashed', `Cannot restore ${id}: its timeline is in the trash`)
+  const timeline = timelines.get(item.timelineId)
+  if (!timeline)
+    throw new NodeRestoreError('timeline-gone', `Cannot restore ${id}: its timeline is not available`)
+  const out = reinsertNode(timeline, item.node, item.edges, item.index)
+  if (!out.ok) throw new NodeRestoreError('node-exists', `Cannot restore ${id}: already in the timeline`)
+  return out.value
+}
+
+export async function dropTrashedNodeImpl(host: TrashHost, id: string): Promise<void> {
+  host.assertWritable()
+  const { manifest, io } = host
+  const entry = manifest.trash.find((t) => t.id === id && t.type === 'node')
   if (!entry) return
   const before = manifest.trash
   manifest.trash = before.filter((t) => t !== entry)

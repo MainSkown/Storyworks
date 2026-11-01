@@ -203,3 +203,189 @@ describe('link index: ordering', () => {
     expect(a.index.brokenLinks()).toEqual(b.index.brokenLinks())
   })
 })
+
+import { addLink, removeLink, relinkTarget, EVENT_KIND } from './links'
+
+const ev = (id: string, scene: string, block: string, tl: string, node: string): Link => ({
+  id,
+  kind: EVENT_KIND,
+  from: { item: scene, block },
+  to: { item: tl, block: node },
+})
+
+describe('link model: add, remove, relink', () => {
+  it('adds an event link with the stored shape', () => {
+    const r = addLink([], {
+      id: 'l1',
+      from: { item: 's1', block: 'b1' },
+      to: { item: 't1', block: 'n1' },
+    })
+    expect(r.link).toEqual(ev('l1', 's1', 'b1', 't1', 'n1'))
+    expect(r.links).toEqual([r.link])
+  })
+
+  it('generates an id when none is given', () => {
+    const r = addLink([], { from: { item: 's1', block: 'b1' }, to: { item: 't1', block: 'n1' } })
+    expect(r.link?.id).toBeTruthy()
+  })
+
+  it('rejects a duplicate block + node and leaves the list unchanged', () => {
+    const first = [ev('l1', 's1', 'b1', 't1', 'n1')]
+    const r = addLink(first, {
+      id: 'l2',
+      from: { item: 's1', block: 'b1' },
+      to: { item: 't1', block: 'n1' },
+    })
+    expect(r.link).toBeNull()
+    expect(r.reason).toBe('duplicate')
+    expect(r.links).toBe(first)
+  })
+
+  it('allows one block to link to several nodes and one node from several blocks', () => {
+    let links: Link[] = []
+    links = addLink(links, {
+      id: 'a',
+      from: { item: 's1', block: 'b1' },
+      to: { item: 't1', block: 'n1' },
+    }).links
+    links = addLink(links, {
+      id: 'b',
+      from: { item: 's1', block: 'b1' },
+      to: { item: 't1', block: 'n2' },
+    }).links
+    links = addLink(links, {
+      id: 'c',
+      from: { item: 's1', block: 'b2' },
+      to: { item: 't1', block: 'n1' },
+    }).links
+    expect(links.map((l) => l.id)).toEqual(['a', 'b', 'c'])
+  })
+
+  it('rejects a link without both blocks', () => {
+    const r = addLink([], { id: 'x', from: { item: 's1' }, to: { item: 't1', block: 'n1' } })
+    expect(r.reason).toBe('invalid')
+  })
+
+  it('removeLink removes by id only', () => {
+    const links = [ev('l1', 's1', 'b1', 't1', 'n1'), ev('l2', 's1', 'b2', 't1', 'n1')]
+    expect(removeLink(links, 'l1')).toEqual([links[1]])
+    expect(removeLink(links, 'nope')).toBe(links)
+  })
+
+  it('relinkTarget replaces only the target', () => {
+    const links = [ev('l1', 's1', 'b1', 't1', 'n1')]
+    const r = relinkTarget(links, 'l1', { item: 't2', block: 'n9' })
+    expect(r.ok).toBe(true)
+    expect(r.links).toEqual([ev('l1', 's1', 'b1', 't2', 'n9')])
+  })
+
+  it('relinkTarget refuses a target the block already links to', () => {
+    const links = [ev('l1', 's1', 'b1', 't1', 'n1'), ev('l2', 's1', 'b1', 't1', 'n2')]
+    const r = relinkTarget(links, 'l1', { item: 't1', block: 'n2' })
+    expect(r).toEqual({ links, ok: false, reason: 'duplicate' })
+  })
+
+  it('relinkTarget on an unknown id reports not-found', () => {
+    expect(relinkTarget([], 'x', { item: 't', block: 'n' }).reason).toBe('not-found')
+  })
+})
+
+describe('link index: event links', () => {
+  function world() {
+    const live = new Set(['s1', 's2', 't1'])
+    const blocks = new Map<string, Set<string>>([
+      ['s1', new Set(['b1'])],
+      ['s2', new Set()],
+      ['t1', new Set(['n1'])],
+    ])
+    const index = createLinkIndex({
+      isLive: (id) => live.has(id),
+      blockExists: (item, block) => blocks.get(item)?.has(block) ?? false,
+    })
+    return { index, live, blocks }
+  }
+
+  it('linksTo lists passages across scenes for a node', () => {
+    const { index } = world()
+    index.setLinks('s1', [ev('l1', 's1', 'b1', 't1', 'n1')])
+    index.setLinks('s2', [ev('l2', 's2', 'b2', 't1', 'n1'), ev('l3', 's2', 'b3', 't1', 'n2')])
+    expect(index.linksTo({ item: 't1', block: 'n1' }).map((l) => l.id)).toEqual(['l1', 'l2'])
+  })
+
+  it('resolveTarget: ok for a live node', () => {
+    const { index } = world()
+    expect(index.resolveTarget(ev('l1', 's1', 'b1', 't1', 'n1'))).toEqual({
+      ok: true,
+      kind: 'node',
+    })
+  })
+
+  it('resolveTarget: missing node, missing timeline', () => {
+    const { index } = world()
+    expect(index.resolveTarget(ev('l1', 's1', 'b1', 't1', 'gone'))).toEqual({
+      ok: false,
+      reason: 'missing-node',
+    })
+    expect(index.resolveTarget(ev('l1', 's1', 'b1', 'tX', 'n1'))).toEqual({
+      ok: false,
+      reason: 'missing-timeline',
+    })
+  })
+
+  it('resolveTarget from side: block, missing block, missing scene', () => {
+    const { index } = world()
+    expect(index.resolveTarget(ev('l1', 's1', 'b1', 't1', 'n1'), 'from')).toEqual({
+      ok: true,
+      kind: 'block',
+    })
+    expect(index.resolveTarget(ev('l1', 's1', 'bX', 't1', 'n1'), 'from')).toEqual({
+      ok: false,
+      reason: 'missing-block',
+    })
+    expect(index.resolveTarget(ev('l1', 'sX', 'b1', 't1', 'n1'), 'from')).toEqual({
+      ok: false,
+      reason: 'missing-scene',
+    })
+  })
+
+  it('passage side: block missing from its scene, or scene trashed', () => {
+    const { index, live } = world()
+    const ok = ev('l1', 's1', 'b1', 't1', 'n1')
+    const noBlock = ev('l2', 's1', 'bX', 't1', 'n1')
+    index.setLinks('s1', [ok, noBlock])
+    expect(index.isPassageBroken(ok)).toBe(false)
+    expect(index.isPassageBroken(noBlock)).toBe(true)
+    live.delete('s1')
+    expect(index.isPassageBroken(ok)).toBe(true)
+  })
+
+  it('isBroken stays target-only; isAnyBroken covers both sides', () => {
+    const { index } = world()
+    const l = ev('l1', 's1', 'bX', 't1', 'n1')
+    expect(index.isBroken(l)).toBe(false)
+    expect(index.isAnyBroken(l)).toBe(true)
+    expect(index.isAnyBroken(ev('l2', 's1', 'b1', 't1', 'gone'))).toBe(true)
+    expect(index.isAnyBroken(ev('l3', 's1', 'b1', 't1', 'n1'))).toBe(false)
+  })
+
+  it('never drops links when targets vanish; repaired when they return', () => {
+    const { index, blocks } = world()
+    const l = ev('l1', 's1', 'b1', 't1', 'n1')
+    index.setLinks('s1', [l])
+    blocks.get('t1')?.delete('n1')
+    expect(index.isBroken(l)).toBe(true)
+    expect(index.linksTo({ item: 't1', block: 'n1' })).toEqual([l])
+    blocks.get('t1')?.add('n1')
+    expect(index.isBroken(l)).toBe(false)
+  })
+
+  it('revision is bumped by setLinks and removeOwner', () => {
+    const { index } = world()
+    const r0 = index.revision.value
+    index.setLinks('s1', [])
+    const r1 = index.revision.value
+    index.removeOwner('s1')
+    expect(r1).toBeGreaterThan(r0)
+    expect(index.revision.value).toBeGreaterThan(r1)
+  })
+})
