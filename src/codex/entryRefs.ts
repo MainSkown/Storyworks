@@ -1,3 +1,5 @@
+import { CHARACTER_TYPE_NAMES } from '../project/defaultNames'
+
 export interface TypeLike {
   id: string
   name: string
@@ -36,7 +38,9 @@ export function povOptions<E extends EntryLike>(
   types: readonly TypeLike[],
 ): E[] {
   const characterTypes = new Set(
-    types.filter((t) => t.name.trim().toLowerCase() === 'character').map((t) => t.id),
+    types
+      .filter((t) => CHARACTER_TYPE_NAMES.includes(t.name.trim().toLowerCase()))
+      .map((t) => t.id),
   )
   return [
     ...entries.filter((e) => characterTypes.has(e.typeId)),

@@ -1,6 +1,7 @@
 import { newTimeline } from '../timeline/ops'
 import { timelineSchema, type Timeline } from '../timeline/schema'
 import { ensureCalendar } from './calendar'
+import { defaultNames } from './defaultNames'
 import { parseFile } from './serialize'
 import { moveFile, TRASH_DIR, undoMoves, type TrashHost } from './trash'
 import type { Env, FileError, OpenProject, TrashEntry } from './types'
@@ -62,7 +63,7 @@ export async function createTimelineFile(project: OpenProject, timeline: Timelin
 export async function ensureDefaults(
   project: OpenProject,
   env: Env,
-  timelineName = DEFAULT_TIMELINE_NAME,
+  timelineName = defaultNames(project.manifest.language).timeline,
 ): Promise<void> {
   if (project.readOnly) return
   await ensureCalendar(project, env)

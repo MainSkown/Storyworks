@@ -1,4 +1,5 @@
 import type { Timeline } from '../timeline/schema'
+import { defaultNames } from './defaultNames'
 import { docToText } from './plainText'
 import { loadList } from './rules'
 import { codexEntrySchema, type CodexEntry } from './schemas/codexEntry'
@@ -92,7 +93,9 @@ export async function seedCodexTypes(project: OpenProject, env: Env): Promise<vo
   const before = manifest.codexTypes
   try {
     const refs = []
-    for (const { name, color, icon } of DEFAULT_CODEX_TYPES) {
+    const names = defaultNames(manifest.language).codexTypes
+    for (const [i, { color, icon }] of DEFAULT_CODEX_TYPES.entries()) {
+      const name = names[i]
       const type: CodexType = { version: CODEX_TYPE_VERSION, id: env.newId(), name, color, icon }
       const path = codexTypePath(type.id)
       await project.saveItem(path, codexTypeSchema, type)

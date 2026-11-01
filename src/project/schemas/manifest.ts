@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { Env } from '../types'
+import { defaultNames } from '../defaultNames'
 
 export const MANIFEST_VERSION = 6
 export const BOOK_KIND = 'book'
@@ -96,6 +97,7 @@ export interface BookMeta {
 
 /** Chapter 1 with one scene node; the scene file itself is written by createProject. */
 export function createManifest(meta: BookMeta, env: Env): Manifest {
+  const names = defaultNames(meta.language)
   const sceneId = env.newId()
   return manifestSchema.parse({
     version: MANIFEST_VERSION,
@@ -106,12 +108,12 @@ export function createManifest(meta: BookMeta, env: Env): Manifest {
       {
         id: env.newId(),
         type: 'chapter',
-        title: 'Chapter 1',
+        title: names.chapter,
         children: [
           {
             id: sceneId,
             type: 'scene',
-            title: 'Scene 1',
+            title: names.scene,
             path: `manuscript/${sceneId}.json`,
             children: [],
           },

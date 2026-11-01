@@ -1,4 +1,5 @@
 import type { Timeline } from '../timeline/schema'
+import { defaultNames } from './defaultNames'
 import { docToText } from './plainText'
 import {
   RULE_CATEGORY_VERSION,
@@ -140,7 +141,9 @@ export async function seedRuleCategories(project: OpenProject, env: Env): Promis
   const before = manifest.ruleCategories
   try {
     const refs = []
-    for (const { name, color } of DEFAULT_RULE_CATEGORIES) {
+    const names = defaultNames(manifest.language).ruleCategories
+    for (const [i, { color }] of DEFAULT_RULE_CATEGORIES.entries()) {
+      const name = names[i]
       const cat: RuleCategory = { version: RULE_CATEGORY_VERSION, id: env.newId(), name, color }
       const path = ruleCategoryPath(cat.id)
       await project.saveItem(path, ruleCategorySchema, cat)
