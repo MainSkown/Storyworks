@@ -1,6 +1,8 @@
 // M1 contract: types only. Tests and implementation both code against this file.
 // Paths are relative to the project root, '/' separated.
 
+import type { InboxNote } from './schemas/inbox'
+
 export interface ProjectIO {
   /** null when the file does not exist */
   readText(path: string): Promise<string | null>
@@ -62,9 +64,7 @@ export interface Env {
 }
 
 export type ReloadResult =
-  | { status: 'ok' }
-  | { status: 'missing' }
-  | { status: 'invalid'; error: FileError }
+  { status: 'ok' } | { status: 'missing' } | { status: 'invalid'; error: FileError }
 
 export interface OpenProject {
   manifest: import('./schemas/manifest').Manifest
@@ -81,6 +81,12 @@ export interface OpenProject {
   reloadItem(path: string): Promise<ReloadResult>
   deleteItem(id: string): Promise<TrashEntry>
   restoreItem(id: string): Promise<void>
+  /** Saves the note into the trash (its own file) and lists it in project.json. The inbox itself is the caller's job. */
+  trashNote(note: InboxNote, index: number): Promise<TrashEntry>
+  /** The trashed note and the inbox position it came from. */
+  readTrashedNote(id: string): Promise<{ note: InboxNote; index: number }>
+  /** Removes a trashed note's file and trash entry (after it was put back). */
+  dropTrashedNote(id: string): Promise<void>
 }
 
 export interface LockInfo {
@@ -91,8 +97,7 @@ export interface LockInfo {
 }
 
 export type LockResult =
-  | { status: 'acquired'; tookOverStale: boolean }
-  | { status: 'held-elsewhere'; holder: LockInfo }
+  { status: 'acquired'; tookOverStale: boolean } | { status: 'held-elsewhere'; holder: LockInfo }
 
 export interface LockEnv {
   now(): number

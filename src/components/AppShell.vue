@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { sectionByRouteName, sections, type AppSection } from '../sections'
 import { useSettingsStore } from '../settings/store'
 import { usePanelShortcut } from '../composables/panelShortcut'
+import { focusMode } from '../composables/focusMode'
 import { useProjectStore } from '../project/store'
+import { findNode } from '../project/tree'
 import ContextPanel from './ContextPanel.vue'
+import InboxNoteEditor from './InboxNoteEditor.vue'
+import InboxPanel from './InboxPanel.vue'
 import OutlineTree from './OutlineTree.vue'
 import ProjectBanners from './ProjectBanners.vue'
+import TrashDialog from './TrashDialog.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -21,6 +26,26 @@ const { settings } = storeToRefs(store)
 const active = computed(() => sectionByRouteName(route.name) ?? sections[0]!)
 const panelHidden = computed(() => settings.value.contextPanel.hidden)
 const mainEl = ref<HTMLElement | null>(null)
+const trashOpen = ref(false)
+
+// The open item named in the header band (Write shows the selected tree item).
+const openItem = computed(() => {
+  if (active.value.id !== 'write') return null
+  if (project.openNoteId) {
+    const note = project.inboxNotes.find((n) => n.id === project.openNoteId)
+    return note?.title || t('inbox.untitled')
+  }
+  if (!project.selectedId) return null
+  return findNode(project.tree, project.selectedId)?.title ?? null
+})
+
+// Picking a tree item replaces an open inbox note.
+watch(
+  () => project.selectedId,
+  (id) => {
+    if (id) project.openNoteId = null
+  },
+)
 
 const statusIcon = computed(
   () => ({ saved: 'check_circle', saving: 'sync', error: 'error_outline' })[project.saveStatus],
@@ -50,12 +75,12 @@ function colorStyle(s: AppSection) {
 </script>
 
 <template>
-  <div class="shell" :class="{ 'panel-hidden': panelHidden }">
+  <div class="shell" :class="{ 'panel-hidden': panelHidden, focus: focusMode }">
     <a class="skip-link" href="#main-content" @click.prevent="skipToContent">
       {{ t('a11y.skipToContent') }}
     </a>
 
-    <div class="sidebar">
+    <div v-show="!focusMode" class="sidebar">
       <div class="book">
         <div class="book-title">
           {{ project.project?.manifest.title ?? t('sidebar.noProject') }}
@@ -90,10 +115,19 @@ function colorStyle(s: AppSection) {
                 class="expand tree"
               >
                 <OutlineTree />
+                <InboxPanel />
               </div>
               <div v-else-if="s.id === active.id" class="expand">
                 {{ t('sidebar.placeholder') }}
               </div>
+            </li>
+            <li v-if="group[0]!.position === 'bottom' && project.project" class="trash-item">
+              <button type="button" class="nav-link" @click="trashOpen = true">
+                <span class="icon-square trash-square" aria-hidden="true">
+                  <QIcon name="restore_from_trash" />
+                </span>
+                <span class="nav-label">{{ t('sidebar.trash') }}</span>
+              </button>
             </li>
           </ul>
         </template>
@@ -101,17 +135,18 @@ function colorStyle(s: AppSection) {
     </div>
 
     <div class="main-column">
-      <header class="band" :style="colorStyle(active)">
+      <header v-show="!focusMode" class="band" :style="colorStyle(active)">
         <div class="band-title">
           <span class="band-section">{{ t(active.i18nKey) }}</span>
           <span class="band-sep" aria-hidden="true">·</span>
-          <span class="band-item">
+          <span v-if="openItem" class="band-item">{{ openItem }}</span>
+          <span v-else class="band-item">
             <span aria-hidden="true">—</span>
             <span class="sr-only">{{ t('sidebar.openItemNone') }}</span>
           </span>
         </div>
         <div class="band-actions">
-          <slot name="actions" />
+          <div id="band-actions-target" class="band-actions"></div>
           <button
             type="button"
             class="band-button"
@@ -126,15 +161,24 @@ function colorStyle(s: AppSection) {
       </header>
       <ProjectBanners />
       <main id="main-content" ref="mainEl" class="central" tabindex="-1">
-        <RouterView />
+        <InboxNoteEditor
+          v-if="project.openNoteId && active.id === 'write'"
+          :key="project.openNoteId"
+          :note-id="project.openNoteId"
+        />
+        <RouterView v-else />
       </main>
     </div>
 
-    <ContextPanel v-if="!panelHidden" :section-id="active.id" />
+    <ContextPanel v-if="!panelHidden" v-show="!focusMode" :section-id="active.id" />
+    <TrashDialog v-model="trashOpen" />
   </div>
 </template>
 
 <style scoped>
+.shell.focus {
+  grid-template-columns: minmax(0, 1fr);
+}
 .shell {
   display: grid;
   grid-template-columns: 14.5rem minmax(0, 1fr) auto;
@@ -219,6 +263,18 @@ function colorStyle(s: AppSection) {
 .nav-link.router-link-active {
   background: var(--bg-selected);
   font-weight: 600;
+}
+.nav-link {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.trash-square {
+  background: var(--text-secondary);
+  color: var(--bg-sheet);
 }
 .icon-square {
   display: inline-flex;

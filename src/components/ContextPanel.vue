@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { panelSections } from '../panelSections'
 import type { SectionId } from '../sections'
 import CollapsibleSection from './CollapsibleSection.vue'
+import ScenePropertiesPanel from './ScenePropertiesPanel.vue'
 
 const props = defineProps<{ sectionId: SectionId }>()
 const { t } = useI18n()
+const openTodos = ref(0)
 const list = computed(() => panelSections[props.sectionId] ?? [])
 </script>
 
@@ -14,8 +16,15 @@ const list = computed(() => panelSections[props.sectionId] ?? [])
   <aside class="context-panel" :aria-label="t('a11y.contextPanel')">
     <h2 class="panel-title">{{ t('contextPanel.title') }}</h2>
     <template v-if="list.length">
-      <CollapsibleSection v-for="p in list" :id="p.id" :key="p.id" :title="t(p.i18nKey)">
-        {{ t('sidebar.placeholder') }}
+      <CollapsibleSection
+        v-for="p in list"
+        :id="p.id"
+        :key="p.id"
+        :title="t(p.i18nKey)"
+        :count="p.id === 'write.thisScene' ? openTodos : 0"
+      >
+        <ScenePropertiesPanel v-if="p.id === 'write.thisScene'" @open-todos="openTodos = $event" />
+        <template v-else>{{ t('sidebar.placeholder') }}</template>
       </CollapsibleSection>
     </template>
     <p v-else class="empty">{{ t('contextPanel.empty') }}</p>

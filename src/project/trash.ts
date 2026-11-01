@@ -1,4 +1,7 @@
+import { docToText } from './plainText'
+import { inboxNoteSchema, type InboxNote } from './schemas/inbox'
 import type { Manifest } from './schemas/manifest'
+import { parseFile, serialize } from './serialize'
 import type { Env, ProjectIO, TrashEntry } from './types'
 
 type Node = Manifest['manuscript'][number]
@@ -124,7 +127,8 @@ export async function restoreItemImpl(host: TrashHost, id: string): Promise<void
   const { manifest, io } = host
   const entry = manifest.trash.find((t) => t.id === id)
   if (!entry) throw new Error(`Cannot restore ${id}: not in the trash`)
-  if (entry.type === 'note') throw new Error(`Cannot restore ${id}: inbox notes are not in the tree`)
+  if (entry.type === 'note')
+    throw new Error(`Cannot restore ${id}: inbox notes are restored through the store`)
   if (entry.originalPath && (await io.exists(entry.originalPath))) {
     throw new Error(`Cannot restore ${id}: ${entry.originalPath} already exists`)
   }
@@ -157,4 +161,69 @@ export async function restoreItemImpl(host: TrashHost, id: string): Promise<void
     await undoMoves(host, moves)
     throw e
   }
+}
+
+const NOTE_TITLE_MAX = 60
+
+/** Saves a deleted inbox note as a file in the trash and lists it; the caller removes it from the inbox. */
+export async function trashNoteImpl(
+  host: TrashHost,
+  note: InboxNote,
+  index: number,
+): Promise<TrashEntry> {
+  host.assertWritable()
+  const { manifest, io } = host
+  const trashPath = `${TRASH_DIR}/${note.id}/note.json`
+  const entry: TrashEntry = {
+    id: note.id,
+    type: 'note',
+    title:
+      note.title || docToText(note.content).trim().replace(/\s+/g, ' ').slice(0, NOTE_TITLE_MAX),
+    originalPath: '',
+    trashPath,
+    parentId: null,
+    index,
+    deletedAt: new Date(host.env.now()).toISOString(),
+  }
+  await io.mkdir(dirOf(trashPath))
+  await io.writeTextAtomic(trashPath, serialize(inboxNoteSchema, note))
+  const before = manifest.trash
+  manifest.trash = [...before, entry]
+  try {
+    await host.saveManifest()
+  } catch (e) {
+    manifest.trash = before
+    await io.remove(trashPath).catch(() => {})
+    throw e
+  }
+  return entry
+}
+
+export async function readTrashedNoteImpl(
+  host: TrashHost,
+  id: string,
+): Promise<{ note: InboxNote; index: number }> {
+  const entry = host.manifest.trash.find((t) => t.id === id && t.type === 'note')
+  if (!entry) throw new Error(`Cannot restore ${id}: not a note in the trash`)
+  const text = await host.io.readText(entry.trashPath)
+  if (text === null) throw new Error(`Cannot restore ${id}: ${entry.trashPath} is missing`)
+  const r = parseFile(inboxNoteSchema, text, entry.trashPath)
+  if (!r.ok) throw new Error(`Cannot restore ${id}: ${r.error.message}`)
+  return { note: r.value, index: entry.index }
+}
+
+export async function dropTrashedNoteImpl(host: TrashHost, id: string): Promise<void> {
+  host.assertWritable()
+  const { manifest, io } = host
+  const entry = manifest.trash.find((t) => t.id === id && t.type === 'note')
+  if (!entry) return
+  const before = manifest.trash
+  manifest.trash = before.filter((t) => t !== entry)
+  try {
+    await host.saveManifest()
+  } catch (e) {
+    manifest.trash = before
+    throw e
+  }
+  await io.remove(entry.trashPath).catch(() => {})
 }

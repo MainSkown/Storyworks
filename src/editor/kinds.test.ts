@@ -3,6 +3,8 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { Editor, type JSONContent } from '@tiptap/core'
 import { editorKinds } from './kinds'
 import { sceneSchema } from '../project/schemas/scene'
+import en from '../locales/en.json'
+import pl from '../locales/pl.json'
 
 const editors: Editor[] = []
 afterEach(() => {
@@ -100,5 +102,14 @@ describe('book editor kind', () => {
     expect(sceneSchema.safeParse({ version: 2, id: 's', title: 't', content: dup }).success).toBe(
       false,
     )
+  })
+
+  it('has en and pl labels for every toolbar item', () => {
+    const get = (m: unknown, key: string) =>
+      key.split('.').reduce<unknown>((o, k) => (o as Record<string, unknown> | undefined)?.[k], m)
+    for (const item of editorKinds.book!.toolbar) {
+      expect(get(en, item.labelKey), `en ${item.labelKey}`).toBeTruthy()
+      expect(get(pl, item.labelKey), `pl ${item.labelKey}`).toBeTruthy()
+    }
   })
 })

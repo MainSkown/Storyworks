@@ -1,459 +1,321 @@
 <script setup lang="ts">
-// TEMPORARY UI: M2 replaces this view with the TipTap editor.
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import TrashDialog from '../components/TrashDialog.vue'
-import { docToText, textToDoc } from '../project/plainText'
+import CorkboardView from '../components/CorkboardView.vue'
+import ManuscriptEditor from '../components/ManuscriptEditor.vue'
+import { focusMode, isFocusShortcut } from '../composables/focusMode'
+import { writeView } from '../composables/writeView'
 import { useProjectStore } from '../project/store'
+import { sceneStatusSchema, type Scene } from '../project/schemas/scene'
 import type { ManuscriptNode } from '../project/schemas/manifest'
 import type { Issue } from '../project/types'
-import { sceneSchema, type Scene } from '../project/schemas/scene'
-
-const vFocus = { mounted: (el: HTMLElement) => el.focus() }
 
 const { t } = useI18n()
 const store = useProjectStore()
-
-interface Row {
-  node: ManuscriptNode
-  depth: number
-}
-const rows = computed<Row[]>(() => {
-  const out: Row[] = []
-  const walk = (nodes: ManuscriptNode[], depth: number) =>
-    nodes.forEach((node) => {
-      out.push({ node, depth })
-      walk(node.children, depth + 1)
-    })
-  walk(store.tree, 0)
-  return out
-})
-
 const { selectedId } = storeToRefs(store)
-const selected = computed(
-  () => rows.value.find((r) => r.node.id === selectedId.value)?.node ?? null,
-)
-const scenePath = computed(() =>
-  selected.value?.type === 'scene' ? selected.value.path : undefined,
-)
-const locked = computed(() => !!store.readOnly)
 
-const problems = computed(() => {
-  const m = new Map<string, Extract<Issue, { kind: 'missing' | 'invalid' }>>()
-  for (const i of store.issues) if (i.kind !== 'unlisted') m.set(i.itemId, i)
-  return m
-})
-const selectedProblem = computed(() =>
-  selectedId.value ? (problems.value.get(selectedId.value) ?? null) : null,
-)
-// Controls that change an item stay off while the item's file is unusable.
-const noEdit = computed(() => locked.value || !!selectedProblem.value)
-
-// ---- scene editing ----
-const current = ref<Scene | null>(null)
-const loadError = ref('')
-const title = ref('')
-const text = ref('')
-
-async function applyEdit(): Promise<void> {
-  const scene = current.value
-  const node = selected.value
-  if (!scene || !node?.path || locked.value) return
-  const name = title.value.trim() || node.title
-  if (name !== node.title) await store.rename(node.id, name)
-  const next: Scene = {
-    ...scene,
-    title: name,
-    content: textToDoc(text.value, scene.content),
+// The selected node and its nearest container (chapter or part).
+const found = computed(() => {
+  let hit: { node: ManuscriptNode; parent: ManuscriptNode | null } | null = null
+  const walk = (nodes: ManuscriptNode[], parent: ManuscriptNode | null) => {
+    for (const n of nodes) {
+      if (n.id === selectedId.value) hit = { node: n, parent }
+      else if (!hit) walk(n.children, n)
+    }
   }
-  next.wordCount = text.value.split(/\s+/).filter(Boolean).length
-  if (store.updateItem(node.path, sceneSchema, next)) current.value = next
-}
-// No view-level debounce: the edit must count as unsaved at once, or an outside change
-// within that delay would silently replace it. The autosaver debounces the disk write.
-function scheduleEdit(): void {
-  void applyEdit()
-}
-
-async function load(path: string | undefined): Promise<void> {
-  current.value = null
-  loadError.value = ''
-  if (!path) return
-  const r = await store.loadScene(path)
-  if (path !== scenePath.value) return
-  if (!r.ok) {
-    loadError.value = r.error.message
-    return
-  }
-  current.value = r.value
-  title.value = r.value.title
-  text.value = docToText(r.value.content)
-}
-
-watch(
-  () => [scenePath.value, scenePath.value ? store.itemVersion(scenePath.value) : 0] as const,
-  ([path]) => load(path),
-  { immediate: true },
-)
-
-async function select(id: string | null): Promise<void> {
-  await applyEdit()
-  selectedId.value = id
-}
-
-// The selected item can vanish (deleted, outside change): fall back to nothing selected.
-watch(rows, (r) => {
-  if (selectedId.value && !r.some((x) => x.node.id === selectedId.value)) selectedId.value = null
+  walk(store.tree, null)
+  return hit as { node: ManuscriptNode; parent: ManuscriptNode | null } | null
 })
-onBeforeUnmount(() => {
-  void applyEdit()
-})
+const selected = computed(() => found.value?.node ?? null)
+const scene = computed(() => (selected.value?.type === 'scene' ? selected.value : null))
 
-// ---- tree actions ----
-async function addScene(): Promise<void> {
-  await applyEdit()
-  const parent = selected.value && selected.value.type !== 'scene' ? selected.value.id : null
-  selectedId.value = await store.addScene(parent, t('write.newScene'))
-}
-
-const renamingId = ref<string | null>(null)
-const renameText = ref('')
-function startRename(node: ManuscriptNode): void {
-  renamingId.value = node.id
-  renameText.value = node.title
-}
-async function commitRename(): Promise<void> {
-  const id = renamingId.value
-  renamingId.value = null
-  if (id) await store.rename(id, renameText.value)
-  if (id === selectedId.value && selected.value) title.value = selected.value.title
-}
-
-async function move(dir: 'up' | 'down'): Promise<void> {
-  if (selectedId.value) await store.moveUpDown(selectedId.value, dir)
-}
-
-const confirmDelete = ref(false)
-async function doDelete(): Promise<void> {
+const problem = computed(() => {
   const id = selectedId.value
-  if (!id) return
-  await applyEdit()
-  selectedId.value = null
-  await store.deleteItem(id)
+  if (!id) return null
+  return (
+    store.issues.find(
+      (i): i is Extract<Issue, { kind: 'missing' | 'invalid' }> =>
+        i.kind !== 'unlisted' && i.itemId === id,
+    ) ?? null
+  )
+})
+const editable = computed(() => !!scene.value?.path && !problem.value)
+
+// ---- header band: status + Focus, teleported into the shell's band ----
+const meta = computed(() => (scene.value ? store.sceneMeta.get(scene.value.id) : undefined))
+const statusLocked = computed(() => !!store.readOnly || !editable.value)
+function setStatus(status: Scene['status']): void {
+  if (scene.value) void store.setSceneMeta(scene.value.id, { status })
 }
 
-const trashOpen = ref(false)
+// ---- status bar ----
+const sceneWords = computed(() => (scene.value ? (store.wordCounts.get(scene.value.id) ?? 0) : 0))
+const chapter = computed(() => found.value?.parent ?? null)
+const chapterWords = computed(() =>
+  chapter.value ? (store.wordCounts.get(chapter.value.id) ?? 0) : 0,
+)
+const bookWords = computed(() => store.wordCounts.get('') ?? 0)
+const saveIcon = computed(
+  () => ({ saved: 'check_circle', saving: 'sync', error: 'error_outline' })[store.saveStatus],
+)
+
+// ---- focus mode ----
+function onKeydown(e: KeyboardEvent): void {
+  if (isFocusShortcut(e)) {
+    e.preventDefault()
+    focusMode.value = !focusMode.value
+  } else if (e.key === 'Escape' && focusMode.value && !e.defaultPrevented) {
+    focusMode.value = false
+  }
+}
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+  focusMode.value = false
+})
+// Nothing to focus on without an editor.
+watch(editable, (v) => {
+  if (!v) focusMode.value = false
+})
+const corkboard = computed(() => writeView.value === 'corkboard')
+watch(corkboard, (v) => {
+  if (v) focusMode.value = false
+})
 </script>
 
 <template>
-  <section class="write" :aria-label="t('write.title')">
-    <aside class="tree-pane">
-      <h1 class="heading">{{ t('write.title') }}</h1>
-
-      <div class="toolbar" role="toolbar" :aria-label="t('write.actions')">
-        <QBtn
-          dense
-          unelevated
-          no-caps
-          class="btn-secondary"
-          icon="add"
-          :label="t('write.addScene')"
-          :disable="locked"
-          @click="addScene"
-        />
-        <QBtn
-          dense
-          unelevated
-          no-caps
-          class="btn-secondary"
-          icon="edit"
-          :aria-label="t('write.rename')"
-          :title="t('write.rename')"
-          :disable="noEdit || !selected"
-          @click="selected && startRename(selected)"
-        />
-        <QBtn
-          dense
-          unelevated
-          class="btn-secondary"
-          icon="arrow_upward"
-          :aria-label="t('write.moveUp')"
-          :title="t('write.moveUp')"
-          :disable="noEdit || !selected"
-          @click="move('up')"
-        />
-        <QBtn
-          dense
-          unelevated
-          class="btn-secondary"
-          icon="arrow_downward"
-          :aria-label="t('write.moveDown')"
-          :title="t('write.moveDown')"
-          :disable="noEdit || !selected"
-          @click="move('down')"
-        />
-        <QBtn
-          dense
-          unelevated
-          class="btn-secondary"
-          icon="delete"
-          :aria-label="t('write.delete')"
-          :title="t('write.delete')"
-          :disable="noEdit || !selected"
-          @click="confirmDelete = true"
-        />
-        <QBtn
-          dense
-          unelevated
-          no-caps
-          class="btn-secondary"
-          icon="restore_from_trash"
-          :label="t('write.trash')"
-          @click="trashOpen = true"
-        />
+  <section class="write" :class="{ focus: focusMode }" :aria-label="t('sections.write')">
+    <Teleport defer to="#band-actions-target">
+      <div class="band-view" role="group" :aria-label="t('corkboard.view')">
+        <button
+          v-for="mode in ['editor', 'corkboard'] as const"
+          :key="mode"
+          type="button"
+          :aria-pressed="writeView === mode"
+          @click="writeView = mode"
+        >
+          <QIcon :name="mode === 'editor' ? 'edit_note' : 'dashboard'" aria-hidden="true" />
+          {{ t(`corkboard.${mode}`) }}
+        </button>
       </div>
+      <select
+        v-if="scene && !corkboard"
+        class="band-select"
+        :aria-label="t('write.status')"
+        :value="meta?.status ?? 'draft'"
+        :disabled="statusLocked || !meta"
+        @change="setStatus(($event.target as HTMLSelectElement).value as Scene['status'])"
+      >
+        <option v-for="s in sceneStatusSchema.options" :key="s" :value="s">
+          {{ t(`outline.status.${s}`) }}
+        </option>
+      </select>
+      <button
+        type="button"
+        class="band-focus"
+        :aria-pressed="focusMode"
+        :disabled="!editable || corkboard"
+        :title="t('write.focusTitle')"
+        @click="focusMode = !focusMode"
+      >
+        <QIcon name="center_focus_strong" aria-hidden="true" />
+        {{ t('write.focus') }}
+      </button>
+    </Teleport>
 
-      <p v-if="rows.length === 0" class="empty">{{ t('write.emptyTree') }}</p>
-      <ul v-else class="tree" :aria-label="t('write.tree')">
-        <li v-for="r in rows" :key="r.node.id" :style="{ paddingInlineStart: `${r.depth}rem` }">
-          <input
-            v-if="renamingId === r.node.id"
-            v-model="renameText"
-            v-focus
-            class="rename"
-            :aria-label="t('write.rename')"
-            @keydown.enter.prevent="commitRename"
-            @keydown.esc.prevent="renamingId = null"
-            @blur="renamingId && commitRename()"
-          />
-          <button
-            v-else
-            type="button"
-            class="item"
-            :class="{ active: r.node.id === selectedId }"
-            :aria-current="r.node.id === selectedId ? 'true' : undefined"
-            @click="select(r.node.id)"
-          >
-            <span class="kind">{{ t(`write.kind.${r.node.type}`) }}</span>
-            {{ r.node.title }}
-            <span
-              v-if="problems.get(r.node.id)"
-              class="problem"
-              role="img"
-              :aria-label="
-                t('write.problem.item', {
-                  title: r.node.title,
-                  problem: t(`write.problem.${problems.get(r.node.id)!.kind}`),
-                })
-              "
-            >
-              <QIcon
-                :name="problems.get(r.node.id)!.kind === 'missing' ? 'report_problem' : 'error_outline'"
-                size="1rem"
-                aria-hidden="true"
-              />
-              <span aria-hidden="true">{{ t(`write.problem.${problems.get(r.node.id)!.kind}`) }}</span>
-            </span>
-          </button>
-        </li>
-      </ul>
-    </aside>
-
-    <div class="editor-pane">
-      <div v-if="selectedProblem" class="empty" role="alert" data-testid="item-problem">
+    <div class="stage">
+      <CorkboardView v-if="corkboard" />
+      <div v-else-if="problem" class="empty" role="alert" data-testid="item-problem">
         <p class="problem">
           <QIcon
-            :name="selectedProblem.kind === 'missing' ? 'report_problem' : 'error_outline'"
+            :name="problem.kind === 'missing' ? 'report_problem' : 'error_outline'"
             size="1rem"
             aria-hidden="true"
           />
-          <strong>{{ t(`write.problem.${selectedProblem.kind}`) }}</strong>
+          <strong>{{ t(`write.problem.${problem.kind}`) }}</strong>
         </p>
-        <p v-if="selectedProblem.kind === 'missing'">{{ t('write.problem.missingBody') }}</p>
+        <p v-if="problem.kind === 'missing'">{{ t('write.problem.missingBody') }}</p>
         <template v-else>
-          <p v-if="selectedProblem.error.field">
-            {{ t('project.field') }}: <code>{{ selectedProblem.error.field }}</code>
+          <p v-if="problem.error.field">
+            {{ t('project.field') }}: <code>{{ problem.error.field }}</code>
           </p>
-          <p>{{ selectedProblem.error.message }}</p>
+          <p>{{ problem.error.message }}</p>
           <p>{{ t('write.problem.invalidBody') }}</p>
         </template>
         <p class="path">
-          <code>{{ selectedProblem.path }}</code>
+          <code>{{ problem.path }}</code>
         </p>
       </div>
-      <p v-else-if="loadError" class="empty" role="alert">
-        {{ t('write.loadError', { message: loadError }) }}
-      </p>
-      <template v-else-if="current">
-        <label class="field" for="write-title">{{ t('write.sceneTitle') }}</label>
-        <input
-          id="write-title"
-          v-model="title"
-          class="title-input"
-          :readonly="locked"
-          @input="scheduleEdit"
-          @blur="applyEdit"
-        />
-        <label class="field" for="write-body">{{ t('write.sceneText') }}</label>
-        <textarea
-          id="write-body"
-          v-model="text"
-          class="body-input"
-          :readonly="locked"
-          @input="scheduleEdit"
-          @blur="applyEdit"
-        ></textarea>
-      </template>
+      <ManuscriptEditor
+        v-else-if="scene?.path"
+        :scene-id="scene.id"
+        :path="scene.path"
+        :node-title="scene.title"
+      />
       <p v-else class="empty">
         {{ selected ? t('write.notScene') : t('write.nothingSelected') }}
       </p>
     </div>
 
-    <QDialog v-model="confirmDelete">
-      <QCard class="confirm" role="alertdialog" aria-labelledby="write-del-title">
-        <QCardSection>
-          <h2 id="write-del-title" class="confirm-title">{{ t('write.deleteTitle') }}</h2>
-          <p>{{ t('write.deleteBody', { title: selected?.title ?? '' }) }}</p>
-        </QCardSection>
-        <QCardActions align="right">
-          <QBtn flat no-caps autofocus :label="t('write.cancel')" @click="confirmDelete = false" />
-          <QBtn
-            unelevated
-            no-caps
-            color="negative"
-            :label="t('write.delete')"
-            @click="((confirmDelete = false), doDelete())"
-          />
-        </QCardActions>
-      </QCard>
-    </QDialog>
+    <div class="statusbar" role="status" :aria-label="t('write.statusBar')">
+      <template v-if="scene">
+        <span>{{ t('write.scene') }}: {{ sceneWords }} {{ t('sidebar.words') }}</span>
+        <span v-if="chapter">
+          {{ t(`write.kind.${chapter.type}`) }}: {{ chapterWords }} {{ t('sidebar.words') }}
+        </span>
+      </template>
+      <span>{{ t('write.book') }}: {{ bookWords }} {{ t('sidebar.words') }}</span>
+      <span class="save"
+        ><QIcon :name="saveIcon" aria-hidden="true" /> {{ t(`status.${store.saveStatus}`) }}</span
+      >
+    </div>
 
-    <TrashDialog v-model="trashOpen" />
+    <button v-if="focusMode" type="button" class="exit-focus" @click="focusMode = false">
+      <QIcon name="close" aria-hidden="true" />
+      {{ t('write.exitFocus') }}
+    </button>
   </section>
 </template>
 
 <style scoped>
 .write {
   display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
   color: var(--text-primary);
 }
-.tree-pane {
-  width: 18rem;
-  flex: none;
-  overflow-y: auto;
-  padding: 1rem;
-  background: var(--bg-panel);
-  border-inline-end: 1px solid var(--border);
+.stage {
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-editor);
 }
-.heading {
-  margin: 0 0 0.75rem;
-  font-size: 1.15rem;
+.empty {
+  padding: 1rem 1.5rem;
+  color: var(--text-secondary);
 }
 .problem {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  margin-inline-start: 0.4rem;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
 }
 .path code {
   font-family: ui-monospace, monospace;
   font-size: 0.8125rem;
   overflow-wrap: anywhere;
 }
-.toolbar {
+.statusbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
-}
-.tree {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.item {
-  display: block;
-  width: 100%;
-  padding: 0.35rem 0.5rem;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: start;
-  cursor: pointer;
-}
-.item:hover {
-  background: var(--bg-raised);
-}
-.item.active {
-  background: var(--bg-selected);
-  border-color: var(--border-strong);
-  font-weight: 600;
-}
-.item:focus-visible,
-.rename:focus-visible,
-.title-input:focus-visible,
-.body-input:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
-}
-.kind {
-  margin-inline-end: 0.4rem;
-  font-size: 0.75rem;
+  gap: 0.25rem 1.25rem;
+  padding: 0.375rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
   color: var(--text-secondary);
-  text-transform: uppercase;
+  font-size: 0.8125rem;
 }
-.rename,
-.title-input,
-.body-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.4rem 0.5rem;
+.save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-inline-start: auto;
+}
+.exit-focus {
+  position: fixed;
+  inset-block-start: 0.75rem;
+  inset-inline-end: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
   border: 1px solid var(--border-strong);
-  border-radius: 4px;
+  border-radius: 0.375rem;
   background: var(--bg-sheet);
   color: var(--text-primary);
   font: inherit;
+  cursor: pointer;
+  opacity: 0.6;
 }
-.editor-pane {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem 1.5rem;
-  background: var(--bg-editor);
+.exit-focus:hover,
+.exit-focus:focus-visible {
+  opacity: 1;
 }
-.field {
-  margin: 0.5rem 0 0.25rem;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+.exit-focus:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
 }
-.title-input {
-  font-size: 1.2rem;
-  font-weight: 600;
+</style>
+
+<style>
+/* Teleported into the shell's header band, so these cannot be scoped. */
+.band-select,
+.band-focus {
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
 }
-.body-input {
-  flex: 1;
-  min-height: 12rem;
-  resize: none;
-  font-size: var(--editor-font-size);
-  line-height: 1.6;
+.band-view {
+  display: inline-flex;
 }
-.empty {
-  color: var(--text-secondary);
+.band-view button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
 }
-.confirm {
-  min-width: min(26rem, 90vw);
-  background: var(--bg-raised);
+.band-view button:first-child {
+  border-start-start-radius: 0.375rem;
+  border-end-start-radius: 0.375rem;
+}
+.band-view button:last-child {
+  margin-inline-start: -1px;
+  border-start-end-radius: 0.375rem;
+  border-end-end-radius: 0.375rem;
+}
+.band-view button[aria-pressed='true'] {
+  background: var(--section-write-on);
+  color: var(--section-write);
+}
+.band-view button:focus-visible {
+  position: relative;
+  outline: 2px solid var(--section-write-on);
+  outline-offset: 2px;
+}
+.band-select option {
+  background: var(--bg-sheet);
   color: var(--text-primary);
 }
-.confirm-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.15rem;
+.band-focus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+.band-focus[aria-pressed='true'] {
+  background: var(--section-write-on);
+  color: var(--section-write);
+}
+.band-select:disabled,
+.band-focus:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.band-select:focus-visible,
+.band-focus:focus-visible {
+  outline: 2px solid var(--section-write-on);
+  outline-offset: 2px;
 }
 </style>

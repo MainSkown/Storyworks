@@ -1,5 +1,7 @@
 {
-  "app": { "name": "Storyworks" },
+  "app": {
+    "name": "Storyworks"
+  },
   "sections": {
     "write": "Pisanie",
     "timelines": "Osie czasu",
@@ -21,6 +23,7 @@
   "contextSections": {
     "write": {
       "thisParagraph": "Ten akapit",
+      "thisScene": "Ta scena",
       "inThisScene": "W tej scenie",
       "problems": "Problemy"
     },
@@ -35,7 +38,8 @@
     "noProject": "Brak otwartego projektu",
     "words": "słów",
     "openItemNone": "Brak otwartego elementu",
-    "placeholder": "Wkrótce"
+    "placeholder": "Wkrótce",
+    "trash": "Kosz"
   },
   "welcome": {
     "title": "Witaj w Storyworks",
@@ -154,6 +158,43 @@
     "mainNavigation": "Nawigacja główna",
     "contextPanel": "Panel kontekstu"
   },
+  "editor": {
+    "toolbar": {
+      "label": "Formatowanie",
+      "paragraphStyle": "Styl akapitu",
+      "paragraph": "Akapit",
+      "heading1": "Nagłówek 1",
+      "heading2": "Nagłówek 2",
+      "heading3": "Nagłówek 3",
+      "bold": "Pogrubienie",
+      "italic": "Kursywa",
+      "underline": "Podkreślenie",
+      "bulletList": "Lista punktowana",
+      "orderedList": "Lista numerowana",
+      "quote": "Cytat",
+      "alignLeft": "Do lewej",
+      "alignCenter": "Wyśrodkuj",
+      "alignRight": "Do prawej",
+      "alignJustify": "Wyjustuj",
+      "sceneBreak": "Przerwa między scenami",
+      "footnote": "Przypis",
+      "image": "Wstaw obraz",
+      "comment": "Dodaj komentarz"
+    },
+    "body": "Tekst sceny"
+  },
+  "sceneProps": {
+    "status": "Status",
+    "synopsis": "Streszczenie",
+    "pov": "Punkt widzenia",
+    "povNote": "Dostępne, gdy powstanie kodeks.",
+    "todos": "Do zrobienia",
+    "todoNew": "Nowe zadanie",
+    "todoAdd": "Dodaj zadanie",
+    "todoDelete": "Usuń zadanie: {text}",
+    "todoDone": "Zrobione: {text}",
+    "noScene": "Wybierz scenę, aby zobaczyć jej szczegóły."
+  },
   "write": {
     "title": "Rękopis",
     "actions": "Działania na rękopisie",
@@ -165,7 +206,15 @@
     "moveDown": "Przesuń w dół",
     "delete": "Usuń",
     "cancel": "Anuluj",
-    "trash": "Kosz",
+    "focus": "Skupienie",
+    "exitFocus": "Zakończ skupienie",
+    "focusTitle": "Tryb skupienia (Ctrl+Shift+F, Esc kończy)",
+    "status": "Status sceny",
+    "readOnlyNotice": "Ta książka jest tylko do odczytu, więc nie można edytować tekstu.",
+    "statusBar": "Liczba słów i stan zapisu",
+    "scene": "Scena",
+    "chapter": "Rozdział",
+    "book": "Książka",
     "problem": {
       "missing": "Brak pliku",
       "invalid": "Nieprawidłowy plik",
@@ -177,11 +226,23 @@
     "nothingSelected": "Wybierz scenę, aby zacząć pisać.",
     "notScene": "Wybierz scenę, aby edytować jej tekst.",
     "sceneTitle": "Tytuł sceny",
-    "sceneText": "Tekst sceny (jeden akapit w wierszu)",
     "loadError": "Nie można otworzyć tej sceny: {message}",
     "deleteTitle": "Usunąć ten element?",
     "deleteBody": "„{title}” i cała jego zawartość trafią do kosza. Możesz je stamtąd przywrócić.",
-    "kind": { "part": "Część", "chapter": "Rozdział", "scene": "Scena" }
+    "kind": {
+      "part": "Część",
+      "chapter": "Rozdział",
+      "scene": "Scena"
+    }
+  },
+  "corkboard": {
+    "title": "Tablica",
+    "view": "Widok pisania",
+    "editor": "Edytor",
+    "noSynopsis": "Brak streszczenia",
+    "emptyContainer": "Brak scen. Upuść tutaj scenę.",
+    "moved": "Przeniesiono: {title}",
+    "keyboardHint": "Enter otwiera scenę. Alt+strzałka w lewo lub w prawo przesuwa ją wcześniej lub później, Alt+strzałka w górę lub w dół przenosi ją do poprzedniego lub następnego rozdziału."
   },
   "outline": {
     "addPart": "Dodaj część",
@@ -204,15 +265,72 @@
     "moved": "Przeniesiono: {title}",
     "keyboardHint": "Alt+strzałka w górę lub w dół zmienia kolejność, Alt+strzałka w lewo lub w prawo zmienia zagnieżdżenie, F2 zmienia nazwę, Delete usuwa."
   },
+  "inbox": {
+    "title": "Skrzynka",
+    "listLabel": "Notatki w skrzynce",
+    "add": "Dodaj notatkę",
+    "empty": "Brak notatek. Zapisuj tu pomysły, które nie mają jeszcze miejsca.",
+    "untitled": "Notatka bez tytułu",
+    "invalid": "Nie można odczytać pliku skrzynki, więc nie został zmieniony.",
+    "noteTitle": "Tytuł notatki",
+    "noteBody": "Treść notatki",
+    "readOnly": "Ta książka jest tylko do odczytu, więc notatki nie można edytować.",
+    "actions": "Działania dla: {title}",
+    "moveToScene": "Przenieś do sceny",
+    "newScene": "Utwórz nową scenę z notatki",
+    "delete": "Usuń",
+    "moveTitle": "Przenieś notatkę do sceny",
+    "moveHint": "Notatka zostanie dodana na końcu sceny.",
+    "newTitle": "Utwórz scenę z tej notatki",
+    "newHint": "Nowa scena zostanie dodana na końcu wybranego miejsca.",
+    "targetScene": "Scena",
+    "targetParent": "Umieść w",
+    "bookRoot": "Najwyższy poziom książki",
+    "confirmMove": "Przenieś",
+    "confirmCreate": "Utwórz",
+    "cancel": "Anuluj",
+    "errorGeneric": "To się nie udało.",
+    "error": "To się nie udało: {message}"
+  },
   "trash": {
     "title": "Kosz",
     "empty": "Kosz jest pusty.",
     "restore": "Przywróć",
     "restoreItem": "Przywróć: {title}",
     "close": "Zamknij",
-    "type": { "part": "Część", "chapter": "Rozdział", "scene": "Scena" }
+    "type": {
+      "part": "Część",
+      "chapter": "Rozdział",
+      "scene": "Scena",
+      "note": "Notatka"
+    }
   },
   "common": {
     "placeholderPage": "Ta sekcja nie jest jeszcze gotowa."
+  },
+  "footnote": {
+    "title": "Przypis",
+    "text": "Treść przypisu",
+    "done": "Gotowe",
+    "remove": "Usuń przypis"
+  },
+  "image": {
+    "missing": "Nie znaleziono obrazu: {path}",
+    "badType": "\"{name}\" to nieobsługiwany obraz (png, jpg, gif, webp, svg).",
+    "failed": "Nie udało się wstawić obrazu: {message}"
+  },
+  "comments": {
+    "rail": "Komentarze",
+    "new": "Nowy komentarz",
+    "placeholder": "Napisz komentarz",
+    "add": "Dodaj",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "edit": "Edytuj komentarz",
+    "resolve": "Oznacz jako rozwiązany",
+    "reopen": "Otwórz ponownie",
+    "delete": "Usuń komentarz",
+    "jump": "Pokaż w tekście",
+    "resolved": "rozwiązany"
   }
 }

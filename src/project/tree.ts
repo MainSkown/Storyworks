@@ -18,6 +18,8 @@ function find(nodes: ManuscriptNode[], id: string): ManuscriptNode | null {
   return null
 }
 
+export const findNode = find
+
 /**
  * Pure move. `index` is the final position among the new parent's children
  * (after removal). Returns null on unknown ids, cycles or wrong nesting.

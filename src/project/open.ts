@@ -16,9 +16,17 @@ import {
   type BookMeta,
   type Manifest,
 } from './schemas/manifest'
+import { inboxSchema } from './schemas/inbox'
 import { sceneSchema, SCENE_VERSION } from './schemas/scene'
 import { parseFile, serialize } from './serialize'
-import { deleteItemImpl, restoreItemImpl, type TrashHost } from './trash'
+import {
+  deleteItemImpl,
+  dropTrashedNoteImpl,
+  readTrashedNoteImpl,
+  restoreItemImpl,
+  trashNoteImpl,
+  type TrashHost,
+} from './trash'
 import type {
   Env,
   FileError,
@@ -44,6 +52,7 @@ interface ListedItem {
   id: string
   path: string
   scene: boolean
+  inbox?: boolean
 }
 
 /** Every item file the manifest points at (trash excluded). */
@@ -70,7 +79,7 @@ function listedItems(m: Manifest): ListedItem[] {
     m.knowledge,
   ]
   for (const ref of [...refs, ...lists.flat()]) {
-    if (ref) out.push({ id: ref.id, path: ref.path, scene: false })
+    if (ref) out.push({ id: ref.id, path: ref.path, scene: false, inbox: ref === m.inbox })
   }
   return out
 }
@@ -163,9 +172,9 @@ function buildProject(
       const text = await io.readText(path)
       if (text === null) return { status: 'missing' }
       hashes.set(path, await sha256Hex(text))
-      const isScene = listedItems(manifest).some((i) => i.path === path && i.scene)
-      if (!isScene) return { status: 'ok' }
-      const r = parseScene(text, path, listedItems(manifest).find((i) => i.path === path)?.id)
+      const item = listedItems(manifest).find((i) => i.path === path)
+      if (!item || !(item.scene || item.inbox)) return { status: 'ok' }
+      const r = parseItem(item, text)
       if (r.ok) {
         invalid.delete(path)
         return { status: 'ok' }
@@ -175,6 +184,9 @@ function buildProject(
     },
     deleteItem: (id) => deleteItemImpl(host, id),
     restoreItem: (id) => restoreItemImpl(host, id),
+    trashNote: (note, index) => trashNoteImpl(host, note, index),
+    readTrashedNote: (id) => readTrashedNoteImpl(host, id),
+    dropTrashedNote: (id) => dropTrashedNoteImpl(host, id),
   }
   return project
 }
@@ -206,10 +218,18 @@ function parseScene(text: string, path: string, expectedId: string | undefined) 
   if (r.ok && expectedId !== undefined && r.value.id !== expectedId) {
     return {
       ok: false as const,
-      error: { file: path, field: 'id', message: `id "${r.value.id}" does not match "${expectedId}" in project.json` },
+      error: {
+        file: path,
+        field: 'id',
+        message: `id "${r.value.id}" does not match "${expectedId}" in project.json`,
+      },
     }
   }
   return r
+}
+
+function parseItem(item: ListedItem, text: string) {
+  return item.inbox ? parseFile(inboxSchema, text, item.path) : parseScene(text, item.path, item.id)
 }
 
 async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Promise<Issue[]> {
@@ -218,8 +238,8 @@ async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Prom
       const text = await io.readText(item.path)
       if (text === null) return { kind: 'missing', itemId: item.id, path: item.path }
       t.hashes.set(item.path, await sha256Hex(text))
-      if (!item.scene) return null
-      const r = parseScene(text, item.path, item.id)
+      if (!item.scene && !item.inbox) return null
+      const r = parseItem(item, text)
       if (r.ok) return null
       t.invalid.add(item.path)
       return { kind: 'invalid', itemId: item.id, path: item.path, error: r.error }
@@ -273,6 +293,12 @@ export async function openProject(
     ...(await findUnlisted(io, manifest, items)),
   ]
   const effective = reason ?? options.forceReadOnly ?? null
-  const project = buildProject(io, env, manifest, effective ? { reason: effective } : null, tracking)
+  const project = buildProject(
+    io,
+    env,
+    manifest,
+    effective ? { reason: effective } : null,
+    tracking,
+  )
   return { status: 'ok', project, issues }
 }

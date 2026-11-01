@@ -13,7 +13,12 @@ const ps = (section: SectionId, name: string): PanelSection => ({
 })
 
 export const panelSections: Partial<Record<SectionId, readonly PanelSection[]>> = {
-  write: [ps('write', 'thisParagraph'), ps('write', 'inThisScene'), ps('write', 'problems')],
+  write: [
+    ps('write', 'thisScene'),
+    ps('write', 'thisParagraph'),
+    ps('write', 'inThisScene'),
+    ps('write', 'problems'),
+  ],
   timelines: [
     ps('timelines', 'selectedEvent'),
     ps('timelines', 'writtenIn'),

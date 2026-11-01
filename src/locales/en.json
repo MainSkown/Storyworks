@@ -1,5 +1,7 @@
 {
-  "app": { "name": "Storyworks" },
+  "app": {
+    "name": "Storyworks"
+  },
   "sections": {
     "write": "Write",
     "timelines": "Timelines",
@@ -21,6 +23,7 @@
   "contextSections": {
     "write": {
       "thisParagraph": "This paragraph",
+      "thisScene": "This scene",
       "inThisScene": "In this scene",
       "problems": "Problems"
     },
@@ -35,7 +38,8 @@
     "noProject": "No project open",
     "words": "words",
     "openItemNone": "No item open",
-    "placeholder": "Coming soon"
+    "placeholder": "Coming soon",
+    "trash": "Trash"
   },
   "welcome": {
     "title": "Welcome to Storyworks",
@@ -154,6 +158,43 @@
     "mainNavigation": "Main navigation",
     "contextPanel": "Context panel"
   },
+  "editor": {
+    "toolbar": {
+      "label": "Formatting",
+      "paragraphStyle": "Paragraph style",
+      "paragraph": "Paragraph",
+      "heading1": "Heading 1",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "bulletList": "Bulleted list",
+      "orderedList": "Numbered list",
+      "quote": "Quote",
+      "alignLeft": "Align left",
+      "alignCenter": "Align centre",
+      "alignRight": "Align right",
+      "alignJustify": "Justify",
+      "sceneBreak": "Scene break",
+      "footnote": "Footnote",
+      "image": "Insert image",
+      "comment": "Add comment"
+    },
+    "body": "Scene text"
+  },
+  "sceneProps": {
+    "status": "Status",
+    "synopsis": "Synopsis",
+    "pov": "Point of view",
+    "povNote": "Available once the codex exists.",
+    "todos": "To-dos",
+    "todoNew": "New to-do",
+    "todoAdd": "Add to-do",
+    "todoDelete": "Delete to-do: {text}",
+    "todoDone": "Done: {text}",
+    "noScene": "Select a scene to see its details."
+  },
   "write": {
     "title": "Manuscript",
     "actions": "Manuscript actions",
@@ -165,7 +206,15 @@
     "moveDown": "Move down",
     "delete": "Delete",
     "cancel": "Cancel",
-    "trash": "Trash",
+    "focus": "Focus",
+    "exitFocus": "Exit focus",
+    "focusTitle": "Focus mode (Ctrl+Shift+F, Esc exits)",
+    "status": "Scene status",
+    "readOnlyNotice": "This book is read-only, so the text cannot be edited.",
+    "statusBar": "Word counts and save state",
+    "scene": "Scene",
+    "chapter": "Chapter",
+    "book": "Book",
     "problem": {
       "missing": "Missing file",
       "invalid": "Invalid file",
@@ -177,11 +226,23 @@
     "nothingSelected": "Select a scene to start writing.",
     "notScene": "Select a scene to edit its text.",
     "sceneTitle": "Scene title",
-    "sceneText": "Scene text (one paragraph per line)",
     "loadError": "Could not open this scene: {message}",
     "deleteTitle": "Delete this item?",
     "deleteBody": "\"{title}\" and everything inside it will move to the trash. You can restore it from there.",
-    "kind": { "part": "Part", "chapter": "Chapter", "scene": "Scene" }
+    "kind": {
+      "part": "Part",
+      "chapter": "Chapter",
+      "scene": "Scene"
+    }
+  },
+  "corkboard": {
+    "title": "Corkboard",
+    "view": "Writing view",
+    "editor": "Editor",
+    "noSynopsis": "No synopsis",
+    "emptyContainer": "No scenes yet. Drop a scene here.",
+    "moved": "{title} moved",
+    "keyboardHint": "Enter opens a scene. Alt+Left or Right moves it earlier or later, Alt+Up or Down moves it to the previous or next chapter."
   },
   "outline": {
     "addPart": "Add part",
@@ -204,15 +265,72 @@
     "moved": "{title} moved",
     "keyboardHint": "Alt+Up or Down reorders, Alt+Left or Right changes nesting, F2 renames, Delete removes."
   },
+  "inbox": {
+    "title": "Inbox",
+    "listLabel": "Inbox notes",
+    "add": "Add note",
+    "empty": "No notes yet. Jot down ideas that have no place yet.",
+    "untitled": "Untitled note",
+    "invalid": "The inbox file could not be read, so it was left untouched.",
+    "noteTitle": "Note title",
+    "noteBody": "Note text",
+    "readOnly": "This book is read-only, so the note cannot be edited.",
+    "actions": "Actions for {title}",
+    "moveToScene": "Move to scene",
+    "newScene": "Create new scene from note",
+    "delete": "Delete",
+    "moveTitle": "Move note to a scene",
+    "moveHint": "The note is added to the end of the scene.",
+    "newTitle": "Create a scene from this note",
+    "newHint": "The new scene is added at the end of the chosen place.",
+    "targetScene": "Scene",
+    "targetParent": "Place in",
+    "bookRoot": "Top level of the book",
+    "confirmMove": "Move",
+    "confirmCreate": "Create",
+    "cancel": "Cancel",
+    "errorGeneric": "This did not work.",
+    "error": "This did not work: {message}"
+  },
   "trash": {
     "title": "Trash",
     "empty": "The trash is empty.",
     "restore": "Restore",
     "restoreItem": "Restore {title}",
     "close": "Close",
-    "type": { "part": "Part", "chapter": "Chapter", "scene": "Scene" }
+    "type": {
+      "part": "Part",
+      "chapter": "Chapter",
+      "scene": "Scene",
+      "note": "Note"
+    }
   },
   "common": {
     "placeholderPage": "This section is not built yet."
+  },
+  "footnote": {
+    "title": "Footnote",
+    "text": "Footnote text",
+    "done": "Done",
+    "remove": "Remove footnote"
+  },
+  "image": {
+    "missing": "Image not found: {path}",
+    "badType": "\"{name}\" is not a supported image (png, jpg, gif, webp, svg).",
+    "failed": "Could not insert the image: {message}"
+  },
+  "comments": {
+    "rail": "Comments",
+    "new": "New comment",
+    "placeholder": "Write a comment",
+    "add": "Add",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit comment",
+    "resolve": "Mark resolved",
+    "reopen": "Reopen",
+    "delete": "Delete comment",
+    "jump": "Show in text",
+    "resolved": "resolved"
   }
 }

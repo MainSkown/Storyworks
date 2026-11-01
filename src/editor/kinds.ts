@@ -1,11 +1,11 @@
 import type { AnyExtension, Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
-import Image from '@tiptap/extension-image'
 import TextAlign from '@tiptap/extension-text-align'
 import { BlockIds } from './blockIds'
 import { SceneBreak } from './sceneBreak'
 import { Footnote } from './footnote'
 import { CommentMark } from './commentMark'
+import { ProjectImage, type ProjectImageOptions } from './projectImage'
 
 export interface ToolbarItem {
   id: string
@@ -13,11 +13,16 @@ export interface ToolbarItem {
   labelKey: string
   icon: string
   run: (editor: Editor) => void
+  /** Needs UI of its own (popover, picker, prompt): the toolbar emits this instead of calling run. */
+  action?: 'footnote' | 'image' | 'comment'
+  canRun?: (editor: Editor) => boolean
   isActive?: (editor: Editor) => boolean
 }
 
+export type EditorContext = Partial<ProjectImageOptions>
+
 export interface EditorKind {
-  extensions(): AnyExtension[]
+  extensions(ctx?: EditorContext): AnyExtension[]
   toolbar: ToolbarItem[]
 }
 
@@ -30,7 +35,7 @@ const align = (value: string): ToolbarItem => ({
 })
 
 const book: EditorKind = {
-  extensions: () => [
+  extensions: (ctx = {}) => [
     // Underline is part of StarterKit. Trailing paragraph stays (cursor target after a break/image).
     StarterKit.configure({
       heading: { levels: [1, 2, 3] },
@@ -41,7 +46,7 @@ const book: EditorKind = {
     }),
     TextAlign.configure({ types: ['paragraph', 'heading', 'blockquote'] }),
     // src is a path relative to the project folder (assets/<id>.<ext>).
-    Image.configure({ inline: false }),
+    ProjectImage.configure({ inline: false, ...ctx }),
     SceneBreak,
     Footnote,
     CommentMark,
@@ -117,6 +122,22 @@ const book: EditorKind = {
       labelKey: 'editor.toolbar.footnote',
       icon: 'sticky_note_2',
       run: (e) => void e.chain().focus().insertFootnote().run(),
+      action: 'footnote',
+    },
+    {
+      id: 'image',
+      labelKey: 'editor.toolbar.image',
+      icon: 'image',
+      run: () => undefined,
+      action: 'image',
+    },
+    {
+      id: 'comment',
+      labelKey: 'editor.toolbar.comment',
+      icon: 'add_comment',
+      run: () => undefined,
+      action: 'comment',
+      canRun: (e) => !e.state.selection.empty,
     },
   ],
 }

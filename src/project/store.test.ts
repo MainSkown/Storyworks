@@ -358,6 +358,130 @@ describe('project store', () => {
       expect([file.status, file.synopsis]).toEqual(['revising', 'Dawn'])
     })
 
+    it('setSceneTodos writes the checklist to the scene file', async () => {
+      const { s, scene, path } = await openedStore()
+      const todos = [
+        { id: 't1', text: 'Fix pacing', done: false },
+        { id: 't2', text: 'Name the ship', done: true },
+      ]
+      expect(await s.setSceneTodos(scene.id, todos)).toBe(true)
+      await s.flush()
+      expect(JSON.parse(io.files.get(path) as string).todos).toEqual(todos)
+      const r = await s.loadScene(path)
+      expect(r.ok && r.value.todos).toEqual(todos)
+    })
+
+    it('setSceneTodos refuses non-scenes, unknown ids and invalid files', async () => {
+      const { s, scene, path } = await openedStore()
+      const todos = [{ id: 't1', text: 'x', done: false }]
+      expect(await s.setSceneTodos(s.tree[0].id, todos)).toBe(false)
+      expect(await s.setSceneTodos('nope', todos)).toBe(false)
+      await s.close()
+      io.files.set(path, '{ broken')
+      await s.open('book')
+      expect(await s.setSceneTodos(scene.id, todos)).toBe(false)
+      expect(io.files.get(path)).toBe('{ broken')
+    })
+
+    it('setSceneContent keeps metadata and todos, and updates the word count', async () => {
+      const { s, scene, path } = await openedStore()
+      await s.setSceneMeta(scene.id, { status: 'final', synopsis: 'Dawn' })
+      await s.setSceneTodos(scene.id, [{ id: 't1', text: 'x', done: false }])
+      const doc = { type: 'doc', content: [{ type: 'paragraph', attrs: { id: 'p1' } }] }
+      expect(await s.setSceneContent(scene.id, doc, 3)).toBe(true)
+      expect(s.wordCounts.get(scene.id)).toBe(3)
+      await s.flush()
+      const file = JSON.parse(io.files.get(path) as string)
+      expect([file.status, file.synopsis, file.wordCount, file.todos.length]).toEqual([
+        'final',
+        'Dawn',
+        3,
+        1,
+      ])
+      expect(file.content).toEqual(doc)
+    })
+
+    describe('comments', () => {
+      const marked = (...ids: string[]) => ({
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            attrs: { id: 'p1' },
+            content: ids.map((id) => ({
+              type: 'text',
+              text: 'x',
+              marks: [{ type: 'comment', attrs: { commentId: id } }],
+            })),
+          },
+        ],
+      })
+      const saved = async (s: ReturnType<typeof freshStore>, path: string) => {
+        await s.flush()
+        return JSON.parse(io.files.get(path) as string).comments as Array<{
+          id: string
+          text: string
+          resolved: boolean
+          createdAt: string
+        }>
+      }
+
+      it('adds, edits, resolves and deletes a comment', async () => {
+        const { s, scene, path } = await openedStore()
+        expect(await s.addSceneComment(scene.id, { id: 'c1', text: 'Check' })).toBe(true)
+        let [c] = await saved(s, path)
+        expect([c.id, c.text, c.resolved]).toEqual(['c1', 'Check', false])
+        expect(Number.isNaN(Date.parse(c.createdAt))).toBe(false)
+        expect(await s.updateSceneComment(scene.id, 'c1', { text: 'Check again' })).toBe(true)
+        expect(await s.updateSceneComment(scene.id, 'c1', { resolved: true })).toBe(true)
+        ;[c] = await saved(s, path)
+        expect([c.text, c.resolved]).toEqual(['Check again', true])
+        expect(await s.updateSceneComment(scene.id, 'nope', { text: 'x' })).toBe(false)
+        expect(await s.deleteSceneComment(scene.id, 'c1')).toBe(true)
+        expect(await saved(s, path)).toEqual([])
+      })
+
+      it('drops comments whose mark is gone only when pruned', async () => {
+        const { s, scene, path } = await openedStore()
+        await s.addSceneComment(scene.id, { id: 'c1', text: 'a' })
+        await s.addSceneComment(scene.id, { id: 'c2', text: 'b' })
+        await s.setSceneContent(scene.id, marked('c1', 'c2'), 1)
+        expect((await saved(s, path)).map((c) => c.id)).toEqual(['c1', 'c2'])
+        await s.setSceneContent(scene.id, marked('c2'), 1)
+        expect((await saved(s, path)).map((c) => c.id)).toEqual(['c1', 'c2'])
+        await s.pruneSceneComments(scene.id)
+        expect((await saved(s, path)).map((c) => c.id)).toEqual(['c2'])
+      })
+
+      it('refuses comment changes on invalid files', async () => {
+        const { s, scene, path } = await openedStore()
+        await s.close()
+        io.files.set(path, '{ broken')
+        await s.open('book')
+        expect(await s.addSceneComment(scene.id, { id: 'c1', text: 'a' })).toBe(false)
+        expect(io.files.get(path)).toBe('{ broken')
+      })
+    })
+
+    it('concurrent scene writes do not lose each other', async () => {
+      const { s, scene, path } = await openedStore()
+      const doc = { type: 'doc', content: [] }
+      await Promise.all([
+        s.setSceneContent(scene.id, doc, 1),
+        s.setSceneMeta(scene.id, { status: 'revising' }),
+        s.rename(scene.id, 'Renamed'),
+        s.setSceneTodos(scene.id, [{ id: 't1', text: 'x', done: true }]),
+      ])
+      await s.flush()
+      const file = JSON.parse(io.files.get(path) as string)
+      expect([file.status, file.title, file.wordCount, file.todos.length]).toEqual([
+        'revising',
+        'Renamed',
+        1,
+        1,
+      ])
+    })
+
     it('setSceneMeta refuses non-scenes, unknown ids and invalid files', async () => {
       const { s, scene, path } = await openedStore()
       expect(await s.setSceneMeta(s.tree[0].id, { status: 'final' })).toBe(false)

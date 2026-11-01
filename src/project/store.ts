@@ -9,8 +9,11 @@ import { createProjectLock, type ProjectLock } from './lock'
 import { MANIFEST_FILE } from './migrations'
 import { createProject, defaultEnv, openProject, readOnlyReasonOf } from './open'
 import { createProjectIO } from './io'
-import { rollUp } from '../editor/wordCount'
-import { moveTo } from './tree'
+import { countWords, rollUp } from '../editor/wordCount'
+import { appendNoteToScene, noteToSceneContent } from './inbox'
+import { commentIdsIn } from '../editor/comments'
+import { addImage } from './assets'
+import { findNode, moveTo } from './tree'
 import { isTauri } from './pickFolder'
 import {
   MANIFEST_VERSION,
@@ -19,6 +22,7 @@ import {
   type Manifest,
   type ManuscriptNode,
 } from './schemas/manifest'
+import { INBOX_VERSION, inboxSchema, type Inbox, type InboxNote } from './schemas/inbox'
 import { sceneSchema, SCENE_VERSION, type Scene } from './schemas/scene'
 import { parseFile } from './serialize'
 import { useSettingsStore } from '../settings/store'
@@ -95,15 +99,6 @@ export function projectFolder(input: string): string {
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e))
 
 // ---- manifest tree helpers (immutable: the UI sees a new array on every change) ----
-
-function findNode(nodes: ManuscriptNode[], id: string): ManuscriptNode | null {
-  for (const n of nodes) {
-    if (n.id === id) return n
-    const inner = findNode(n.children, id)
-    if (inner) return inner
-  }
-  return null
-}
 
 function findFirst(
   nodes: ManuscriptNode[],
@@ -205,6 +200,10 @@ export const useProjectStore = defineStore('project', () => {
   /** scene id -> metadata; mutated in place, then triggerRef (cheap for hundreds of scenes) */
   const sceneMeta = shallowRef(new Map<string, SceneMeta>())
   const selectedId = ref<string | null>(null)
+  /** inbox note shown in the centre pane (instead of a scene) */
+  const openNoteId = ref<string | null>(null)
+  /** latest inbox state, including edits not saved yet; replaced, never edited */
+  const inbox = shallowRef<Inbox | null>(null)
 
   const readOnly = computed(() => project.value?.readOnly ?? null)
   const tree = computed<ManuscriptNode[]>(() => {
@@ -214,6 +213,12 @@ export const useProjectStore = defineStore('project', () => {
   const trash = computed<TrashEntry[]>(() => {
     void revision.value
     return project.value?.manifest.trash ?? []
+  })
+  const inboxNotes = computed<InboxNote[]>(() => inbox.value?.notes ?? [])
+  const inboxInvalid = computed(() => {
+    void revision.value
+    const path = project.value?.manifest.inbox?.path
+    return !!path && issues.value.some((i) => i.kind === 'invalid' && i.path === path)
   })
   /** Words per node id (containers sum their scenes); the book total is under ''. */
   const wordCounts = computed(() => {
@@ -259,7 +264,8 @@ export const useProjectStore = defineStore('project', () => {
   // ---- issues ----
 
   const nodeIdOfPath = (path: string) =>
-    findFirst(project.value?.manifest.manuscript ?? [], (n) => n.path === path)?.id ?? path
+    findFirst(project.value?.manifest.manuscript ?? [], (n) => n.path === path)?.id ??
+    (project.value?.manifest.inbox?.path === path ? project.value.manifest.inbox.id : path)
 
   function setItemIssue(path: string, res: ReloadResult): void {
     const rest = issues.value.filter(
@@ -306,6 +312,25 @@ export const useProjectStore = defineStore('project', () => {
     if (r?.ok) s.index.setLinks(id, r.value.links)
     else s.index.removeOwner(id)
     putMeta(id, r?.ok ? r.value : null)
+  }
+
+  async function loadInbox(s: Session, p: OpenProject): Promise<void> {
+    const ref = p.manifest.inbox
+    inbox.value = null
+    if (ref) {
+      const text = await s.io.readText(ref.path)
+      const r = text === null ? null : parseFile(inboxSchema, text, ref.path)
+      inbox.value = r?.ok ? r.value : null
+    }
+    if (openNoteId.value && !inbox.value?.notes.some((n) => n.id === openNoteId.value))
+      openNoteId.value = null
+  }
+
+  /** Re-reads what the app keeps in memory about a file that changed on disk. */
+  async function reindex(s: Session, path: string): Promise<void> {
+    const p = project.value
+    if (p?.manifest.inbox?.path === path) await loadInbox(s, p)
+    else await indexScene(s, nodeIdOfPath(path), path)
   }
 
   async function rebuildLinks(s: Session, p: OpenProject): Promise<void> {
@@ -363,7 +388,7 @@ export const useProjectStore = defineStore('project', () => {
         s.pending.delete(path)
         setItemIssue(path, res)
         bumpItem(path)
-        await indexScene(s, nodeIdOfPath(path), path)
+        await reindex(s, path)
         triggerRef(sceneMeta)
         linkRevision.value++
       },
@@ -399,6 +424,7 @@ export const useProjectStore = defineStore('project', () => {
     itemVersions.value = {}
     sceneMeta.value = new Map()
     selectedId.value = null
+    openNoteId.value = null
     revision.value++
     saveStatus.value = 'saved'
 
@@ -420,6 +446,7 @@ export const useProjectStore = defineStore('project', () => {
     } catch (e) {
       console.error('Could not watch the project folder', e)
     }
+    await loadInbox(s, opened.project)
     await rebuildLinks(s, opened.project)
     notifyOpened(opened.project.manifest.title, root)
   }
@@ -546,6 +573,8 @@ export const useProjectStore = defineStore('project', () => {
     itemVersions.value = {}
     sceneMeta.value = new Map()
     selectedId.value = null
+    openNoteId.value = null
+    inbox.value = null
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -606,7 +635,7 @@ export const useProjectStore = defineStore('project', () => {
     s.pending.delete(path)
     setItemIssue(path, await p.reloadItem(path))
     bumpItem(path)
-    await indexScene(s, nodeIdOfPath(path), path)
+    await reindex(s, path)
     triggerRef(sceneMeta)
     linkRevision.value++
     refreshStatus()
@@ -685,20 +714,110 @@ export const useProjectStore = defineStore('project', () => {
     return true
   }
 
+  // Scene read-modify-write steps run one after another, so none overwrites another's result.
+  let patchQueue: Promise<unknown> = Promise.resolve()
+
+  /** Applies a change to one scene file (autosaved). false = not a usable scene or refused. */
+  function patchScene(id: string, change: (scene: Scene) => Scene): Promise<boolean> {
+    const p = assertWritable()
+    const run = async (): Promise<boolean> => {
+      const node = findNode(p.manifest.manuscript, id)
+      if (!node || node.type !== 'scene' || !node.path || p.isInvalid(node.path)) return false
+      const cur = await loadScene(node.path)
+      if (!cur.ok) return false
+      return updateItem(node.path, sceneSchema, change({ ...cur.value }))
+    }
+    const result = patchQueue.then(run)
+    patchQueue = result.catch(() => undefined)
+    return result
+  }
+
   /** Writes status and/or synopsis to the scene file (autosaved). false = refused. */
-  async function setSceneMeta(
+  function setSceneMeta(
     id: string,
     patch: { status?: Scene['status']; synopsis?: string },
   ): Promise<boolean> {
-    const p = assertWritable()
-    const node = findNode(p.manifest.manuscript, id)
-    if (!node || node.type !== 'scene' || !node.path || p.isInvalid(node.path)) return false
-    const cur = await loadScene(node.path)
-    if (!cur.ok) return false
-    const next = { ...cur.value }
-    if (patch.status !== undefined) next.status = patch.status
-    if (patch.synopsis !== undefined) next.synopsis = patch.synopsis
-    return updateItem(node.path, sceneSchema, next)
+    return patchScene(id, (sc) => {
+      if (patch.status !== undefined) sc.status = patch.status
+      if (patch.synopsis !== undefined) sc.synopsis = patch.synopsis
+      return sc
+    })
+  }
+
+  /** Stores the editor content and its word count; other scene fields stay as they are. */
+  function setSceneContent(
+    id: string,
+    content: Scene['content'],
+    wordCount: number,
+  ): Promise<boolean> {
+    return patchScene(id, (sc) => ({ ...sc, content, wordCount }))
+  }
+
+  /** Drops comments whose mark left the text. Run when leaving a scene, so undo can still bring one back. */
+  function pruneSceneComments(id: string): Promise<boolean> {
+    return patchScene(id, (sc) => {
+      const live = commentIdsIn(sc.content)
+      const comments = sc.comments.filter((c) => live.has(c.id))
+      return comments.length === sc.comments.length ? sc : { ...sc, comments }
+    })
+  }
+
+  /** Adds a comment body; the editor puts the matching mark on the text. */
+  function addSceneComment(id: string, comment: { id: string; text: string }): Promise<boolean> {
+    return patchScene(id, (sc) => ({
+      ...sc,
+      comments: [
+        ...sc.comments,
+        {
+          id: comment.id,
+          text: comment.text,
+          createdAt: new Date().toISOString(),
+          resolved: false,
+        },
+      ],
+    }))
+  }
+
+  /** Edits a comment's text and/or resolved flag. false = refused or no such comment. */
+  async function updateSceneComment(
+    id: string,
+    commentId: string,
+    patch: { text?: string; resolved?: boolean },
+  ): Promise<boolean> {
+    let found = false
+    const ok = await patchScene(id, (sc) => ({
+      ...sc,
+      comments: sc.comments.map((c) => {
+        if (c.id !== commentId) return c
+        found = true
+        return { ...c, ...patch }
+      }),
+    }))
+    return ok && found
+  }
+
+  /** Removes the comment body; the editor removes the mark. */
+  function deleteSceneComment(id: string, commentId: string): Promise<boolean> {
+    return patchScene(id, (sc) => ({
+      ...sc,
+      comments: sc.comments.filter((c) => c.id !== commentId),
+    }))
+  }
+
+  /** Copies image bytes to assets/ and returns the relative path. */
+  async function addAsset(bytes: Uint8Array, ext: string): Promise<string> {
+    assertWritable()
+    return addImage((session as Session).io, bytes, ext, newId)
+  }
+
+  /** Bytes of a project file (null = missing), e.g. an image. */
+  async function readAsset(path: string): Promise<Uint8Array | null> {
+    return session ? session.io.readBytes(path) : null
+  }
+
+  /** Replaces the scene's revision checklist (autosaved). false = refused. */
+  function setSceneTodos(id: string, todos: Scene['todos']): Promise<boolean> {
+    return patchScene(id, (sc) => ({ ...sc, todos }))
   }
 
   async function rename(id: string, title: string): Promise<void> {
@@ -707,10 +826,7 @@ export const useProjectStore = defineStore('project', () => {
     const node = findNode(p.manifest.manuscript, id)
     if (!node || name === '' || name === node.title) return
     setManuscript(mapNode(p.manifest.manuscript, id, (n) => ({ ...n, title: name })))
-    if (node.type === 'scene' && node.path && !p.isInvalid(node.path)) {
-      const cur = await loadScene(node.path)
-      if (cur.ok) updateItem(node.path, sceneSchema, { ...cur.value, title: name })
-    }
+    if (node.type === 'scene') await patchScene(id, (sc) => ({ ...sc, title: name }))
   }
 
   /** Swaps the item with its neighbour under the same parent. false = already at the edge. */
@@ -746,6 +862,7 @@ export const useProjectStore = defineStore('project', () => {
   async function restoreItem(id: string): Promise<void> {
     const p = assertWritable()
     const s = session as Session
+    if (p.manifest.trash.some((t) => t.id === id && t.type === 'note')) return restoreNote(id)
     await p.restoreItem(id)
     revision.value++
     const node = findNode(p.manifest.manuscript, id)
@@ -755,6 +872,152 @@ export const useProjectStore = defineStore('project', () => {
       triggerRef(sceneMeta)
     }
     linkRevision.value++
+  }
+
+  // ---- inbox ----
+
+  const INBOX_FILE = 'inbox.json'
+  let inboxCreating: Promise<void> | null = null
+
+  /** Creates inbox.json and registers it in project.json on first use. Throws when it cannot be written. */
+  async function ensureInbox(): Promise<void> {
+    const p = assertWritable()
+    const ref = p.manifest.inbox
+    if (ref) {
+      if (p.isInvalid(ref.path)) throw new Error(`${ref.path} is invalid; not changing it`)
+      return
+    }
+    inboxCreating ??= (async () => {
+      const empty: Inbox = { version: INBOX_VERSION, id: newId(), notes: [] }
+      await p.saveItem(INBOX_FILE, inboxSchema, empty)
+      p.manifest.inbox = { id: empty.id, path: INBOX_FILE }
+      inbox.value = empty
+      revision.value++
+      mark(MANIFEST_FILE)
+    })().finally(() => {
+      inboxCreating = null
+    })
+    await inboxCreating
+  }
+
+  /** The inbox to build the next state on (a listed file that is missing counts as empty). */
+  function currentInbox(): Inbox {
+    const ref = (project.value as OpenProject).manifest.inbox as { id: string }
+    return inbox.value ?? { version: INBOX_VERSION, id: ref.id, notes: [] }
+  }
+
+  function commitInbox(next: Inbox): boolean {
+    const path = project.value?.manifest.inbox?.path
+    if (!path || !updateItem(path, inboxSchema, next)) return false
+    inbox.value = next
+    return true
+  }
+
+  function removeNote(noteId: string): void {
+    const cur = currentInbox()
+    commitInbox({ ...cur, notes: cur.notes.filter((n) => n.id !== noteId) })
+    if (openNoteId.value === noteId) openNoteId.value = null
+  }
+
+  /** Adds an empty note (creating the inbox if needed); returns its id. */
+  async function addNote(title?: string): Promise<string> {
+    await ensureInbox()
+    const name = title?.trim()
+    const note: InboxNote = {
+      id: newId(),
+      ...(name ? { title: name } : {}),
+      content: { type: 'doc', content: [] },
+    }
+    const cur = currentInbox()
+    if (!commitInbox({ ...cur, notes: [...cur.notes, note] }))
+      throw new Error('Cannot change the inbox')
+    return note.id
+  }
+
+  /** Autosaved. An empty title removes it. false = refused (read-only, invalid file) or unknown note. */
+  function updateNote(
+    noteId: string,
+    patch: { title?: string; content?: InboxNote['content'] },
+  ): boolean {
+    const cur = inbox.value
+    if (!cur) return false
+    let found = false
+    const notes = cur.notes.map((n) => {
+      if (n.id !== noteId) return n
+      found = true
+      const next: InboxNote = { id: n.id, content: patch.content ?? n.content }
+      const title = patch.title === undefined ? n.title : patch.title.trim()
+      if (title) next.title = title
+      return next
+    })
+    return found && commitInbox({ ...cur, notes })
+  }
+
+  /** Scene with `content` and the matching word count. */
+  const withContent = (sc: Scene, content: unknown): Scene => ({
+    ...sc,
+    content: content as Scene['content'],
+    wordCount: countWords(content),
+  })
+
+  /** Appends the note to the end of the scene (fresh block ids) and removes it from the inbox. */
+  async function moveNoteToScene(noteId: string, sceneId: string): Promise<boolean> {
+    const p = assertWritable()
+    const note = inbox.value?.notes.find((n) => n.id === noteId)
+    const node = findNode(p.manifest.manuscript, sceneId)
+    if (!note || !node || node.type !== 'scene' || !node.path) return false
+    const ok = await patchScene(sceneId, (sc) =>
+      withContent(sc, appendNoteToScene(sc.content, note.content, newId)),
+    )
+    if (!ok) return false
+    bumpItem(node.path) // an editor showing this scene reloads it
+    removeNote(noteId)
+    return true
+  }
+
+  /** New scene at the end of the parent, filled from the note, which leaves the inbox. null = unknown note. */
+  async function createSceneFromNote(
+    noteId: string,
+    parentId: string | null,
+  ): Promise<string | null> {
+    assertWritable()
+    const note = inbox.value?.notes.find((n) => n.id === noteId)
+    if (!note) return null
+    const id = await addScene(parentId, note.title?.trim() || undefined)
+    await patchScene(id, (sc) => withContent(sc, noteToSceneContent(note.content, newId)))
+    removeNote(noteId)
+    return id
+  }
+
+  async function deleteNote(noteId: string): Promise<TrashEntry> {
+    const p = assertWritable()
+    const notes = inbox.value?.notes ?? []
+    const index = notes.findIndex((n) => n.id === noteId)
+    if (index < 0) throw new Error(`Unknown note ${noteId}`)
+    const entry = await p.trashNote(notes[index], index)
+    removeNote(noteId)
+    revision.value++
+    return entry
+  }
+
+  async function restoreNote(id: string): Promise<void> {
+    const p = assertWritable()
+    const { note, index } = await p.readTrashedNote(id)
+    await ensureInbox()
+    const cur = currentInbox()
+    if (!cur.notes.some((n) => n.id === note.id)) {
+      const notes = [...cur.notes]
+      notes.splice(Math.min(index, notes.length), 0, note)
+      if (!commitInbox({ ...cur, notes })) throw new Error('Cannot change the inbox')
+    }
+    await p.dropTrashedNote(id)
+    revision.value++
+  }
+
+  /** Shows the note in the centre pane (null closes it). */
+  function openNote(noteId: string | null): void {
+    openNoteId.value = noteId
+    if (noteId) selectedId.value = null
   }
 
   // ---- outside changes to the whole project ----
@@ -788,6 +1051,7 @@ export const useProjectStore = defineStore('project', () => {
     revision.value++
     saveStatus.value = 'saved'
     await s.watcher.start().catch((e) => console.error(e))
+    await loadInbox(s, r.project)
     await rebuildLinks(s, r.project)
     return true
   }
@@ -863,6 +1127,9 @@ export const useProjectStore = defineStore('project', () => {
     sceneMeta,
     wordCounts,
     selectedId,
+    openNoteId,
+    inboxNotes,
+    inboxInvalid,
     brokenLinkCount,
     create,
     open,
@@ -877,10 +1144,24 @@ export const useProjectStore = defineStore('project', () => {
     addChapter,
     moveItem,
     setSceneMeta,
+    setSceneContent,
+    pruneSceneComments,
+    setSceneTodos,
+    addSceneComment,
+    updateSceneComment,
+    deleteSceneComment,
+    addAsset,
+    readAsset,
     rename,
     moveUpDown,
     deleteItem,
     restoreItem,
+    addNote,
+    updateNote,
+    moveNoteToScene,
+    createSceneFromNote,
+    deleteNote,
+    openNote,
     resolveExternal,
     reloadManifest,
     keepManifest,
