@@ -48,7 +48,10 @@ function place(): void {
     Object.entries(next).every(([k, v]) => tops.value[k] === v)
   if (!same) tops.value = next
 }
-onMounted(place)
+onMounted(() => {
+  place()
+  if (props.hasDraft) draftEl.value?.focus()
+})
 onUpdated(place)
 watch(
   () => props.anchors,
@@ -99,7 +102,7 @@ const date = (iso: string) => new Date(iso).toLocaleDateString()
         ref="draftEl"
         v-model="draftText"
         class="field"
-        rows="3"
+        rows="4"
         :placeholder="t('comments.placeholder')"
         @keydown.enter.exact.prevent="submitDraft"
       />
@@ -196,7 +199,7 @@ const date = (iso: string) => new Date(iso).toLocaleDateString()
   inset-inline: 1rem 0;
   box-sizing: border-box;
   max-width: 18rem;
-  padding: 0.5rem 0.625rem;
+  padding: 0.75rem 0.875rem;
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   background: var(--bg-panel);
@@ -229,7 +232,7 @@ const date = (iso: string) => new Date(iso).toLocaleDateString()
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
   color: var(--text-secondary);
   font-size: 0.75rem;
 }
@@ -254,7 +257,8 @@ const date = (iso: string) => new Date(iso).toLocaleDateString()
 .field {
   box-sizing: border-box;
   width: 100%;
-  padding: 0.375rem 0.5rem;
+  min-height: 5.5rem;
+  padding: 0.5rem 0.625rem;
   border: 1px solid var(--border-strong);
   border-radius: 0.375rem;
   background: var(--bg-sheet);
@@ -266,10 +270,10 @@ const date = (iso: string) => new Date(iso).toLocaleDateString()
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-  margin-top: 0.375rem;
+  margin-top: 0.75rem;
 }
 .btn {
-  padding: 0.125rem 0.625rem;
+  padding: 0.25rem 0.875rem;
   border: 1px solid var(--border-strong);
   border-radius: 0.375rem;
   background: transparent;

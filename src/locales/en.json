@@ -243,6 +243,7 @@
     "noSynopsis": "No synopsis",
     "emptyContainer": "No scenes yet. Drop a scene here.",
     "moved": "{title} moved",
+    "filtered": "Showing only: {statuses}. Reordering is off while filtered.",
     "keyboardHint": "Enter opens a scene. Alt+Left or Right moves it earlier or later, Alt+Up or Down moves it to the previous or next chapter."
   },
   "outline": {
@@ -252,6 +253,10 @@
     "newChapter": "New chapter",
     "filter": "Filter by status",
     "allStatuses": "All statuses",
+    "filterActive": "Filter by status, {n} selected",
+    "filterClear": "Clear",
+    "filterDone": "Done",
+    "filterHint": "Show only scenes with these statuses. Applies to the outline and the corkboard.",
     "noMatch": "No scenes with this status.",
     "status": {
       "idea": "Idea",
@@ -332,6 +337,9 @@
     "reopen": "Reopen",
     "delete": "Delete comment",
     "jump": "Show in text",
-    "resolved": "resolved"
+    "resolved": "resolved",
+    "show": "Show comments",
+    "hide": "Hide comments",
+    "count": "{n} comments"
   }
 }

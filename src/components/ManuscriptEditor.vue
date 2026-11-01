@@ -12,6 +12,7 @@ import { newId } from '../project/ids'
 import { pickImage } from '../project/pickImage'
 import type { Scene } from '../project/schemas/scene'
 import { focusMode } from '../composables/focusMode'
+import { commentRailOpen } from '../composables/commentRail'
 import { useProjectStore } from '../project/store'
 import EditorToolbar from './EditorToolbar.vue'
 import FootnotePopover from './FootnotePopover.vue'
@@ -185,6 +186,7 @@ const layoutEl = ref<HTMLElement | null>(null)
 
 // Comments whose mark is gone are orphans: hidden here, dropped from the file on the next save.
 const visibleComments = computed(() => comments.value.filter((c) => ranges.value.has(c.id)))
+const showRail = computed(() => commentRailOpen.value && !focusMode.value)
 
 function refreshActive(): void {
   const sel = editor.value?.state.selection
@@ -216,7 +218,8 @@ function startComment(): void {
   if (!ed || !canEdit.value || ed.state.selection.empty) return
   const { from, to } = ed.state.selection
   draft.value = { from, to }
-  layoutRail(false)
+  commentRailOpen.value = true
+  void nextTick(() => layoutRail(false))
 }
 
 async function submitComment(text: string): Promise<void> {
@@ -373,9 +376,25 @@ onBeforeUnmount(() => {
       :items="kind.toolbar"
       :disabled="!canEdit"
       @action="onToolbarAction"
-    />
+    >
+      <template #end>
+        <button
+          type="button"
+          class="rail-toggle"
+          :aria-expanded="commentRailOpen"
+          aria-controls="comment-rail"
+          :aria-label="commentRailOpen ? t('comments.hide') : t('comments.show')"
+          :title="commentRailOpen ? t('comments.hide') : t('comments.show')"
+          @mousedown.prevent
+          @click="commentRailOpen = !commentRailOpen"
+        >
+          <QIcon :name="commentRailOpen ? 'comments_disabled' : 'comment'" aria-hidden="true" />
+          <span v-if="visibleComments.length" class="count" :title="t('comments.count', { n: visibleComments.length })">{{ visibleComments.length }}</span>
+        </button>
+      </template>
+    </EditorToolbar>
     <div class="scroll" @scroll.passive="closeFootnote(false)">
-      <div ref="layoutEl" class="layout">
+      <div ref="layoutEl" class="layout" :class="{ collapsed: !showRail }">
         <div class="sheet">
           <p v-if="locked" class="notice" role="note">{{ t('write.readOnlyNotice') }}</p>
           <p v-if="loadError" class="notice" role="alert">
@@ -395,7 +414,8 @@ onBeforeUnmount(() => {
           <EditorContent :editor="editor" class="content" />
         </div>
         <CommentRail
-          v-if="!focusMode"
+          v-if="showRail"
+          id="comment-rail"
           class="rail"
           :comments="visibleComments"
           :anchors="anchors"
@@ -439,11 +459,53 @@ onBeforeUnmount(() => {
 }
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 37.5rem) minmax(10rem, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 37.5rem) minmax(13rem, 1fr);
   min-height: 100%;
+}
+.layout.collapsed {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 37.5rem) minmax(0, 1fr);
 }
 .rail {
   grid-column: 3;
+}
+.rail-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+.rail-toggle:hover {
+  background: var(--bg-selected);
+}
+.rail-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+.count {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  box-sizing: border-box;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
+  border-radius: 0.5rem;
+  background: var(--focus-ring);
+  color: var(--bg-sheet);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1rem;
+  text-align: center;
 }
 .sheet {
   grid-column: 2;

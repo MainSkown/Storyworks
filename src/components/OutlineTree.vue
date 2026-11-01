@@ -3,10 +3,9 @@ import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useProjectStore } from '../project/store'
 import type { ManuscriptNode } from '../project/schemas/manifest'
-import type { Scene } from '../project/schemas/scene'
+import { isFiltering as filtering, STATUSES, statusFilter as filter } from '../composables/statusFilter'
 import { dropSlot, filterByStatus, keyboardMove, type Slot } from '../project/tree'
 
-type Status = Scene['status']
 type Zone = 'before' | 'after' | 'inside'
 interface Row {
   node: ManuscriptNode
@@ -23,21 +22,18 @@ const vFocus = {
   },
 }
 
-const STATUSES: Status[] = ['idea', 'draft', 'revising', 'final']
-
 const { t } = useI18n()
 const store = useProjectStore()
 const root = ref<HTMLElement | null>(null)
 
 const locked = computed(() => !!store.readOnly)
-const filter = ref<Status[]>([])
-const filtering = computed(() => filter.value.length > 0)
+const filterOpen = ref(false)
 const collapsed = ref(new Set<string>())
 const statusOptions = computed(() =>
   STATUSES.map((value) => ({ value, label: t(`outline.status.${value}`) })),
 )
 
-const statusOf = (id: string): Status => store.sceneMeta.get(id)?.status ?? 'draft'
+const statusOf = (id: string): (typeof STATUSES)[number] => store.sceneMeta.get(id)?.status ?? 'draft'
 
 const shown = computed(() =>
   filtering.value ? filterByStatus(store.tree, statusOf, new Set(filter.value)) : store.tree,
@@ -340,55 +336,48 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
 <template>
   <div ref="root" class="outline">
     <div class="actions" role="toolbar" :aria-label="t('write.actions')">
-      <QBtn
-        flat
-        dense
-        round
-        size="sm"
-        icon="bookmark_add"
+      <button
+        type="button"
+        class="tool"
         :aria-label="t('outline.addPart')"
         :title="t('outline.addPart')"
-        :disable="locked"
+        :disabled="locked"
         @click="addPart"
-      />
-      <QBtn
-        flat
-        dense
-        round
-        size="sm"
-        icon="library_add"
+      >
+        <QIcon name="bookmark_add" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="tool"
         :aria-label="t('outline.addChapter')"
         :title="t('outline.addChapter')"
-        :disable="locked"
+        :disabled="locked"
         @click="addChapter"
-      />
-      <QBtn
-        flat
-        dense
-        round
-        size="sm"
-        icon="note_add"
+      >
+        <QIcon name="library_add" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="tool"
         :aria-label="t('write.addScene')"
         :title="t('write.addScene')"
-        :disable="locked"
+        :disabled="locked"
         @click="addScene"
-      />
-      <QSelect
-        v-model="filter"
-        class="filter"
-        dense
-        outlined
-        multiple
-        emit-value
-        map-options
-        hide-dropdown-icon
-        :options="statusOptions"
-        :label="t('outline.filter')"
-        :display-value="filtering ? filter.map((s) => t(`outline.status.${s}`)).join(', ') : ''"
-        :aria-label="t('outline.filter')"
       >
-        <template #prepend><QIcon name="filter_list" size="1rem" aria-hidden="true" /></template>
-      </QSelect>
+        <QIcon name="note_add" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="tool"
+        :class="{ on: filtering }"
+        aria-haspopup="dialog"
+        :aria-label="filtering ? t('outline.filterActive', { n: filter.length }) : t('outline.filter')"
+        :title="t('outline.filter')"
+        @click="filterOpen = true"
+      >
+        <QIcon name="filter_list" aria-hidden="true" />
+        <span v-if="filtering" class="badge" aria-hidden="true">{{ filter.length }}</span>
+      </button>
     </div>
 
     <p v-if="rows.length === 0" class="empty">
@@ -536,6 +525,40 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
 
     <div class="sr-only" role="status" aria-live="polite">{{ live }}</div>
 
+    <QDialog v-model="filterOpen">
+      <QCard class="confirm" role="dialog" aria-labelledby="outline-filter-title">
+        <QCardSection>
+          <h2 id="outline-filter-title" class="confirm-title">{{ t('outline.filter') }}</h2>
+          <p class="filter-hint">{{ t('outline.filterHint') }}</p>
+          <div class="filter-options">
+            <QCheckbox
+              v-for="o in statusOptions"
+              :key="o.value"
+              v-model="filter"
+              :val="o.value"
+              :label="o.label"
+            />
+          </div>
+        </QCardSection>
+        <QCardActions align="right">
+          <QBtn
+            flat
+            no-caps
+            :label="t('outline.filterClear')"
+            :disable="!filtering"
+            @click="filter = []"
+          />
+          <QBtn
+            unelevated
+            no-caps
+            color="primary"
+            :label="t('outline.filterDone')"
+            @click="filterOpen = false"
+          />
+        </QCardActions>
+      </QCard>
+    </QDialog>
+
     <QDialog v-model="deleteOpen">
       <QCard class="confirm" role="alertdialog" aria-labelledby="outline-del-title">
         <QCardSection>
@@ -558,14 +581,64 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
 .actions {
   display: flex;
   align-items: center;
-  gap: 0.125rem;
-  margin-bottom: 0.375rem;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
 }
-.filter {
-  flex: 1;
-  min-width: 0;
-  margin-inline-start: 0.25rem;
-  font-size: 0.75rem;
+.tool {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  cursor: pointer;
+}
+.tool:hover:not(:disabled) {
+  background: var(--bg-selected);
+}
+.tool.on {
+  background: var(--bg-selected);
+}
+.tool:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.tool:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+.badge {
+  position: absolute;
+  top: -0.375rem;
+  right: -0.375rem;
+  box-sizing: border-box;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
+  border-radius: 0.5rem;
+  background: var(--focus-ring);
+  color: var(--bg-sheet);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1rem;
+  text-align: center;
+}
+.filter-hint {
+  margin: 0 0 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+.filter-options {
+  display: flex;
+  flex-direction: column;
 }
 .tree {
   max-height: 55vh;

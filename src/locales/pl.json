@@ -243,6 +243,7 @@
     "noSynopsis": "Brak streszczenia",
     "emptyContainer": "Brak scen. Upuść tutaj scenę.",
     "moved": "Przeniesiono: {title}",
+    "filtered": "Widoczne tylko: {statuses}. Zmiana kolejności jest wyłączona podczas filtrowania.",
     "keyboardHint": "Enter otwiera scenę. Alt+strzałka w lewo lub w prawo przesuwa ją wcześniej lub później, Alt+strzałka w górę lub w dół przenosi ją do poprzedniego lub następnego rozdziału."
   },
   "outline": {
@@ -252,6 +253,10 @@
     "newChapter": "Nowy rozdział",
     "filter": "Filtruj według statusu",
     "allStatuses": "Wszystkie statusy",
+    "filterActive": "Filtruj według statusu, wybrano: {n}",
+    "filterClear": "Wyczyść",
+    "filterDone": "Gotowe",
+    "filterHint": "Pokaż tylko sceny o tych statusach. Dotyczy konspektu i tablicy.",
     "noMatch": "Brak scen o tym statusie.",
     "status": {
       "idea": "Pomysł",
@@ -332,6 +337,9 @@
     "reopen": "Otwórz ponownie",
     "delete": "Usuń komentarz",
     "jump": "Pokaż w tekście",
-    "resolved": "rozwiązany"
+    "resolved": "rozwiązany",
+    "show": "Pokaż komentarze",
+    "hide": "Ukryj komentarze",
+    "count": "Komentarze: {n}"
   }
 }

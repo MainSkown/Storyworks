@@ -96,6 +96,7 @@ const tip = (i: ToolbarItem): string =>
         <QIcon :name="i.icon" aria-hidden="true" />
       </button>
     </div>
+    <div v-if="$slots.end" class="end"><slot name="end" /></div>
   </div>
 </template>
 
@@ -108,6 +109,9 @@ const tip = (i: ToolbarItem): string =>
   padding: 0.375rem 1rem;
   border-bottom: 1px solid var(--border);
   background: var(--bg-panel);
+}
+.end {
+  margin-inline-start: auto;
 }
 .group {
   display: flex;

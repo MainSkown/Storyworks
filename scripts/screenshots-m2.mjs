@@ -356,14 +356,53 @@ await page.getByRole('button', { name: 'Close', exact: true }).click()
 await page.waitForTimeout(300)
 
 // ---------- status filter ----------
-await page.getByLabel('Filter by status').click()
-await page.getByRole('option', { name: 'Revising' }).click()
-await page.keyboard.press('Escape')
+await row('Setting out').first().click()
+await body.waitFor()
+await page.waitForTimeout(600)
+const filterBtn = page.getByRole('button', { name: /Filter by status/ })
+await filterBtn.click()
+const filterDlg = page.getByRole('dialog', { name: 'Filter by status' })
+await filterDlg.waitFor()
+await filterDlg.getByRole('checkbox', { name: 'Revising' }).check()
+await shot('16-filter-dialog', s)
+await filterDlg.getByRole('button', { name: 'Done' }).click()
+await filterDlg.waitFor({ state: 'hidden' })
 await page.waitForTimeout(400)
 await shot('13-status-filter', s)
-await page.getByLabel('Filter by status').click()
-await page.getByRole('option', { name: 'Revising' }).click()
+await page.getByRole('button', { name: 'Corkboard' }).click()
+await page.waitForTimeout(400)
+check(
+  (await page.locator('[data-card-id]').count()) === 1,
+  'corkboard respects the status filter',
+)
+await shot('13b-corkboard-filtered', s)
+await page.getByRole('button', { name: 'Editor', exact: true }).click()
+await page.getByRole('button', { name: /Filter by status/ }).click()
+await page.getByRole('dialog', { name: 'Filter by status' }).getByRole('button', { name: 'Clear' }).click()
 await page.keyboard.press('Escape')
+await page.waitForTimeout(300)
+
+// ---------- comments collapsed ----------
+await row('Setting out').first().click()
+await body.waitFor()
+await page.waitForTimeout(600)
+const railToggle = page.getByRole('button', { name: 'Hide comments' })
+check((await railToggle.getAttribute('aria-expanded')) === 'true', 'comment toggle expanded')
+await railToggle.click()
+await page.waitForTimeout(400)
+check(
+  (await page.getByRole('complementary', { name: 'Comments' }).count()) === 0,
+  'rail removed when collapsed',
+)
+const cs = await page.locator('.sheet').boundingBox()
+const cc = await page.locator('.scroll').boundingBox()
+check(
+  Math.abs(cs.x + cs.width / 2 - (cc.x + cc.width / 2)) < 12,
+  `sheet centred when collapsed (${cs.x + cs.width / 2} vs ${cc.x + cc.width / 2})`,
+)
+await shot('17-comments-collapsed', s)
+await page.getByRole('button', { name: 'Show comments' }).click()
+await page.waitForTimeout(300)
 
 // ---------- dump, then reload in fresh contexts ----------
 await page.waitForTimeout(1200)

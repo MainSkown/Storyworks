@@ -4,7 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { useProjectStore } from '../project/store'
 import { writeView } from '../composables/writeView'
 import { crossSlot, groupScenes, type CorkSection } from '../project/corkboard'
-import { dropSlot, keyboardMove, type Slot } from '../project/tree'
+import { dropSlot, filterByStatus, keyboardMove, type Slot } from '../project/tree'
+import { isFiltering, statusFilter } from '../composables/statusFilter'
 
 type Zone = 'before' | 'after'
 
@@ -14,7 +15,17 @@ const root = ref<HTMLElement | null>(null)
 const live = ref('')
 
 const locked = computed(() => !!store.readOnly)
-const sections = computed(() => groupScenes(store.tree))
+const statusOf = (id: string) => store.sceneMeta.get(id)?.status ?? 'draft'
+const shownTree = computed(() =>
+  isFiltering.value
+    ? filterByStatus(store.tree, statusOf, new Set(statusFilter.value))
+    : store.tree,
+)
+const sections = computed(() => groupScenes(shownTree.value))
+const filterText = computed(() =>
+  statusFilter.value.map((s) => t(`outline.status.${s}`)).join(', '),
+)
+const canMove = computed(() => !locked.value && !isFiltering.value)
 const cardIds = computed(() => sections.value.flatMap((s) => s.scenes.map((c) => c.node.id)))
 const cardTitles = computed(() => {
   const m = new Map<string, string>()
@@ -22,7 +33,6 @@ const cardTitles = computed(() => {
   return m
 })
 
-const statusOf = (id: string) => store.sceneMeta.get(id)?.status ?? 'draft'
 const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
 const wordsOf = (id: string) => store.wordCounts.get(id) ?? 0
 
@@ -69,7 +79,7 @@ function neighbourVertical(id: string, dir: 1 | -1): string | null {
 
 // ---- move ----
 async function applyMove(id: string, slot: Slot | null): Promise<void> {
-  if (!slot || locked.value) return
+  if (!slot || !canMove.value) return
   if (!(await store.moveItem(id, slot.parentId, slot.index))) return
   live.value = t('corkboard.moved', { title: cardTitles.value.get(id) ?? '' })
   await focusCard(id)
@@ -186,7 +196,9 @@ async function onDrop(e: DragEvent): Promise<void> {
 
 <template>
   <div ref="root" class="cork" @dragleave="onDragLeave">
-    <p v-if="sections.length === 0" class="empty">{{ t('write.emptyTree') }}</p>
+    <p v-if="sections.length === 0" class="empty">
+      {{ isFiltering ? t('outline.noMatch') : t('write.emptyTree') }}
+    </p>
     <div
       v-else
       class="board"
@@ -194,6 +206,9 @@ async function onDrop(e: DragEvent): Promise<void> {
       :aria-label="t('corkboard.title')"
       :aria-description="t('corkboard.keyboardHint')"
     >
+      <p v-if="isFiltering" class="hint">
+        {{ t('corkboard.filtered', { statuses: filterText }) }}
+      </p>
       <p class="hint">{{ t('corkboard.keyboardHint') }}</p>
       <section
         v-for="sec in sections"
@@ -242,7 +257,7 @@ async function onDrop(e: DragEvent): Promise<void> {
                 ].join(', ')
               "
               :aria-description="store.sceneMeta.get(c.node.id)?.synopsis || undefined"
-              :draggable="!locked"
+              :draggable="canMove"
               @click="open(c.node.id)"
               @focus="focusId = c.node.id"
               @keydown="onKeydown($event, c.node.id)"
