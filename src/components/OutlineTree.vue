@@ -22,7 +22,7 @@ const vFocus = {
   },
 }
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const store = useProjectStore()
 const root = ref<HTMLElement | null>(null)
 
@@ -330,6 +330,33 @@ async function onDrop(e: DragEvent): Promise<void> {
   await applyMove(drag, slot)
 }
 
+/** Row inputs for v-memo: rows whose values are unchanged skip render, so typing in a 600-row tree stays cheap. */
+function memoDeps(r: Row): unknown[] {
+  const id = r.node.id
+  const sc = r.node.type === 'scene'
+  return [
+    r.node.title,
+    r.depth,
+    r.size,
+    r.pos,
+    r.open,
+    id === store.selectedId,
+    id === tabbableId.value,
+    id === dragId.value,
+    drop.value?.id === id ? drop.value.zone : null,
+    store.wordCounts.get(id),
+    sc && store.sceneMeta.has(id),
+    sc ? statusOf(id) : null,
+    sc ? store.sceneMeta.get(id)?.synopsis : null,
+    problems.value.get(id),
+    locked.value,
+    canReorder.value,
+    renamingId.value === id ? renameText.value : null,
+    renamingId.value === id,
+    locale.value,
+  ]
+}
+
 const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
 </script>
 
@@ -391,7 +418,7 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
       :aria-description="t('outline.keyboardHint')"
       @dragleave="onDragLeave"
     >
-      <li v-for="r in rows" :key="r.node.id" role="none">
+      <li v-for="r in rows" :key="r.node.id" v-memo="memoDeps(r)" role="none">
         <div
           class="row"
           :class="{

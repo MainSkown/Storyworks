@@ -1,0 +1,397 @@
+{
+  "title": "Storyworks Screens",
+  "heading": "Storyworks screens",
+  "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
+  "milestones": [
+    {
+      "id": "m2",
+      "title": "M2 · Manuscript editor",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Write, before and after",
+          "intro": "The temporary list and text box are replaced by the outline tree in the sidebar, the formatting toolbar, the editor sheet and scene properties in the context panel.",
+          "figures": [
+            {
+              "img": "shots/m1/04-write-after-create.png",
+              "alt": "Write page before M2",
+              "bold": "Before (M1).",
+              "muted": "Temporary list and plain text box."
+            },
+            {
+              "img": "shots/m2/01-tree-empty-editor.png",
+              "alt": "Write after M2, new project",
+              "bold": "After, new project.",
+              "muted": "Tree with Inbox in the sidebar; Trash is now a sidebar entry."
+            },
+            {
+              "img": "shots/m2/02-structure-and-text.png",
+              "alt": "Editor with headings, formatting, lists, quote, alignment",
+              "bold": "Editor.",
+              "muted": "Parts, chapters, scenes with status dots; headings, B/I/U, lists, quote, centred and justified text."
+            },
+            {
+              "img": "shots/m2/02b-text-end.png",
+              "alt": "End of the scene: scene break and footnote",
+              "bold": "Scene break and footnote.",
+              "muted": "Same scene, scrolled to the end."
+            },
+            {
+              "img": "shots/m2/14-dark-editor.png",
+              "alt": "Editor, dark theme",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m2/15-narrow-900.png",
+              "alt": "Editor at 900 px wide",
+              "bold": "900 px wide.",
+              "muted": "Toolbar wraps; below 1100 px the context panel floats over the editor."
+            },
+            {
+              "img": "shots/m2/15b-narrow-900-panel-overlay.png",
+              "alt": "Context panel overlay at 900 px",
+              "bold": "900 px, panel open."
+            },
+            {
+              "img": "shots/m2/08-focus-mode.png",
+              "alt": "Focus mode",
+              "bold": "Focus mode.",
+              "muted": "Ctrl/Cmd+Shift+F; Esc exits."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Footnotes, images, comments",
+          "figures": [
+            {
+              "img": "shots/m2/03-footnote-popover.png",
+              "alt": "Footnote popover",
+              "bold": "Footnote.",
+              "muted": "Click the number to edit its text."
+            },
+            {
+              "img": "shots/m2/04-image.png",
+              "alt": "Inserted image",
+              "bold": "Image.",
+              "muted": "Copied into the project's assets folder."
+            },
+            {
+              "img": "shots/m2/05-image-missing.png",
+              "alt": "Missing image placeholder",
+              "bold": "Missing image.",
+              "muted": "Placeholder with the file path."
+            },
+            {
+              "img": "shots/m2/06a-comment-draft.png",
+              "alt": "New comment draft",
+              "bold": "New comment."
+            },
+            {
+              "img": "shots/m2/06-comments.png",
+              "alt": "Margin comments, one resolved",
+              "bold": "Margin comments.",
+              "muted": "One resolved (dimmed). Private, never exported. Roomier cards; the toggle at the right of the toolbar hides the rail."
+            },
+            {
+              "img": "shots/m2/17-comments-collapsed.png",
+              "alt": "Comments collapsed, sheet centred",
+              "bold": "Comments collapsed.",
+              "muted": "The sheet is centred and gets the space. The state is remembered."
+            },
+            {
+              "img": "shots/m2/07-scene-properties.png",
+              "alt": "Scene properties panel",
+              "bold": "Scene properties.",
+              "muted": "Status, synopsis, POV (disabled until the codex exists), to-dos."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Organising",
+          "figures": [
+            {
+              "img": "shots/m2/13-status-filter.png",
+              "alt": "Tree filtered by status",
+              "bold": "Status filter.",
+              "muted": "Only matching scenes and their parents. The four toolbar buttons now share one style."
+            },
+            {
+              "img": "shots/m2/16-filter-dialog.png",
+              "alt": "Filter by status dialog",
+              "bold": "Filter dialog.",
+              "muted": "Opened from the filter button; a badge shows when it is active."
+            },
+            {
+              "img": "shots/m2/13b-corkboard-filtered.png",
+              "alt": "Corkboard with status filter",
+              "bold": "Corkboard, filtered.",
+              "muted": "The same filter applies here."
+            },
+            {
+              "img": "shots/m2/09-corkboard.png",
+              "alt": "Corkboard",
+              "bold": "Corkboard.",
+              "muted": "Cards grouped by chapter; drag to reorder."
+            },
+            {
+              "img": "shots/m2/10-inbox-note.png",
+              "alt": "Inbox with an open note",
+              "bold": "Inbox.",
+              "muted": "Loose notes, never exported."
+            },
+            {
+              "img": "shots/m2/11-move-note-dialog.png",
+              "alt": "Move note to scene dialog",
+              "bold": "Move note.",
+              "muted": "Append to a scene or make a new scene."
+            },
+            {
+              "img": "shots/m2/12-trash-dialog.png",
+              "alt": "Trash with a scene and a note",
+              "bold": "Trash.",
+              "muted": "Scenes and notes can be restored."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Browser build against a virtual folder. After reload, alignment, footnote, image, comments, synopsis and to-dos persist; the saved scene file holds alignment, footnote, image and block IDs.",
+            "Not yet checked: the real Tauri window (image picker, real folder), a 500-scene book."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m1",
+      "title": "M1 · Project storage and integrity",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Welcome, before and after",
+          "intro": "The Welcome screen existed in M0. New and Open now work and the recent list is filled. \"Preview workspace\" is gone.",
+          "figures": [
+            {
+              "img": "shots/01-welcome-light.png",
+              "alt": "Welcome screen before M1",
+              "bold": "Before (M0).",
+              "muted": "New and Open disabled, temporary preview link."
+            },
+            {
+              "img": "shots/m1/01-welcome-empty.png",
+              "alt": "Welcome screen after M1, no recent projects",
+              "bold": "After, first launch.",
+              "muted": "Same layout, buttons enabled."
+            },
+            {
+              "img": "shots/m1/02-welcome-recent.png",
+              "alt": "Welcome screen with recent projects",
+              "bold": "After, with recent projects.",
+              "muted": "Click or Enter opens one; the cross removes it from the list only."
+            },
+            {
+              "img": "shots/12-welcome-dark.png",
+              "alt": "Welcome screen before M1, dark",
+              "bold": "Before, dark (M0)."
+            },
+            {
+              "img": "shots/m1/14-welcome-dark.png",
+              "alt": "Welcome screen after M1, dark",
+              "bold": "After, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Create and write",
+          "intro": "A project is a folder. The Write page here is the temporary M1 list and text box; M2 (above) replaced it.",
+          "figures": [
+            {
+              "img": "shots/m1/03-new-project-dialog.png",
+              "alt": "New project dialog",
+              "bold": "New project.",
+              "muted": "Title, author, language and folder."
+            },
+            {
+              "img": "shots/m1/04-write-after-create.png",
+              "alt": "Write page with scenes and the Saved indicator",
+              "bold": "Write, new project.",
+              "muted": "The sidebar shows the title and Saved. \"0 words\" is still the M0 placeholder."
+            },
+            {
+              "img": "shots/m1/06-write-dark.png",
+              "alt": "Write page, dark",
+              "bold": "Write, dark."
+            },
+            {
+              "img": "shots/m1/05-write-polish.png",
+              "alt": "Write page in Polish",
+              "bold": "Write, Polish."
+            },
+            {
+              "img": "shots/m1/07-trash-dialog.png",
+              "alt": "Trash dialog with a deleted scene",
+              "bold": "Trash.",
+              "muted": "A deleted scene can be restored. Links to it stay and show as broken meanwhile."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Problems the app reports",
+          "intro": "The project stays open wherever it can, and a bad file is never changed.",
+          "figures": [
+            {
+              "img": "shots/m1/10-issues-banners.png",
+              "alt": "Banners for a missing file, an invalid file and an unlisted file",
+              "bold": "Missing, invalid and unlisted files.",
+              "muted": "The two affected scenes are marked in the list. Unlisted files can be imported or ignored."
+            },
+            {
+              "img": "shots/m1/08-readonly-newer-version.png",
+              "alt": "Read-only banner for a newer project version",
+              "bold": "Read-only, newer version.",
+              "muted": "The project was saved by a newer app."
+            },
+            {
+              "img": "shots/m1/09-readonly-unknown-kind.png",
+              "alt": "Read-only banner for an unknown project kind",
+              "bold": "Read-only, unknown kind."
+            },
+            {
+              "img": "shots/m1/11-open-elsewhere.png",
+              "alt": "Dialog: project is open elsewhere",
+              "bold": "Open elsewhere.",
+              "muted": "Open read-only or cancel."
+            },
+            {
+              "img": "shots/m1/13-external-change.png",
+              "alt": "Dialog: file changed on disk",
+              "bold": "Changed on disk.",
+              "muted": "Asked only when that scene has unsaved edits."
+            },
+            {
+              "img": "shots/m1/12-open-error-invalid-json.png",
+              "alt": "Dialog: project file cannot be opened",
+              "bold": "Invalid project file.",
+              "muted": "Names the problem and leaves the file as it is."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Rendered in Chromium against the dev server, using a browser-only virtual folder. The real folder picker, file watching and lock were checked earlier in a Tauri window (spike), not through these screens.",
+            "The full app run in a Tauri window with a real folder is still to do."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m0",
+      "title": "M0 · App shell",
+      "intro": "Theming, language, zoom and saved settings. All of these screens were new, so there are no before/after pairs.",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Shell",
+          "figures": [
+            {
+              "img": "shots/02-write-light.png",
+              "alt": "Write section with context panel, light theme",
+              "bold": "Write.",
+              "muted": "Sidebar, blue header band, placeholder page, context panel with three sections."
+            },
+            {
+              "img": "shots/05-timelines-light.png",
+              "alt": "Timelines section, light theme",
+              "bold": "Timelines.",
+              "muted": "Orange band and its own four panel sections."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Context panel states",
+          "intro": "Collapsed sections and the hidden panel are stored in the settings file and restored on restart.",
+          "figures": [
+            {
+              "img": "shots/03-write-collapsed.png",
+              "alt": "Two panel sections collapsed",
+              "bold": "Sections collapsed.",
+              "muted": "\"This paragraph\" and \"Problems\" closed."
+            },
+            {
+              "img": "shots/04-write-panel-hidden.png",
+              "alt": "Context panel hidden",
+              "bold": "Panel hidden.",
+              "muted": "Ctrl/Cmd+Alt+P or the header button; content stays centred."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Settings",
+          "figures": [
+            {
+              "img": "shots/15-language-select-open-light.png",
+              "alt": "Settings page, light theme, language dropdown open",
+              "bold": "Settings, light.",
+              "muted": "Language dropdown, theme, UI zoom 80–150 %, editor font size with live sample."
+            },
+            {
+              "img": "shots/15-language-select-open-dark.png",
+              "alt": "Settings page, dark theme, language dropdown open",
+              "bold": "Settings, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Theme, language, zoom",
+          "figures": [
+            {
+              "img": "shots/07-write-dark.png",
+              "alt": "Write section, dark theme",
+              "bold": "Write, dark.",
+              "muted": "Lightened section colours keep AA contrast."
+            },
+            {
+              "img": "shots/09-write-polish.png",
+              "alt": "Write section in Polish",
+              "bold": "Polish.",
+              "muted": "Language switches instantly."
+            },
+            {
+              "img": "shots/10-write-zoom80.png",
+              "alt": "UI zoom 80 percent",
+              "bold": "Zoom 80 %."
+            },
+            {
+              "img": "shots/11-write-zoom150.png",
+              "alt": "UI zoom 150 percent",
+              "bold": "Zoom 150 %.",
+              "muted": "Sidebar and panel scale with the text."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Invalid settings file",
+          "figures": [
+            {
+              "img": "shots/14-invalid-settings.png",
+              "alt": "Banner saying the settings file is invalid",
+              "bold": "Banner, defaults in use.",
+              "muted": "The file is left untouched."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
