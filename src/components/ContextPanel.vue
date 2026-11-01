@@ -9,12 +9,30 @@ import NodeInspector from './timeline/NodeInspector.vue'
 import ThisParagraphPanel from './links/ThisParagraphPanel.vue'
 import SceneProblemsPanel from './links/SceneProblemsPanel.vue'
 import WrittenInPanel from './links/WrittenInPanel.vue'
+import LinkedRulesPanel from './links/LinkedRulesPanel.vue'
+import RuleUsedInPanel from './links/RuleUsedInPanel.vue'
+import InThisScenePanel from './links/InThisScenePanel.vue'
+import LinkedEntriesPanel from './links/LinkedEntriesPanel.vue'
+import EntryLinksPanel from './links/EntryLinksPanel.vue'
+import { useCodexStore } from '../codex/store'
+import { nodeEntries, sceneEntries } from '../composables/entryPanels'
+import { resolveNodeRules } from '../rules/nodeRules'
+import { useRulesStore } from '../rules/store'
+import { useTimelinesStore } from '../timeline/store'
 import { paragraphLinks, passagesForSelectedNode, sceneProblems } from '../composables/contextLinks'
 
 const props = defineProps<{ sectionId: SectionId }>()
 const { t } = useI18n()
 const openTodos = ref(0)
+const tl = useTimelinesStore()
+const rulesStore = useRulesStore()
+const codexStore = useCodexStore()
 const list = computed(() => panelSections[props.sectionId] ?? [])
+
+const linkedRuleCount = computed(() => {
+  const n = tl.current?.nodes.find((x) => x.id === tl.selectedNodeId)
+  return n ? resolveNodeRules(n.ruleIds, rulesStore.rules, rulesStore.categories).length : 0
+})
 
 function countOf(id: string): number {
   switch (id) {
@@ -26,6 +44,16 @@ function countOf(id: string): number {
       return sceneProblems.value.length
     case 'timelines.writtenIn':
       return passagesForSelectedNode.value.length
+    case 'write.inThisScene':
+      return sceneEntries.value.length
+    case 'timelines.linked':
+      return linkedRuleCount.value + nodeEntries.value.length
+    case 'codex.links': {
+      const e = codexStore.selected
+      return e ? codexStore.usedInNodes(e.id).length + e.ruleIds.length : 0
+    }
+    case 'rules.usedIn':
+      return rulesStore.selectedId ? rulesStore.usedIn(rulesStore.selectedId).length : 0
     default:
       return 0
   }
@@ -48,6 +76,13 @@ function countOf(id: string): number {
         <SceneProblemsPanel v-else-if="p.id === 'write.problems'" />
         <NodeInspector v-else-if="p.id === 'timelines.selectedEvent'" />
         <WrittenInPanel v-else-if="p.id === 'timelines.writtenIn'" />
+        <InThisScenePanel v-else-if="p.id === 'write.inThisScene'" />
+        <template v-else-if="p.id === 'timelines.linked'">
+          <LinkedRulesPanel />
+          <LinkedEntriesPanel />
+        </template>
+        <EntryLinksPanel v-else-if="p.id === 'codex.links'" />
+        <RuleUsedInPanel v-else-if="p.id === 'rules.usedIn'" />
         <p v-else-if="p.id.startsWith('timelines.')" class="later">{{ t('contextPanel.later') }}</p>
         <template v-else>{{ t('sidebar.placeholder') }}</template>
       </CollapsibleSection>

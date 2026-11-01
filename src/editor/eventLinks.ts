@@ -2,13 +2,18 @@ import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey, type EditorState } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import type { Node as PMNode } from '@tiptap/pm/model'
+import { CODEX_KIND, type Link } from '../project/links'
 
 /** Text blocks that take event links (list items link through their paragraph). */
 const LINKABLE = new Set(['paragraph', 'heading'])
 
 export interface BlockLinkInfo {
+  /** Event and entry links together. */
   count: number
   broken: boolean
+  /** Per kind; absent = all links are event links. */
+  events?: number
+  entries?: number
 }
 
 export interface LinkedBlock extends BlockLinkInfo {
@@ -37,6 +42,27 @@ export function cursorBlockId(state: Pick<EditorState, 'selection'>): string | n
     if (LINKABLE.has(node.type.name) && typeof id === 'string' && id !== '') return id
   }
   return null
+}
+
+/** Count, per-kind counts and broken flag for each linked block; links without a passage block are left out. */
+export function summarizeBlockLinks(
+  links: readonly Link[],
+  isBroken: (link: Link) => boolean,
+): Map<string, BlockLinkInfo & { events: number; entries: number }> {
+  const out = new Map<string, BlockLinkInfo & { events: number; entries: number }>()
+  for (const l of links) {
+    const block = l.from.block
+    if (block === undefined) continue
+    const cur = out.get(block) ?? { count: 0, broken: false, events: 0, entries: 0 }
+    const entry = l.kind === CODEX_KIND
+    out.set(block, {
+      count: cur.count + 1,
+      broken: cur.broken || isBroken(l),
+      events: cur.events + (entry ? 0 : 1),
+      entries: cur.entries + (entry ? 1 : 0),
+    })
+  }
+  return out
 }
 
 /** Blocks of `doc` that have links, with their position. */
@@ -103,7 +129,13 @@ export const EventLinks = Extension.create<Options>({
         doc,
         linkedBlocks(doc, this.options.info).map((b) =>
           Decoration.node(b.pos, b.pos + doc.nodeAt(b.pos)!.nodeSize, {
-            class: b.broken ? 'has-event-link has-broken-link' : 'has-event-link',
+            class: [
+              (b.events ?? b.count) > 0 ? 'has-event-link' : '',
+              (b.entries ?? 0) > 0 ? 'has-codex-link' : '',
+              b.broken ? 'has-broken-link' : '',
+            ]
+              .filter(Boolean)
+              .join(' '),
             'data-link-count': String(b.count),
             ...(b.broken ? { 'data-link-broken': 'true' } : {}),
           }),

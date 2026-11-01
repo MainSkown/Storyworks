@@ -7,13 +7,23 @@ import { inboxNoteKind } from '../../editor/inboxNote'
 import { useProjectStore } from '../../project/store'
 import { useTimelinesStore, type Outcome } from '../../timeline/store'
 import { dateToInput, readDateInput } from '../../timeline/dateInput'
+import { addEntryId, resolveNodeEntries } from '../../codex/nodeEntries'
+import { openEntry } from '../../codex/openEntry'
+import { useCodexStore } from '../../codex/store'
+import { addRuleId, resolveNodeRules } from '../../rules/nodeRules'
+import { openRule } from '../../rules/openRule'
+import { useRulesStore } from '../../rules/store'
 import EditorToolbar from '../EditorToolbar.vue'
+import EntryPickerDialog from './EntryPickerDialog.vue'
+import RulePickerDialog from './RulePickerDialog.vue'
 import '../../editor/editor.css'
 
 const { t, te } = useI18n()
 const tl = useTimelinesStore()
 const project = useProjectStore()
 const uid = useId()
+const rules = useRulesStore()
+const codex = useCodexStore()
 
 const node = computed(() => tl.current?.nodes.find((n) => n.id === tl.selectedNodeId) ?? null)
 const branches = computed(() => tl.current?.branches ?? [])
@@ -144,6 +154,34 @@ function createBranch(): void {
   newBranchOpen.value = false
   branchName.value = ''
   branchDashed.value = false
+}
+
+// ---- rules ----
+const pickerOpen = ref(false)
+const linkedRules = computed(() =>
+  node.value ? resolveNodeRules(node.value.ruleIds, rules.rules, rules.categories) : [],
+)
+function addRule(id: string): void {
+  if (node.value)
+    report(tl.updateNode(node.value.id, { ruleIds: addRuleId(node.value.ruleIds, id) }))
+}
+function removeRule(id: string): void {
+  if (node.value)
+    report(tl.updateNode(node.value.id, { ruleIds: node.value.ruleIds.filter((x) => x !== id) }))
+}
+
+// ---- codex entries ----
+const entryPickerOpen = ref(false)
+const linkedEntries = computed(() =>
+  node.value ? resolveNodeEntries(node.value.codexIds, codex.entries, codex.types) : [],
+)
+function addEntry(id: string): void {
+  if (node.value)
+    report(tl.updateNode(node.value.id, { codexIds: addEntryId(node.value.codexIds, id) }))
+}
+function removeEntry(id: string): void {
+  if (node.value)
+    report(tl.updateNode(node.value.id, { codexIds: node.value.codexIds.filter((x) => x !== id) }))
 }
 
 // ---- delete ----
@@ -282,6 +320,117 @@ async function confirmRemove(): Promise<void> {
       </div>
     </form>
 
+    <span class="label">{{ t('nodeRules.label') }}</span>
+    <ul v-if="linkedRules.length" class="chips">
+      <li
+        v-for="r in linkedRules"
+        :key="r.id"
+        class="rule-chip"
+        :class="{ missing: r.missing }"
+        data-testid="node-rule-chip"
+      >
+        <template v-if="r.missing">
+          <QIcon name="warning" size="1rem" aria-hidden="true" />
+          <span class="chip-name">{{ t('nodeRules.missing') }}</span>
+          <button
+            type="button"
+            class="chip-btn"
+            :disabled="locked"
+            :aria-label="t('nodeRules.removeMissingLabel')"
+            @click="removeRule(r.id)"
+          >
+            {{ t('nodeRules.remove') }}
+          </button>
+        </template>
+        <template v-else>
+          <span class="chip-name">{{ r.rule.title || t('nodeRules.untitled') }}</span>
+          <button
+            type="button"
+            class="chip-btn"
+            :aria-label="
+              t('nodeRules.openLabel', { title: r.rule.title || t('nodeRules.untitled') })
+            "
+            @click="openRule(r.id)"
+          >
+            {{ t('nodeRules.open') }}
+          </button>
+          <button
+            type="button"
+            class="chip-btn"
+            :disabled="locked"
+            :aria-label="
+              t('nodeRules.removeLabel', { title: r.rule.title || t('nodeRules.untitled') })
+            "
+            @click="removeRule(r.id)"
+          >
+            {{ t('nodeRules.remove') }}
+          </button>
+        </template>
+      </li>
+    </ul>
+    <p v-else class="note">{{ t('nodeRules.none') }}</p>
+    <button type="button" class="btn" :disabled="locked" @click="pickerOpen = true">
+      {{ t('nodeRules.add') }}
+    </button>
+    <RulePickerDialog v-model="pickerOpen" :linked="node.ruleIds" @pick="addRule" />
+
+    <span class="label">{{ t('nodeCodex.label') }}</span>
+    <ul v-if="linkedEntries.length" class="chips">
+      <li
+        v-for="r in linkedEntries"
+        :key="r.id"
+        class="rule-chip codex-chip"
+        :class="{ missing: r.missing }"
+        data-testid="node-entry-chip"
+      >
+        <template v-if="r.missing">
+          <QIcon name="warning" size="1rem" aria-hidden="true" />
+          <span class="chip-name">{{ t('nodeCodex.missing') }}</span>
+          <button
+            type="button"
+            class="chip-btn"
+            :disabled="locked"
+            :aria-label="t('nodeCodex.removeMissingLabel')"
+            @click="removeEntry(r.id)"
+          >
+            {{ t('nodeCodex.remove') }}
+          </button>
+        </template>
+        <template v-else>
+          <span class="chip-name">
+            {{ r.entry.name || t('nodeCodex.untitled') }}
+            <span v-if="r.typeName" class="chip-type">· {{ r.typeName }}</span>
+          </span>
+          <button
+            type="button"
+            class="chip-btn"
+            :aria-label="
+              t('nodeCodex.openLabel', { name: r.entry.name || t('nodeCodex.untitled') })
+            "
+            @click="openEntry(r.id)"
+          >
+            {{ t('nodeCodex.open') }}
+          </button>
+          <button
+            type="button"
+            class="chip-btn"
+            :disabled="locked"
+            :aria-label="
+              t('nodeCodex.removeLabel', { name: r.entry.name || t('nodeCodex.untitled') })
+            "
+            @click="removeEntry(r.id)"
+          >
+            {{ t('nodeCodex.remove') }}
+          </button>
+        </template>
+      </li>
+    </ul>
+    <p v-else class="note">{{ t('nodeCodex.none') }}</p>
+    <button type="button" class="btn" :disabled="locked" @click="entryPickerOpen = true">
+      {{ t('nodeCodex.add') }}
+    </button>
+    <EntryPickerDialog v-model="entryPickerOpen" :linked="node.codexIds" @pick="addEntry" />
+
     <p v-if="message" class="error" role="alert">{{ message }}</p>
 
     <button type="button" class="btn danger" :disabled="locked" @click="remove">
@@ -413,6 +562,67 @@ async function confirmRemove(): Promise<void> {
   margin-top: 0.75rem;
   border-color: var(--section-checks);
   color: var(--section-checks);
+}
+.chips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rule-chip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--tag-rule);
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+}
+.rule-chip.codex-chip {
+  border-color: var(--section-codex);
+}
+.chip-type {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.rule-chip.missing .chip-type {
+  color: inherit;
+}
+.rule-chip.missing {
+  border-color: var(--tag-problem);
+  background: var(--tag-problem);
+  color: var(--tag-problem-on);
+}
+.chip-name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+.chip-btn {
+  padding: 0 0.4rem;
+  border: 1px solid currentcolor;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.chip-btn:hover:not(:disabled) {
+  background: var(--bg-selected);
+  color: var(--text-primary);
+}
+.chip-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.chip-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
 }
 .branch-form {
   display: flex;

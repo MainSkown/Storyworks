@@ -127,7 +127,10 @@ function colorStyle(s: AppSection) {
               >
                 <TimelineSidebar />
               </div>
-              <div v-else-if="s.id === active.id" class="expand">
+              <div
+                v-else-if="s.id === active.id && s.id !== 'rules' && s.id !== 'codex'"
+                class="expand"
+              >
                 {{ t('sidebar.placeholder') }}
               </div>
             </li>

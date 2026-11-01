@@ -33,6 +33,12 @@
       "writtenIn": "Written in",
       "whoLearnsWhat": "Who learns what here",
       "linked": "Linked"
+    },
+    "rules": {
+      "usedIn": "Used in"
+    },
+    "codex": {
+      "links": "Links"
     }
   },
   "sidebar": {
@@ -221,7 +227,7 @@
       "footnote": "Footnote",
       "image": "Insert image",
       "comment": "Add comment",
-      "eventLink": "Link to event"
+      "eventLink": "Link to…"
     },
     "body": "Scene text"
   },
@@ -229,7 +235,10 @@
     "status": "Status",
     "synopsis": "Synopsis",
     "pov": "Point of view",
-    "povNote": "Available once the codex exists.",
+    "povNone": "No point of view",
+    "povNoMatch": "No matching entry",
+    "povMissing": "Missing entry",
+    "povClear": "Clear",
     "todos": "To-dos",
     "todoNew": "New to-do",
     "todoAdd": "Add to-do",
@@ -357,6 +366,9 @@
     "undated": "Undated",
     "filterByTag": "Filter by tag",
     "filterByBranch": "Filter by branch",
+    "filterByEntry": "Linked codex entry",
+    "anyEntry": "Any",
+    "missingEntry": "Missing entry",
     "clearFilter": "Clear filter",
     "rejected": {
       "cycle": "That connection would make a loop.",
@@ -505,9 +517,31 @@
       "scene": "Scene",
       "note": "Note",
       "timeline": "Timeline",
-      "node": "Event"
+      "node": "Event",
+      "rule": "Rule",
+      "entry": "Entry"
     },
     "node": "Event · {title} · from {timeline}",
+    "rule": "Rule · {title}",
+    "entry": "Entry · {title}",
+    "restoreFailedEntry": {
+      "generic": "Could not restore {title}.",
+      "not-in-trash": "Could not restore {title}: it is no longer in the trash.",
+      "file-missing": "Could not restore {title}: the saved copy is missing from the trash.",
+      "file-invalid": "Could not restore {title}: the saved copy is damaged. It was left untouched.",
+      "path-exists": "Could not restore {title}: a file with the same name already exists.",
+      "read-only": "Could not restore {title}: the project is read-only.",
+      "unknown": "Could not restore {title}."
+    },
+    "restoreFailedRule": {
+      "generic": "Could not restore {title}.",
+      "not-in-trash": "Could not restore {title}: it is no longer in the trash.",
+      "file-missing": "Could not restore {title}: the saved copy is missing from the trash.",
+      "file-invalid": "Could not restore {title}: the saved copy is damaged. It was left untouched.",
+      "path-exists": "Could not restore {title}: a file with the same name already exists.",
+      "read-only": "Could not restore {title}: the project is read-only.",
+      "unknown": "Could not restore {title}."
+    },
     "unknownTimeline": "a timeline that no longer exists",
     "skippedEdges": "No connections were skipped | 1 connection could not be restored | {n} connections could not be restored",
     "restoreFailed": {
@@ -520,6 +554,174 @@
       "not-in-trash": "Could not restore {title}: it is no longer in the trash.",
       "read-only": "Could not restore {title}: the project is read-only.",
       "unknown": "Could not restore {title}."
+    }
+  },
+  "rules": {
+    "untitled": "Untitled rule",
+    "listLabel": "Rules",
+    "newRule": "New rule",
+    "manageCategories": "Categories",
+    "search": "Search rules",
+    "filterCategory": "Filter by category",
+    "filterTag": "Filter by tag",
+    "clearFilter": "Clear filters",
+    "noCategory": "No category",
+    "noCategories": "There are no categories. Add one to create rules.",
+    "noRules": "No rules yet. Use \"New rule\" to add the first one.",
+    "noRulesHint": "Rules describe how your world works. Create the first one with \"New rule\".",
+    "noMatch": "No rules match the search or filters.",
+    "selectOne": "Select a rule to read or edit it.",
+    "invalidHeading": "Files with problems",
+    "invalidFile": "Invalid file",
+    "missingFile": "Missing file",
+    "invalidHint": "These files were left untouched. Fix or restore them outside the app.",
+    "readOnly": "This project is read-only, so rules cannot be changed.",
+    "categoryGone": "The category of this rule no longer exists. Pick another one.",
+    "tagsHint": "Type a tag and press Enter",
+    "fields": {
+      "title": "Title",
+      "category": "Category",
+      "tags": "Tags",
+      "description": "Description",
+      "exceptions": "Exceptions"
+    },
+    "usedIn": "Used in",
+    "usedInNone": "No events use this rule.",
+    "usedByEntries": {
+      "title": "Used by entries",
+      "none": "No codex entries list this rule.",
+      "open": "Open entry: {name}",
+      "untitled": "Untitled entry"
+    },
+    "jumpFailed": "That event no longer exists.",
+    "cancel": "Cancel",
+    "deleteRule": "Delete rule",
+    "deleteConfirm": "Move \"{title}\" to the trash?",
+    "deleteLinks": "No events use it. | 1 event uses it. Its link will show as missing until the rule is restored. | {n} events use it. Their links will show as missing until the rule is restored.",
+    "deleteFailed": "Could not delete the rule.",
+    "categories": {
+      "title": "Rule categories",
+      "none": "There are no categories.",
+      "newName": "New category name",
+      "newColor": "Colour of the new category",
+      "add": "Add",
+      "close": "Close",
+      "color": "Colour of {name}",
+      "rename": "Name of category {name}",
+      "ruleCount": "No rules | 1 rule | {n} rules",
+      "delete": "Delete category {name}",
+      "last": "The last category cannot be deleted.",
+      "deleteTitle": "Delete category \"{name}\"?",
+      "deleteEmpty": "No rules use this category.",
+      "deleteMoves": "No rules to move. | 1 rule will move to another category. | {n} rules will move to another category.",
+      "moveTo": "Move them to",
+      "deleteConfirm": "Delete category",
+      "failed": "This did not work."
+    }
+  },
+  "codex": {
+    "untitled": "Untitled entry",
+    "listLabel": "Codex entries",
+    "newEntry": "New entry",
+    "manageTypes": "Types",
+    "search": "Search names, aliases and tags",
+    "filterType": "Filter by type",
+    "filterTag": "Filter by tag",
+    "clearFilter": "Clear filters",
+    "noType": "No type",
+    "noTypes": "There are no types. Add one to create entries.",
+    "noEntries": "No entries yet. Use \"New entry\" to add the first one.",
+    "noEntriesHint": "The codex holds your characters, places and things. Create the first entry with \"New entry\".",
+    "noMatch": "No entries match the search or filters.",
+    "selectOne": "Select an entry to read or edit it.",
+    "invalidHeading": "Files with problems",
+    "invalidFile": "Invalid file",
+    "missingFile": "Missing file",
+    "invalidHint": "These files were left untouched. Fix or restore them outside the app.",
+    "readOnly": "This project is read-only, so the codex cannot be changed.",
+    "typeGone": "The type of this entry no longer exists. Pick another one.",
+    "tagsHint": "Type a tag and press Enter",
+    "aliasesHint": "Other names for this entry. Type one and press Enter",
+    "aliasDuplicate": "That alias is already on the list.",
+    "fields": {
+      "name": "Name",
+      "type": "Type",
+      "image": "Image",
+      "aliases": "Aliases",
+      "tags": "Tags",
+      "notes": "Notes",
+      "appendixText": "Appendix text"
+    },
+    "noImage": "No image.",
+    "addImage": "Add image",
+    "changeImage": "Change image",
+    "removeImage": "Remove image",
+    "imageMissing": "The image file is missing from the project.",
+    "imageFailed": "Could not add the image.",
+    "imageBadType": "{name} is not a supported image type.",
+    "appendix": "Appendix",
+    "appendixHint": "Text shown for this entry when the book gets appendices.",
+    "includeInAppendices": "Include in appendices",
+    "rules": "Rules",
+    "rulesNone": "No rules are attached to this entry.",
+    "addRule": "Add a rule",
+    "openRule": "Open rule {title}",
+    "removeRule": "Remove rule {title}",
+    "ruleMissing": "Missing rule",
+    "noRuleMatch": "No matching rules.",
+    "noRulesExist": "There are no rules to add yet.",
+    "usedIn": "Used in",
+    "usedInNone": "No events use this entry.",
+    "tabs": "Entry sections",
+    "tabDetails": "Details",
+    "tabLinks": "Links",
+    "tabMentions": "Mentions",
+    "mentionCount": "No mentions | 1 mention | {n} mentions",
+    "appearsIn": "Appears in",
+    "appearsInNone": "No passages are linked to this entry yet. Use Mentions to find them.",
+    "untitledScene": "Untitled scene",
+    "passageGone": "This passage no longer exists.",
+    "passageProblem": "Broken",
+    "passageRemoveFailed": "Could not remove the link.",
+    "jump": "Jump",
+    "removeLink": "Remove link",
+    "mentionsHint": "Passages that use this entry's name or an alias but are not linked to it yet.",
+    "scanning": "Looking through the manuscript...",
+    "mentionsNone": "No unlinked mentions.",
+    "linkMention": "Link",
+    "notThisOne": "Not this one",
+    "linkAll": "Link all | Link 1 | Link all {n}",
+    "linkAllTitle": "Link all mentions?",
+    "linkAllConfirm": "No mentions to link. | Link 1 passage to this entry? | Link {n} passages to this entry?",
+    "linkedCount": "Nothing linked. | Linked 1 passage. | Linked {n} passages.",
+    "mentionLinkFailed": "Could not link the passage.",
+    "mentionIgnoreFailed": "Could not dismiss the mention.",
+    "jumpFailed": "That event no longer exists.",
+    "cancel": "Cancel",
+    "deleteEntry": "Delete entry",
+    "deleteConfirm": "Move \"{name}\" to the trash?",
+    "deleteLinks": "No events use it. | 1 event uses it. Its link will show as missing until the entry is restored. | {n} events use it. Their links will show as missing until the entry is restored.",
+    "deleteFailed": "Could not delete the entry.",
+    "types": {
+      "title": "Entry types",
+      "none": "There are no types.",
+      "last": "At least one type must remain, so the last type cannot be deleted.",
+      "newName": "New type name",
+      "newColor": "Colour of the new type",
+      "newIcon": "Icon of the new type",
+      "add": "Add",
+      "close": "Close",
+      "color": "Colour of {name}",
+      "icon": "Icon of {name}",
+      "rename": "Name of type {name}",
+      "entryCount": "No entries | 1 entry | {n} entries",
+      "delete": "Delete type {name}",
+      "deleteTitle": "Delete type \"{name}\"?",
+      "deleteEmpty": "No entries use this type.",
+      "deleteMoves": "No entries to move. | 1 entry will move to another type. | {n} entries will move to another type.",
+      "moveTo": "Move them to",
+      "deleteConfirm": "Delete type",
+      "failed": "This did not work."
     }
   },
   "common": {
@@ -556,34 +758,45 @@
   "eventLink": {
     "marker": {
       "linked": "No linked events | Linked to 1 event | Linked to {n} events",
-      "broken": "No broken links | Broken event link: the event is missing | {n} event links, at least one event is missing"
+      "linkedEntries": "No linked codex entries | Linked to 1 codex entry | Linked to {n} codex entries",
+      "linkedMixed": "Linked to events ({events}) and codex entries ({entries})",
+      "broken": "No broken links | Broken link: its target is missing | {n} links, at least one target is missing"
     },
     "picker": {
-      "titleLink": "Link to event",
+      "titleLink": "Link to…",
       "titleRelink": "Choose another event",
+      "titleRelinkEntry": "Choose another codex entry",
+      "tabEvents": "Events",
+      "tabCodex": "Codex",
       "search": "Search events",
+      "searchCodex": "Search codex entries",
       "empty": "No events yet: create one in Timelines",
+      "emptyCodex": "No codex entries yet",
       "noMatch": "No events match",
+      "noMatchCodex": "No codex entries match",
       "cancel": "Cancel"
     },
     "popover": {
-      "title": "Linked events",
+      "title": "Links",
       "event": "Event",
+      "entry": "Codex",
       "problem": "Problem",
       "missing": "Missing event",
+      "missingEntry": "Missing entry",
+      "open": "Open",
       "jump": "Jump",
       "unlink": "Unlink",
       "relink": "Relink",
       "remove": "Remove"
     },
     "failed": "Could not change the links.",
-    "alreadyLinked": "No new links | This paragraph is already linked to that event | These {n} paragraphs are already linked to that event"
+    "alreadyLinked": "No new links | This paragraph is already linked to that | These {n} paragraphs are already linked to that"
   },
   "linksPanel": {
     "paragraph": {
-      "none": "Click in a paragraph to see its linked events.",
-      "empty": "No events linked to this paragraph.",
-      "link": "Link to event"
+      "none": "Click in a paragraph to see its links.",
+      "empty": "Nothing linked to this paragraph.",
+      "link": "Link to…"
     },
     "problems": {
       "empty": "No problems in this scene."
@@ -594,6 +807,79 @@
       "empty": "Not written in any scene yet.",
       "gone": "Passage no longer exists",
       "untitledScene": "Untitled scene"
+    },
+    "inScene": {
+      "empty": "No codex entries linked in this scene."
+    },
+    "entries": {
+      "heading": "Codex entries",
+      "empty": "No codex entries linked to this event.",
+      "problem": "Problem",
+      "missing": "Missing entry",
+      "noType": "Entry",
+      "pov": "Point of view",
+      "open": "Open"
+    },
+    "entryLinks": {
+      "none": "Select an entry to see what it links.",
+      "events": "Events",
+      "noEvents": "Not linked to any event.",
+      "rules": "Rules",
+      "noRules": "No rules linked."
+    },
+    "linkedRules": {
+      "none": "Select an event to see its rules.",
+      "empty": "No rules linked to this event.",
+      "tag": "Rule",
+      "problem": "Problem",
+      "missing": "Missing rule",
+      "uncategorized": "No category",
+      "open": "Open"
+    },
+    "ruleUsedIn": {
+      "none": "Select a rule to see where it is used.",
+      "empty": "Not linked to any event yet.",
+      "tag": "Event",
+      "untitled": "Untitled event",
+      "jump": "Jump"
     }
+  },
+  "nodeCodex": {
+    "label": "Codex",
+    "add": "Add entry",
+    "none": "No entries linked.",
+    "open": "Open",
+    "openLabel": "Open entry: {name}",
+    "remove": "Remove",
+    "removeLabel": "Remove entry: {name}",
+    "removeMissingLabel": "Remove missing entry",
+    "missing": "Missing entry",
+    "untitled": "Untitled entry",
+    "noType": "No type",
+    "pickerTitle": "Add entry",
+    "search": "Search entries",
+    "empty": "No entries yet: create one in Codex",
+    "allLinked": "All entries are already linked",
+    "noMatch": "No entries match",
+    "cancel": "Cancel"
+  },
+  "nodeRules": {
+    "label": "Rules",
+    "add": "Add rule",
+    "none": "No rules linked.",
+    "open": "Open",
+    "openLabel": "Open rule: {title}",
+    "remove": "Remove",
+    "removeLabel": "Remove rule: {title}",
+    "removeMissingLabel": "Remove missing rule",
+    "missing": "Missing rule",
+    "untitled": "Untitled rule",
+    "uncategorized": "No category",
+    "pickerTitle": "Add rule",
+    "search": "Search rules",
+    "empty": "No rules yet: create one in Rules",
+    "allLinked": "All rules are already linked",
+    "noMatch": "No rules match",
+    "cancel": "Cancel"
   }
 }

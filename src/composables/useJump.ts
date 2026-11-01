@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import type { ResolveResult } from '../project/links'
+import { useCodexStore } from '../codex/store'
 import { useProjectStore } from '../project/store'
 import { useTimelinesStore } from '../timeline/store'
 import { writeView } from './writeView'
@@ -111,6 +112,15 @@ export const takePendingNodeJump = jump.takePendingNode
 export const jumpToNode = jump.toNode
 /** Jumps to a scene block: Write editor, block scrolled into view and highlighted. Never navigates when broken. */
 export const jumpToBlock = jump.toBlock
+
+/** Opens the Codex section with the entry selected. Never navigates when the entry is gone; false = refused. */
+export async function jumpToEntry(entryId: string): Promise<boolean> {
+  if (!useProjectStore().linkIndex()?.isLive(entryId)) return false
+  useCodexStore().select(entryId)
+  const { router } = await import('../router')
+  await router.push({ name: 'codex' })
+  return true
+}
 
 export function useJump() {
   return { jumpToNode, jumpToBlock, pendingNodeJump, takePendingNodeJump }

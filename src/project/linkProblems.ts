@@ -1,4 +1,4 @@
-import type { Link } from './links'
+import { CODEX_KIND, type Link } from './links'
 
 /** Plain text of one block (by id) of ProseMirror-style content, shortened to `max` chars; null when the block is gone. */
 export function blockSnippet(content: unknown, blockId: string, max = 110): string | null {
@@ -54,4 +54,12 @@ export function buildProblems(
       out.push({ link, targetMissing, passageMissing, canRelink: targetMissing && !passageMissing })
   }
   return out
+}
+
+/** Target side gone: an event link needs its node, a codex link only a live entry. */
+export function linkTargetMissing(
+  link: Link,
+  deps: { isBroken: (l: Link) => boolean; nodeExists: (l: Link) => boolean },
+): boolean {
+  return deps.isBroken(link) || (link.kind !== CODEX_KIND && !deps.nodeExists(link))
 }

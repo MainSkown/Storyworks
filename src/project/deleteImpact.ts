@@ -19,6 +19,11 @@ export function brokenByDeletingTimeline(index: Reader, timelineId: string): num
   return index.linksTo({ item: timelineId }).length
 }
 
+/** Passages linked to this codex entry (they show broken until it is restored). */
+export function brokenByDeletingEntry(index: Reader, entryId: string): number {
+  return index.linksTo({ item: entryId }).length
+}
+
 /** Scene ids in document order under a part, chapter or scene (itself included). */
 export function sceneIdsUnder(tree: ManuscriptNode[], id: string): string[] {
   const out: string[] = []

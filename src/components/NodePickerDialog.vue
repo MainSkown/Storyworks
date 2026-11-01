@@ -1,48 +1,83 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { formatDate } from '../calendar'
+import { groupPickerEntries } from '../codex/pick'
+import { useCodexStore } from '../codex/store'
+import { lastPickerTab, type PickerTab } from '../composables/pickerTab'
 import { groupPickerNodes } from '../timeline/pick'
 import { useTimelinesStore } from '../timeline/store'
 
 const open = defineModel<boolean>({ required: true })
-defineProps<{ title: string }>()
-const emit = defineEmits<{ pick: [timelineId: string, nodeId: string] }>()
+const props = withDefaults(
+  defineProps<{ title: string; tabs?: readonly PickerTab[] }>(),
+  { tabs: () => ['events', 'codex'] },
+)
+const emit = defineEmits<{
+  pick: [timelineId: string, nodeId: string]
+  pickEntry: [entryId: string]
+}>()
 
 const { t } = useI18n()
 const timelines = useTimelinesStore()
+const codex = useCodexStore()
 
+const tab = ref<PickerTab>('events')
 const query = ref('')
 const active = ref(0)
 const listEl = ref<HTMLElement | null>(null)
+const searchEl = ref<HTMLInputElement | null>(null)
 
-const groups = computed(() =>
+const eventGroups = computed(() =>
   groupPickerNodes(timelines.loadedTimelines, query.value, (d) => formatDate(timelines.calendar, d)),
 )
-const rows = computed(() => groups.value.flatMap((g) => g.rows))
+const entryGroups = computed(() => groupPickerEntries(codex.entries, codex.types, query.value))
+const groups = computed(() => (tab.value === 'events' ? eventGroups.value : entryGroups.value))
+const rowCount = computed(() => groups.value.reduce((n, g) => n + g.rows.length, 0))
 const hasAnyNode = computed(() => timelines.loadedTimelines.some((tl) => tl.nodes.length > 0))
+const hasAny = computed(() => (tab.value === 'events' ? hasAnyNode.value : codex.entries.length > 0))
 
 const rowId = (i: number) => `node-picker-row-${i}`
 
 watch(open, (v) => {
-  if (v) {
-    query.value = ''
-    active.value = 0
-  }
+  if (!v) return
+  query.value = ''
+  active.value = 0
+  tab.value = props.tabs.includes(lastPickerTab.value) ? lastPickerTab.value : props.tabs[0]!
 })
-watch(query, () => (active.value = 0))
+watch([query, tab], () => (active.value = 0))
+
+function setTab(next: PickerTab): void {
+  tab.value = next
+  if (props.tabs.length > 1) lastPickerTab.value = next
+  void nextTick(() => searchEl.value?.focus())
+}
+
+function onTabKey(delta: number): void {
+  const i = props.tabs.indexOf(tab.value)
+  const next = props.tabs[(i + delta + props.tabs.length) % props.tabs.length]!
+  setTab(next)
+  void nextTick(() => document.getElementById(`node-picker-tab-${next}`)?.focus())
+}
 
 function move(delta: number): void {
-  if (rows.value.length === 0) return
-  active.value = (active.value + delta + rows.value.length) % rows.value.length
+  if (rowCount.value === 0) return
+  active.value = (active.value + delta + rowCount.value) % rowCount.value
   listEl.value?.querySelector(`#${rowId(active.value)}`)?.scrollIntoView({ block: 'nearest' })
 }
 
 function choose(i: number): void {
-  const r = rows.value[i]
-  if (!r) return
-  open.value = false
-  emit('pick', r.timelineId, r.nodeId)
+  if (tab.value === 'events') {
+    const r = eventGroups.value.flatMap((g) => g.rows)[i]
+    if (!r) return
+    open.value = false
+    emit('pick', r.timelineId, r.nodeId)
+  } else {
+    const r = entryGroups.value.flatMap((g) => g.rows)[i]
+    if (!r) return
+    open.value = false
+    emit('pickEntry', r.entryId)
+  }
 }
 
 // Position of a row in the flat list, for grouped rendering.
@@ -54,6 +89,11 @@ const offsets = computed(() => {
     return start
   })
 })
+
+const groupKey = (g: (typeof groups.value)[number]) =>
+  'timelineId' in g ? g.timelineId : (g.typeId ?? '')
+const groupName = (g: (typeof groups.value)[number]) =>
+  'timelineId' in g ? g.name : (g.typeName ?? t('codex.noType'))
 </script>
 
 <template>
@@ -61,50 +101,77 @@ const offsets = computed(() => {
     <QCard class="dialog" role="dialog" aria-labelledby="node-picker-title">
       <QCardSection>
         <h2 id="node-picker-title" class="title">{{ title }}</h2>
-        <p v-if="!hasAnyNode" class="empty">{{ t('eventLink.picker.empty') }}</p>
-        <template v-else>
-          <input
-            v-model="query"
-            class="search"
-            type="search"
-            autofocus
-            role="combobox"
-            aria-expanded="true"
-            aria-controls="node-picker-list"
-            :aria-activedescendant="rows.length ? rowId(active) : undefined"
-            :aria-label="t('eventLink.picker.search')"
-            :placeholder="t('eventLink.picker.search')"
-            @keydown.down.prevent="move(1)"
-            @keydown.up.prevent="move(-1)"
-            @keydown.enter.prevent="choose(active)"
-          />
-          <p v-if="rows.length === 0" class="empty" role="status">{{ t('eventLink.picker.noMatch') }}</p>
-          <div v-else id="node-picker-list" ref="listEl" class="list" role="listbox">
-            <div
-              v-for="(g, gi) in groups"
-              :key="g.timelineId"
-              role="group"
-              :aria-label="g.name"
-            >
-              <div class="group-name">{{ g.name }}</div>
-              <div
-                v-for="(r, ri) in g.rows"
-                :id="rowId(offsets[gi]! + ri)"
-                :key="r.nodeId"
-                class="row"
-                :class="{ active: offsets[gi]! + ri === active }"
-                role="option"
-                :aria-selected="offsets[gi]! + ri === active"
-                @click="choose(offsets[gi]! + ri)"
-                @mousemove="active = offsets[gi]! + ri"
-              >
-                <span class="name">{{ r.title || t('timelines.untitled') }}</span>
-                <span v-if="r.date" class="date">{{ r.date }}</span>
-                <span v-if="r.chip" class="chip">{{ r.chip }}</span>
+        <div v-if="tabs.length > 1" class="tabs" role="tablist" :aria-label="title">
+          <button
+            v-for="k in tabs"
+            :id="`node-picker-tab-${k}`"
+            :key="k"
+            type="button"
+            class="tab"
+            :class="{ on: tab === k }"
+            role="tab"
+            :aria-selected="tab === k"
+            :tabindex="tab === k ? 0 : -1"
+            aria-controls="node-picker-panel"
+            @click="setTab(k)"
+            @keydown.left.prevent="onTabKey(-1)"
+            @keydown.right.prevent="onTabKey(1)"
+          >
+            {{ t(k === 'events' ? 'eventLink.picker.tabEvents' : 'eventLink.picker.tabCodex') }}
+          </button>
+        </div>
+        <div id="node-picker-panel" :role="tabs.length > 1 ? 'tabpanel' : undefined">
+          <p v-if="!hasAny" class="empty">
+            {{ t(tab === 'events' ? 'eventLink.picker.empty' : 'eventLink.picker.emptyCodex') }}
+          </p>
+          <template v-else>
+            <input
+              ref="searchEl"
+              v-model="query"
+              class="search"
+              type="search"
+              autofocus
+              role="combobox"
+              aria-expanded="true"
+              aria-controls="node-picker-list"
+              :aria-activedescendant="rowCount ? rowId(active) : undefined"
+              :aria-label="t(tab === 'events' ? 'eventLink.picker.search' : 'eventLink.picker.searchCodex')"
+              :placeholder="t(tab === 'events' ? 'eventLink.picker.search' : 'eventLink.picker.searchCodex')"
+              @keydown.down.prevent="move(1)"
+              @keydown.up.prevent="move(-1)"
+              @keydown.enter.prevent="choose(active)"
+            />
+            <p v-if="rowCount === 0" class="empty" role="status">
+              {{ t(tab === 'events' ? 'eventLink.picker.noMatch' : 'eventLink.picker.noMatchCodex') }}
+            </p>
+            <div v-else id="node-picker-list" ref="listEl" class="list" role="listbox">
+              <div v-for="(g, gi) in groups" :key="groupKey(g)" role="group" :aria-label="groupName(g)">
+                <div class="group-name">{{ groupName(g) }}</div>
+                <div
+                  v-for="(r, ri) in g.rows"
+                  :id="rowId(offsets[gi]! + ri)"
+                  :key="'nodeId' in r ? r.nodeId : r.entryId"
+                  class="row"
+                  :class="{ active: offsets[gi]! + ri === active }"
+                  role="option"
+                  :aria-selected="offsets[gi]! + ri === active"
+                  @click="choose(offsets[gi]! + ri)"
+                  @mousemove="active = offsets[gi]! + ri"
+                >
+                  <template v-if="'nodeId' in r">
+                    <span class="name">{{ r.title || t('timelines.untitled') }}</span>
+                    <span v-if="r.date" class="date">{{ r.date }}</span>
+                    <span v-if="r.chip" class="chip">{{ r.chip }}</span>
+                  </template>
+                  <template v-else>
+                    <span class="name">{{ r.name || t('codex.untitled') }}</span>
+                    <span v-if="r.typeName" class="chip">{{ r.typeName }}</span>
+                  </template>
+                </div>
               </div>
             </div>
-          </div>
-        </template>
+          </template>
+        </div>
       </QCardSection>
       <QCardActions align="right">
         <QBtn flat no-caps :label="t('eventLink.picker.cancel')" @click="open = false" />
@@ -122,6 +189,30 @@ const offsets = computed(() => {
 .title {
   margin: 0 0 0.75rem;
   font-size: 1.15rem;
+}
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  padding: 0.3rem 0.75rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+.tab.on {
+  border-bottom-color: var(--focus-ring);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.tab:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
 }
 .empty {
   margin: 0;

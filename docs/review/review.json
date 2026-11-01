@@ -4,6 +4,692 @@
   "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
   "milestones": [
     {
+      "id": "m5b",
+      "title": "M5b · Codex (list, entries, types)",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Codex page",
+          "intro": "The Codex page was the placeholder \"This section is not built yet.\" in M4, so there is no before image. Now: entries grouped by type on the left, entry editor on the right with three tabs: Details, Links and Mentions.",
+          "figures": [
+            {
+              "img": "shots/m5b/01-codex-empty-light.png",
+              "alt": "Codex, empty book",
+              "bold": "Empty book.",
+              "muted": "Six starter types (Character, Item, Place, Country, Town, Building) are created once on first open."
+            },
+            {
+              "img": "shots/m5b/02-codex-entry-light.png",
+              "alt": "Codex entry, light",
+              "bold": "Entry editor.",
+              "muted": "Name, type, image, aliases, tags, notes, appendix text and checkbox, rules, Used in, Delete entry."
+            },
+            {
+              "img": "shots/m5b/02-codex-entry-dark.png",
+              "alt": "Codex entry, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Search and filters",
+          "intro": "Search matches name, aliases and tags. Type and tag chips combine.",
+          "figures": [
+            {
+              "img": "shots/m5b/03-codex-no-match-light.png",
+              "alt": "No match",
+              "bold": "No match.",
+              "muted": "Message plus Clear filters."
+            },
+            {
+              "img": "shots/m5b/04-codex-filtered-light.png",
+              "alt": "Type and tag filter",
+              "bold": "Type + tag filter.",
+              "muted": "Only entries with #north in the Character type."
+            },
+            {
+              "img": "shots/m5b/04-codex-filtered-dark.png",
+              "alt": "Type and tag filter, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Rules on an entry",
+          "intro": "On the Links tab. Attach rules with the picker; a deleted rule turns into a brick-red Missing rule chip that can be removed.",
+          "figures": [
+            {
+              "img": "shots/m5b/05-entry-rules-light.png",
+              "alt": "Rules on an entry",
+              "bold": "Rules attached.",
+              "muted": "Chips open the rule; the picker offers only rules not attached yet."
+            },
+            {
+              "img": "shots/m5b/07-entry-missing-rule-light.png",
+              "alt": "Missing rule chip, light",
+              "bold": "Missing rule.",
+              "muted": "Rule was deleted; chip stays until removed or the rule is restored."
+            },
+            {
+              "img": "shots/m5b/07-entry-missing-rule-dark.png",
+              "alt": "Missing rule chip, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Used in (Links tab)",
+          "intro": "Rules, the events that use the entry and the passages it appears in sit on the Links tab. The Used in button jumps to the event in Timelines.",
+          "figures": [
+            {
+              "img": "shots/m5b/08-entry-used-in-light.png",
+              "alt": "Entry used in an event",
+              "bold": "Used in.",
+              "muted": "Event and timeline name."
+            },
+            {
+              "img": "shots/m5b/08-entry-used-in-dark.png",
+              "alt": "Entry used in an event, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Entry types",
+          "intro": "Recolour, rename, change icon, add, delete with reassign; the last type cannot be deleted.",
+          "figures": [
+            {
+              "img": "shots/m5b/11-types-dialog-light.png",
+              "alt": "Types dialog",
+              "bold": "Types dialog.",
+              "muted": "Colour, icon, name, entry count, delete."
+            },
+            {
+              "img": "shots/m5b/12-type-delete-reassign-light.png",
+              "alt": "Delete a type",
+              "bold": "Delete with reassign.",
+              "muted": "Entries of the deleted type move to the chosen type."
+            },
+            {
+              "img": "shots/m5b/12-type-delete-reassign-dark.png",
+              "alt": "Delete a type, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/13-types-last-light.png",
+              "alt": "Last type",
+              "bold": "Last type.",
+              "muted": "Delete is disabled and the reason is shown as text."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Deleting and restoring an entry",
+          "intro": "Confirm shows how many events use the entry; Trash lists it as \"Entry · title\" and restoring brings back content and links.",
+          "figures": [
+            {
+              "img": "shots/m5b/09-entry-delete-confirm-light.png",
+              "alt": "Delete entry confirm",
+              "bold": "Delete confirm.",
+              "muted": "\"1 event uses it...\""
+            },
+            {
+              "img": "shots/m5b/10-trash-entry-light.png",
+              "alt": "Trash with an entry",
+              "bold": "Trash.",
+              "muted": "\"Entry · Aldric Voss\" with Restore."
+            },
+            {
+              "img": "shots/m5b/10-trash-entry-dark.png",
+              "alt": "Trash with an entry, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Mentions",
+          "intro": "The Mentions tab lists passages that use the entry's name or an alias but are not linked yet (whole word, any case, Polish letters work; \"Aldrich\" is not a mention of \"Aldric\"). Each card has Jump, Not this one and Link; Link all does the rest in one step.",
+          "figures": [
+            {
+              "img": "shots/m5b/15-mentions-tab-light.png",
+              "alt": "Mentions",
+              "bold": "Mentions.",
+              "muted": "Name or alias highlighted; count on the tab."
+            },
+            {
+              "img": "shots/m5b/15-mentions-tab-dark.png",
+              "alt": "Mentions, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/16-mentions-polish-light.png",
+              "alt": "Polish alias",
+              "bold": "Polish alias.",
+              "muted": "\"Żmija\" matches, \"Żmijami\" does not."
+            },
+            {
+              "img": "shots/m5b/16-mentions-polish-dark.png",
+              "alt": "Polish alias, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/19-mentions-link-all-light.png",
+              "alt": "After one Link and one Not this one",
+              "bold": "After one Link and one Not this one.",
+              "muted": "Link all 2 is what is left; Not this one stays hidden after reopening (ignored-findings file)."
+            },
+            {
+              "img": "shots/m5b/19-mentions-link-all-dark.png",
+              "alt": "After one Link and one Not this one, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Linked passage: plum marker and Appears in",
+          "intro": "Linking a mention gives the paragraph a plum circle in the left margin and lists the passage under Appears in on the Links tab.",
+          "figures": [
+            {
+              "img": "shots/m5b/17-appears-in-light.png",
+              "alt": "Appears in",
+              "bold": "Appears in.",
+              "muted": "Scene, snippet and Jump per passage."
+            },
+            {
+              "img": "shots/m5b/17-appears-in-dark.png",
+              "alt": "Appears in, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/18-plum-marker-light.png",
+              "alt": "Plum marker",
+              "bold": "Plum marker.",
+              "muted": "Shape and aria-label, not colour alone. In this scene lists the entry."
+            },
+            {
+              "img": "shots/m5b/18-plum-marker-dark.png",
+              "alt": "Plum marker, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Link to… picker (Events / Codex)",
+          "intro": "The picker now has two tabs. The tab is remembered, arrows switch tabs, search matches names and aliases.",
+          "figures": [
+            {
+              "img": "shots/m4/03-picker-light.png",
+              "alt": "Event picker before",
+              "bold": "Before: events only.",
+              "muted": "M4 picker, one list."
+            },
+            {
+              "img": "shots/m5b/20-picker-codex-tab-light.png",
+              "alt": "After: Codex tab",
+              "bold": "After: Codex tab.",
+              "muted": "Entries grouped by type."
+            },
+            {
+              "img": "shots/m5b/20-picker-codex-tab-dark.png",
+              "alt": "After: Codex tab, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/21-picker-alias-search-light.png",
+              "alt": "Search by alias",
+              "bold": "Search by alias.",
+              "muted": "\"witch\" finds Mara of the Reeds."
+            },
+            {
+              "img": "shots/m5b/21-picker-alias-search-dark.png",
+              "alt": "Search by alias, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Context panel: This paragraph and In this scene",
+          "intro": "A paragraph can carry event and codex links at once: diamond and circle side by side. In this scene replaces its placeholder; the Point of view field was disabled before.",
+          "figures": [
+            {
+              "img": "shots/m4/04-this-paragraph-linked-light.png",
+              "alt": "This paragraph before",
+              "bold": "Before.",
+              "muted": "Event card only, In this scene \"Coming soon\", POV disabled."
+            },
+            {
+              "img": "shots/m5b/22-paragraph-panel-mixed-light.png",
+              "alt": "After",
+              "bold": "After.",
+              "muted": "Event and Character cards, In this scene lists the entries, POV select."
+            },
+            {
+              "img": "shots/m5b/22-paragraph-panel-mixed-dark.png",
+              "alt": "After, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Marker popover",
+          "intro": "Click a marker: one row per link. Codex rows have Open and Unlink, event rows keep Jump and Unlink.",
+          "figures": [
+            {
+              "img": "shots/m5b/23-popover-mixed-light.png",
+              "alt": "Popover",
+              "bold": "Popover.",
+              "muted": "Event and codex rows."
+            },
+            {
+              "img": "shots/m5b/23-popover-mixed-dark.png",
+              "alt": "Popover, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Event inspector: Codex section and Linked panel",
+          "intro": "Events link codex entries from the node inspector. The Linked panel lists them with their type.",
+          "figures": [
+            {
+              "img": "shots/m5b/24-node-entry-picker-light.png",
+              "alt": "Add entry",
+              "bold": "Add entry.",
+              "muted": "Entries not linked yet."
+            },
+            {
+              "img": "shots/m5b/24-node-entry-picker-dark.png",
+              "alt": "Add entry, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/25-node-codex-chip-light.png",
+              "alt": "Codex chip",
+              "bold": "Codex chip.",
+              "muted": "Open and Remove."
+            },
+            {
+              "img": "shots/m5b/25-node-codex-chip-dark.png",
+              "alt": "Codex chip, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m4/06-written-in-light.png",
+              "alt": "Linked panel before",
+              "bold": "Linked, before.",
+              "muted": "\"Coming in a later milestone.\""
+            },
+            {
+              "img": "shots/m5b/26-linked-panel-light.png",
+              "alt": "Linked, after",
+              "bold": "Linked, after.",
+              "muted": "Entry card with Open."
+            },
+            {
+              "img": "shots/m5b/26-linked-panel-dark.png",
+              "alt": "Linked, after, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Timeline filter, entry Links panel, Used by entries",
+          "intro": "Timeline filter \"Linked codex entry\" dims events that do not use the entry. The Codex Links panel lists the entry's events and rules. Rules show Used by entries.",
+          "figures": [
+            {
+              "img": "shots/m5b/27-timeline-filter-entry-light.png",
+              "alt": "Filter by entry",
+              "bold": "Filter by entry.",
+              "muted": "Treaty signed is dimmed."
+            },
+            {
+              "img": "shots/m5b/27-timeline-filter-entry-dark.png",
+              "alt": "Filter by entry, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/28-entry-links-tab-panel-light.png",
+              "alt": "Links tab and panel",
+              "bold": "Links tab and panel.",
+              "muted": "Rules, Used in, Appears in; panel mirrors events and rules."
+            },
+            {
+              "img": "shots/m5b/28-entry-links-tab-panel-dark.png",
+              "alt": "Links tab and panel, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/29-rule-used-by-entries-light.png",
+              "alt": "Used by entries",
+              "bold": "Used by entries.",
+              "muted": "Rule page lists entries that attach it."
+            },
+            {
+              "img": "shots/m5b/29-rule-used-by-entries-dark.png",
+              "alt": "Used by entries, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Point of view",
+          "intro": "Pick any entry as the scene's POV, clear it, or see Missing entry with a Clear button when the entry was deleted. Before: disabled select.",
+          "figures": [
+            {
+              "img": "shots/m5b/30-pov-set-light.png",
+              "alt": "POV set",
+              "bold": "POV set.",
+              "muted": "In this scene marks the POV entry."
+            },
+            {
+              "img": "shots/m5b/30-pov-set-dark.png",
+              "alt": "POV set, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/34-pov-missing-light.png",
+              "alt": "POV missing",
+              "bold": "POV missing.",
+              "muted": "Entry deleted: chip with Clear."
+            },
+            {
+              "img": "shots/m5b/34-pov-missing-dark.png",
+              "alt": "POV missing, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Deleting an entry that is linked",
+          "intro": "The confirm counts linked passages and events. Passages turn into red triangles, the popover says Missing entry, Problems and This paragraph show it with Relink and Remove; event chips say Missing entry. Restoring from Trash repairs everything.",
+          "figures": [
+            {
+              "img": "shots/m5b/31-entry-delete-confirm-light.png",
+              "alt": "Delete confirm",
+              "bold": "Delete confirm.",
+              "muted": "\"4 linked passages will show as broken until restored.\""
+            },
+            {
+              "img": "shots/m5b/31-entry-delete-confirm-dark.png",
+              "alt": "Delete confirm, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/32-broken-entry-panels-light.png",
+              "alt": "Broken",
+              "bold": "Broken.",
+              "muted": "Triangles, This paragraph, In this scene, Problems."
+            },
+            {
+              "img": "shots/m5b/32-broken-entry-panels-dark.png",
+              "alt": "Broken, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/33-broken-entry-popover-light.png",
+              "alt": "Missing entry popover",
+              "bold": "Missing entry popover."
+            },
+            {
+              "img": "shots/m5b/33-broken-entry-popover-dark.png",
+              "alt": "Missing entry popover, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/35-node-codex-missing-light.png",
+              "alt": "Node chip",
+              "bold": "Node chip.",
+              "muted": "Missing entry chip with Remove."
+            },
+            {
+              "img": "shots/m5b/35-node-codex-missing-dark.png",
+              "alt": "Node chip, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5b/36-restored-light.png",
+              "alt": "Restored",
+              "bold": "Restored.",
+              "muted": "Markers and POV back."
+            },
+            {
+              "img": "shots/m5b/36-restored-dark.png",
+              "alt": "Restored, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Codex list, entry editor and types: driven through the UI in the browser build, Light and Dark (starter types; create, rename, change type, aliases, tags, notes, appendix, search by alias, type and tag filters, types dialog, delete with reassign, last type blocked, Trash and restore, keyboard in the list).",
+            "Links, Light and Dark: alias \"Aldric\", Polish alias \"Żmija\" and non-matches (\"Aldrich\", \"Żmijami\") on the Mentions tab; Link in one click gives a plum marker and an Appears in card; Not this one hides it and it stays hidden after reopening; Link all; Link to… picker with remembered tab, keyboard tab switching and alias search; event plus codex link shows both shapes; popover Open and Unlink.",
+            "Deleting an entry: broken triangles, popover Missing entry, Problems, This paragraph, POV Missing entry with Clear, node chip Missing entry; Trash restore repairs all. Event chips, rules Used by entries, timeline filter, In this scene, Linked and Links panels. Event links from M4 behave as before (Events tab, Jump, delete and restore an event).",
+            "Fixed on the way: the Add a rule box kept the picked title; the sidebar showed \"Coming soon\"; the entry delete confirm did not count linked passages; the mixed marker label read \"1 events and 1 codex entries\".",
+            "Mention scan on a 500-scene, 300k-word book with 200 entries: about 50 ms plus the 300 ms debounce, so no cache was added. The browser build reads from memory; the real window reads 500 files, so the Tauri check should time it.",
+            "Not yet checked: the real Tauri window (entry and type files, image copy, ignored-findings file, manifest v6)."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m5a",
+      "title": "M5a · Rules",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Rules page",
+          "intro": "Before (M4): the page was the placeholder \"This section is not built yet.\" Now: list grouped by category on the left, editor on the right.",
+          "figures": [
+            {
+              "img": "shots/m5a/01-rules-empty-light.png",
+              "alt": "Rules page, empty",
+              "bold": "Empty book.",
+              "muted": "Default categories (Magic, Physics, Society, Technology, Religion) are created once on first open."
+            },
+            {
+              "img": "shots/m5a/02-rules-page-light.png",
+              "alt": "Rules page, light",
+              "bold": "Rule editor.",
+              "muted": "Title, category, tags, description, exceptions, Used in, Delete rule."
+            },
+            {
+              "img": "shots/m5a/02-rules-page-dark.png",
+              "alt": "Rules page, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Search and filters",
+          "intro": "Search matches title, tags, description and exceptions. Category and tag chips combine.",
+          "figures": [
+            {
+              "img": "shots/m5a/04-rules-filtered-light.png",
+              "alt": "Rules filtered by tag and category",
+              "bold": "Category + tag filter.",
+              "muted": "Chips use aria-pressed; Clear filters resets."
+            },
+            {
+              "img": "shots/m5a/03-rules-no-match-light.png",
+              "alt": "Rules, no match",
+              "bold": "No match.",
+              "muted": "Message and the Clear filters link."
+            },
+            {
+              "img": "shots/m5a/03-rules-no-match-dark.png",
+              "alt": "Rules, no match, dark",
+              "bold": "No match, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Categories",
+          "intro": "Recolour, rename, add. Deleting a category moves its rules to another one; the last category cannot be deleted.",
+          "figures": [
+            {
+              "img": "shots/m5a/05-category-dialog-light.png",
+              "alt": "Category dialog",
+              "bold": "Manage categories."
+            },
+            {
+              "img": "shots/m5a/05-category-dialog-dark.png",
+              "alt": "Category dialog, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5a/06-category-delete-reassign-light.png",
+              "alt": "Category delete with reassign",
+              "bold": "Delete with reassign.",
+              "muted": "Choose where the rules go before the category is removed."
+            },
+            {
+              "img": "shots/m5a/06-category-delete-reassign-dark.png",
+              "alt": "Category delete with reassign, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Timelines inspector: Rules",
+          "intro": "The inspector gets a Rules section: chips with Open and Remove, and a searchable picker (arrows + Enter).",
+          "figures": [
+            {
+              "img": "shots/m4/06-written-in-light.png",
+              "alt": "Timelines inspector before M5a",
+              "bold": "Before (M4).",
+              "muted": "No Rules section; Linked was a placeholder."
+            },
+            {
+              "img": "shots/m5a/07-inspector-rules-empty-light.png",
+              "alt": "Inspector, no rules",
+              "bold": "After, no rules.",
+              "muted": "\"No rules linked.\" and Add rule."
+            },
+            {
+              "img": "shots/m5a/08-picker-light.png",
+              "alt": "Rule picker",
+              "bold": "Picker.",
+              "muted": "Rules grouped by category; already-linked rules are left out."
+            },
+            {
+              "img": "shots/m5a/08-picker-dark.png",
+              "alt": "Rule picker, dark",
+              "bold": "Picker, dark."
+            },
+            {
+              "img": "shots/m5a/09-inspector-rules-light.png",
+              "alt": "Inspector with a rule",
+              "bold": "After, linked.",
+              "muted": "Chip with Open (goes to the rule) and Remove."
+            },
+            {
+              "img": "shots/m5a/09-inspector-rules-dark.png",
+              "alt": "Inspector with a rule, dark",
+              "bold": "After, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Context panel: Linked and Used in",
+          "intro": "Before (M4) Linked said \"Coming in a later milestone\". Now it lists the event's rules; the Rules page has a Used in section.",
+          "figures": [
+            {
+              "img": "shots/m5a/10-linked-panel-light.png",
+              "alt": "Linked panel with a rule",
+              "bold": "Linked.",
+              "muted": "Green Rule card with Open."
+            },
+            {
+              "img": "shots/m5a/10-linked-panel-dark.png",
+              "alt": "Linked panel, dark",
+              "bold": "Linked, dark."
+            },
+            {
+              "img": "shots/m5a/11-rule-used-in-light.png",
+              "alt": "Rule Used in",
+              "bold": "Used in.",
+              "muted": "Event and timeline; the click jumps to the event."
+            },
+            {
+              "img": "shots/m5a/11-rule-used-in-dark.png",
+              "alt": "Rule Used in, dark",
+              "bold": "Used in, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Deleting and restoring a rule",
+          "intro": "Links stay on the events and show as missing until the rule is restored from the Trash.",
+          "figures": [
+            {
+              "img": "shots/m5a/12-rule-delete-confirm-light.png",
+              "alt": "Rule delete confirm",
+              "bold": "Confirm with count.",
+              "muted": "\"1 event uses it. Its link will show as missing until the rule is restored.\""
+            },
+            {
+              "img": "shots/m5a/12-rule-delete-confirm-dark.png",
+              "alt": "Rule delete confirm, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5a/13-missing-rule-light.png",
+              "alt": "Missing rule",
+              "bold": "Missing rule.",
+              "muted": "Brick-red chip in the inspector and a Problem card in Linked."
+            },
+            {
+              "img": "shots/m5a/13-missing-rule-dark.png",
+              "alt": "Missing rule, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m5a/14-trash-rule-light.png",
+              "alt": "Trash row for a rule",
+              "bold": "Trash.",
+              "muted": "Row \"Rule · Mana costs blood\" with Restore."
+            },
+            {
+              "img": "shots/m5a/14-trash-rule-dark.png",
+              "alt": "Trash row for a rule, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Driven through the UI in the browser build, Light and Dark: default categories, create, retitle, change category, tags, description and exceptions saved; search, category and tag filters, no match, Clear filters.",
+            "Category dialog: recolour, rename, add, delete with reassign, last category blocked (message shown as text). Rules section in the inspector via the picker with keyboard only, Open chip to the rule and Used in back to the event, Linked card.",
+            "Delete a rule: confirm shows the event count, chip turns Missing rule with a Problem card, Trash restore repairs it. Keyboard in the list: Tab, Enter, Space; Escape closes dialogs. Manifest v5 with rule and trash entries. No console errors.",
+            "Not yet checked: the real Tauri window (rule and category files, manifest v5, trash folder)."
+          ]
+        }
+      ]
+    },
+    {
       "id": "m4",
       "title": "M4 · Linking text to events",
       "sections": [

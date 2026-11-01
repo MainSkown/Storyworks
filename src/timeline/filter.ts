@@ -2,12 +2,15 @@ export interface FilterNode {
   id: string
   tag?: string | null
   branchId?: string | null
+  codexIds?: string[]
 }
 
 export interface Filter {
   tags: string[]
   /** `null` stands for the main line. */
   branchIds: (string | null)[]
+  /** Only nodes linking this codex entry. */
+  entryId?: string | null
 }
 
 export interface FilterResult {
@@ -17,7 +20,7 @@ export interface FilterResult {
   dimmedEdges: Set<string>
 }
 
-export const isEmptyFilter = (f: Filter) => f.tags.length === 0 && f.branchIds.length === 0
+export const isEmptyFilter = (f: Filter) => f.tags.length === 0 && f.branchIds.length === 0 && !f.entryId
 
 /** Nothing is removed: non-matching nodes and their edges are reported as dimmed. */
 export function applyFilter(
@@ -30,7 +33,8 @@ export function applyFilter(
   for (const n of nodes) {
     const tagOk = filter.tags.length === 0 || (n.tag != null && filter.tags.includes(n.tag))
     const branchOk = filter.branchIds.length === 0 || filter.branchIds.includes(n.branchId ?? null)
-    ;(tagOk && branchOk ? matched : dimmedNodes).add(n.id)
+    const entryOk = !filter.entryId || (n.codexIds?.includes(filter.entryId) ?? false)
+    ;(tagOk && branchOk && entryOk ? matched : dimmedNodes).add(n.id)
   }
   const dimmedEdges = new Set(
     edges.filter((e) => !matched.has(e.from) || !matched.has(e.to)).map((e) => e.id),

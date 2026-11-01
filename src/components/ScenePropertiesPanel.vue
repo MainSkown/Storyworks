@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { newId } from '../project/ids'
+import PovField from './PovField.vue'
 import { useProjectStore } from '../project/store'
 import { sceneStatusSchema, type Scene } from '../project/schemas/scene'
 import { findNode } from '../project/tree'
@@ -34,6 +35,9 @@ watch(
 
 function setStatus(status: Scene['status']): void {
   if (node.value) void store.setSceneMeta(node.value.id, { status })
+}
+function setPov(povId: string | null): void {
+  if (node.value) void store.setSceneMeta(node.value.id, { povId })
 }
 function saveSynopsis(): void {
   if (node.value && usable.value && synopsis.value !== meta.value?.synopsis)
@@ -101,11 +105,8 @@ watch(
       @blur="saveSynopsis"
     ></textarea>
 
-    <label class="label" for="scene-pov">{{ t('sceneProps.pov') }}</label>
-    <select id="scene-pov" class="control" disabled aria-describedby="scene-pov-note">
-      <option value=""></option>
-    </select>
-    <p id="scene-pov-note" class="note">{{ t('sceneProps.povNote') }}</p>
+    <h4 class="label heading">{{ t('sceneProps.pov') }}</h4>
+    <PovField :model-value="meta.povId" :disabled="!usable" @update:model-value="setPov" />
 
     <h4 class="label heading">{{ t('sceneProps.todos') }}</h4>
     <ul class="todos">

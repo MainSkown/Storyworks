@@ -57,4 +57,35 @@ describe('applyFilter', () => {
     expect(r.dimmedNodes.size).toBe(4)
     expect(r.dimmedEdges.size).toBe(3)
   })
+
+  describe('linked codex entry', () => {
+    const withEntries: FilterNode[] = [
+      { id: 'a', tag: 'battle', branchId: null, codexIds: ['x', 'y'] },
+      { id: 'b', tag: 'love', branchId: null, codexIds: ['y'] },
+      { id: 'c', tag: 'battle', branchId: 'br' },
+    ]
+    const f = (over: object) => ({ tags: [], branchIds: [], ...over })
+
+    it('matches nodes whose codexIds include the entry', () => {
+      const r = applyFilter(withEntries, [], f({ entryId: 'y' }))
+      expect([...r.matched].sort()).toEqual(['a', 'b'])
+      expect([...r.dimmedNodes]).toEqual(['c'])
+    })
+
+    it('an unknown entry matches no nodes and does not throw', () => {
+      const r = applyFilter(withEntries, [], f({ entryId: 'gone' }))
+      expect(r.matched.size).toBe(0)
+      expect(r.dimmedNodes.size).toBe(3)
+    })
+
+    it('combines with tag and branch filters (AND)', () => {
+      const r = applyFilter(withEntries, [], f({ entryId: 'y', tags: ['battle'] }))
+      expect([...r.matched]).toEqual(['a'])
+    })
+
+    it('counts as an active filter; null does not', () => {
+      expect(isEmptyFilter(f({ entryId: 'y' }))).toBe(false)
+      expect(isEmptyFilter(f({ entryId: null }))).toBe(true)
+    })
+  })
 })

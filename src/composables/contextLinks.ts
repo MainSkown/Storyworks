@@ -1,5 +1,5 @@
 import { computed, ref, watch, type Ref } from 'vue'
-import { blockSnippet, buildProblems, type LinkProblem } from '../project/linkProblems'
+import { blockSnippet, buildProblems, linkTargetMissing, type LinkProblem } from '../project/linkProblems'
 import type { Link } from '../project/links'
 import { useProjectStore } from '../project/store'
 import { findNode } from '../project/tree'
@@ -23,7 +23,11 @@ export const sceneProblems = computed<LinkProblem[]>(() => {
   if (!ix || !id) return []
   const timelines = useTimelinesStore().loadedTimelines
   return buildProblems(ix.linksFrom(id), {
-    targetMissing: (l) => ix.isBroken(l) || describeTarget(timelines, l.to, () => '') === null,
+    targetMissing: (l) =>
+      linkTargetMissing(l, {
+        isBroken: ix.isBroken,
+        nodeExists: (x) => describeTarget(timelines, x.to, () => '') !== null,
+      }),
     passageMissing: ix.isPassageBroken,
   })
 })
@@ -63,7 +67,11 @@ export function useSnippets(
 ): Ref<Record<string, string>> {
   const snippets = ref<Record<string, string>>({})
   let token = 0
-  const key = computed(() => items().map((i) => `${i.linkId}:${i.sceneId}:${i.blockId}`).join('|'))
+  const key = computed(() =>
+    items()
+      .map((i) => `${i.linkId}:${i.sceneId}:${i.blockId}`)
+      .join('|'),
+  )
   watch(
     key,
     async () => {

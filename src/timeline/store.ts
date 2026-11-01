@@ -46,7 +46,7 @@ export type RestoreNodeOutcome =
   | { ok: false; reason: NodeRestoreErrorCode }
 
 const failed = (reason: Extract<Outcome, { ok: false }>['reason']) => ({ ok: false as const, reason })
-const EMPTY_FILTER: Filter = { tags: [], branchIds: [] }
+const EMPTY_FILTER: Filter = { tags: [], branchIds: [], entryId: null }
 
 export const useTimelinesStore = defineStore('timelines', () => {
   const projectStore = useProjectStore()
@@ -446,6 +446,9 @@ export const useTimelinesStore = defineStore('timelines', () => {
         : [...filter.value.branchIds, branchId],
     }
   }
+  const setEntryFilter = (entryId: string | null) => {
+    filter.value = { ...filter.value, entryId }
+  }
   const clearFilter = () => (filter.value = { ...EMPTY_FILTER })
 
   // ---- calendar ----
@@ -512,6 +515,7 @@ export const useTimelinesStore = defineStore('timelines', () => {
     tidy,
     toggleTag,
     toggleBranch,
+    setEntryFilter,
     clearFilter,
     datesNoLongerFit,
     saveCalendar,

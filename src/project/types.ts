@@ -43,7 +43,7 @@ export type Issue =
 
 export interface TrashEntry {
   id: string
-  type: 'part' | 'chapter' | 'scene' | 'note' | 'timeline' | 'node'
+  type: 'part' | 'chapter' | 'scene' | 'note' | 'timeline' | 'node' | 'rule' | 'entry'
   title: string
   originalPath: string
   trashPath: string
@@ -103,6 +103,14 @@ export interface OpenProject {
   }>
   /** Removes a trashed node's file and trash entry (after it was put back). */
   dropTrashedNode(id: string): Promise<void>
+  /** Moves the rule's file to the trash, unlists it and adds a trash entry. */
+  trashRule(id: string, title: string): Promise<TrashEntry>
+  /** Puts a trashed rule back at its old position. Throws RuleRestoreError; the trashed file is only moved once it validates. */
+  restoreRule(id: string): Promise<void>
+  /** Moves the codex entry's file to the trash, unlists it and adds a trash entry. */
+  trashEntry(id: string, title: string): Promise<TrashEntry>
+  /** Puts a trashed codex entry back at its old position. Throws EntryRestoreError; the trashed file is only moved once it validates. */
+  restoreEntry(id: string): Promise<void>
 }
 
 export interface LockInfo {

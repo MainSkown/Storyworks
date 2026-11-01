@@ -30,13 +30,25 @@ import {
   type Manifest,
   type ManuscriptNode,
 } from './schemas/manifest'
+import {
+  addIgnored,
+  emptyIgnored,
+  ignoredIds,
+  ignoredSchema,
+  removeIgnored,
+  type Ignored,
+} from './schemas/ignored'
 import { INBOX_VERSION, inboxSchema, type Inbox, type InboxNote } from './schemas/inbox'
 import { blockIds, sceneSchema, SCENE_VERSION, type Scene } from './schemas/scene'
 import type { TrashedNode } from './schemas/trashedNode'
 import { NodeRestoreError } from './trash'
 import { parseFile } from './serialize'
 import { useSettingsStore } from '../settings/store'
+import { useCodexStore } from '../codex/store'
+import { useRulesStore } from '../rules/store'
 import { useTimelinesStore } from '../timeline/store'
+import { seedCodexTypes } from './codex'
+import { seedRuleCategories } from './rules'
 import { ensureDefaults } from './timelines'
 import type {
   ChangeEvent,
@@ -218,6 +230,8 @@ export const useProjectStore = defineStore('project', () => {
   const openNoteId = ref<string | null>(null)
   /** latest inbox state, including edits not saved yet; replaced, never edited */
   const inbox = shallowRef<Inbox | null>(null)
+  /** dismissed finding ids (ignored.json), including edits not saved yet; replaced, never edited */
+  const ignored = shallowRef<Ignored | null>(null)
 
   const readOnly = computed(() => project.value?.readOnly ?? null)
   const tree = computed<ManuscriptNode[]>(() => {
@@ -232,6 +246,12 @@ export const useProjectStore = defineStore('project', () => {
   const inboxInvalid = computed(() => {
     void revision.value
     const path = project.value?.manifest.inbox?.path
+    return !!path && issues.value.some((i) => i.kind === 'invalid' && i.path === path)
+  })
+  const ignoredIdSet = computed(() => ignoredIds(ignored.value))
+  const ignoredInvalid = computed(() => {
+    void revision.value
+    const path = project.value?.manifest.ignoredFindings?.path
     return !!path && issues.value.some((i) => i.kind === 'invalid' && i.path === path)
   })
   /** Words per node id (containers sum their scenes); the book total is under ''. */
@@ -280,7 +300,14 @@ export const useProjectStore = defineStore('project', () => {
   const nodeIdOfPath = (path: string) =>
     findFirst(project.value?.manifest.manuscript ?? [], (n) => n.path === path)?.id ??
     (project.value?.manifest.inbox?.path === path ? project.value.manifest.inbox.id : null) ??
+    (project.value?.manifest.ignoredFindings?.path === path
+      ? project.value.manifest.ignoredFindings.id
+      : null) ??
     project.value?.manifest.timelines.find((t) => t.path === path)?.id ??
+    project.value?.manifest.rules.find((r) => r.path === path)?.id ??
+    project.value?.manifest.ruleCategories.find((r) => r.path === path)?.id ??
+    project.value?.manifest.codexEntries.find((r) => r.path === path)?.id ??
+    project.value?.manifest.codexTypes.find((r) => r.path === path)?.id ??
     path
 
   function setItemIssue(path: string, res: ReloadResult): void {
@@ -347,10 +374,20 @@ export const useProjectStore = defineStore('project', () => {
       openNoteId.value = null
   }
 
+  async function loadIgnored(s: Session, p: OpenProject): Promise<void> {
+    const ref = p.manifest.ignoredFindings
+    ignored.value = null
+    if (!ref) return
+    const text = await s.io.readText(ref.path)
+    const r = text === null ? null : parseFile(ignoredSchema, text, ref.path)
+    ignored.value = r?.ok ? r.value : null
+  }
+
   /** Re-reads what the app keeps in memory about a file that changed on disk. */
   async function reindex(s: Session, path: string): Promise<void> {
     const p = project.value
     if (p?.manifest.inbox?.path === path) await loadInbox(s, p)
+    else if (p?.manifest.ignoredFindings?.path === path) await loadIgnored(s, p)
     else await indexScene(s, nodeIdOfPath(path), path)
   }
 
@@ -513,20 +550,33 @@ export const useProjectStore = defineStore('project', () => {
       console.error('Could not watch the project folder', e)
     }
     await loadInbox(s, opened.project)
+    await loadIgnored(s, opened.project)
     await rebuildLinks(s, opened.project)
-    await openTimelines(opened.project)
+    await openContent(opened.project)
     notifyOpened(opened.project.manifest.title, root)
   }
 
-  /** Defaults (calendar, Main timeline; skipped when read-only), then loads the timelines. */
-  async function openTimelines(p: OpenProject): Promise<void> {
+  /** Defaults (calendar, Main timeline, rule categories, codex types; skipped when read-only), then loads timelines, rules and the codex. */
+  async function openContent(p: OpenProject): Promise<void> {
     try {
       await ensureDefaults(p, defaultEnv)
     } catch (e) {
       console.error('Could not create the default calendar or timeline', e)
     }
+    try {
+      await seedRuleCategories(p, defaultEnv)
+    } catch (e) {
+      console.error('Could not create the default rule categories', e)
+    }
+    try {
+      await seedCodexTypes(p, defaultEnv)
+    } catch (e) {
+      console.error('Could not create the starter codex types', e)
+    }
     revision.value++
     await useTimelinesStore().load()
+    await useRulesStore().load()
+    await useCodexStore().load()
   }
 
   function notifyOpened(title: string, path: string): void {
@@ -653,7 +703,10 @@ export const useProjectStore = defineStore('project', () => {
     selectedId.value = null
     openNoteId.value = null
     inbox.value = null
+    ignored.value = null
     useTimelinesStore().reset()
+    useRulesStore().reset()
+    useCodexStore().reset()
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -871,12 +924,14 @@ export const useProjectStore = defineStore('project', () => {
     linkRevision.value++
   }
 
-  /** Writes status and/or synopsis to the scene file (autosaved). false = refused. */
+  /** Writes status, synopsis and/or POV (null clears it) to the scene file (autosaved). false = refused. */
   function setSceneMeta(
     id: string,
-    patch: { status?: Scene['status']; synopsis?: string },
+    patch: { status?: Scene['status']; synopsis?: string; povId?: string | null },
   ): Promise<boolean> {
     return patchScene(id, (sc) => {
+      if (patch.povId === null) delete sc.povId
+      else if (patch.povId !== undefined) sc.povId = patch.povId
       if (patch.status !== undefined) sc.status = patch.status
       if (patch.synopsis !== undefined) sc.synopsis = patch.synopsis
       return sc
@@ -1006,6 +1061,14 @@ export const useProjectStore = defineStore('project', () => {
       if (!r.ok) throw new NodeRestoreError(r.reason, `Cannot restore ${id}: ${r.reason}`)
       return { skippedEdges: r.skippedEdges }
     }
+    if (p.manifest.trash.some((t) => t.id === id && t.type === 'rule')) {
+      await useRulesStore().restoreRule(id)
+      return
+    }
+    if (p.manifest.trash.some((t) => t.id === id && t.type === 'entry')) {
+      await useCodexStore().restoreEntry(id)
+      return
+    }
     if (p.manifest.trash.some((t) => t.id === id && t.type === 'note')) return restoreNote(id)
     if (p.manifest.trash.some((t) => t.id === id && t.type === 'timeline')) {
       await p.restoreTimeline(id)
@@ -1045,6 +1108,73 @@ export const useProjectStore = defineStore('project', () => {
     return entry
   }
 
+  // ---- rules (the rules store holds the content) ----
+
+  /** Replaces the manifest's rule and/or category lists (create, rename, delete category). */
+  function setRuleRefs(next: { rules?: Manifest['rules']; ruleCategories?: Manifest['ruleCategories'] }): void {
+    const p = assertWritable()
+    if (next.rules) p.manifest.rules = next.rules
+    if (next.ruleCategories) p.manifest.ruleCategories = next.ruleCategories
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
+  async function trashRule(id: string, title: string): Promise<TrashEntry> {
+    const p = assertWritable()
+    await flush() // never write to a file that is about to move
+    const entry = await p.trashRule(id, title)
+    session?.pending.delete(entry.originalPath)
+    issues.value = issues.value.filter(
+      (i) => !((i.kind === 'missing' || i.kind === 'invalid') && i.itemId === id),
+    )
+    revision.value++
+    return entry
+  }
+
+  /** Puts the file back and lists it. Throws RuleRestoreError; the rules store re-reads. */
+  async function restoreRuleFile(id: string): Promise<void> {
+    await assertWritable().restoreRule(id)
+    revision.value++
+  }
+
+  // ---- codex (the codex store holds the content) ----
+
+  /** Replaces the manifest's codex entry and/or type lists (create, rename, delete type). */
+  function setCodexRefs(next: { codexEntries?: Manifest['codexEntries']; codexTypes?: Manifest['codexTypes'] }): void {
+    const p = assertWritable()
+    if (next.codexEntries) p.manifest.codexEntries = next.codexEntries
+    if (next.codexTypes) p.manifest.codexTypes = next.codexTypes
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
+  async function trashEntry(id: string, title: string): Promise<TrashEntry> {
+    const p = assertWritable()
+    await flush() // never write to a file that is about to move
+    const entry = await p.trashEntry(id, title)
+    session?.pending.delete(entry.originalPath)
+    issues.value = issues.value.filter(
+      (i) => !((i.kind === 'missing' || i.kind === 'invalid') && i.itemId === id),
+    )
+    revision.value++
+    return entry
+  }
+
+  /** Puts the file back and lists it. Throws EntryRestoreError; the codex store re-reads. */
+  async function restoreEntryFile(id: string): Promise<void> {
+    await assertWritable().restoreEntry(id)
+    revision.value++
+  }
+
+  /** Removes a file that is no longer listed (a deleted category). Drops its unsaved edits. */
+  async function removeUnlistedFile(path: string): Promise<void> {
+    const p = assertWritable()
+    await flush()
+    session?.pending.delete(path)
+    await p.io.remove(path)
+    issues.value = issues.value.filter((i) => !(i.kind !== 'unlisted' && i.path === path))
+  }
+
   async function trashNode(item: TrashedNode): Promise<TrashEntry> {
     const entry = await assertWritable().trashNode(item)
     revision.value++
@@ -1055,6 +1185,52 @@ export const useProjectStore = defineStore('project', () => {
     await assertWritable().dropTrashedNode(id)
     revision.value++
   }
+
+  // ---- ignored findings ----
+
+  const IGNORED_FILE = 'ignored.json'
+  let ignoredCreating: Promise<void> | null = null
+
+  /** Creates ignored.json and registers it in project.json on first use. */
+  async function ensureIgnored(p: OpenProject): Promise<void> {
+    if (p.manifest.ignoredFindings) return
+    ignoredCreating ??= (async () => {
+      const empty = emptyIgnored()
+      await p.saveItem(IGNORED_FILE, ignoredSchema, empty)
+      p.manifest.ignoredFindings = { id: newId(), path: IGNORED_FILE }
+      ignored.value = empty
+      revision.value++
+      mark(MANIFEST_FILE)
+    })().finally(() => {
+      ignoredCreating = null
+    })
+    await ignoredCreating
+  }
+
+  async function changeIgnored(change: (cur: Ignored) => Ignored): Promise<boolean> {
+    const p = project.value
+    if (!p || !session || p.readOnly) return false
+    const ref = p.manifest.ignoredFindings
+    if (ref && p.isInvalid(ref.path)) return false
+    try {
+      await ensureIgnored(p)
+    } catch (e) {
+      console.error('Could not create the ignored-findings file', e)
+      return false
+    }
+    const path = (p.manifest.ignoredFindings as { path: string }).path
+    const cur = ignored.value ?? emptyIgnored()
+    const next = change(cur)
+    if (next === cur) return true
+    if (!updateItem(path, ignoredSchema, next)) return false
+    ignored.value = next
+    return true
+  }
+
+  /** Dismisses a finding (e.g. `mention:<entry>:<block>`); false = refused (read-only, invalid file). */
+  const ignoreFinding = (id: string) => changeIgnored((cur) => addIgnored(cur, id))
+  /** Brings a dismissed finding back. */
+  const unignoreFinding = (id: string) => changeIgnored((cur) => removeIgnored(cur, id))
 
   // ---- inbox ----
 
@@ -1234,8 +1410,9 @@ export const useProjectStore = defineStore('project', () => {
     saveStatus.value = 'saved'
     await s.watcher.start().catch((e) => console.error(e))
     await loadInbox(s, r.project)
+    await loadIgnored(s, r.project)
     await rebuildLinks(s, r.project)
-    await openTimelines(r.project)
+    await openContent(r.project)
     return true
   }
 
@@ -1314,6 +1491,10 @@ export const useProjectStore = defineStore('project', () => {
     openNoteId,
     inboxNotes,
     inboxInvalid,
+    ignoredIds: ignoredIdSet,
+    ignoredInvalid,
+    ignoreFinding,
+    unignoreFinding,
     brokenLinkCount,
     resolveLinkTarget,
     linksBrokenByDeletingItem,
@@ -1347,6 +1528,13 @@ export const useProjectStore = defineStore('project', () => {
     restoreItem,
     setTimelineRefs,
     trashTimeline,
+    setRuleRefs,
+    trashRule,
+    restoreRuleFile,
+    removeUnlistedFile,
+    setCodexRefs,
+    trashEntry,
+    restoreEntryFile,
     trashNode,
     dropTrashedNode,
     addNote,

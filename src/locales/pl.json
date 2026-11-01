@@ -33,6 +33,12 @@
       "writtenIn": "Zapisane w",
       "whoLearnsWhat": "Kto tu czego się dowiaduje",
       "linked": "Powiązane"
+    },
+    "rules": {
+      "usedIn": "Użyte w"
+    },
+    "codex": {
+      "links": "Powiązania"
     }
   },
   "sidebar": {
@@ -221,7 +227,7 @@
       "footnote": "Przypis",
       "image": "Wstaw obraz",
       "comment": "Dodaj komentarz",
-      "eventLink": "Powiąż z wydarzeniem"
+      "eventLink": "Powiąż z…"
     },
     "body": "Tekst sceny"
   },
@@ -229,7 +235,10 @@
     "status": "Status",
     "synopsis": "Streszczenie",
     "pov": "Punkt widzenia",
-    "povNote": "Dostępne, gdy powstanie kodeks.",
+    "povNone": "Brak narratora",
+    "povNoMatch": "Brak pasującego hasła",
+    "povMissing": "Brakujące hasło",
+    "povClear": "Wyczyść",
     "todos": "Do zrobienia",
     "todoNew": "Nowe zadanie",
     "todoAdd": "Dodaj zadanie",
@@ -357,6 +366,9 @@
     "undated": "Bez daty",
     "filterByTag": "Filtruj wg etykiety",
     "filterByBranch": "Filtruj wg gałęzi",
+    "filterByEntry": "Powiązane hasło kodeksu",
+    "anyEntry": "Dowolne",
+    "missingEntry": "Brakujące hasło",
     "clearFilter": "Wyczyść filtr",
     "rejected": {
       "cycle": "To połączenie utworzyłoby pętlę.",
@@ -505,9 +517,31 @@
       "scene": "Scena",
       "note": "Notatka",
       "timeline": "Oś czasu",
-      "node": "Wydarzenie"
+      "node": "Wydarzenie",
+      "rule": "Reguła",
+      "entry": "Hasło"
     },
     "node": "Wydarzenie · {title} · z: {timeline}",
+    "rule": "Reguła · {title}",
+    "entry": "Hasło · {title}",
+    "restoreFailedEntry": {
+      "generic": "Nie udało się przywrócić: {title}.",
+      "not-in-trash": "Nie udało się przywrócić: {title}. Nie ma już tego w koszu.",
+      "file-missing": "Nie udało się przywrócić: {title}. Zapisanej kopii brakuje w koszu.",
+      "file-invalid": "Nie udało się przywrócić: {title}. Zapisana kopia jest uszkodzona i została nietknięta.",
+      "path-exists": "Nie udało się przywrócić: {title}. Plik o tej samej nazwie już istnieje.",
+      "read-only": "Nie udało się przywrócić: {title}. Projekt jest tylko do odczytu.",
+      "unknown": "Nie udało się przywrócić: {title}."
+    },
+    "restoreFailedRule": {
+      "generic": "Nie udało się przywrócić: {title}.",
+      "not-in-trash": "Nie udało się przywrócić: {title}. Nie ma już tego w koszu.",
+      "file-missing": "Nie udało się przywrócić: {title}. Zapisanej kopii brakuje w koszu.",
+      "file-invalid": "Nie udało się przywrócić: {title}. Zapisana kopia jest uszkodzona i została nietknięta.",
+      "path-exists": "Nie udało się przywrócić: {title}. Plik o tej samej nazwie już istnieje.",
+      "read-only": "Nie udało się przywrócić: {title}. Projekt jest tylko do odczytu.",
+      "unknown": "Nie udało się przywrócić: {title}."
+    },
     "unknownTimeline": "osi czasu, która już nie istnieje",
     "skippedEdges": "Nie pominięto żadnych połączeń | Nie udało się przywrócić 1 połączenia | Nie udało się przywrócić {n} połączeń | Nie udało się przywrócić {n} połączeń",
     "restoreFailed": {
@@ -520,6 +554,174 @@
       "not-in-trash": "Nie udało się przywrócić: {title}. Nie ma go już w koszu.",
       "read-only": "Nie udało się przywrócić: {title}. Projekt jest tylko do odczytu.",
       "unknown": "Nie udało się przywrócić: {title}."
+    }
+  },
+  "rules": {
+    "untitled": "Reguła bez tytułu",
+    "listLabel": "Reguły",
+    "newRule": "Nowa reguła",
+    "manageCategories": "Kategorie",
+    "search": "Szukaj reguł",
+    "filterCategory": "Filtruj według kategorii",
+    "filterTag": "Filtruj według tagu",
+    "clearFilter": "Wyczyść filtry",
+    "noCategory": "Bez kategorii",
+    "noCategories": "Brak kategorii. Dodaj jedną, aby tworzyć reguły.",
+    "noRules": "Nie ma jeszcze reguł. Użyj „Nowa reguła”, aby dodać pierwszą.",
+    "noRulesHint": "Reguły opisują, jak działa Twój świat. Utwórz pierwszą przyciskiem „Nowa reguła”.",
+    "noMatch": "Żadna reguła nie pasuje do wyszukiwania ani filtrów.",
+    "selectOne": "Wybierz regułę, aby ją przeczytać lub edytować.",
+    "invalidHeading": "Pliki z problemami",
+    "invalidFile": "Nieprawidłowy plik",
+    "missingFile": "Brak pliku",
+    "invalidHint": "Te pliki zostały nietknięte. Napraw je lub przywróć poza aplikacją.",
+    "readOnly": "Projekt jest tylko do odczytu, więc nie można zmieniać reguł.",
+    "categoryGone": "Kategoria tej reguły już nie istnieje. Wybierz inną.",
+    "tagsHint": "Wpisz tag i naciśnij Enter",
+    "fields": {
+      "title": "Tytuł",
+      "category": "Kategoria",
+      "tags": "Tagi",
+      "description": "Opis",
+      "exceptions": "Wyjątki"
+    },
+    "usedIn": "Użyta w",
+    "usedInNone": "Żadne wydarzenie nie używa tej reguły.",
+    "usedByEntries": {
+      "title": "Używana przez hasła",
+      "none": "Żadne hasło kodeksu nie ma tej reguły.",
+      "open": "Otwórz hasło: {name}",
+      "untitled": "Hasło bez nazwy"
+    },
+    "jumpFailed": "To wydarzenie już nie istnieje.",
+    "cancel": "Anuluj",
+    "deleteRule": "Usuń regułę",
+    "deleteConfirm": "Przenieść „{title}” do kosza?",
+    "deleteLinks": "Żadne wydarzenie jej nie używa. | Używa jej 1 wydarzenie. Jego powiązanie będzie widoczne jako brakujące, dopóki reguła nie zostanie przywrócona. | Używają jej {n} wydarzenia. Ich powiązania będą widoczne jako brakujące, dopóki reguła nie zostanie przywrócona. | Używa jej {n} wydarzeń. Ich powiązania będą widoczne jako brakujące, dopóki reguła nie zostanie przywrócona.",
+    "deleteFailed": "Nie udało się usunąć reguły.",
+    "categories": {
+      "title": "Kategorie reguł",
+      "none": "Brak kategorii.",
+      "newName": "Nazwa nowej kategorii",
+      "newColor": "Kolor nowej kategorii",
+      "add": "Dodaj",
+      "close": "Zamknij",
+      "color": "Kolor kategorii {name}",
+      "rename": "Nazwa kategorii {name}",
+      "ruleCount": "Brak reguł | 1 reguła | {n} reguły | {n} reguł",
+      "delete": "Usuń kategorię {name}",
+      "last": "Nie można usunąć ostatniej kategorii.",
+      "deleteTitle": "Usunąć kategorię „{name}”?",
+      "deleteEmpty": "Żadna reguła nie używa tej kategorii.",
+      "deleteMoves": "Brak reguł do przeniesienia. | 1 reguła zostanie przeniesiona do innej kategorii. | {n} reguły zostaną przeniesione do innej kategorii. | {n} reguł zostanie przeniesionych do innej kategorii.",
+      "moveTo": "Przenieś je do",
+      "deleteConfirm": "Usuń kategorię",
+      "failed": "To nie zadziałało."
+    }
+  },
+  "codex": {
+    "untitled": "Hasło bez nazwy",
+    "listLabel": "Hasła kodeksu",
+    "newEntry": "Nowe hasło",
+    "manageTypes": "Typy",
+    "search": "Szukaj nazw, aliasów i tagów",
+    "filterType": "Filtruj według typu",
+    "filterTag": "Filtruj według tagu",
+    "clearFilter": "Wyczyść filtry",
+    "noType": "Bez typu",
+    "noTypes": "Brak typów. Dodaj jeden, aby tworzyć hasła.",
+    "noEntries": "Nie ma jeszcze haseł. Użyj „Nowe hasło”, aby dodać pierwsze.",
+    "noEntriesHint": "Kodeks przechowuje twoje postacie, miejsca i przedmioty. Utwórz pierwsze hasło przyciskiem „Nowe hasło”.",
+    "noMatch": "Żadne hasło nie pasuje do wyszukiwania ani filtrów.",
+    "selectOne": "Wybierz hasło, aby je przeczytać lub edytować.",
+    "invalidHeading": "Pliki z problemami",
+    "invalidFile": "Nieprawidłowy plik",
+    "missingFile": "Brakujący plik",
+    "invalidHint": "Te pliki pozostały nietknięte. Napraw je lub przywróć poza aplikacją.",
+    "readOnly": "Projekt jest tylko do odczytu, więc kodeksu nie można zmieniać.",
+    "typeGone": "Typ tego hasła już nie istnieje. Wybierz inny.",
+    "tagsHint": "Wpisz tag i naciśnij Enter",
+    "aliasesHint": "Inne nazwy tego hasła. Wpisz jedną i naciśnij Enter",
+    "aliasDuplicate": "Ten alias już jest na liście.",
+    "fields": {
+      "name": "Nazwa",
+      "type": "Typ",
+      "image": "Obraz",
+      "aliases": "Aliasy",
+      "tags": "Tagi",
+      "notes": "Notatki",
+      "appendixText": "Tekst do dodatków"
+    },
+    "noImage": "Brak obrazu.",
+    "addImage": "Dodaj obraz",
+    "changeImage": "Zmień obraz",
+    "removeImage": "Usuń obraz",
+    "imageMissing": "Pliku obrazu brakuje w projekcie.",
+    "imageFailed": "Nie udało się dodać obrazu.",
+    "imageBadType": "{name} nie jest obsługiwanym typem obrazu.",
+    "appendix": "Dodatek",
+    "appendixHint": "Tekst pokazywany dla tego hasła, gdy książka dostanie dodatki.",
+    "includeInAppendices": "Uwzględnij w dodatkach",
+    "rules": "Reguły",
+    "rulesNone": "Do tego hasła nie przypisano reguł.",
+    "addRule": "Dodaj regułę",
+    "openRule": "Otwórz regułę {title}",
+    "removeRule": "Usuń regułę {title}",
+    "ruleMissing": "Brakująca reguła",
+    "noRuleMatch": "Brak pasujących reguł.",
+    "noRulesExist": "Nie ma jeszcze reguł do dodania.",
+    "usedIn": "Użyte w",
+    "usedInNone": "Żadne wydarzenie nie używa tego hasła.",
+    "tabs": "Sekcje hasła",
+    "tabDetails": "Szczegóły",
+    "tabLinks": "Powiązania",
+    "tabMentions": "Wzmianki",
+    "mentionCount": "Brak wzmianek | 1 wzmianka | {n} wzmianki | {n} wzmianek",
+    "appearsIn": "Występuje w",
+    "appearsInNone": "Żadne fragmenty nie są jeszcze powiązane z tym hasłem. Znajdź je w zakładce Wzmianki.",
+    "untitledScene": "Scena bez tytułu",
+    "passageGone": "Ten fragment już nie istnieje.",
+    "passageProblem": "Uszkodzone",
+    "passageRemoveFailed": "Nie udało się usunąć powiązania.",
+    "jump": "Przejdź",
+    "removeLink": "Usuń powiązanie",
+    "mentionsHint": "Fragmenty używające nazwy lub aliasu tego hasła, które nie są jeszcze z nim powiązane.",
+    "scanning": "Przeszukiwanie rękopisu...",
+    "mentionsNone": "Brak niepowiązanych wzmianek.",
+    "linkMention": "Powiąż",
+    "notThisOne": "To nie to",
+    "linkAll": "Powiąż wszystkie | Powiąż 1 | Powiąż {n} | Powiąż wszystkie {n}",
+    "linkAllTitle": "Powiązać wszystkie wzmianki?",
+    "linkAllConfirm": "Brak wzmianek do powiązania. | Powiązać 1 fragment z tym hasłem? | Powiązać {n} fragmenty z tym hasłem? | Powiązać {n} fragmentów z tym hasłem?",
+    "linkedCount": "Nic nie powiązano. | Powiązano 1 fragment. | Powiązano {n} fragmenty. | Powiązano {n} fragmentów.",
+    "mentionLinkFailed": "Nie udało się powiązać fragmentu.",
+    "mentionIgnoreFailed": "Nie udało się odrzucić wzmianki.",
+    "jumpFailed": "To wydarzenie już nie istnieje.",
+    "cancel": "Anuluj",
+    "deleteEntry": "Usuń hasło",
+    "deleteConfirm": "Przenieść „{name}” do kosza?",
+    "deleteLinks": "Żadne wydarzenie go nie używa. | Używa go 1 wydarzenie. Jego powiązanie będzie widoczne jako brakujące, dopóki hasło nie zostanie przywrócone. | Używają go {n} wydarzenia. Ich powiązania będą widoczne jako brakujące, dopóki hasło nie zostanie przywrócone. | Używa go {n} wydarzeń. Ich powiązania będą widoczne jako brakujące, dopóki hasło nie zostanie przywrócone.",
+    "deleteFailed": "Nie udało się usunąć hasła.",
+    "types": {
+      "title": "Typy haseł",
+      "none": "Brak typów.",
+      "last": "Musi zostać co najmniej jeden typ, więc ostatniego typu nie można usunąć.",
+      "newName": "Nazwa nowego typu",
+      "newColor": "Kolor nowego typu",
+      "newIcon": "Ikona nowego typu",
+      "add": "Dodaj",
+      "close": "Zamknij",
+      "color": "Kolor typu {name}",
+      "icon": "Ikona typu {name}",
+      "rename": "Nazwa typu {name}",
+      "entryCount": "Brak haseł | 1 hasło | {n} hasła | {n} haseł",
+      "delete": "Usuń typ {name}",
+      "deleteTitle": "Usunąć typ „{name}”?",
+      "deleteEmpty": "Żadne hasło nie używa tego typu.",
+      "deleteMoves": "Brak haseł do przeniesienia. | 1 hasło zostanie przeniesione do innego typu. | {n} hasła zostaną przeniesione do innego typu. | {n} haseł zostanie przeniesionych do innego typu.",
+      "moveTo": "Przenieś je do",
+      "deleteConfirm": "Usuń typ",
+      "failed": "To nie zadziałało."
     }
   },
   "common": {
@@ -556,34 +758,45 @@
   "eventLink": {
     "marker": {
       "linked": "Brak powiązanych wydarzeń | Powiązano z 1 wydarzeniem | Powiązano z {n} wydarzeniami | Powiązano z {n} wydarzeniami",
-      "broken": "Brak uszkodzonych powiązań | Uszkodzone powiązanie: wydarzenie nie istnieje | Powiązania z wydarzeniami ({n}), co najmniej jedno wydarzenie nie istnieje | Powiązania z wydarzeniami ({n}), co najmniej jedno wydarzenie nie istnieje"
+      "linkedEntries": "Brak powiązanych haseł kodeksu | Powiązano z 1 hasłem kodeksu | Powiązano z {n} hasłami kodeksu | Powiązano z {n} hasłami kodeksu",
+      "linkedMixed": "Powiązano z wydarzeniami ({events}) i hasłami kodeksu ({entries})",
+      "broken": "Brak uszkodzonych powiązań | Uszkodzone powiązanie: cel nie istnieje | Powiązania ({n}), co najmniej jeden cel nie istnieje | Powiązania ({n}), co najmniej jeden cel nie istnieje"
     },
     "picker": {
-      "titleLink": "Powiąż z wydarzeniem",
+      "titleLink": "Powiąż z…",
       "titleRelink": "Wybierz inne wydarzenie",
+      "titleRelinkEntry": "Wybierz inne hasło kodeksu",
+      "tabEvents": "Wydarzenia",
+      "tabCodex": "Kodeks",
       "search": "Szukaj wydarzeń",
+      "searchCodex": "Szukaj haseł kodeksu",
       "empty": "Nie ma jeszcze wydarzeń: utwórz je w Osiach czasu",
+      "emptyCodex": "Nie ma jeszcze haseł kodeksu",
       "noMatch": "Żadne wydarzenie nie pasuje",
+      "noMatchCodex": "Żadne hasło kodeksu nie pasuje",
       "cancel": "Anuluj"
     },
     "popover": {
-      "title": "Powiązane wydarzenia",
+      "title": "Powiązania",
       "event": "Wydarzenie",
+      "entry": "Kodeks",
       "problem": "Problem",
       "missing": "Brakujące wydarzenie",
+      "missingEntry": "Brakujące hasło",
+      "open": "Otwórz",
       "jump": "Przejdź",
       "unlink": "Odepnij",
       "relink": "Powiąż ponownie",
       "remove": "Usuń"
     },
     "failed": "Nie udało się zmienić powiązań.",
-    "alreadyLinked": "Brak nowych powiązań | Ten akapit jest już powiązany z tym wydarzeniem | Te {n} akapity są już powiązane z tym wydarzeniem | Tych {n} akapitów jest już powiązanych z tym wydarzeniem"
+    "alreadyLinked": "Brak nowych powiązań | Ten akapit jest już z tym powiązany | Te {n} akapity są już z tym powiązane | Tych {n} akapitów jest już z tym powiązanych"
   },
   "linksPanel": {
     "paragraph": {
-      "none": "Kliknij w akapit, aby zobaczyć powiązane wydarzenia.",
-      "empty": "Ten akapit nie jest powiązany z żadnym wydarzeniem.",
-      "link": "Powiąż z wydarzeniem"
+      "none": "Kliknij w akapit, aby zobaczyć jego powiązania.",
+      "empty": "Ten akapit nie jest z niczym powiązany.",
+      "link": "Powiąż z…"
     },
     "problems": {
       "empty": "Brak problemów w tej scenie."
@@ -594,6 +807,79 @@
       "empty": "Nie opisano go jeszcze w żadnej scenie.",
       "gone": "Fragment już nie istnieje",
       "untitledScene": "Scena bez tytułu"
+    },
+    "inScene": {
+      "empty": "Brak haseł kodeksu powiązanych w tej scenie."
+    },
+    "entries": {
+      "heading": "Hasła kodeksu",
+      "empty": "Brak haseł kodeksu powiązanych z tym wydarzeniem.",
+      "problem": "Problem",
+      "missing": "Brakujące hasło",
+      "noType": "Hasło",
+      "pov": "Punkt widzenia",
+      "open": "Otwórz"
+    },
+    "entryLinks": {
+      "none": "Wybierz hasło, aby zobaczyć jego powiązania.",
+      "events": "Wydarzenia",
+      "noEvents": "Nie powiązano z żadnym wydarzeniem.",
+      "rules": "Zasady",
+      "noRules": "Brak powiązanych zasad."
+    },
+    "linkedRules": {
+      "none": "Wybierz wydarzenie, aby zobaczyć jego zasady.",
+      "empty": "Brak zasad powiązanych z tym wydarzeniem.",
+      "tag": "Zasada",
+      "problem": "Problem",
+      "missing": "Brakująca zasada",
+      "uncategorized": "Bez kategorii",
+      "open": "Otwórz"
+    },
+    "ruleUsedIn": {
+      "none": "Wybierz zasadę, aby zobaczyć, gdzie jest użyta.",
+      "empty": "Nie powiązano jej jeszcze z żadnym wydarzeniem.",
+      "tag": "Wydarzenie",
+      "untitled": "Wydarzenie bez tytułu",
+      "jump": "Przejdź"
     }
+  },
+  "nodeCodex": {
+    "label": "Kodeks",
+    "add": "Dodaj hasło",
+    "none": "Brak powiązanych haseł.",
+    "open": "Otwórz",
+    "openLabel": "Otwórz hasło: {name}",
+    "remove": "Usuń",
+    "removeLabel": "Usuń hasło: {name}",
+    "removeMissingLabel": "Usuń brakujące hasło",
+    "missing": "Brakujące hasło",
+    "untitled": "Hasło bez nazwy",
+    "noType": "Bez typu",
+    "pickerTitle": "Dodaj hasło",
+    "search": "Szukaj haseł",
+    "empty": "Nie ma jeszcze haseł: utwórz je w Kodeksie",
+    "allLinked": "Wszystkie hasła są już powiązane",
+    "noMatch": "Brak pasujących haseł",
+    "cancel": "Anuluj"
+  },
+  "nodeRules": {
+    "label": "Zasady",
+    "add": "Dodaj zasadę",
+    "none": "Brak powiązanych zasad.",
+    "open": "Otwórz",
+    "openLabel": "Otwórz zasadę: {title}",
+    "remove": "Usuń",
+    "removeLabel": "Usuń zasadę: {title}",
+    "removeMissingLabel": "Usuń brakującą zasadę",
+    "missing": "Brakująca zasada",
+    "untitled": "Zasada bez tytułu",
+    "uncategorized": "Bez kategorii",
+    "pickerTitle": "Dodaj zasadę",
+    "search": "Szukaj zasad",
+    "empty": "Nie ma jeszcze zasad: utwórz je w Zasadach",
+    "allLinked": "Wszystkie zasady są już powiązane",
+    "noMatch": "Brak pasujących zasad",
+    "cancel": "Anuluj"
   }
 }

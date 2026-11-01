@@ -7,10 +7,12 @@ defineProps<{ x: number; y: number; rows: BlockLink[]; readonly?: boolean }>()
 const emit = defineEmits<{
   close: []
   jump: [row: BlockLink]
+  open: [row: BlockLink]
   unlink: [linkId: string]
   relink: [linkId: string]
 }>()
 const { t } = useI18n()
+const missing = (r: BlockLink) => r.eventMissing || r.entryMissing
 const root = ref<HTMLElement | null>(null)
 
 function onPointerDown(e: PointerEvent): void {
@@ -37,11 +39,24 @@ onBeforeUnmount(() => window.removeEventListener('pointerdown', onPointerDown, t
     @keydown.esc.stop.prevent="emit('close')"
   >
     <ul class="rows">
-      <li v-for="r in rows" :key="r.link.id" class="row" :class="{ broken: r.broken }">
+      <li
+        v-for="r in rows"
+        :key="r.link.id"
+        class="row"
+        :class="{ broken: r.broken }"
+        :data-link-kind="r.kind"
+      >
         <div class="info">
-          <template v-if="r.eventMissing">
+          <template v-if="missing(r)">
             <span class="tag problem">{{ t('eventLink.popover.problem') }}</span>
-            <span class="name">{{ t('eventLink.popover.missing') }}</span>
+            <span class="name">
+              {{ t(r.entryMissing ? 'eventLink.popover.missingEntry' : 'eventLink.popover.missing') }}
+            </span>
+          </template>
+          <template v-else-if="r.entry">
+            <span class="tag codex">{{ t('eventLink.popover.entry') }}</span>
+            <span class="name">{{ r.entry.name || t('codex.untitled') }}</span>
+            <span v-if="r.entry.typeName" class="meta">{{ r.entry.typeName }}</span>
           </template>
           <template v-else>
             <span class="tag">{{ t('eventLink.popover.event') }}</span>
@@ -52,7 +67,7 @@ onBeforeUnmount(() => window.removeEventListener('pointerdown', onPointerDown, t
           </template>
         </div>
         <div class="actions">
-          <template v-if="r.eventMissing">
+          <template v-if="missing(r)">
             <button v-if="!readonly" type="button" class="btn" @click="emit('relink', r.link.id)">
               {{ t('eventLink.popover.relink') }}
             </button>
@@ -61,7 +76,10 @@ onBeforeUnmount(() => window.removeEventListener('pointerdown', onPointerDown, t
             </button>
           </template>
           <template v-else>
-            <button type="button" class="btn" @click="emit('jump', r)">
+            <button v-if="r.entry" type="button" class="btn" @click="emit('open', r)">
+              {{ t('eventLink.popover.open') }}
+            </button>
+            <button v-else type="button" class="btn" @click="emit('jump', r)">
               {{ t('eventLink.popover.jump') }}
             </button>
             <button v-if="!readonly" type="button" class="btn" @click="emit('unlink', r.link.id)">
@@ -115,6 +133,10 @@ onBeforeUnmount(() => window.removeEventListener('pointerdown', onPointerDown, t
   color: var(--tag-event-on);
   font-size: 0.6875rem;
   font-weight: 700;
+}
+.tag.codex {
+  background: var(--section-codex);
+  color: var(--section-codex-on);
 }
 .tag.problem {
   background: var(--tag-problem);

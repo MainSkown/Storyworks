@@ -4,8 +4,15 @@ import { useI18n } from 'vue-i18n'
 import { Notify } from 'quasar'
 import { currentBlock } from '../../composables/currentBlock'
 import { paragraphLinks } from '../../composables/contextLinks'
-import { linkSelectionToNode, relinkLink, unlinkLink } from '../../composables/eventLinks'
-import { jumpToNode } from '../../composables/useJump'
+import {
+  linkSelectionToEntry,
+  linkSelectionToNode,
+  relinkLink,
+  relinkLinkToEntry,
+  unlinkLink,
+  type BlockLink,
+} from '../../composables/eventLinks'
+import { jumpToEntry, jumpToNode } from '../../composables/useJump'
 import { useProjectStore } from '../../project/store'
 import NodePickerDialog from '../NodePickerDialog.vue'
 import LinkCard from './LinkCard.vue'
@@ -14,18 +21,41 @@ const { t } = useI18n()
 const store = useProjectStore()
 const canEdit = computed(() => !store.readOnly)
 const pickerOpen = ref(false)
-const picking = ref<{ mode: 'link' } | { mode: 'relink'; linkId: string }>({ mode: 'link' })
+const picking = ref<{ mode: 'link' } | { mode: 'relink'; linkId: string; kind: 'event' | 'entry' }>({
+  mode: 'link',
+})
+const pickerTabs = computed<('events' | 'codex')[]>(() =>
+  picking.value.mode === 'link' ? ['events', 'codex'] : picking.value.kind === 'entry' ? ['codex'] : ['events'],
+)
+const pickerTitle = computed(() =>
+  picking.value.mode === 'link'
+    ? t('eventLink.picker.titleLink')
+    : t(picking.value.kind === 'entry' ? 'eventLink.picker.titleRelinkEntry' : 'eventLink.picker.titleRelink'),
+)
 
 const warn = (message: string) =>
   Notify.create({ type: 'warning', message, position: 'bottom', timeout: 5000 })
+
+function cardTag(r: BlockLink): string {
+  if (r.eventMissing || r.entryMissing) return t('eventLink.popover.problem')
+  if (r.entry) return r.entry.typeName ?? t('eventLink.popover.entry')
+  return t('eventLink.popover.event')
+}
+
+function cardTitle(r: BlockLink): string {
+  if (r.entryMissing) return t('eventLink.popover.missingEntry')
+  if (r.eventMissing) return t('eventLink.popover.missing')
+  if (r.entry) return r.entry.name || t('codex.untitled')
+  return r.target!.title || t('timelines.untitled')
+}
 
 function startLink(): void {
   picking.value = { mode: 'link' }
   pickerOpen.value = true
 }
 
-function startRelink(linkId: string): void {
-  picking.value = { mode: 'relink', linkId }
+function startRelink(linkId: string, kind: 'event' | 'entry'): void {
+  picking.value = { mode: 'relink', linkId, kind }
   pickerOpen.value = true
 }
 
@@ -43,6 +73,20 @@ async function onPick(timelineId: string, nodeId: string): Promise<void> {
   }
 }
 
+async function onPickEntry(entryId: string): Promise<void> {
+  const cur = currentBlock.value
+  const target = picking.value
+  if (target.mode === 'link') {
+    if (!cur?.blockId) return
+    const r = await linkSelectionToEntry(cur.sceneId, [cur.blockId], entryId)
+    if (!r.ok) warn(t('eventLink.failed'))
+    else if (r.added === 0) warn(t('eventLink.alreadyLinked', 1))
+  } else {
+    const r = await relinkLinkToEntry(target.linkId, entryId)
+    if (!r.ok) warn(t(r.reason === 'duplicate' ? 'eventLink.alreadyLinked' : 'eventLink.failed', 1))
+  }
+}
+
 async function unlink(linkId: string): Promise<void> {
   if (!(await unlinkLink(linkId)).ok) warn(t('eventLink.failed'))
 }
@@ -55,19 +99,26 @@ async function unlink(linkId: string): Promise<void> {
       <LinkCard
         v-for="r in paragraphLinks"
         :key="r.link.id"
-        :problem="r.eventMissing"
-        :tag="r.eventMissing ? t('eventLink.popover.problem') : t('eventLink.popover.event')"
-        :title="
-          r.eventMissing ? t('eventLink.popover.missing') : r.target!.title || t('timelines.untitled')
-        "
-        :meta="r.eventMissing ? '' : [r.target!.date, r.target!.timelineName].filter(Boolean).join(' · ')"
+        :problem="r.eventMissing || r.entryMissing"
+        :tag-kind="r.entry ? 'codex' : undefined"
+        :tag="cardTag(r)"
+        :title="cardTitle(r)"
+        :meta="r.target ? [r.target.date, r.target.timelineName].filter(Boolean).join(' · ') : ''"
       >
-        <template v-if="r.eventMissing">
-          <button v-if="canEdit" type="button" class="btn" @click="startRelink(r.link.id)">
+        <template v-if="r.eventMissing || r.entryMissing">
+          <button v-if="canEdit" type="button" class="btn" @click="startRelink(r.link.id, r.kind)">
             {{ t('eventLink.popover.relink') }}
           </button>
           <button v-if="canEdit" type="button" class="btn" @click="unlink(r.link.id)">
             {{ t('eventLink.popover.remove') }}
+          </button>
+        </template>
+        <template v-else-if="r.entry">
+          <button type="button" class="btn" @click="jumpToEntry(r.entry.id)">
+            {{ t('eventLink.popover.open') }}
+          </button>
+          <button v-if="canEdit" type="button" class="btn" @click="unlink(r.link.id)">
+            {{ t('eventLink.popover.unlink') }}
           </button>
         </template>
         <template v-else>
@@ -91,8 +142,10 @@ async function unlink(linkId: string): Promise<void> {
   </template>
   <NodePickerDialog
     v-model="pickerOpen"
-    :title="picking.mode === 'link' ? t('eventLink.picker.titleLink') : t('eventLink.picker.titleRelink')"
+    :title="pickerTitle"
+    :tabs="pickerTabs"
     @pick="onPick"
+    @pick-entry="onPickEntry"
   />
 </template>
 

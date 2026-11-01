@@ -2,6 +2,8 @@ import { watch } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import AppShell from './components/AppShell.vue'
 import SectionPlaceholder from './views/SectionPlaceholder.vue'
+import CodexView from './views/CodexView.vue'
+import RulesView from './views/RulesView.vue'
 import TimelinesView from './views/TimelinesView.vue'
 import SettingsView from './views/SettingsView.vue'
 import WelcomeView from './views/WelcomeView.vue'
@@ -19,8 +21,8 @@ export const router = createRouter({
       children: [
         { path: 'write', name: 'write', component: WriteView },
         { path: 'timelines', name: 'timelines', component: TimelinesView },
-        { path: 'rules', name: 'rules', component: SectionPlaceholder },
-        { path: 'codex', name: 'codex', component: SectionPlaceholder },
+        { path: 'rules', name: 'rules', component: RulesView },
+        { path: 'codex', name: 'codex', component: CodexView },
         { path: 'checks', name: 'checks', component: SectionPlaceholder },
         { path: 'stats', name: 'stats', component: SectionPlaceholder },
         { path: 'history', name: 'history', component: SectionPlaceholder },

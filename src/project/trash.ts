@@ -3,6 +3,9 @@ import { reinsertNode } from '../timeline/ops'
 import type { Timeline } from '../timeline/schema'
 import { inboxNoteSchema, type InboxNote } from './schemas/inbox'
 import type { Manifest } from './schemas/manifest'
+import type { z } from 'zod'
+import { codexEntrySchema } from './schemas/codexEntry'
+import { ruleSchema } from './schemas/rule'
 import { trashedNodeSchema, type TrashedNode } from './schemas/trashedNode'
 import { parseFile, serialize } from './serialize'
 import type { Env, ProjectIO, TrashEntry } from './types'
@@ -136,6 +139,10 @@ export async function restoreItemImpl(host: TrashHost, id: string): Promise<void
     throw new Error(`Cannot restore ${id}: timelines are restored through the store`)
   if (entry.type === 'node')
     throw new Error(`Cannot restore ${id}: timeline events are restored through the store`)
+  if (entry.type === 'rule')
+    throw new Error(`Cannot restore ${id}: rules are restored through the store`)
+  if (entry.type === 'entry')
+    throw new Error(`Cannot restore ${id}: codex entries are restored through the store`)
   if (entry.originalPath && (await io.exists(entry.originalPath))) {
     throw new Error(`Cannot restore ${id}: ${entry.originalPath} already exists`)
   }
@@ -328,3 +335,146 @@ export async function dropTrashedNodeImpl(host: TrashHost, id: string): Promise<
   }
   await io.remove(entry.trashPath).catch(() => {})
 }
+
+export type RuleRestoreErrorCode =
+  | 'not-in-trash'
+  | 'file-missing'
+  | 'file-invalid'
+  | 'path-exists'
+  | 'read-only'
+  | 'unknown'
+
+export class RuleRestoreError extends Error {
+  constructor(
+    readonly code: RuleRestoreErrorCode,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'RuleRestoreError'
+  }
+}
+
+export class EntryRestoreError extends Error {
+  constructor(
+    readonly code: RuleRestoreErrorCode,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'EntryRestoreError'
+  }
+}
+
+/** A manifest list that holds one kind of whole-file item (rules, codex entries). */
+interface ListedKind {
+  list: 'rules' | 'codexEntries'
+  type: 'rule' | 'entry'
+  label: string
+  schema: z.ZodType<{ id: string }>
+  error: new (code: RuleRestoreErrorCode, message: string) => Error
+}
+
+const RULE_KIND: ListedKind = {
+  list: 'rules',
+  type: 'rule',
+  label: 'rule',
+  schema: ruleSchema,
+  error: RuleRestoreError,
+}
+const ENTRY_KIND: ListedKind = {
+  list: 'codexEntries',
+  type: 'entry',
+  label: 'entry',
+  schema: codexEntrySchema,
+  error: EntryRestoreError,
+}
+
+/** Moves the file to the trash, unlists it and adds a trash entry. Any file moves, even an invalid one. */
+async function trashListed(host: TrashHost, k: ListedKind, id: string, title: string): Promise<TrashEntry> {
+  host.assertWritable()
+  const { manifest, io } = host
+  const index = manifest[k.list].findIndex((r) => r.id === id)
+  if (index < 0) throw new Error(`Cannot delete ${id}: not a listed ${k.label}`)
+  const ref = manifest[k.list][index]
+  const trashPath = `${TRASH_DIR}/${id}/${ref.path.split('/').pop() ?? ''}`
+  const moves: [string, string][] = []
+  try {
+    if (await io.exists(ref.path)) {
+      await moveFile(host, ref.path, trashPath)
+      moves.push([ref.path, trashPath])
+    }
+    const entry: TrashEntry = {
+      id,
+      type: k.type,
+      title,
+      originalPath: ref.path,
+      trashPath,
+      parentId: null,
+      index,
+      deletedAt: new Date(host.env.now()).toISOString(),
+    }
+    const before = { [k.list]: manifest[k.list], trash: manifest.trash }
+    manifest[k.list] = manifest[k.list].filter((r) => r.id !== id)
+    manifest.trash = [...manifest.trash, entry]
+    try {
+      await host.saveManifest()
+    } catch (e) {
+      Object.assign(manifest, before)
+      throw e
+    }
+    return entry
+  } catch (e) {
+    await undoMoves(host, moves)
+    throw e
+  }
+}
+
+/** Puts the item back (same id, same position). The trashed file must validate; otherwise nothing changes. */
+async function restoreListed(host: TrashHost, k: ListedKind, id: string): Promise<void> {
+  const fail = (code: RuleRestoreErrorCode, message: string) => new k.error(code, message)
+  try {
+    host.assertWritable()
+  } catch (e) {
+    throw fail('read-only', e instanceof Error ? e.message : String(e))
+  }
+  const { manifest, io } = host
+  const entry = manifest.trash.find((t) => t.id === id && t.type === k.type)
+  if (!entry) throw fail('not-in-trash', `Cannot restore ${id}: not a ${k.label} in the trash`)
+  const text = await io.readText(entry.trashPath)
+  if (text === null) throw fail('file-missing', `Cannot restore ${id}: ${entry.trashPath} is missing`)
+  const r = parseFile(k.schema, text, entry.trashPath)
+  if (!r.ok) throw fail('file-invalid', `Cannot restore ${id}: ${r.error.message}`)
+  if (r.value.id !== id)
+    throw fail('file-invalid', `Cannot restore ${id}: the file holds ${k.label} ${r.value.id}`)
+  if (await io.exists(entry.originalPath))
+    throw fail('path-exists', `Cannot restore ${id}: ${entry.originalPath} already exists`)
+  const moves: [string, string][] = []
+  try {
+    await moveFile(host, entry.trashPath, entry.originalPath)
+    moves.push([entry.trashPath, entry.originalPath])
+    const before = { [k.list]: manifest[k.list], trash: manifest.trash }
+    const list = [...manifest[k.list]]
+    list.splice(Math.min(entry.index, list.length), 0, {
+      id,
+      path: entry.originalPath,
+      title: entry.title,
+    })
+    manifest[k.list] = list
+    manifest.trash = manifest.trash.filter((t) => t !== entry)
+    try {
+      await host.saveManifest()
+    } catch (e) {
+      Object.assign(manifest, before)
+      throw e
+    }
+  } catch (e) {
+    await undoMoves(host, moves)
+    throw e
+  }
+}
+
+export const trashRuleImpl = (host: TrashHost, id: string, title: string) =>
+  trashListed(host, RULE_KIND, id, title)
+export const restoreRuleImpl = (host: TrashHost, id: string) => restoreListed(host, RULE_KIND, id)
+export const trashEntryImpl = (host: TrashHost, id: string, title: string) =>
+  trashListed(host, ENTRY_KIND, id, title)
+export const restoreEntryImpl = (host: TrashHost, id: string) => restoreListed(host, ENTRY_KIND, id)

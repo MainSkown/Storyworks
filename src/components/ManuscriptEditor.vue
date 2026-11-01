@@ -17,12 +17,14 @@ import { commentRailOpen } from '../composables/commentRail'
 import {
   blockLinkInfoMap,
   linksForBlock,
+  linkSelectionToEntry,
   linkSelectionToNode,
   relinkLink,
+  relinkLinkToEntry,
   unlinkLink,
   type BlockLink,
 } from '../composables/eventLinks'
-import { jumpToNode } from '../composables/useJump'
+import { jumpToEntry, jumpToNode } from '../composables/useJump'
 import { currentBlock } from '../composables/currentBlock'
 import { Notify } from 'quasar'
 import { useProjectStore } from '../project/store'
@@ -299,10 +301,17 @@ function onToolbarAction(action: 'footnote' | 'image' | 'comment' | 'eventLink')
 const sheetEl = ref<HTMLElement | null>(null)
 const markers = ref<GutterMarker[]>([])
 const pickerOpen = ref(false)
-const picking = ref<{ mode: 'link'; blockIds: string[] } | { mode: 'relink'; linkId: string }>({
-  mode: 'link',
-  blockIds: [],
-})
+const picking = ref<
+  { mode: 'link'; blockIds: string[] } | { mode: 'relink'; linkId: string; kind: 'event' | 'entry' }
+>({ mode: 'link', blockIds: [] })
+const pickerTabs = computed<('events' | 'codex')[]>(() =>
+  picking.value.mode === 'link' ? ['events', 'codex'] : picking.value.kind === 'entry' ? ['codex'] : ['events'],
+)
+const pickerTitle = computed(() =>
+  picking.value.mode === 'link'
+    ? t('eventLink.picker.titleLink')
+    : t(picking.value.kind === 'entry' ? 'eventLink.picker.titleRelinkEntry' : 'eventLink.picker.titleRelink'),
+)
 const pop = ref<{ blockId: string; x: number; y: number } | null>(null)
 const popRows = computed<BlockLink[]>(() =>
   pop.value && loaded.value ? linksForBlock(loaded.value.id, pop.value.blockId) : [],
@@ -323,7 +332,7 @@ function layoutMarkers(): void {
         const dom = ed.view.nodeDOM(b.pos)
         if (!(dom instanceof HTMLElement)) return []
         return [
-          { id: b.id, count: b.count, broken: b.broken, top: dom.getBoundingClientRect().top - base + 2 },
+          { id: b.id, count: b.count, broken: b.broken, events: b.events, entries: b.entries, top: dom.getBoundingClientRect().top - base + 2 },
         ]
       },
     )
@@ -349,6 +358,21 @@ function startEventLink(): void {
 
 const warn = (message: string) =>
   Notify.create({ type: 'warning', message, position: 'bottom', timeout: 5000 })
+
+async function onPickEntry(entryId: string): Promise<void> {
+  const target = picking.value
+  const scene = loaded.value
+  if (!scene) return
+  if (target.mode === 'link') {
+    const r = await linkSelectionToEntry(scene.id, target.blockIds, entryId)
+    if (!r.ok) warn(t('eventLink.failed'))
+    else if (r.added === 0) warn(t('eventLink.alreadyLinked', target.blockIds.length))
+  } else {
+    const r = await relinkLinkToEntry(target.linkId, entryId)
+    if (!r.ok) warn(t(r.reason === 'duplicate' ? 'eventLink.alreadyLinked' : 'eventLink.failed', 1))
+  }
+  editor.value?.commands.focus()
+}
 
 async function onPick(timelineId: string, nodeId: string): Promise<void> {
   const target = picking.value
@@ -403,9 +427,15 @@ async function unlinkFromPopover(linkId: string): Promise<void> {
   if (!(await unlinkLink(linkId)).ok) warn(t('eventLink.failed'))
 }
 
-function relinkFromPopover(linkId: string): void {
+function openEntryFromPopover(row: BlockLink): void {
   closePopover(false)
-  picking.value = { mode: 'relink', linkId }
+  void jumpToEntry(row.link.to.item)
+}
+
+function relinkFromPopover(linkId: string): void {
+  const kind = popRows.value.find((r) => r.link.id === linkId)?.kind ?? 'event'
+  closePopover(false)
+  picking.value = { mode: 'relink', linkId, kind }
   pickerOpen.value = true
 }
 
@@ -606,8 +636,10 @@ onBeforeUnmount(() => {
     </div>
     <NodePickerDialog
       v-model="pickerOpen"
-      :title="picking.mode === 'link' ? t('eventLink.picker.titleLink') : t('eventLink.picker.titleRelink')"
+      :title="pickerTitle"
+      :tabs="pickerTabs"
       @pick="onPick"
+      @pick-entry="onPickEntry"
     />
     <EventLinkPopover
       v-if="pop && popRows.length"
@@ -617,6 +649,7 @@ onBeforeUnmount(() => {
       :readonly="!canEdit"
       @close="closePopover()"
       @jump="jumpFromPopover"
+      @open="openEntryFromPopover"
       @unlink="unlinkFromPopover"
       @relink="relinkFromPopover"
     />

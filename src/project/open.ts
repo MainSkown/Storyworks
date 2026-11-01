@@ -16,7 +16,12 @@ import {
   type BookMeta,
   type Manifest,
 } from './schemas/manifest'
+import { ignoredSchema } from './schemas/ignored'
 import { inboxSchema } from './schemas/inbox'
+import { codexEntrySchema } from './schemas/codexEntry'
+import { codexTypeSchema } from './schemas/codexType'
+import { ruleSchema } from './schemas/rule'
+import { ruleCategorySchema } from './schemas/ruleCategory'
 import { sceneSchema, SCENE_VERSION } from './schemas/scene'
 import { timelineSchema } from '../timeline/schema'
 import { parseFile, serialize } from './serialize'
@@ -27,8 +32,12 @@ import {
   readTrashedNoteImpl,
   restoreItemImpl,
   restoreNodeImpl,
+  restoreEntryImpl,
+  restoreRuleImpl,
   trashNodeImpl,
   trashNoteImpl,
+  trashEntryImpl,
+  trashRuleImpl,
   type TrashHost,
 } from './trash'
 import { restoreTimelineImpl, trashTimelineImpl } from './timelines'
@@ -58,7 +67,12 @@ interface ListedItem {
   path: string
   scene: boolean
   inbox?: boolean
+  ignored?: boolean
   timeline?: boolean
+  rule?: boolean
+  ruleCategory?: boolean
+  codexEntry?: boolean
+  codexType?: boolean
 }
 
 /** Every item file the manifest points at (trash excluded). */
@@ -90,7 +104,12 @@ function listedItems(m: Manifest): ListedItem[] {
       path: ref.path,
       scene: false,
       inbox: ref === m.inbox,
+      ignored: ref === m.ignoredFindings,
       timeline: m.timelines.includes(ref),
+      rule: m.rules.includes(ref),
+      ruleCategory: m.ruleCategories.includes(ref),
+      codexEntry: m.codexEntries.includes(ref),
+      codexType: m.codexTypes.includes(ref),
     })
   }
   return out
@@ -185,7 +204,7 @@ function buildProject(
       if (text === null) return { status: 'missing' }
       hashes.set(path, await sha256Hex(text))
       const item = listedItems(manifest).find((i) => i.path === path)
-      if (!item || !(item.scene || item.inbox || item.timeline)) return { status: 'ok' }
+      if (!item || !isParsed(item)) return { status: 'ok' }
       const r = parseItem(item, text)
       if (r.ok) {
         invalid.delete(path)
@@ -204,6 +223,10 @@ function buildProject(
     trashNode: (item) => trashNodeImpl(host, item),
     restoreNode: (id, timelines) => restoreNodeImpl(host, id, timelines),
     dropTrashedNode: (id) => dropTrashedNodeImpl(host, id),
+    trashRule: (id, title) => trashRuleImpl(host, id, title),
+    restoreRule: (id) => restoreRuleImpl(host, id),
+    trashEntry: (id, title) => trashEntryImpl(host, id, title),
+    restoreEntry: (id) => restoreEntryImpl(host, id),
   }
   return project
 }
@@ -229,9 +252,12 @@ export async function createProject(
   return project
 }
 
-/** A scene file must carry the id project.json lists it under, or links and trash would point at the wrong item. */
-function parseScene(text: string, path: string, expectedId: string | undefined) {
-  const r = parseFile(sceneSchema, text, path)
+/** A scene, rule or category file must carry the id project.json lists it under, or links and trash would point at the wrong item. */
+function withIdCheck<T extends { id: string }>(
+  r: ParseResult<T>,
+  path: string,
+  expectedId: string | undefined,
+): ParseResult<T> {
   if (r.ok && expectedId !== undefined && r.value.id !== expectedId) {
     return {
       ok: false as const,
@@ -245,11 +271,22 @@ function parseScene(text: string, path: string, expectedId: string | undefined) 
   return r
 }
 
-function parseItem(item: ListedItem, text: string) {
+function parseItem(item: ListedItem, text: string): ParseResult<unknown> {
   if (item.inbox) return parseFile(inboxSchema, text, item.path)
+  if (item.ignored) return parseFile(ignoredSchema, text, item.path)
   if (item.timeline) return parseFile(timelineSchema, text, item.path)
-  return parseScene(text, item.path, item.id)
+  if (item.rule) return withIdCheck(parseFile(ruleSchema, text, item.path), item.path, item.id)
+  if (item.ruleCategory)
+    return withIdCheck(parseFile(ruleCategorySchema, text, item.path), item.path, item.id)
+  if (item.codexEntry)
+    return withIdCheck(parseFile(codexEntrySchema, text, item.path), item.path, item.id)
+  if (item.codexType)
+    return withIdCheck(parseFile(codexTypeSchema, text, item.path), item.path, item.id)
+  return withIdCheck(parseFile(sceneSchema, text, item.path), item.path, item.id)
 }
+
+const isParsed = (item: ListedItem) =>
+  item.scene || item.inbox || item.ignored || item.timeline || item.rule || item.ruleCategory || item.codexEntry || item.codexType
 
 async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Promise<Issue[]> {
   const results = await Promise.all(
@@ -257,7 +294,7 @@ async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Prom
       const text = await io.readText(item.path)
       if (text === null) return { kind: 'missing', itemId: item.id, path: item.path }
       t.hashes.set(item.path, await sha256Hex(text))
-      if (!item.scene && !item.inbox && !item.timeline) return null
+      if (!isParsed(item)) return null
       const r = parseItem(item, text)
       if (r.ok) return null
       t.invalid.add(item.path)

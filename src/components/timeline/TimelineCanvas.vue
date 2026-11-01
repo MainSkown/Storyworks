@@ -5,6 +5,7 @@ import { Notify } from 'quasar'
 import { formatDate, toOrdinal, validateDate } from '../../calendar'
 import { pendingNodeJump, takePendingNodeJump } from '../../composables/useJump'
 import { useSettingsStore } from '../../settings/store'
+import { useCodexStore } from '../../codex/store'
 import { useProjectStore } from '../../project/store'
 import { thinTicks } from '../../timeline/axis'
 import { connect } from '../../timeline/graph'
@@ -31,6 +32,7 @@ const LANE_PAD = 34
 
 const { t, te } = useI18n()
 const store = useTimelinesStore()
+const codex = useCodexStore()
 const project = useProjectStore()
 const settings = useSettingsStore()
 
@@ -219,7 +221,17 @@ const branchChips = computed(() => [
     color: b.color,
   })),
 ])
-const showFilters = computed(() => store.tags.length > 0 || (tl.value?.branches.length ?? 0) > 0)
+const entryFilterId = computed(() => store.filter.entryId ?? '')
+const entryFilterGone = computed(
+  () => !!entryFilterId.value && !codex.entries.some((e) => e.id === entryFilterId.value),
+)
+const showFilters = computed(
+  () =>
+    store.tags.length > 0 ||
+    (tl.value?.branches.length ?? 0) > 0 ||
+    codex.entries.length > 0 ||
+    !!entryFilterId.value,
+)
 
 // ---- date view overlay ----
 const laneName = (key: string) =>
@@ -355,6 +367,23 @@ const canvasKey = computed(() => `${tl.value?.id}:${view.value}`)
         >
           <span class="dot" :style="{ background: b.color }" />{{ b.name }}
         </button>
+      </template>
+      <template v-if="codex.entries.length || entryFilterId">
+        <label class="flabel" for="tl-filter-entry">{{ t('timelines.filterByEntry') }}</label>
+        <select
+          id="tl-filter-entry"
+          class="fselect"
+          :value="entryFilterId"
+          @change="store.setEntryFilter(($event.target as HTMLSelectElement).value || null)"
+        >
+          <option value="">{{ t('timelines.anyEntry') }}</option>
+          <option v-if="entryFilterGone" :value="entryFilterId">
+            {{ t('timelines.missingEntry') }}
+          </option>
+          <option v-for="e in codex.entries" :key="e.id" :value="e.id">
+            {{ e.name || t('codex.untitled') }}
+          </option>
+        </select>
       </template>
       <QBtn
         v-if="store.filterActive"
@@ -545,6 +574,15 @@ const canvasKey = computed(() => `${tl.value?.id}:${view.value}`)
   gap: 0.25rem;
   padding: 0.125rem 0.625rem;
   border-radius: 999px;
+}
+.fselect {
+  max-width: 12rem;
+  padding: 0.125rem 0.375rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.375rem;
+  background: var(--bg-sheet);
+  color: var(--text-primary);
+  font: inherit;
 }
 .dot {
   width: 0.625rem;

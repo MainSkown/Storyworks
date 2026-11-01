@@ -18,7 +18,11 @@ function timelineName(e: TrashEntry): string {
 const label = (e: TrashEntry) =>
   e.type === 'node'
     ? t('trash.node', { title: e.title || t('timelines.untitled'), timeline: timelineName(e) })
-    : e.title
+    : e.type === 'rule'
+      ? t('trash.rule', { title: e.title || t('rules.untitled') })
+      : e.type === 'entry'
+        ? t('trash.entry', { title: e.title || t('codex.untitled') })
+        : e.title
 
 async function restore(e: TrashEntry): Promise<void> {
   try {
@@ -32,10 +36,19 @@ async function restore(e: TrashEntry): Promise<void> {
       })
   } catch (err) {
     const code = (err as { code?: string }).code
-    const key = `trash.restoreFailed.${code}`
+    const prefix =
+      e.type === 'rule'
+        ? 'trash.restoreFailedRule'
+        : e.type === 'entry'
+          ? 'trash.restoreFailedEntry'
+          : 'trash.restoreFailed'
+    const key = `${prefix}.${code}`
     Notify.create({
       type: 'negative',
-      message: code && te(key) ? t(key, { title: label(e) }) : t('trash.restoreFailed.generic', { title: label(e) }),
+      message:
+        code && te(key)
+          ? t(key, { title: label(e) })
+          : t('trash.restoreFailed.generic', { title: label(e) }),
       position: 'bottom',
       timeout: 6000,
     })
@@ -60,7 +73,8 @@ const when = (iso: string) => {
           <li v-for="e in store.trash" :key="e.id" class="entry">
             <span class="name">{{ label(e) }}</span>
             <span class="meta">
-              {{ e.type === 'node' ? '' : `${t(`trash.type.${e.type}`)} · ` }}{{ when(e.deletedAt) }}
+              {{ e.type === 'node' || e.type === 'rule' || e.type === 'entry' ? '' : `${t(`trash.type.${e.type}`)} · `
+              }}{{ when(e.deletedAt) }}
             </span>
             <QBtn
               flat

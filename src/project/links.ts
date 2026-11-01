@@ -8,8 +8,11 @@ export type LinkRef = Link['from']
 
 /** Link from a scene passage to a timeline node (`to.item` = timeline id, `to.block` = node id). */
 export const EVENT_KIND = 'event'
+/** Link from a scene passage to a codex entry (`to.item` = entry id, no `to.block`). */
+export const CODEX_KIND = 'codex'
 
-const sameEnds = (a: Link, from: LinkRef, to: LinkRef) =>
+const sameEnds = (a: Link, kind: string, from: LinkRef, to: LinkRef) =>
+  a.kind === kind &&
   a.from.item === from.item &&
   a.from.block === from.block &&
   a.to.item === to.item &&
@@ -21,20 +24,40 @@ export interface AddLinkResult {
   reason?: 'duplicate' | 'invalid'
 }
 
-/** Adds an event link; unique per (from block, to node). Returns the same array when refused. */
+/** Both ends need a block for events; codex links need a passage block and no target block. */
+const validEnds = (kind: string, from: LinkRef, to: LinkRef) =>
+  from.block !== undefined &&
+  (kind === CODEX_KIND ? to.block === undefined : to.block !== undefined)
+
+/**
+ * Adds a link (default kind: event); unique per (kind, from block, target).
+ * Returns the same array when refused.
+ */
 export function addLink(
   links: readonly Link[],
-  input: { id?: string; from: LinkRef; to: LinkRef },
+  input: { id?: string; kind?: string; from: LinkRef; to: LinkRef },
 ): AddLinkResult {
   const { from, to } = input
-  if (from.block === undefined || to.block === undefined) {
-    return { links: links as Link[], link: null, reason: 'invalid' }
-  }
-  if (links.some((l) => sameEnds(l, from, to))) {
+  const kind = input.kind ?? EVENT_KIND
+  if (!validEnds(kind, from, to)) return { links: links as Link[], link: null, reason: 'invalid' }
+  if (links.some((l) => sameEnds(l, kind, from, to))) {
     return { links: links as Link[], link: null, reason: 'duplicate' }
   }
-  const link: Link = { id: input.id ?? newId(), kind: EVENT_KIND, from: { ...from }, to: { ...to } }
+  const link: Link = { id: input.id ?? newId(), kind, from: { ...from }, to: { ...to } }
   return { links: [...links, link], link }
+}
+
+/** Adds a scene-block to codex-entry link; unique per (block, entry). */
+export function addCodexLink(
+  links: readonly Link[],
+  input: { id?: string; sceneId: string; blockId: string; entryId: string },
+): AddLinkResult {
+  return addLink(links, {
+    id: input.id,
+    kind: CODEX_KIND,
+    from: { item: input.sceneId, block: input.blockId },
+    to: { item: input.entryId },
+  })
 }
 
 export function removeLink(links: readonly Link[], id: string): Link[] {
@@ -46,18 +69,24 @@ export function relinkTarget(
   links: readonly Link[],
   id: string,
   to: LinkRef,
-): { links: Link[]; ok: boolean; reason?: 'not-found' | 'duplicate' } {
+): { links: Link[]; ok: boolean; reason?: 'not-found' | 'duplicate' | 'invalid' } {
   const cur = links.find((l) => l.id === id)
   if (!cur) return { links: links as Link[], ok: false, reason: 'not-found' }
-  if (links.some((l) => l.id !== id && sameEnds(l, cur.from, to))) {
+  if (!validEnds(cur.kind, cur.from, to))
+    return { links: links as Link[], ok: false, reason: 'invalid' }
+  if (links.some((l) => l.id !== id && sameEnds(l, cur.kind, cur.from, to))) {
     return { links: links as Link[], ok: false, reason: 'duplicate' }
   }
   return { links: links.map((l) => (l.id === id ? { ...l, to: { ...to } } : l)), ok: true }
 }
 
 export type ResolveResult =
-  | { ok: true; kind: 'node' | 'block' }
-  | { ok: false; reason: 'missing-node' | 'missing-timeline' | 'missing-block' | 'missing-scene' }
+  | { ok: true; kind: 'node' | 'block' | 'entry' }
+  | {
+      ok: false
+      reason:
+        'missing-node' | 'missing-timeline' | 'missing-block' | 'missing-scene' | 'missing-entry'
+    }
 
 export interface LinkIndexOptions {
   /** True when the item exists and is not in the trash. */
@@ -91,10 +120,13 @@ export function createLinkIndex({ isLive, blockExists }: LinkIndexOptions) {
 
   /**
    * Where a link leads. `to` (default): a timeline node (`kind:'node'`), reasons missing-timeline /
-   * missing-node. `from`: the passage block, reasons missing-scene / missing-block.
+   * missing-node. For a codex link `to` is the entry (`kind:'entry'`, reason missing-entry).
+   * `from`: the passage block, reasons missing-scene / missing-block.
    */
   function resolveTarget(link: Link, side: 'to' | 'from' = 'to'): ResolveResult {
     const { item, block } = link[side]
+    if (side === 'to' && link.kind === CODEX_KIND)
+      return isLive(item) ? { ok: true, kind: 'entry' } : { ok: false, reason: 'missing-entry' }
     if (!isLive(item))
       return { ok: false, reason: side === 'to' ? 'missing-timeline' : 'missing-scene' }
     if (block !== undefined && blockExists !== undefined && !blockExists(item, block)) {
