@@ -43,7 +43,7 @@ export type Issue =
 
 export interface TrashEntry {
   id: string
-  type: 'part' | 'chapter' | 'scene' | 'note'
+  type: 'part' | 'chapter' | 'scene' | 'note' | 'timeline'
   title: string
   originalPath: string
   trashPath: string
@@ -87,6 +87,10 @@ export interface OpenProject {
   readTrashedNote(id: string): Promise<{ note: InboxNote; index: number }>
   /** Removes a trashed note's file and trash entry (after it was put back). */
   dropTrashedNote(id: string): Promise<void>
+  /** Moves the timeline's file to the trash, unlists it and adds a trash entry. */
+  trashTimeline(id: string, title: string): Promise<TrashEntry>
+  /** Puts a trashed timeline back at its original index in the list. */
+  restoreTimeline(id: string): Promise<void>
 }
 
 export interface LockInfo {

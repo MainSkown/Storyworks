@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { Quasar, Dark } from 'quasar'
+import { Quasar, Dark, Notify } from 'quasar'
 import '@quasar/extras/material-icons/material-icons.css'
 import 'quasar/dist/quasar.css'
 import './styles/tokens.css'
@@ -20,5 +20,5 @@ createApp(App)
   .use(pinia)
   .use(router)
   .use(i18n)
-  .use(Quasar, { plugins: { Dark }, config: { dark: false } })
+  .use(Quasar, { plugins: { Dark, Notify }, config: { dark: false } })
   .mount('#app')

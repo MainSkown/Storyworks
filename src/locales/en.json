@@ -18,7 +18,8 @@
     "show": "Show panel",
     "collapse": "Collapse",
     "expand": "Expand",
-    "empty": "Nothing to show for this section yet."
+    "empty": "Nothing to show for this section yet.",
+    "later": "Coming in a later milestone."
   },
   "contextSections": {
     "write": {
@@ -151,6 +152,46 @@
       "import": "Import",
       "ignore": "Ignore",
       "skipped": "Not imported ({n})"
+    }
+  },
+  "graph": {
+    "canvas": {
+      "label": "Graph canvas",
+      "hint": "Arrow keys move between items. Enter opens. N adds an item after the focused one. C starts connecting: pick a target with the arrow keys, then Enter to confirm or Escape to cancel. Delete removes. Alt plus arrow keys moves an item."
+    },
+    "node": {
+      "label": "{label}. {out} outgoing and {in} incoming connections."
+    },
+    "connect": {
+      "started": "Connecting from {label}. Use the arrow keys to pick a target, Enter to confirm, Escape to cancel.",
+      "target": "Connect to {label}?",
+      "done": "Connected {from} to {to}.",
+      "cancelled": "Connecting cancelled.",
+      "self": "Pick a different item to connect to.",
+      "rejected": "Cannot connect: {reason}"
+    },
+    "moved": "{label} moved.",
+    "edge": {
+      "label": "{from} to {to}",
+      "selected": "Connection selected: {from} to {to}. Press Delete to remove it.",
+      "removed": "Connection removed."
+    },
+    "list": {
+      "title": "Items and connections",
+      "empty": "Nothing here yet.",
+      "outgoing": "Connects to",
+      "incoming": "Connected from",
+      "none": "None",
+      "open": "Open",
+      "addAfter": "Add after",
+      "delete": "Delete",
+      "addItem": "Add item",
+      "pickOut": "Connect to",
+      "pickIn": "Connected from",
+      "connect": "Connect",
+      "removeOut": "Remove connection to {label}",
+      "removeIn": "Remove connection from {label}",
+      "dashed": "dashed"
     }
   },
   "a11y": {
@@ -297,6 +338,155 @@
     "cancel": "Cancel",
     "errorGeneric": "This did not work.",
     "error": "This did not work: {message}"
+  },
+  "timelines": {
+    "untitled": "Untitled event",
+    "newTimeline": "New timeline",
+    "renameTimeline": "Rename timeline",
+    "deleteTimeline": "Delete timeline",
+    "deleteConfirm": "Move \"{name}\" to the trash?",
+    "noTimelines": "No timelines yet",
+    "status": {
+      "invalid": "This timeline file is damaged and was left untouched.",
+      "missing": "This timeline file is missing."
+    },
+    "view": { "flow": "Flow", "date": "By date" },
+    "tidy": "Tidy up",
+    "mainLine": "Main line",
+    "undated": "Undated",
+    "filterByTag": "Filter by tag",
+    "filterByBranch": "Filter by branch",
+    "clearFilter": "Clear filter",
+    "rejected": {
+      "cycle": "That connection would make a loop.",
+      "self": "An event cannot connect to itself.",
+      "duplicate": "These events are already connected.",
+      "missing-node": "That event no longer exists.",
+      "missing-edge": "That connection no longer exists.",
+      "missing-branch": "That branch no longer exists.",
+      "duplicate-id": "That item already exists.",
+      "read-only": "This book is read-only.",
+      "no-timeline": "No timeline is open."
+    },
+    "invalidDate": {
+      "year": "This year does not exist in the calendar.",
+      "month": "This month does not exist in the calendar.",
+      "day": "This day does not exist in the calendar."
+    },
+    "inspector": {
+      "none": "Select an event on the timeline to edit it here.",
+      "title": "Title",
+      "description": "Description",
+      "date": "Date",
+      "datePlaceholder": "12 March 1400",
+      "dateKept": "The date is kept as it is.",
+      "dateError": {
+        "format": "Write the date like \"12 March 1400\".",
+        "era": "That era is not in the calendar.",
+        "year": "This year does not exist in the calendar.",
+        "month": "This month does not exist in the calendar.",
+        "day": "This day does not exist in the calendar."
+      },
+      "color": "Colour",
+      "noColor": "No colour",
+      "tag": "Tag",
+      "branch": "Branch",
+      "dashed": "dashed",
+      "newBranch": "New branch",
+      "branchName": "Branch name",
+      "branchColor": "Branch colour",
+      "dashedLine": "Dashed line",
+      "createBranch": "Create branch",
+      "cancel": "Cancel",
+      "delete": "Delete event",
+      "deleteConfirm": "This event has {count} connections. Delete it and remove them?"
+    }
+  },
+  "calendar": {
+    "fallbackMissing": "The calendar file is missing. Using the Gregorian calendar for now.",
+    "fallbackInvalid": "The calendar file is damaged. Using the Gregorian calendar for now; the file was left untouched.",
+    "noLongerFit": "{n} dates will no longer fit | {n} date will no longer fit | {n} dates will no longer fit",
+    "title": "Calendar",
+    "intro": "Months, weekdays and eras used for dates on timeline events.",
+    "months": "Months",
+    "monthName": "Month name",
+    "monthDays": "Days",
+    "addMonth": "Add month",
+    "remove": "Remove {name}",
+    "moveUp": "Move {name} up",
+    "moveDown": "Move {name} down",
+    "weekdays": "Weekdays",
+    "weekdaysHint": "Optional. Leave empty for a calendar without named weekdays.",
+    "weekdayName": "Weekday name",
+    "addWeekday": "Add weekday",
+    "eras": "Eras",
+    "erasHint": "An era starts at an absolute year and names the years after it.",
+    "eraName": "Era name",
+    "eraStart": "Starts in year",
+    "addEra": "Add era",
+    "epochLabel": "Epoch label",
+    "epochHint": "Optional, shown before the year, e.g. Year.",
+    "leap": "Leap years",
+    "leapMonth": "Leap month",
+    "leapExtra": "Extra days",
+    "leapEvery": "Every N years",
+    "leapExcept": "Except every N years (optional)",
+    "leapUnless": "Unless every N years (optional)",
+    "save": "Save calendar",
+    "saved": "Calendar saved.",
+    "unsaved": "You have unsaved calendar changes.",
+    "fixErrors": "Fix the marked fields to save.",
+    "reset": "Reset to Gregorian",
+    "resetTitle": "Reset to Gregorian?",
+    "resetBody": "The calendar fields are replaced with the Gregorian calendar. Nothing is saved until you press Save.",
+    "resetConfirm": "Reset",
+    "cancel": "Cancel",
+    "saveFailed": {
+      "read-only": "This book is read-only.",
+      "no-calendar": "This book has no calendar file listed.",
+      "error": "The calendar could not be saved."
+    },
+    "err": {
+      "blank": "Enter a name.",
+      "days": "At least 1.",
+      "year": "Enter a whole year.",
+      "positiveInt": "Enter a whole number, at least 1.",
+      "leapMonth": "Choose an existing month.",
+      "unlessNeedsExcept": "Needs an \"except every\" value.",
+      "noMonths": "A calendar needs at least one month.",
+      "monthsUnique": "Month names must be different.",
+      "weekdaysUnique": "Weekday names must be different.",
+      "erasUnique": "Era names must be different."
+    }
+  },
+  "timelineView": {
+    "toolbar": "Timeline tools",
+    "viewLabel": "Layout",
+    "displayLabel": "Display",
+    "canvas": "Canvas",
+    "list": "List",
+    "addEvent": "Add event",
+    "fit": "Fit to view",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "filters": "Filters",
+    "branch": "Branch: {name}",
+    "invalidDate": "This date does not fit the calendar",
+    "emptyTitle": "No events yet",
+    "emptyBody": "Add the first event to start this timeline.",
+    "noDates": "No event has a date yet. Dated events are placed along the time axis.",
+    "deleteEventTitle": "Delete this event?",
+    "deleteEventBody": "\"{title}\" has {n} connection(s). They are removed with it.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "timelineList": "Timelines",
+    "calendar": "Calendar",
+    "newName": "Timeline name",
+    "rename": "Rename {name}",
+    "remove": "Delete {name}",
+    "unreadable": "This timeline cannot be shown.",
+    "pickOne": "Pick a timeline in the sidebar.",
+    "failed": "This did not work."
   },
   "trash": {
     "title": "Trash",

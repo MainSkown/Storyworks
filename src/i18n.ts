@@ -1,6 +1,7 @@
 import { createI18n } from 'vue-i18n'
 import en from './locales/en.json'
 import pl from './locales/pl.json'
+import { polishPlural } from './i18n/pluralRules'
 import { resolveLanguage, type AppLanguage } from './i18n/resolveLanguage'
 
 export const i18n = createI18n({
@@ -8,6 +9,7 @@ export const i18n = createI18n({
   locale: resolveLanguage(navigator.language),
   fallbackLocale: 'en',
   messages: { en, pl },
+  pluralRules: { pl: polishPlural },
 })
 
 export function setLanguage(lang: AppLanguage): void {

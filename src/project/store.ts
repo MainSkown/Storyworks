@@ -26,6 +26,8 @@ import { INBOX_VERSION, inboxSchema, type Inbox, type InboxNote } from './schema
 import { sceneSchema, SCENE_VERSION, type Scene } from './schemas/scene'
 import { parseFile } from './serialize'
 import { useSettingsStore } from '../settings/store'
+import { useTimelinesStore } from '../timeline/store'
+import { ensureDefaults } from './timelines'
 import type {
   ChangeEvent,
   FileError,
@@ -265,7 +267,9 @@ export const useProjectStore = defineStore('project', () => {
 
   const nodeIdOfPath = (path: string) =>
     findFirst(project.value?.manifest.manuscript ?? [], (n) => n.path === path)?.id ??
-    (project.value?.manifest.inbox?.path === path ? project.value.manifest.inbox.id : path)
+    (project.value?.manifest.inbox?.path === path ? project.value.manifest.inbox.id : null) ??
+    project.value?.manifest.timelines.find((t) => t.path === path)?.id ??
+    path
 
   function setItemIssue(path: string, res: ReloadResult): void {
     const rest = issues.value.filter(
@@ -448,7 +452,19 @@ export const useProjectStore = defineStore('project', () => {
     }
     await loadInbox(s, opened.project)
     await rebuildLinks(s, opened.project)
+    await openTimelines(opened.project)
     notifyOpened(opened.project.manifest.title, root)
+  }
+
+  /** Defaults (calendar, Main timeline; skipped when read-only), then loads the timelines. */
+  async function openTimelines(p: OpenProject): Promise<void> {
+    try {
+      await ensureDefaults(p, defaultEnv)
+    } catch (e) {
+      console.error('Could not create the default calendar or timeline', e)
+    }
+    revision.value++
+    await useTimelinesStore().load()
   }
 
   function notifyOpened(title: string, path: string): void {
@@ -575,6 +591,7 @@ export const useProjectStore = defineStore('project', () => {
     selectedId.value = null
     openNoteId.value = null
     inbox.value = null
+    useTimelinesStore().reset()
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -863,6 +880,11 @@ export const useProjectStore = defineStore('project', () => {
     const p = assertWritable()
     const s = session as Session
     if (p.manifest.trash.some((t) => t.id === id && t.type === 'note')) return restoreNote(id)
+    if (p.manifest.trash.some((t) => t.id === id && t.type === 'timeline')) {
+      await p.restoreTimeline(id)
+      revision.value++
+      return useTimelinesStore().refresh()
+    }
     await p.restoreItem(id)
     revision.value++
     const node = findNode(p.manifest.manuscript, id)
@@ -872,6 +894,28 @@ export const useProjectStore = defineStore('project', () => {
       triggerRef(sceneMeta)
     }
     linkRevision.value++
+  }
+
+  // ---- timelines (the timelines store holds the content) ----
+
+  /** Replaces the manifest's timeline list (create, rename). */
+  function setTimelineRefs(next: Manifest['timelines']): void {
+    const p = assertWritable()
+    p.manifest.timelines = next
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
+  async function trashTimeline(id: string, title: string): Promise<TrashEntry> {
+    const p = assertWritable()
+    await flush() // never write to a file that is about to move
+    const entry = await p.trashTimeline(id, title)
+    session?.pending.delete(entry.originalPath)
+    issues.value = issues.value.filter(
+      (i) => !((i.kind === 'missing' || i.kind === 'invalid') && i.itemId === id),
+    )
+    revision.value++
+    return entry
   }
 
   // ---- inbox ----
@@ -1053,6 +1097,7 @@ export const useProjectStore = defineStore('project', () => {
     await s.watcher.start().catch((e) => console.error(e))
     await loadInbox(s, r.project)
     await rebuildLinks(s, r.project)
+    await openTimelines(r.project)
     return true
   }
 
@@ -1156,6 +1201,8 @@ export const useProjectStore = defineStore('project', () => {
     moveUpDown,
     deleteItem,
     restoreItem,
+    setTimelineRefs,
+    trashTimeline,
     addNote,
     updateNote,
     moveNoteToScene,

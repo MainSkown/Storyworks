@@ -142,6 +142,7 @@ From an empty repository to the complete v1 described in [docs/features/storywor
 - Rules page: categorised entries (title, category, description, tags, exceptions), category management, filter and search; links to nodes, codex entries and manuscript blocks with back-links.
 - Codex: user-defined entry types (starter set Character, Item, Place, Country, Town, Building; rename/recolour/delete), entries with name, image, rich-text notes, tags, **aliases**; links to nodes, rules and blocks with back-links.
 - Scene POV now resolvable to a Character entry.
+- Timeline editor gets the "filter by linked codex entry" (deferred from M3), and nodes can link codex entries and rules (the fields exist in the M3 node schema).
 - Unlinked-mention finder (names and aliases found in text but not linked) with one-click link; optional per-entry appendix text.
 
 **Done when**

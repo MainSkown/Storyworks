@@ -33,16 +33,15 @@ async function v1Project(comments: unknown[] = []): Promise<MemoryProjectIO> {
 }
 
 describe('migration v1 to v2', () => {
-  it('is registered and the manifest version is 2', () => {
-    expect(MANIFEST_VERSION).toBe(2)
+  it('is registered', () => {
     expect(migrations.find((m) => m.from === 1)?.to).toBe(2)
   })
 
-  it('opens a v1 project as v2', async () => {
+  it('opens a v1 project as current', async () => {
     const io = await v1Project()
     const r = await openProject(io, makeEnv())
     expect(r.status).toBe('ok')
-    if (r.status === 'ok') expect(r.project.manifest.version).toBe(2)
+    if (r.status === 'ok') expect(r.project.manifest.version).toBe(MANIFEST_VERSION)
   })
 
   it('writes files that validate against the v2 schemas', async () => {

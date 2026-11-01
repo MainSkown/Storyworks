@@ -4,6 +4,179 @@
   "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
   "milestones": [
     {
+      "id": "m3",
+      "title": "M3 · Timelines and calendar",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Timelines page, before and after",
+          "intro": "The placeholder page is replaced by the timeline canvas, the timeline list in the sidebar and the Selected event inspector.",
+          "figures": [
+            {
+              "img": "shots/m3/00-timelines-before.png",
+              "alt": "Timelines placeholder",
+              "bold": "Before (M2).",
+              "muted": "Placeholder page: \"This section is not built yet.\""
+            },
+            {
+              "img": "shots/m3/01-empty-timeline-light.png",
+              "alt": "Empty timeline",
+              "bold": "After, empty timeline.",
+              "muted": "Add event starts the first event."
+            },
+            {
+              "img": "shots/m3/16-sidebar-light.png",
+              "alt": "Timelines sidebar, light",
+              "bold": "Sidebar.",
+              "muted": "Several timelines, rename and delete, link to the calendar."
+            },
+            {
+              "img": "shots/m3/16-sidebar-dark.png",
+              "alt": "Timelines sidebar, dark",
+              "bold": "Sidebar, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Flow view, branch and merge",
+          "intro": "Events are boxes, connections are arrows. A branch has its own colour and can be dashed; two events can feed one (merge).",
+          "figures": [
+            {
+              "img": "shots/m3/02-flow-branch-merge-light.png",
+              "alt": "Flow view with a branch and a merge",
+              "bold": "Branch and merge.",
+              "muted": "Dashed red branch leaves Coronation and merges into Peace festival."
+            },
+            {
+              "img": "shots/m3/10-flow-light.png",
+              "alt": "Flow view, event selected",
+              "bold": "Flow view.",
+              "muted": "Selected event shown in the context panel."
+            },
+            {
+              "img": "shots/m3/10-flow-dark.png",
+              "alt": "Flow view, dark",
+              "bold": "Flow view, dark."
+            },
+            {
+              "img": "shots/m3/15-focus-ring-light.png",
+              "alt": "Keyboard focus ring on an event",
+              "bold": "Keyboard focus.",
+              "muted": "Arrow keys move between events; C connects; Enter opens."
+            },
+            {
+              "img": "shots/m3/15-focus-ring-dark.png",
+              "alt": "Keyboard focus ring, dark",
+              "bold": "Keyboard focus, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Date-scaled view and list",
+          "figures": [
+            {
+              "img": "shots/m3/11-date-scaled-light.png",
+              "alt": "Date-scaled view",
+              "bold": "By date.",
+              "muted": "Time axis from the calendar, one lane per branch, Undated lane at the bottom."
+            },
+            {
+              "img": "shots/m3/11-date-scaled-dark.png",
+              "alt": "Date-scaled view, dark",
+              "bold": "By date, dark."
+            },
+            {
+              "img": "shots/m3/14-list-light.png",
+              "alt": "Timeline list view",
+              "bold": "List view.",
+              "muted": "Same data as text, with connect and remove controls."
+            },
+            {
+              "img": "shots/m3/14-list-dark.png",
+              "alt": "Timeline list view, dark",
+              "bold": "List view, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Cycle rejected and invalid dates",
+          "figures": [
+            {
+              "img": "shots/m3/03-cycle-toast-light.png",
+              "alt": "Cycle rejected message",
+              "bold": "Loop rejected.",
+              "muted": "Peace festival to Coronation would make a loop; nothing is added."
+            },
+            {
+              "img": "shots/m3/13-cycle-toast-dark.png",
+              "alt": "Cycle rejected message, dark",
+              "bold": "Loop rejected, dark."
+            },
+            {
+              "img": "shots/m3/12-inspector-invalid-date-light.png",
+              "alt": "Inspector with an invalid date",
+              "bold": "Date no longer fits.",
+              "muted": "October now has 30 days; 31 October 1400 is flagged but kept."
+            },
+            {
+              "img": "shots/m3/12-inspector-invalid-date-dark.png",
+              "alt": "Inspector with an invalid date, dark",
+              "bold": "Date no longer fits, dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Calendar editor",
+          "intro": "Book settings, Calendar. Custom calendar: October has 30 days and leap years are off. Changes are saved only on confirm.",
+          "figures": [
+            {
+              "img": "shots/m3/04-calendar-top-light.png",
+              "alt": "Calendar editor, top",
+              "bold": "Opened from the sidebar link.",
+              "muted": "The Calendar link jumps straight to this section."
+            },
+            {
+              "img": "shots/m3/05-calendar-unsaved-light.png",
+              "alt": "Calendar editor with unsaved changes",
+              "bold": "Before saving.",
+              "muted": "Counts the dates that will no longer fit."
+            },
+            {
+              "img": "shots/m3/17-calendar-dark.png",
+              "alt": "Calendar editor, months, dark",
+              "bold": "Months, dark."
+            },
+            {
+              "img": "shots/m3/18-calendar-leap-off-light.png",
+              "alt": "Calendar editor, leap years off",
+              "bold": "Leap years off.",
+              "muted": "Rule fields hidden; their values are kept in the draft."
+            },
+            {
+              "img": "shots/m3/18-calendar-leap-off-dark.png",
+              "alt": "Calendar editor, leap years off, dark",
+              "bold": "Leap years off, dark."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "A branch and merge is built in the UI, saved and found again after closing and reopening the project.",
+            "A connection that would make a loop is refused with a message; no connection is added.",
+            "After the calendar changes, dates that no longer fit are flagged and keep their value.",
+            "Saving the calendar changes only calendar.json.",
+            "A 300-event branching timeline opens in about 0.5 s; panning, zooming and dragging stay at 60 frames per second; 1000 order comparisons take 3 ms."
+          ]
+        }
+      ]
+    },
+    {
       "id": "m2",
       "title": "M2 · Manuscript editor",
       "sections": [

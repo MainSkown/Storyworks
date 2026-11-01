@@ -9,11 +9,13 @@ import { usePanelShortcut } from '../composables/panelShortcut'
 import { focusMode } from '../composables/focusMode'
 import { useProjectStore } from '../project/store'
 import { findNode } from '../project/tree'
+import { useTimelinesStore } from '../timeline/store'
 import ContextPanel from './ContextPanel.vue'
 import InboxNoteEditor from './InboxNoteEditor.vue'
 import InboxPanel from './InboxPanel.vue'
 import OutlineTree from './OutlineTree.vue'
 import ProjectBanners from './ProjectBanners.vue'
+import TimelineSidebar from './timeline/TimelineSidebar.vue'
 import TrashDialog from './TrashDialog.vue'
 
 const { t } = useI18n()
@@ -21,6 +23,7 @@ const route = useRoute()
 const router = useRouter()
 const project = useProjectStore()
 const store = useSettingsStore()
+const timelines = useTimelinesStore()
 const { settings } = storeToRefs(store)
 
 const active = computed(() => sectionByRouteName(route.name) ?? sections[0]!)
@@ -30,6 +33,7 @@ const trashOpen = ref(false)
 
 // The open item named in the header band (Write shows the selected tree item).
 const openItem = computed(() => {
+  if (active.value.id === 'timelines') return timelines.current?.name ?? null
   if (active.value.id !== 'write') return null
   if (project.openNoteId) {
     const note = project.inboxNotes.find((n) => n.id === project.openNoteId)
@@ -116,6 +120,12 @@ function colorStyle(s: AppSection) {
               >
                 <OutlineTree />
                 <InboxPanel />
+              </div>
+              <div
+                v-else-if="s.id === active.id && s.id === 'timelines' && project.project"
+                class="expand tree"
+              >
+                <TimelineSidebar />
               </div>
               <div v-else-if="s.id === active.id" class="expand">
                 {{ t('sidebar.placeholder') }}

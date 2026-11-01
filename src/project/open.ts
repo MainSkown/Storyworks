@@ -18,6 +18,7 @@ import {
 } from './schemas/manifest'
 import { inboxSchema } from './schemas/inbox'
 import { sceneSchema, SCENE_VERSION } from './schemas/scene'
+import { timelineSchema } from '../timeline/schema'
 import { parseFile, serialize } from './serialize'
 import {
   deleteItemImpl,
@@ -27,6 +28,7 @@ import {
   trashNoteImpl,
   type TrashHost,
 } from './trash'
+import { restoreTimelineImpl, trashTimelineImpl } from './timelines'
 import type {
   Env,
   FileError,
@@ -53,6 +55,7 @@ interface ListedItem {
   path: string
   scene: boolean
   inbox?: boolean
+  timeline?: boolean
 }
 
 /** Every item file the manifest points at (trash excluded). */
@@ -79,7 +82,13 @@ function listedItems(m: Manifest): ListedItem[] {
     m.knowledge,
   ]
   for (const ref of [...refs, ...lists.flat()]) {
-    if (ref) out.push({ id: ref.id, path: ref.path, scene: false, inbox: ref === m.inbox })
+    if (ref) out.push({
+      id: ref.id,
+      path: ref.path,
+      scene: false,
+      inbox: ref === m.inbox,
+      timeline: m.timelines.includes(ref),
+    })
   }
   return out
 }
@@ -173,7 +182,7 @@ function buildProject(
       if (text === null) return { status: 'missing' }
       hashes.set(path, await sha256Hex(text))
       const item = listedItems(manifest).find((i) => i.path === path)
-      if (!item || !(item.scene || item.inbox)) return { status: 'ok' }
+      if (!item || !(item.scene || item.inbox || item.timeline)) return { status: 'ok' }
       const r = parseItem(item, text)
       if (r.ok) {
         invalid.delete(path)
@@ -187,6 +196,8 @@ function buildProject(
     trashNote: (note, index) => trashNoteImpl(host, note, index),
     readTrashedNote: (id) => readTrashedNoteImpl(host, id),
     dropTrashedNote: (id) => dropTrashedNoteImpl(host, id),
+    trashTimeline: (id, title) => trashTimelineImpl(host, id, title),
+    restoreTimeline: (id) => restoreTimelineImpl(host, id),
   }
   return project
 }
@@ -229,7 +240,9 @@ function parseScene(text: string, path: string, expectedId: string | undefined) 
 }
 
 function parseItem(item: ListedItem, text: string) {
-  return item.inbox ? parseFile(inboxSchema, text, item.path) : parseScene(text, item.path, item.id)
+  if (item.inbox) return parseFile(inboxSchema, text, item.path)
+  if (item.timeline) return parseFile(timelineSchema, text, item.path)
+  return parseScene(text, item.path, item.id)
 }
 
 async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Promise<Issue[]> {
@@ -238,7 +251,7 @@ async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Prom
       const text = await io.readText(item.path)
       if (text === null) return { kind: 'missing', itemId: item.id, path: item.path }
       t.hashes.set(item.path, await sha256Hex(text))
-      if (!item.scene && !item.inbox) return null
+      if (!item.scene && !item.inbox && !item.timeline) return null
       const r = parseItem(item, text)
       if (r.ok) return null
       t.invalid.add(item.path)

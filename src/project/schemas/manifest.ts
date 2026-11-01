@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import type { Env } from '../types'
 
-export const MANIFEST_VERSION = 2
+export const MANIFEST_VERSION = 3
 export const BOOK_KIND = 'book'
 
 /** Index entry for one item file (or one singleton file). */
@@ -13,7 +13,7 @@ export const itemRefSchema = z.strictObject({
 
 export const trashEntrySchema = z.strictObject({
   id: z.string(),
-  type: z.enum(['part', 'chapter', 'scene', 'note']),
+  type: z.enum(['part', 'chapter', 'scene', 'note', 'timeline']),
   title: z.string(),
   originalPath: z.string(),
   trashPath: z.string(),

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryProjectIO } from './io/memory'
 import { sceneSchema, SCENE_VERSION } from './schemas/scene'
-import { manifestSchema } from './schemas/manifest'
+import { manifestSchema, MANIFEST_VERSION } from './schemas/manifest'
 import { serialize } from './serialize'
 import { createMemoryFileIO } from '../io/fileIO'
 import { resetFileIOFactory, setFileIOFactory } from '../settings/store'
@@ -40,7 +40,9 @@ it('opens a 500-scene, 300k-word book in well under 3 s', async () => {
         wordCount: WORDS,
         content: {
           type: 'doc',
-          content: [{ type: 'paragraph', attrs: { id: `p${id}` }, content: [{ type: 'text', text }] }],
+          content: [
+            { type: 'paragraph', attrs: { id: `p${id}` }, content: [{ type: 'text', text }] },
+          ],
         },
         todos: [],
         comments: [],
@@ -52,7 +54,7 @@ it('opens a 500-scene, 300k-word book in well under 3 s', async () => {
   files['project.json'] = serialize(
     manifestSchema,
     manifestSchema.parse({
-      version: 2,
+      version: MANIFEST_VERSION,
       kind: 'book',
       title: 'Long',
       author: 'A',

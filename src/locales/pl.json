@@ -18,7 +18,8 @@
     "show": "Pokaż panel",
     "collapse": "Zwiń",
     "expand": "Rozwiń",
-    "empty": "Nie ma jeszcze nic do pokazania w tej sekcji."
+    "empty": "Nie ma jeszcze nic do pokazania w tej sekcji.",
+    "later": "Pojawi się w późniejszym etapie."
   },
   "contextSections": {
     "write": {
@@ -151,6 +152,46 @@
       "import": "Importuj",
       "ignore": "Ignoruj",
       "skipped": "Nie zaimportowano ({n})"
+    }
+  },
+  "graph": {
+    "canvas": {
+      "label": "Płótno grafu",
+      "hint": "Strzałki przenoszą fokus między elementami. Enter otwiera. N dodaje element po bieżącym. C rozpoczyna łączenie: wybierz cel strzałkami, potem Enter potwierdza, a Escape anuluje. Delete usuwa. Alt ze strzałkami przesuwa element."
+    },
+    "node": {
+      "label": "{label}. Połączenia wychodzące: {out}, przychodzące: {in}."
+    },
+    "connect": {
+      "started": "Łączenie od: {label}. Wybierz cel strzałkami, Enter potwierdza, Escape anuluje.",
+      "target": "Połączyć z: {label}?",
+      "done": "Połączono: {from} z {to}.",
+      "cancelled": "Anulowano łączenie.",
+      "self": "Wybierz inny element do połączenia.",
+      "rejected": "Nie można połączyć: {reason}"
+    },
+    "moved": "Przesunięto: {label}.",
+    "edge": {
+      "label": "{from} do {to}",
+      "selected": "Wybrano połączenie: {from} do {to}. Naciśnij Delete, aby je usunąć.",
+      "removed": "Usunięto połączenie."
+    },
+    "list": {
+      "title": "Elementy i połączenia",
+      "empty": "Nic tu jeszcze nie ma.",
+      "outgoing": "Łączy się z",
+      "incoming": "Połączone od",
+      "none": "Brak",
+      "open": "Otwórz",
+      "addAfter": "Dodaj po",
+      "delete": "Usuń",
+      "addItem": "Dodaj element",
+      "pickOut": "Połącz z",
+      "pickIn": "Połączone od",
+      "connect": "Połącz",
+      "removeOut": "Usuń połączenie z: {label}",
+      "removeIn": "Usuń połączenie od: {label}",
+      "dashed": "przerywane"
     }
   },
   "a11y": {
@@ -297,6 +338,155 @@
     "cancel": "Anuluj",
     "errorGeneric": "To się nie udało.",
     "error": "To się nie udało: {message}"
+  },
+  "timelines": {
+    "untitled": "Wydarzenie bez nazwy",
+    "newTimeline": "Nowa oś czasu",
+    "renameTimeline": "Zmień nazwę osi czasu",
+    "deleteTimeline": "Usuń oś czasu",
+    "deleteConfirm": "Przenieść „{name}” do kosza?",
+    "noTimelines": "Brak osi czasu",
+    "status": {
+      "invalid": "Plik tej osi czasu jest uszkodzony i został nietknięty.",
+      "missing": "Brakuje pliku tej osi czasu."
+    },
+    "view": { "flow": "Przepływ", "date": "Wg dat" },
+    "tidy": "Uporządkuj",
+    "mainLine": "Linia główna",
+    "undated": "Bez daty",
+    "filterByTag": "Filtruj wg etykiety",
+    "filterByBranch": "Filtruj wg gałęzi",
+    "clearFilter": "Wyczyść filtr",
+    "rejected": {
+      "cycle": "To połączenie utworzyłoby pętlę.",
+      "self": "Wydarzenie nie może łączyć się samo ze sobą.",
+      "duplicate": "Te wydarzenia są już połączone.",
+      "missing-node": "To wydarzenie już nie istnieje.",
+      "missing-edge": "To połączenie już nie istnieje.",
+      "missing-branch": "Ta gałąź już nie istnieje.",
+      "duplicate-id": "Ten element już istnieje.",
+      "read-only": "Ta książka jest tylko do odczytu.",
+      "no-timeline": "Żadna oś czasu nie jest otwarta."
+    },
+    "invalidDate": {
+      "year": "Taki rok nie istnieje w kalendarzu.",
+      "month": "Taki miesiąc nie istnieje w kalendarzu.",
+      "day": "Taki dzień nie istnieje w kalendarzu."
+    },
+    "inspector": {
+      "none": "Wybierz wydarzenie na osi czasu, aby je tu edytować.",
+      "title": "Tytuł",
+      "description": "Opis",
+      "date": "Data",
+      "datePlaceholder": "12 marca 1400",
+      "dateKept": "Data zostaje bez zmian.",
+      "dateError": {
+        "format": "Zapisz datę tak: \"12 marca 1400\".",
+        "era": "Takiej ery nie ma w kalendarzu.",
+        "year": "Taki rok nie istnieje w kalendarzu.",
+        "month": "Taki miesiąc nie istnieje w kalendarzu.",
+        "day": "Taki dzień nie istnieje w kalendarzu."
+      },
+      "color": "Kolor",
+      "noColor": "Bez koloru",
+      "tag": "Tag",
+      "branch": "Gałąź",
+      "dashed": "przerywana",
+      "newBranch": "Nowa gałąź",
+      "branchName": "Nazwa gałęzi",
+      "branchColor": "Kolor gałęzi",
+      "dashedLine": "Linia przerywana",
+      "createBranch": "Utwórz gałąź",
+      "cancel": "Anuluj",
+      "delete": "Usuń wydarzenie",
+      "deleteConfirm": "To wydarzenie ma połączenia ({count}). Usunąć je razem z nimi?"
+    }
+  },
+  "calendar": {
+    "fallbackMissing": "Brakuje pliku kalendarza. Na razie używany jest kalendarz gregoriański.",
+    "fallbackInvalid": "Plik kalendarza jest uszkodzony. Na razie używany jest kalendarz gregoriański; plik został nietknięty.",
+    "noLongerFit": "{n} dat przestanie pasować | {n} data przestanie pasować | {n} daty przestaną pasować | {n} dat przestanie pasować",
+    "title": "Kalendarz",
+    "intro": "Miesiące, dni tygodnia i ery używane w datach wydarzeń na osi czasu.",
+    "months": "Miesiące",
+    "monthName": "Nazwa miesiąca",
+    "monthDays": "Dni",
+    "addMonth": "Dodaj miesiąc",
+    "remove": "Usuń: {name}",
+    "moveUp": "Przesuń w górę: {name}",
+    "moveDown": "Przesuń w dół: {name}",
+    "weekdays": "Dni tygodnia",
+    "weekdaysHint": "Opcjonalne. Zostaw puste, jeśli kalendarz nie ma nazwanych dni tygodnia.",
+    "weekdayName": "Nazwa dnia tygodnia",
+    "addWeekday": "Dodaj dzień tygodnia",
+    "eras": "Ery",
+    "erasHint": "Era zaczyna się w danym roku bezwzględnym i nazywa kolejne lata.",
+    "eraName": "Nazwa ery",
+    "eraStart": "Zaczyna się w roku",
+    "addEra": "Dodaj erę",
+    "epochLabel": "Etykieta epoki",
+    "epochHint": "Opcjonalna, pokazywana przed rokiem, np. Rok.",
+    "leap": "Lata przestępne",
+    "leapMonth": "Miesiąc przestępny",
+    "leapExtra": "Dodatkowe dni",
+    "leapEvery": "Co N lat",
+    "leapExcept": "Z wyjątkiem co N lat (opcjonalnie)",
+    "leapUnless": "Chyba że co N lat (opcjonalnie)",
+    "save": "Zapisz kalendarz",
+    "saved": "Kalendarz zapisany.",
+    "unsaved": "Masz niezapisane zmiany kalendarza.",
+    "fixErrors": "Popraw zaznaczone pola, aby zapisać.",
+    "reset": "Przywróć gregoriański",
+    "resetTitle": "Przywrócić kalendarz gregoriański?",
+    "resetBody": "Pola kalendarza zostaną zastąpione kalendarzem gregoriańskim. Nic nie zostanie zapisane, dopóki nie klikniesz Zapisz.",
+    "resetConfirm": "Przywróć",
+    "cancel": "Anuluj",
+    "saveFailed": {
+      "read-only": "Ta książka jest tylko do odczytu.",
+      "no-calendar": "Ta książka nie ma wskazanego pliku kalendarza.",
+      "error": "Nie udało się zapisać kalendarza."
+    },
+    "err": {
+      "blank": "Wpisz nazwę.",
+      "days": "Co najmniej 1.",
+      "year": "Wpisz cały rok.",
+      "positiveInt": "Wpisz liczbę całkowitą, co najmniej 1.",
+      "leapMonth": "Wybierz istniejący miesiąc.",
+      "unlessNeedsExcept": "Wymaga wartości „z wyjątkiem co”.",
+      "noMonths": "Kalendarz potrzebuje co najmniej jednego miesiąca.",
+      "monthsUnique": "Nazwy miesięcy muszą być różne.",
+      "weekdaysUnique": "Nazwy dni tygodnia muszą być różne.",
+      "erasUnique": "Nazwy er muszą być różne."
+    }
+  },
+  "timelineView": {
+    "toolbar": "Narzędzia osi czasu",
+    "viewLabel": "Układ",
+    "displayLabel": "Widok",
+    "canvas": "Płótno",
+    "list": "Lista",
+    "addEvent": "Dodaj wydarzenie",
+    "fit": "Dopasuj do widoku",
+    "zoomIn": "Powiększ",
+    "zoomOut": "Pomniejsz",
+    "filters": "Filtry",
+    "branch": "Gałąź: {name}",
+    "invalidDate": "Ta data nie pasuje do kalendarza",
+    "emptyTitle": "Brak wydarzeń",
+    "emptyBody": "Dodaj pierwsze wydarzenie, aby zacząć tę oś czasu.",
+    "noDates": "Żadne wydarzenie nie ma jeszcze daty. Wydarzenia z datą trafiają na oś czasu.",
+    "deleteEventTitle": "Usunąć to wydarzenie?",
+    "deleteEventBody": "„{title}” ma połączeń: {n}. Zostaną usunięte razem z nim.",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "timelineList": "Osie czasu",
+    "calendar": "Kalendarz",
+    "newName": "Nazwa osi czasu",
+    "rename": "Zmień nazwę: {name}",
+    "remove": "Usuń: {name}",
+    "unreadable": "Tej osi czasu nie można wyświetlić.",
+    "pickOne": "Wybierz oś czasu na pasku bocznym.",
+    "failed": "To się nie udało."
   },
   "trash": {
     "title": "Kosz",

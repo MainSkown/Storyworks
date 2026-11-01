@@ -17,7 +17,7 @@ export interface TrashHost {
   moveTracking(from: string, to: string): void
 }
 
-const TRASH_DIR = '.storyworks/trash'
+export const TRASH_DIR = '.storyworks/trash'
 const dirOf = (path: string) => path.slice(0, Math.max(0, path.lastIndexOf('/')))
 
 interface Found {
@@ -61,14 +61,14 @@ function subtree(found: Found): Found[] {
   return [...below, found]
 }
 
-async function moveFile(host: TrashHost, from: string, to: string): Promise<void> {
+export async function moveFile(host: TrashHost, from: string, to: string): Promise<void> {
   await host.io.mkdir(dirOf(to))
   await host.io.rename(from, to)
   host.moveTracking(from, to)
 }
 
 /** Best-effort undo of moves already done, newest first. */
-async function undoMoves(host: TrashHost, moves: [string, string][]): Promise<void> {
+export async function undoMoves(host: TrashHost, moves: [string, string][]): Promise<void> {
   for (const [from, to] of moves.reverse()) await moveFile(host, to, from).catch(() => {})
 }
 
@@ -129,6 +129,8 @@ export async function restoreItemImpl(host: TrashHost, id: string): Promise<void
   if (!entry) throw new Error(`Cannot restore ${id}: not in the trash`)
   if (entry.type === 'note')
     throw new Error(`Cannot restore ${id}: inbox notes are restored through the store`)
+  if (entry.type === 'timeline')
+    throw new Error(`Cannot restore ${id}: timelines are restored through the store`)
   if (entry.originalPath && (await io.exists(entry.originalPath))) {
     throw new Error(`Cannot restore ${id}: ${entry.originalPath} already exists`)
   }

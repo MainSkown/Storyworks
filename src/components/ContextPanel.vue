@@ -5,6 +5,7 @@ import { panelSections } from '../panelSections'
 import type { SectionId } from '../sections'
 import CollapsibleSection from './CollapsibleSection.vue'
 import ScenePropertiesPanel from './ScenePropertiesPanel.vue'
+import NodeInspector from './timeline/NodeInspector.vue'
 
 const props = defineProps<{ sectionId: SectionId }>()
 const { t } = useI18n()
@@ -24,6 +25,8 @@ const list = computed(() => panelSections[props.sectionId] ?? [])
         :count="p.id === 'write.thisScene' ? openTodos : 0"
       >
         <ScenePropertiesPanel v-if="p.id === 'write.thisScene'" @open-todos="openTodos = $event" />
+        <NodeInspector v-else-if="p.id === 'timelines.selectedEvent'" />
+        <p v-else-if="p.id.startsWith('timelines.')" class="later">{{ t('contextPanel.later') }}</p>
         <template v-else>{{ t('sidebar.placeholder') }}</template>
       </CollapsibleSection>
     </template>
@@ -48,6 +51,11 @@ const list = computed(() => panelSections[props.sectionId] ?? [])
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+.later {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
 }
 .empty {
   margin: 0;

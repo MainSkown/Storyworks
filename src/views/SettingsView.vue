@@ -1,13 +1,22 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
+import CalendarEditor from '../components/CalendarEditor.vue'
 import NumberField from '../components/NumberField.vue'
 import { useSettingsStore } from '../settings/store'
 import type { Language, Theme } from '../settings/schema'
 
 const { t } = useI18n()
 const store = useSettingsStore()
+const route = useRoute()
+
+onMounted(async () => {
+  if (route.hash !== '#calendar') return
+  await nextTick()
+  document.getElementById('calendar')?.scrollIntoView({ block: 'start' })
+})
 const { settings, loadError, savingDisabled } = storeToRefs(store)
 
 const ZOOM = { min: 80, max: 150, step: 5 }
@@ -166,6 +175,8 @@ function step(current: number, delta: number, r: { min: number; max: number }): 
       <p id="set-sample-label" class="sample-label">{{ t('settings.samplePreview') }}</p>
       <p class="sample" aria-labelledby="set-sample-label">{{ t('settings.editorSample') }}</p>
     </div>
+
+    <CalendarEditor />
   </section>
 </template>
 
