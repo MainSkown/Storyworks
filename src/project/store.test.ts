@@ -4,6 +4,7 @@ import { createMemoryProjectIO, type MemoryProjectIO } from './io/memory'
 import { sceneSchema, SCENE_VERSION } from './schemas/scene'
 import { serialize } from './serialize'
 import { LOCK_PATH } from './lock'
+import { defaultExportOptions } from '../export/options'
 import { createMemoryFileIO } from '../io/fileIO'
 import { resetFileIOFactory, setFileIOFactory, useSettingsStore } from '../settings/store'
 import { resetProjectIOFactory, setProjectIOFactory, useProjectStore } from './store'
@@ -106,6 +107,18 @@ describe('project store', () => {
     expect(JSON.parse(io.files.get('project.json') as string).checkSettings).toEqual({
       'date-order': false,
     })
+  })
+
+  it('export settings default, validate, and are saved in the manifest', async () => {
+    const { s } = await openedStore()
+    expect(s.exportSettings).toEqual(defaultExportOptions())
+    const next = { ...defaultExportOptions(), pageSize: 'A5' as const, fontSizePt: 12 }
+    expect(s.setExportSettings(next)).toBe(true)
+    expect(s.exportSettings.pageSize).toBe('A5')
+    expect(s.setExportSettings({ ...next, fontSizePt: 99 })).toBe(false)
+    expect(s.exportSettings.fontSizePt).toBe(12)
+    await s.flush()
+    expect(JSON.parse(io.files.get('project.json') as string).exportSettings).toEqual(next)
   })
 
   it('deleting moves the item to the trash; restore puts it back', async () => {

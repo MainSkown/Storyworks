@@ -23,7 +23,9 @@ import { commentIdsIn } from '../editor/comments'
 import { addImage } from './assets'
 import { findNode, moveTo } from './tree'
 import { isTauri } from './pickFolder'
+import { defaultExportOptions, type ExportOptions } from '../export/options'
 import {
+  exportSettingsSchema,
   MANIFEST_VERSION,
   peekManifestHeader,
   type BookMeta,
@@ -1137,6 +1139,24 @@ export const useProjectStore = defineStore('project', () => {
     mark(MANIFEST_FILE)
   }
 
+  // ---- export settings ----
+
+  const exportSettings = computed<ExportOptions>(() => {
+    void revision.value // the manifest object is not reactive
+    return project.value?.manifest.exportSettings ?? defaultExportOptions()
+  })
+
+  /** Validates and saves; returns false (nothing changed) when the value is invalid. */
+  function setExportSettings(next: ExportOptions): boolean {
+    const p = assertWritable()
+    const r = exportSettingsSchema.safeParse(next)
+    if (!r.success) return false
+    p.manifest.exportSettings = r.data
+    revision.value++
+    mark(MANIFEST_FILE)
+    return true
+  }
+
   // ---- timelines (the timelines store holds the content) ----
 
   /** Replaces the manifest's timeline list (create, rename). */
@@ -1558,6 +1578,8 @@ export const useProjectStore = defineStore('project', () => {
   return {
     isCheckEnabled,
     setCheckEnabled,
+    exportSettings,
+    setExportSettings,
     openedCount,
     project,
     rootPath,

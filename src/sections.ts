@@ -1,5 +1,5 @@
 export type SectionId =
-  'write' | 'timelines' | 'rules' | 'codex' | 'checks' | 'stats' | 'history' | 'settings'
+  'write' | 'timelines' | 'rules' | 'codex' | 'checks' | 'stats' | 'history' | 'export' | 'settings'
 
 export interface AppSection {
   id: SectionId
@@ -46,6 +46,7 @@ export const sections: readonly AppSection[] = [
   coloured('checks', 'warning'),
   neutral('stats', 'bar_chart'),
   neutral('history', 'history'),
+  neutral('export', 'ios_share'),
   neutral('settings', 'settings'),
 ]
 

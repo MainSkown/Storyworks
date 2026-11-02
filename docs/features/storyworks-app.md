@@ -323,6 +323,9 @@ Reference mockups: the Artifact "BookWriter UI Directions" (boards "C · Worksho
 - **Export is a pluggable pipeline in the frontend** (user wants the easiest approach, expandable to more formats): neutral export model + exporter registry; `docx` library for DOCX, `pdfmake` for PDF. A Rust-side or Typst-based PDF exporter remains possible later as just another exporter if PDF typography (true footnotes) needs to be better.
 - **Global data location** (user decision): the standard OS application data directory like other installed apps, via Tauri's path API.
 - **Export page furniture is optional** (user decision): page numbers and running header are toggles; the user chooses.
+- **PDF approach verified (M8 spike, pdfmake 0.3.13)**: TOC with page numbers, justified text, header/footer, images, embedded fonts and Polish characters all work; there are no native footnotes, so the PDF exporter prints numbered notes at the end of each chapter (DOCX uses native footnotes). The DOCX table of contents is a Word field: Word asks to update fields on open, and page numbers appear after the update.
+- **Export fonts**: two families, Serif and Sans. DOCX names Times New Roman / Arial; PDF embeds Liberation Serif / Sans (OFL, metric-compatible, cover Polish), so line breaks match.
+- **Export page**: its own page in the bottom nav; last-used options are saved per book in the manifest (not the chapter selection).
 - **Manuscript = tree of separate documents** (parts/chapters/scenes), not one long document.
 - **Timelines**: multiple per book; graph with branch and merge; both flow and date-scaled views.
 - **Custom calendar per book**, with Gregorian preset, stored in its own `calendar.json` (user decision).
@@ -359,7 +362,6 @@ Reference mockups: the Artifact "BookWriter UI Directions" (boards "C · Worksho
 - Scene statuses are fixed to four in v1; customisable statuses are not planned. POV is a Character entry reference, not free text. Say if either should change.
 - "Reading order jumps back in time" (flashback detection) is not a check; it is left to the later narrative-vs-story-order chart.
 - Knowledge: should groups (e.g. a faction) be able to learn something, so all members know it? Assumed no for v1 (entries only).
-- Verify at implementation time that `pdfmake` meets the PDF needs (TOC with page numbers, justified text, headers, images). It has no native footnotes as far as I know, hence the end-of-chapter notes fallback in PDF; if that is unacceptable, switch the PDF exporter to Typst or another engine.
 
 ## Relevant code
 - None: the repository at `/home/mainskown/Pulpit/Coding/Storyworks` is empty (not a git repository) at the time of writing. Everything above is new.

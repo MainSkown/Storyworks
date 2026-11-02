@@ -28,7 +28,7 @@ async function v9Project(): Promise<MemoryProjectIO> {
 describe('migration v9 to v10', () => {
   it('the step is registered, and the version is 10', () => {
     expect(migrations.find((m) => m.from === 9)?.to).toBe(10)
-    expect(MANIFEST_VERSION).toBe(10)
+    expect(MANIFEST_VERSION).toBeGreaterThanOrEqual(10)
   })
 
   it('opens a v9 project at the current version with empty checkSettings', async () => {

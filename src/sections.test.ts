@@ -17,8 +17,8 @@ describe('section registry', () => {
     }
   })
 
-  it('has the 5 main and 3 bottom sections', () => {
+  it('has the 5 main and 4 bottom sections', () => {
     expect(sections.filter((s) => s.position === 'main')).toHaveLength(5)
-    expect(sections.filter((s) => s.position === 'bottom')).toHaveLength(3)
+    expect(sections.filter((s) => s.position === 'bottom')).toHaveLength(4)
   })
 })

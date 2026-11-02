@@ -10,6 +10,7 @@
     "checks": "Kontrole",
     "stats": "Statystyki",
     "history": "Historia",
+    "export": "Eksport",
     "settings": "Ustawienia"
   },
   "contextPanel": {
@@ -1456,5 +1457,74 @@
     "allLinked": "Wszystkie zasady są już powiązane",
     "noMatch": "Brak pasujących zasad",
     "cancel": "Anuluj"
+  },
+  "export": {
+    "title": "Eksport",
+    "format": "Format",
+    "chapters": "Rozdziały",
+    "selectAll": "Zaznacz wszystkie",
+    "selectNone": "Odznacz wszystkie",
+    "words": "Słowa: {n}",
+    "frontMatter": "Początek książki",
+    "titlePage": "Strona tytułowa",
+    "toc": "Spis treści",
+    "pageSetup": "Ustawienia strony",
+    "pageSize": "Rozmiar strony",
+    "fontFamily": "Czcionka",
+    "fontSize": "Rozmiar czcionki",
+    "lineSpacing": "Interlinia",
+    "margin": {
+      "top": "Margines górny",
+      "bottom": "Margines dolny",
+      "left": "Margines lewy",
+      "right": "Margines prawy"
+    },
+    "font": {
+      "serif": "Z szeryfami",
+      "sans": "Bezszeryfowa"
+    },
+    "furniture": "Elementy strony",
+    "pageNumbers": "Numery stron",
+    "runningHeader": "Nagłówek",
+    "header": {
+      "none": "Brak",
+      "book": "Tytuł książki",
+      "chapter": "Tytuł rozdziału"
+    },
+    "appendices": "Dodatki",
+    "appendicesHint": "Dodawane są tylko hasła z zaznaczoną opcją „Uwzględnij w dodatkach”, z ich tekstem do dodatków. Prywatne notatki nigdy nie są eksportowane.",
+    "appendix": {
+      "personae": "Lista postaci",
+      "glossary": "Słowniczek",
+      "chronology": "Chronologia"
+    },
+    "firstAppearance": "Pierwsze pojawienie się",
+    "types": "Typy haseł",
+    "timeline": "Oś czasu",
+    "summary": "Podsumowanie",
+    "summaryChapters": "Wybrane rozdziały: {n}",
+    "summaryWords": "Słowa: {n}",
+    "run": "Eksportuj",
+    "nothingSelected": "Zaznacz co najmniej jeden rozdział.",
+    "savedTo": "Zapisano w {path}",
+    "downloaded": "Plik został pobrany.",
+    "showInFolder": "Pokaż w folderze",
+    "warnings": "Ostrzeżenia: {n}",
+    "warning": {
+      "missingImage": "Nie znaleziono obrazu, użyto zastępnika: {detail}",
+      "unknownNode": "Pominięto nieobsługiwaną zawartość: {detail}"
+    },
+    "error": {
+      "nothingSelected": "Zaznacz co najmniej jeden rozdział.",
+      "sceneMissing": "Brakuje sceny wybranego rozdziału ({detail}).",
+      "sceneUnreadable": "Nie można odczytać sceny „{detail}”. Napraw ją lub przywróć i spróbuj ponownie.",
+      "failed": "Eksport nie powiódł się: {message}"
+    },
+    "formats": {
+      "pdf": "PDF",
+      "docx": "Word (DOCX)"
+    },
+    "contents": "Spis treści",
+    "notes": "Przypisy"
   }
 }

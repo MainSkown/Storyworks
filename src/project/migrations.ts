@@ -1,4 +1,5 @@
 import type { z } from 'zod'
+import { defaultExportOptions } from '../export/options'
 import { manifestSchema, MANIFEST_VERSION, type Manifest } from './schemas/manifest'
 import { codexEntrySchema } from './schemas/codexEntry'
 import { sceneSchema } from './schemas/scene'
@@ -185,6 +186,22 @@ const v9to10: Migration = {
   },
 }
 
+/** v10 -> v11: manifest only (`exportSettings`: default export options). */
+const v10to11: Migration = {
+  from: 10,
+  to: 11,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, {
+      ...manifest,
+      version: 11,
+      exportSettings: manifest.exportSettings ?? defaultExportOptions(),
+    })
+    return out
+  },
+}
+
 export const migrations: Migration[] = [
   v1to2,
   v2to3,
@@ -195,6 +212,7 @@ export const migrations: Migration[] = [
   v7to8,
   v8to9,
   v9to10,
+  v10to11,
 ]
 
 export const MANIFEST_FILE = 'project.json'

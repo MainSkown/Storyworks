@@ -1,8 +1,9 @@
 import { z } from 'zod'
 import type { Env } from '../types'
 import { defaultNames } from '../defaultNames'
+import { defaultExportOptions, type ExportOptions } from '../../export/options'
 
-export const MANIFEST_VERSION = 10
+export const MANIFEST_VERSION = 11
 export const BOOK_KIND = 'book'
 
 /** Index entry for one item file (or one singleton file). */
@@ -42,6 +43,31 @@ export const manuscriptNodeSchema: z.ZodType<ManuscriptNode> = z.lazy(() =>
 )
 
 const refs = () => z.array(itemRefSchema).default([])
+
+const marginSchema = z.number().min(0).max(60)
+
+/** Mirrors `ExportOptions` (src/export/options.ts); defaults come from there. */
+export const exportSettingsSchema = z.strictObject({
+  titlePage: z.boolean(),
+  toc: z.boolean(),
+  pageSize: z.enum(['A4', 'A5', 'Letter']),
+  marginMm: z.strictObject({
+    top: marginSchema,
+    bottom: marginSchema,
+    left: marginSchema,
+    right: marginSchema,
+  }),
+  font: z.enum(['serif', 'sans']),
+  fontSizePt: z.number().min(6).max(24),
+  lineSpacing: z.number().min(1).max(3),
+  pageNumbers: z.boolean(),
+  runningHeader: z.enum(['none', 'book', 'chapter']),
+  appendices: z.strictObject({
+    personae: z.strictObject({ on: z.boolean(), typeIds: z.array(z.string()) }),
+    glossary: z.strictObject({ on: z.boolean(), typeIds: z.array(z.string()) }),
+    chronology: z.strictObject({ on: z.boolean(), timelineId: z.string().nullable() }),
+  }),
+}) satisfies z.ZodType<ExportOptions>
 
 export const manifestSchema = z.strictObject({
   version: z.literal(MANIFEST_VERSION),
@@ -87,6 +113,8 @@ export const manifestSchema = z.strictObject({
   trash: z.array(trashEntrySchema).default([]),
   // Per-check on/off; a missing id means enabled.
   checkSettings: z.record(z.string(), z.boolean()).default({}),
+  // Per-book export form values.
+  exportSettings: exportSettingsSchema.default(defaultExportOptions),
 })
 
 export type Manifest = z.infer<typeof manifestSchema>

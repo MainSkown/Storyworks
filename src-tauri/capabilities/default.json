@@ -75,6 +75,7 @@
       ]
     },
     "dialog:default",
+    "opener:allow-reveal-item-in-dir",
     "fs:allow-read-dir",
     "fs:allow-read-file",
     "fs:allow-write-file",

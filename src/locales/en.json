@@ -10,6 +10,7 @@
     "checks": "Checks",
     "stats": "Stats",
     "history": "History",
+    "export": "Export",
     "settings": "Settings"
   },
   "contextPanel": {
@@ -1456,5 +1457,74 @@
     "allLinked": "All rules are already linked",
     "noMatch": "No rules match",
     "cancel": "Cancel"
+  },
+  "export": {
+    "title": "Export",
+    "format": "Format",
+    "chapters": "Chapters",
+    "selectAll": "Select all",
+    "selectNone": "Select none",
+    "words": "Words: {n}",
+    "frontMatter": "Front matter",
+    "titlePage": "Title page",
+    "toc": "Table of contents",
+    "pageSetup": "Page setup",
+    "pageSize": "Page size",
+    "fontFamily": "Font",
+    "fontSize": "Font size",
+    "lineSpacing": "Line spacing",
+    "margin": {
+      "top": "Top margin",
+      "bottom": "Bottom margin",
+      "left": "Left margin",
+      "right": "Right margin"
+    },
+    "font": {
+      "serif": "Serif",
+      "sans": "Sans-serif"
+    },
+    "furniture": "Page furniture",
+    "pageNumbers": "Page numbers",
+    "runningHeader": "Running header",
+    "header": {
+      "none": "None",
+      "book": "Book title",
+      "chapter": "Chapter title"
+    },
+    "appendices": "Appendices",
+    "appendicesHint": "Only entries marked “Include in appendices” are added, with their appendix text. Private notes are never exported.",
+    "appendix": {
+      "personae": "Dramatis personae",
+      "glossary": "Glossary",
+      "chronology": "Chronology"
+    },
+    "firstAppearance": "First appearance",
+    "types": "Entry types",
+    "timeline": "Timeline",
+    "summary": "Summary",
+    "summaryChapters": "Chapters selected: {n}",
+    "summaryWords": "Words: {n}",
+    "run": "Export",
+    "nothingSelected": "Select at least one chapter to export.",
+    "savedTo": "Saved to {path}",
+    "downloaded": "The file was downloaded.",
+    "showInFolder": "Show in folder",
+    "warnings": "Warnings: {n}",
+    "warning": {
+      "missingImage": "Image not found, placeholder used: {detail}",
+      "unknownNode": "Unsupported content skipped: {detail}"
+    },
+    "error": {
+      "nothingSelected": "Select at least one chapter to export.",
+      "sceneMissing": "A scene of a selected chapter is missing ({detail}).",
+      "sceneUnreadable": "The scene “{detail}” could not be read. Fix or restore it, then export again.",
+      "failed": "Export failed: {message}"
+    },
+    "formats": {
+      "pdf": "PDF",
+      "docx": "Word (DOCX)"
+    },
+    "contents": "Contents",
+    "notes": "Notes"
   }
 }
