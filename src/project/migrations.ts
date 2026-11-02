@@ -1,5 +1,6 @@
 import type { z } from 'zod'
 import { manifestSchema, MANIFEST_VERSION, type Manifest } from './schemas/manifest'
+import { codexEntrySchema } from './schemas/codexEntry'
 import { sceneSchema } from './schemas/scene'
 import { parseFile, serialize } from './serialize'
 import type { Env, ProjectIO } from './types'
@@ -26,6 +27,19 @@ function rawScenePaths(manifest: unknown): Set<string> {
   if (Array.isArray(m?.trash))
     for (const t of m.trash as Record<string, unknown>[])
       if (t?.type === 'scene' && typeof t.trashPath === 'string') out.add(t.trashPath)
+  return out
+}
+
+/** Codex entry file paths named by a raw manifest (listed and trashed). */
+function rawEntryPaths(manifest: unknown): Set<string> {
+  const out = new Set<string>()
+  const m = manifest as { codexEntries?: unknown; trash?: unknown }
+  if (Array.isArray(m?.codexEntries))
+    for (const r of m.codexEntries as Record<string, unknown>[])
+      if (typeof r?.path === 'string') out.add(r.path)
+  if (Array.isArray(m?.trash))
+    for (const t of m.trash as Record<string, unknown>[])
+      if (t?.type === 'entry' && typeof t.trashPath === 'string') out.add(t.trashPath)
   return out
 }
 
@@ -117,7 +131,26 @@ const v6to7: Migration = {
   },
 }
 
-export const migrations: Migration[] = [v1to2, v2to3, v3to4, v4to5, v5to6, v6to7]
+/** v7 -> v8: manifest version; codex entry files v1 -> v2 (`states: []`). Other entry files are left as they are. */
+const v7to8: Migration = {
+  from: 7,
+  to: 8,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, { ...manifest, version: 8 })
+    for (const path of rawEntryPaths(manifest)) {
+      const entry = files.get(path) as Record<string, unknown> | undefined
+      if (typeof entry !== 'object' || entry === null || entry.version !== 1) continue
+      const next = { ...entry, version: 2, states: entry.states ?? [] }
+      // A broken file is left exactly as it is (it shows up as an invalid file after opening).
+      if (codexEntrySchema.safeParse(next).success) out.set(path, next)
+    }
+    return out
+  },
+}
+
+export const migrations: Migration[] = [v1to2, v2to3, v3to4, v4to5, v5to6, v6to7, v7to8]
 
 export const MANIFEST_FILE = 'project.json'
 const INTERNAL_DIR = '.storyworks'
@@ -277,6 +310,12 @@ export async function migrateProject(
       ([a], [b]) => Number(a === MANIFEST_FILE) - Number(b === MANIFEST_FILE),
     )
     for (const [path, text] of order) {
+      // Files the migration did not change are not rewritten (keeps their text byte-identical).
+      if (
+        path !== MANIFEST_FILE &&
+        JSON.stringify(files.get(path)) === JSON.stringify(read.values.get(path))
+      )
+        continue
       written.push(path)
       await io.writeTextAtomic(path, text)
     }

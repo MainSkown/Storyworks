@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createMemoryProjectIO, type MemoryProjectIO } from './io/memory'
 import { createProject, openProject } from './open'
 import { codexEntryPath } from './codex'
-import { codexEntrySchema } from './schemas/codexEntry'
+import { CODEX_ENTRY_VERSION, codexEntrySchema } from './schemas/codexEntry'
 import { manifestSchema } from './schemas/manifest'
 import { parseFile, serialize } from './serialize'
 import { EntryRestoreError } from './trash'
@@ -20,7 +20,7 @@ async function seed(): Promise<{ io: MemoryProjectIO; project: OpenProject }> {
   const env = makeEnv()
   const created = await createProject(io, { title: 'T', author: 'A', language: 'en' }, env)
   for (const id of ['e1', 'e2', 'e3']) {
-    await created.saveItem(codexEntryPath(id), codexEntrySchema, codexEntrySchema.parse({ version: 1, id, typeId: 't', name: `Entry ${id}` }))
+    await created.saveItem(codexEntryPath(id), codexEntrySchema, codexEntrySchema.parse({ version: CODEX_ENTRY_VERSION, id, typeId: 't', name: `Entry ${id}` }))
     created.manifest.codexEntries = [...created.manifest.codexEntries, { id, path: codexEntryPath(id), title: `Entry ${id}` }]
   }
   await created.saveManifest()
@@ -80,7 +80,7 @@ describe('restoreEntry', () => {
   it('refused when the trashed file is invalid; nothing changes', async () => {
     const { io, project } = await seed()
     await project.trashEntry('e1', 'Entry e1')
-    io.files.set(TRASHED('e1'), serialize(codexEntrySchema, codexEntrySchema.parse({ version: 1, id: 'e1', typeId: 't', name: 'x' })).replace('"name": "x"', '"name": 5'))
+    io.files.set(TRASHED('e1'), serialize(codexEntrySchema, codexEntrySchema.parse({ version: CODEX_ENTRY_VERSION, id: 'e1', typeId: 't', name: 'x' })).replace('"name": "x"', '"name": 5'))
     const before = new Map(io.files)
     const err = await project.restoreEntry('e1').catch((e) => e)
     expect(err).toBeInstanceOf(EntryRestoreError)

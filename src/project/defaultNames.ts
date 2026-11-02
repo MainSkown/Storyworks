@@ -22,6 +22,8 @@ const NAMES = {
       { name: 'Located in', reverseLabel: 'Contains' },
       { name: 'Owns', reverseLabel: 'Owned by' },
     ],
+    // Same order as DEFAULT_STATE_KINDS.
+    stateKinds: ['Location', 'Owner', 'Status', 'Title'],
   },
   pl: {
     chapter: 'Rozdział 1',
@@ -38,6 +40,7 @@ const NAMES = {
       { name: 'Znajduje się w', reverseLabel: 'Zawiera' },
       { name: 'Posiada', reverseLabel: 'Należy do' },
     ],
+    stateKinds: ['Lokalizacja', 'Właściciel', 'Status', 'Tytuł'],
   },
 } as const
 

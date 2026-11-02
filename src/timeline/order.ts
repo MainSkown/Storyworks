@@ -97,3 +97,6 @@ export function compare(a: Position, b: Position, ctx: OrderContext): Order {
 
 /** True only when `a` is known to come strictly before `b`. */
 export const isBefore = (a: Position, b: Position, ctx: OrderContext) => compare(a, b, ctx) === 'before'
+
+/** The calendar date a position resolves to (its own date, or its node's date); null when undated or missing. */
+export const positionDate = (p: Position, ctx: OrderContext): CalendarDate | null => resolve(p, ctx).date

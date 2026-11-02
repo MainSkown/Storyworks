@@ -1,6 +1,7 @@
 import { z } from 'zod'
+import { positionSchema } from './position'
 
-export const CODEX_ENTRY_VERSION = 1
+export const CODEX_ENTRY_VERSION = 2
 
 const doc = () => z.record(z.string(), z.unknown()).default({ type: 'doc', content: [] })
 
@@ -9,6 +10,16 @@ export const isAssetPath = (p: string) =>
   p.startsWith('assets/') && p.length > 'assets/'.length && !p.split('/').includes('..') && !p.includes('\\')
 
 export const aliasKey = (a: string) => a.trim().toLowerCase()
+
+export const entryStateSchema = z.strictObject({
+  id: z.string(),
+  kindId: z.string(),
+  /** Free text, or a codex entry id when the kind's value type is 'entry'. */
+  value: z.string(),
+  from: positionSchema,
+  until: positionSchema.nullable().default(null),
+  final: z.boolean().default(false),
+})
 
 export const codexEntrySchema = z
   .strictObject({
@@ -23,11 +34,15 @@ export const codexEntrySchema = z
     ruleIds: z.array(z.string()).default([]),
     appendixText: z.string().default(''),
     includeInAppendices: z.boolean().default(false),
+    states: z.array(entryStateSchema).default([]),
   })
   .superRefine((e, ctx) => {
     const keys = e.aliases.map(aliasKey)
     if (new Set(keys).size !== keys.length)
       ctx.addIssue({ code: 'custom', path: ['aliases'], message: 'Duplicate alias' })
+    if (new Set(e.states.map((s) => s.id)).size !== e.states.length)
+      ctx.addIssue({ code: 'custom', path: ['states'], message: 'Duplicate state id' })
   })
 
 export type CodexEntry = z.infer<typeof codexEntrySchema>
+export type EntryState = z.infer<typeof entryStateSchema>

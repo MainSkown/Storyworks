@@ -4,6 +4,251 @@
   "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
   "milestones": [
     {
+      "id": "m6b",
+      "title": "M6b · States, kinds, Chronicle",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "States tab",
+          "intro": "Fifth tab on every entry. States are grouped by kind; each row shows the value (an entry value opens that entry), the period and its edit and remove buttons. Starter kinds are created once: Location, Owner, Status, Title (Polish names in a Polish book).",
+          "figures": [
+            {
+              "img": "shots/m6b/01-states-overlap-light.png",
+              "alt": "Sword with two overlapping Owner states, light",
+              "bold": "Overlap.",
+              "muted": "Aldric owns the Sword from Coronation until Harvest ends; Mara from Treaty signed. Both rows are flagged and name the other."
+            },
+            {
+              "img": "shots/m6b/01-states-overlap-dark.png",
+              "alt": "Sword with two overlapping Owner states, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/02-states-touching-light.png",
+              "alt": "Touching Owner states, light",
+              "bold": "Touching.",
+              "muted": "Mara's period now starts exactly at Harvest ends: the half-open periods do not overlap, so the warning is gone."
+            },
+            {
+              "img": "shots/m6b/02-states-touching-dark.png",
+              "alt": "Touching Owner states, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Add and edit a state",
+          "figures": [
+            {
+              "img": "shots/m6b/03-add-state-dialog-event-light.png",
+              "alt": "Add state dialog with event positions, light",
+              "bold": "Event mode.",
+              "muted": "Kind, value (text or an entry) and From / Until, each an event or a calendar date. From is required, Until is optional."
+            },
+            {
+              "img": "shots/m6b/03-add-state-dialog-event-dark.png",
+              "alt": "Add state dialog with event positions, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/04-until-before-from-light.png",
+              "alt": "End before start refused, light",
+              "bold": "Refused.",
+              "muted": "Until before From shows a message and saves nothing; the message clears when the value is fixed."
+            },
+            {
+              "img": "shots/m6b/04-until-before-from-dark.png",
+              "alt": "End before start refused, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/05-add-state-dialog-date-light.png",
+              "alt": "Add state dialog with a date, light",
+              "bold": "Date mode.",
+              "muted": "From is an event, Until a calendar date typed in the book's calendar."
+            },
+            {
+              "img": "shots/m6b/05-add-state-dialog-date-dark.png",
+              "alt": "Add state dialog with a date, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Final state, reverse view, broken value",
+          "figures": [
+            {
+              "img": "shots/m6b/06-final-state-light.png",
+              "alt": "Aldric's states with a Final status, light",
+              "bold": "Final.",
+              "muted": "Status Dead is marked Final from Harvest ends. Aldric's page also lists the Sword under \"States pointing here\"."
+            },
+            {
+              "img": "shots/m6b/06-final-state-dark.png",
+              "alt": "Aldric's states with a Final status, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/07-reverse-view-town-light.png",
+              "alt": "Brindle listing who is there, light",
+              "bold": "Reverse view.",
+              "muted": "A Town lists the entries whose Location points at it, with the period."
+            },
+            {
+              "img": "shots/m6b/07-reverse-view-town-dark.png",
+              "alt": "Brindle listing who is there, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/08-broken-value-light.png",
+              "alt": "State with a missing entry value, light",
+              "bold": "Broken value.",
+              "muted": "Deleting Brindle leaves the row visible and marked Missing entry; restoring it from the Trash repairs the row."
+            },
+            {
+              "img": "shots/m6b/08-broken-value-dark.png",
+              "alt": "State with a missing entry value, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "State kinds",
+          "intro": "Manager on every States tab. Name, value type, one-at-a-time flag, usage count; the value type is locked while states use the kind.",
+          "figures": [
+            {
+              "img": "shots/m6b/09-kinds-manager-light.png",
+              "alt": "State kinds manager, light",
+              "bold": "Manager.",
+              "muted": "Rename, exclusive toggle and delete per kind; the type select is greyed while the kind is in use."
+            },
+            {
+              "img": "shots/m6b/09-kinds-manager-dark.png",
+              "alt": "State kinds manager, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/10-kind-delete-reassign-light.png",
+              "alt": "Delete kind with reassign and type warning, light",
+              "bold": "Delete with reassign.",
+              "muted": "The states move to the chosen kind; moving a text kind to an entry kind warns that some values may show as broken."
+            },
+            {
+              "img": "shots/m6b/10-kind-delete-reassign-dark.png",
+              "alt": "Delete kind with reassign and type warning, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Chronicle tab",
+          "intro": "Merges the entry's linked events, states and the relationships tied to an event, in chronological order with in-world dates. Items that are ordered but undated say Date unknown; items with no known place in time are listed afterwards under Order unknown. A row opens its item: an event jumps to the timeline, a state or relationship opens its tab.",
+          "figures": [
+            {
+              "img": "shots/m6b/13-chronicle-full-light.png",
+              "alt": "Chronicle of Aldric, light",
+              "bold": "Aldric.",
+              "muted": "Title, Coronation, Location, Final status and the Enemy relationship by date; Exile follows by the path; Far-off storm (other timeline, undated) is under Order unknown."
+            },
+            {
+              "img": "shots/m6b/13-chronicle-full-dark.png",
+              "alt": "Chronicle of Aldric, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/12-chronicle-empty-light.png",
+              "alt": "Chronicle with nothing in it, light",
+              "bold": "Empty.",
+              "muted": "Hint on how to get items here."
+            },
+            {
+              "img": "shots/m6b/12-chronicle-empty-dark.png",
+              "alt": "Chronicle with nothing in it, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Older book",
+          "figures": [
+            {
+              "img": "shots/m6b/19-v7-migrated-light.png",
+              "alt": "Version 7 book opened, light",
+              "bold": "Version 7 book.",
+              "muted": "Made from this book by rewriting the manifest to version 7 and the entries to version 1. It opens; the hand-broken entry (Vale) is listed as invalid and its file is left untouched."
+            },
+            {
+              "img": "shots/m6b/19-v7-migrated-dark.png",
+              "alt": "Version 7 book opened, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/20-v7-sword-states-light.png",
+              "alt": "States on a migrated entry, light",
+              "bold": "Migrated entry.",
+              "muted": "States tab works with the starter kinds that were added on opening."
+            },
+            {
+              "img": "shots/m6b/20-v7-sword-states-dark.png",
+              "alt": "States on a migrated entry, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Polish",
+          "figures": [
+            {
+              "img": "shots/m6b/16-states-polish-light.png",
+              "alt": "States tab in Polish, light",
+              "bold": "Stany."
+            },
+            {
+              "img": "shots/m6b/16-states-polish-dark.png",
+              "alt": "States tab in Polish, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/17-state-dialog-polish-light.png",
+              "alt": "State dialog in Polish, light",
+              "bold": "Dialog."
+            },
+            {
+              "img": "shots/m6b/17-state-dialog-polish-dark.png",
+              "alt": "State dialog in Polish, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6b/18-chronicle-polish-light.png",
+              "alt": "Chronicle in Polish, light",
+              "bold": "Kronika."
+            },
+            {
+              "img": "shots/m6b/18-chronicle-polish-dark.png",
+              "alt": "Chronicle in Polish, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Driven through the UI in the browser build, Light and Dark: six events on two timelines (dated and undated on a path), starter kinds created once, overlap on both rows, touching clears it, unknown order (other timeline, undated) gives no warning, until-before-from refused with a message, date and event positions, Final status, reverse view on the Town, broken value and restore, kinds manager (add, rename, exclusive, type locked in use, delete with reassign and the type warning), Chronicle order, Date unknown, Order unknown and row clicks, reload keeps the states, entry files version 2 with states, manifest version 8, and a version 7 book with a hand-broken entry file that opens and keeps that file untouched. Polish screens checked for raw keys and English.",
+            "Fixed on the way: the overlap warning showed the other state's entry id instead of its name; Chronicle rows were squeezed into a narrow column in the detail panel and a relationship row ran its two names together; an old refusal message stayed in the state dialog after the value was fixed; the Polish word for Final differed between the States tab and the Chronicle.",
+            "One entry with 200 states, 150 linked events and 150 relationships: States tab about 0.3 s, Chronicle (500 rows) about 0.15 s, saving an edited state under 1 s.",
+  "Not yet checked: the real Tauri window (state-kinds files, entry files version 2, migration on a real folder)."
+          ]
+        }
+      ]
+    },
+    {
       "id": "m6a",
       "title": "M6a · Relationships, groups, relationship graph",
       "sections": [

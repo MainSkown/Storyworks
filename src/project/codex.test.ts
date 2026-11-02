@@ -11,7 +11,7 @@ import {
   reassignEntries,
   seedCodexTypes,
 } from './codex'
-import { codexEntrySchema, type CodexEntry } from './schemas/codexEntry'
+import { CODEX_ENTRY_VERSION, codexEntrySchema, type CodexEntry } from './schemas/codexEntry'
 import { codexTypeSchema } from './schemas/codexType'
 import { parseFile } from './serialize'
 import { timelineSchema } from '../timeline/schema'
@@ -24,7 +24,7 @@ const makeEnv = (): Env => {
 
 const para = (text: string) => ({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text }] }] })
 const entry = (id: string, over: Partial<CodexEntry> = {}): CodexEntry =>
-  codexEntrySchema.parse({ version: 1, id, typeId: 't1', name: id, ...over })
+  codexEntrySchema.parse({ version: CODEX_ENTRY_VERSION, id, typeId: 't1', name: id, ...over })
 
 const entries = [
   entry('e1', { name: 'Anna', aliases: ['Annie'], tags: ['hero'], notes: para('Born in the north') }),

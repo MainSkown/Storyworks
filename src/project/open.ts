@@ -26,6 +26,7 @@ import { relationshipSchema } from './schemas/relationship'
 import { relationTypeSchema } from './schemas/relationType'
 import { ruleSchema } from './schemas/rule'
 import { ruleCategorySchema } from './schemas/ruleCategory'
+import { stateKindSchema } from './schemas/stateKind'
 import { sceneSchema, SCENE_VERSION } from './schemas/scene'
 import { timelineSchema } from '../timeline/schema'
 import { parseFile, serialize } from './serialize'
@@ -81,6 +82,7 @@ interface ListedItem {
   relationship?: boolean
   group?: boolean
   relationLayout?: boolean
+  stateKind?: boolean
 }
 
 /** Every item file the manifest points at (trash excluded). */
@@ -122,6 +124,7 @@ function listedItems(m: Manifest): ListedItem[] {
       relationship: m.relationships.includes(ref),
       group: m.groups.includes(ref),
       relationLayout: ref === m.relationLayout,
+      stateKind: m.stateKinds.includes(ref),
     })
   }
   return out
@@ -299,6 +302,8 @@ function parseItem(item: ListedItem, text: string): ParseResult<unknown> {
   if (item.relationship)
     return withIdCheck(parseFile(relationshipSchema, text, item.path), item.path, item.id)
   if (item.group) return withIdCheck(parseFile(groupSchema, text, item.path), item.path, item.id)
+  if (item.stateKind)
+    return withIdCheck(parseFile(stateKindSchema, text, item.path), item.path, item.id)
   if (item.relationLayout) return parseFile(relationLayoutSchema, text, item.path)
   return withIdCheck(parseFile(sceneSchema, text, item.path), item.path, item.id)
 }
@@ -315,6 +320,7 @@ const isParsed = (item: ListedItem) =>
   item.relationType ||
   item.relationship ||
   item.group ||
+  item.stateKind ||
   item.relationLayout
 
 async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Promise<Issue[]> {

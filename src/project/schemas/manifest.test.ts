@@ -6,8 +6,8 @@ const env: Env = { now: () => 1_700_000_000_000, newId: () => 'id-1' }
 const meta = { title: 'My Book', author: 'Ann', language: 'en' }
 
 describe('manifest schema', () => {
-  it('current version is 6', () => {
-    expect(MANIFEST_VERSION).toBe(7)
+  it('current version is 8', () => {
+    expect(MANIFEST_VERSION).toBe(8)
   })
   it('a new manifest is valid and carries the meta', () => {
     const m = createManifest(meta, env)

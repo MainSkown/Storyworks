@@ -5,7 +5,9 @@ import { Notify, type QSelect } from 'quasar'
 import CodexTypeDialog from '../components/CodexTypeDialog.vue'
 import EntryAppearsIn from '../components/codex/EntryAppearsIn.vue'
 import EntryMentions from '../components/codex/EntryMentions.vue'
+import EntryChronicle from '../components/codex/EntryChronicle.vue'
 import EntryRelations from '../components/relations/EntryRelations.vue'
+import EntryStates from '../components/states/EntryStates.vue'
 import MiniRichText from '../components/MiniRichText.vue'
 import { jumpToNode } from '../composables/useJump'
 import { useEntryMentions } from '../codex/useEntryMentions'
@@ -40,7 +42,7 @@ const canCreate = computed(() => !readOnly.value && store.types.length > 0)
 const typeOf = (id: string) => store.types.find((x) => x.id === id) ?? null
 
 // ---- tabs and mentions ----
-const tab = ref<'details' | 'links' | 'relations' | 'mentions'>('details')
+const tab = ref<'details' | 'links' | 'relations' | 'states' | 'chronicle' | 'mentions'>('details')
 const scan = useEntryMentions(() => entry.value)
 const mentions = computed(() => scan.mentions.value.filter((m) => m.entryId === entry.value?.id))
 const mentionCount = computed(() => mentions.value.length)
@@ -430,6 +432,8 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
           <QTab name="details" :label="t('codex.tabDetails')" />
           <QTab name="links" :label="t('codex.tabLinks')" />
           <QTab name="relations" :label="t('relations.tab')" />
+          <QTab name="states" :label="t('states.tab')" />
+          <QTab name="chronicle" :label="t('chronicle.tab')" />
           <QTab name="mentions">
             <span>{{ t('codex.tabMentions') }}</span>
             <QBadge
@@ -650,6 +654,24 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
           :aria-label="t('relations.tab')"
         >
           <EntryRelations :entry-id="entry.id" />
+        </div>
+
+        <div
+          v-else-if="tab === 'states'"
+          class="panel"
+          role="tabpanel"
+          :aria-label="t('states.tab')"
+        >
+          <EntryStates :entry-id="entry.id" />
+        </div>
+
+        <div
+          v-else-if="tab === 'chronicle'"
+          class="panel"
+          role="tabpanel"
+          :aria-label="t('chronicle.tab')"
+        >
+          <EntryChronicle :entry-id="entry.id" @navigate="tab = $event" />
         </div>
 
         <div v-else class="panel" role="tabpanel" :aria-label="t('codex.tabMentions')">

@@ -47,10 +47,12 @@ import { useSettingsStore } from '../settings/store'
 import { useCodexStore } from '../codex/store'
 import { useRelationsStore } from '../relations/store'
 import { useRulesStore } from '../rules/store'
+import { useStatesStore } from '../states/store'
 import { useTimelinesStore } from '../timeline/store'
 import { seedCodexTypes } from './codex'
 import { seedRelationTypes } from './relations'
 import { seedRuleCategories } from './rules'
+import { seedStateKinds } from './states'
 import { ensureDefaults } from './timelines'
 import type {
   ChangeEvent,
@@ -313,6 +315,7 @@ export const useProjectStore = defineStore('project', () => {
     project.value?.manifest.relationTypes.find((r) => r.path === path)?.id ??
     project.value?.manifest.relationships.find((r) => r.path === path)?.id ??
     project.value?.manifest.groups.find((r) => r.path === path)?.id ??
+    project.value?.manifest.stateKinds.find((r) => r.path === path)?.id ??
     (project.value?.manifest.relationLayout?.path === path
       ? project.value.manifest.relationLayout.id
       : null) ??
@@ -586,11 +589,17 @@ export const useProjectStore = defineStore('project', () => {
     } catch (e) {
       console.error('Could not create the starter relation types', e)
     }
+    try {
+      await seedStateKinds(p, defaultEnv)
+    } catch (e) {
+      console.error('Could not create the starter state kinds', e)
+    }
     revision.value++
     await useTimelinesStore().load()
     await useRulesStore().load()
     await useCodexStore().load()
     await useRelationsStore().load()
+    await useStatesStore().load()
   }
 
   function notifyOpened(title: string, path: string): void {
@@ -722,6 +731,7 @@ export const useProjectStore = defineStore('project', () => {
     useRulesStore().reset()
     useCodexStore().reset()
     useRelationsStore().reset()
+    useStatesStore().reset()
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -1179,6 +1189,14 @@ export const useProjectStore = defineStore('project', () => {
     mark(MANIFEST_FILE)
   }
 
+  /** Replaces the manifest's state kind refs. */
+  function setStateKindRefs(next: { stateKinds: Manifest['stateKinds'] }): void {
+    const p = assertWritable()
+    p.manifest.stateKinds = next.stateKinds
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
   async function trashEntry(id: string, title: string): Promise<TrashEntry> {
     const p = assertWritable()
     await flush() // never write to a file that is about to move
@@ -1565,6 +1583,7 @@ export const useProjectStore = defineStore('project', () => {
     removeUnlistedFile,
     setCodexRefs,
     setRelationRefs,
+    setStateKindRefs,
     trashEntry,
     restoreEntryFile,
     trashNode,

@@ -27,17 +27,16 @@ async function v6Project(): Promise<MemoryProjectIO> {
 }
 
 describe('migration v6 to v7', () => {
-  it('manifest version is 7 and the step is registered', () => {
-    expect(MANIFEST_VERSION).toBe(7)
+  it('the step is registered', () => {
     expect(migrations.find((m) => m.from === 6)?.to).toBe(7)
   })
 
-  it('opens a v6 project as v7 with no layout file', async () => {
+  it('opens a v6 project at the current version with no layout file', async () => {
     const io = await v6Project()
     const r = await openProject(io, makeEnv())
     expect(r.status).toBe('ok')
     if (r.status === 'ok') {
-      expect(r.project.manifest.version).toBe(7)
+      expect(r.project.manifest.version).toBe(MANIFEST_VERSION)
       expect(r.project.manifest.relationLayout).toBeNull()
     }
   })

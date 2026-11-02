@@ -55,6 +55,7 @@ export type EntryPatch = Partial<
     | 'ruleIds'
     | 'appendixText'
     | 'includeInAppendices'
+    | 'states'
   >
 >
 export type TypePatch = Partial<Pick<CodexType, 'name' | 'color' | 'icon'>>

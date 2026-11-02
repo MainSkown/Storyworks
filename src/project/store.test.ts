@@ -564,3 +564,26 @@ describe('relation refs in the project store', () => {
     await s.close()
   })
 })
+
+describe('state kind refs in the project store', () => {
+  it('setStateKindRefs replaces the list and saves it to project.json', async () => {
+    const { s } = await openedStore()
+    s.setStateKindRefs({ stateKinds: [{ id: 'k1', path: 'state-kinds/k1.json', title: 'Location' }] })
+    expect(s.project?.manifest.stateKinds).toHaveLength(1)
+    await s.flush()
+    expect(JSON.parse(io.files.get('project.json') as string).stateKinds[0].id).toBe('k1')
+    await s.close()
+  })
+
+  it('an invalid state kind file is reported under its id', async () => {
+    const { s } = await openedStore()
+    await s.close()
+    const m = JSON.parse(io.files.get('project.json') as string)
+    m.stateKinds = [{ id: 'k1', path: 'state-kinds/k1.json' }, ...m.stateKinds]
+    io.files.set('project.json', JSON.stringify(m))
+    io.files.set('state-kinds/k1.json', '{"version":1}')
+    await s.open('book')
+    expect(s.issues).toEqual([expect.objectContaining({ kind: 'invalid', itemId: 'k1' })])
+    await s.close()
+  })
+})

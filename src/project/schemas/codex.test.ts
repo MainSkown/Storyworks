@@ -3,7 +3,7 @@ import { parseFile, serialize } from '../serialize'
 import { codexEntrySchema } from './codexEntry'
 import { codexTypeSchema } from './codexType'
 
-const entry = { version: 1, id: 'e1', typeId: 't1', name: 'Anna' }
+const entry = { version: 2, id: 'e1', typeId: 't1', name: 'Anna' }
 
 describe('codex entry schema', () => {
   it('a minimal entry loads with defaults', () => {
@@ -23,7 +23,7 @@ describe('codex entry schema', () => {
     ['missing name', { ...entry, name: undefined }],
     ['missing type', { ...entry, typeId: undefined }],
     ['unknown key', { ...entry, extra: 1 }],
-    ['wrong version', { ...entry, version: 2 }],
+    ['wrong version', { ...entry, version: 1 }],
     ['aliases not strings', { ...entry, aliases: [1] }],
     ['duplicate aliases', { ...entry, aliases: ['Ann', 'Ann'] }],
     ['duplicate aliases ignoring case and spaces', { ...entry, aliases: ['Ann', ' ann '] }],
@@ -45,7 +45,7 @@ describe('codex entry schema', () => {
     const keys = Object.keys(JSON.parse(serialize(codexEntrySchema, codexEntrySchema.parse(entry))))
     expect(keys).toEqual([
       'version', 'id', 'typeId', 'name', 'aliases', 'image', 'notes', 'tags', 'ruleIds',
-      'appendixText', 'includeInAppendices',
+      'appendixText', 'includeInAppendices', 'states',
     ])
   })
 })
