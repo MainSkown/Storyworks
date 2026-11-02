@@ -363,7 +363,6 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
-  max-width: 44rem;
   padding: 1.25rem 1.5rem;
 }
 .bar {

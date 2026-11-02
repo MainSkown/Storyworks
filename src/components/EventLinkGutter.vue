@@ -9,6 +9,7 @@ export interface GutterMarker {
   /** Per kind; absent = all event links. */
   events?: number
   entries?: number
+  knowledge?: number
 }
 
 defineProps<{ markers: GutterMarker[]; expanded: string | null }>()
@@ -16,10 +17,31 @@ const emit = defineEmits<{ open: [blockId: string, el: HTMLElement] }>()
 const { t } = useI18n()
 
 const entriesOf = (m: GutterMarker) => m.entries ?? 0
-const eventsOf = (m: GutterMarker) => m.events ?? m.count - entriesOf(m)
+const knowledgeOf = (m: GutterMarker) => m.knowledge ?? 0
+const eventsOf = (m: GutterMarker) => m.events ?? m.count - entriesOf(m) - knowledgeOf(m)
+
+function kindOf(m: GutterMarker): string {
+  if (m.broken) return 'broken'
+  const kinds = [eventsOf(m), entriesOf(m), knowledgeOf(m)].filter((n) => n > 0).length
+  if (kinds > 1) return 'mixed'
+  return entriesOf(m) > 0 ? 'codex' : knowledgeOf(m) > 0 ? 'knowledge' : 'event'
+}
 
 function label(m: GutterMarker): string {
   if (m.broken) return t('eventLink.marker.broken', m.count)
+  if (knowledgeOf(m) > 0) {
+    const parts = [
+      [eventsOf(m), 'events'],
+      [entriesOf(m), 'entries'],
+      [knowledgeOf(m), 'uses'],
+    ] as const
+    return t('knowledgeUse.marker.linked', {
+      parts: parts
+        .filter(([n]) => n > 0)
+        .map(([n, k]) => t(`knowledgeUse.marker.${k}`, { n }, n))
+        .join(', '),
+    })
+  }
   if (entriesOf(m) === 0) return t('eventLink.marker.linked', m.count)
   if (eventsOf(m) === 0) return t('eventLink.marker.linkedEntries', m.count)
   return t('eventLink.marker.linkedMixed', { events: eventsOf(m), entries: entriesOf(m) })
@@ -34,7 +56,7 @@ function label(m: GutterMarker): string {
       type="button"
       class="marker"
       :class="{ broken: m.broken }"
-      :data-marker-kind="m.broken ? 'broken' : entriesOf(m) === 0 ? 'event' : eventsOf(m) === 0 ? 'codex' : 'mixed'"
+      :data-marker-kind="kindOf(m)"
       :data-marker-block="m.id"
       :style="{ top: `${m.top}px` }"
       aria-haspopup="dialog"
@@ -55,6 +77,9 @@ function label(m: GutterMarker): string {
         <svg v-if="entriesOf(m) > 0" class="shape codex" viewBox="0 0 20 20" aria-hidden="true">
           <circle cx="10" cy="10" r="8.5" />
         </svg>
+        <svg v-if="knowledgeOf(m) > 0" class="shape knowledge" viewBox="0 0 20 20" aria-hidden="true">
+          <rect x="2" y="2" width="16" height="16" rx="2" />
+        </svg>
       </template>
       <span class="count" aria-hidden="true">{{ m.count }}</span>
     </button>
@@ -69,7 +94,8 @@ function label(m: GutterMarker): string {
 }
 .marker {
   position: absolute;
-  left: 0.625rem;
+  /* Anchored to the text edge: mixed markers grow into the margin instead of over the text. */
+  right: calc(100% - 2.875rem);
   display: inline-flex;
   align-items: center;
   box-sizing: border-box;
@@ -95,6 +121,9 @@ function label(m: GutterMarker): string {
 }
 .shape.codex {
   fill: var(--section-codex);
+}
+.shape.knowledge {
+  fill: var(--section-write);
 }
 .broken .shape {
   fill: var(--tag-problem);

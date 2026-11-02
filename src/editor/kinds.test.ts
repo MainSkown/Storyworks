@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { Editor, type JSONContent } from '@tiptap/core'
 import { editorKinds } from './kinds'
-import { sceneSchema } from '../project/schemas/scene'
+import { sceneSchema, SCENE_VERSION } from '../project/schemas/scene'
 import en from '../locales/en.json'
 import pl from '../locales/pl.json'
 
@@ -73,7 +73,7 @@ describe('book editor kind', () => {
   it('produces content that passes the scene block-id check', () => {
     const content = load(doc)
     const scene = {
-      version: 2,
+      version: SCENE_VERSION,
       id: 's1',
       title: 'Scene',
       content,
@@ -112,9 +112,9 @@ describe('book editor kind', () => {
         { type: 'paragraph', attrs: { id: 'x' } },
       ],
     }
-    expect(sceneSchema.safeParse({ version: 2, id: 's', title: 't', content: dup }).success).toBe(
-      false,
-    )
+    expect(
+      sceneSchema.safeParse({ version: SCENE_VERSION, id: 's', title: 't', content: dup }).success,
+    ).toBe(false)
   })
 
   it('has en and pl labels for every toolbar item', () => {

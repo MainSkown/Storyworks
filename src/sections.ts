@@ -50,7 +50,7 @@ export const sections: readonly AppSection[] = [
 ]
 
 /** Routes that live inside a section but have their own name. */
-const SUB_ROUTES: Record<string, SectionId> = { relationships: 'codex' }
+const SUB_ROUTES: Record<string, SectionId> = { relationships: 'codex', knowledge: 'codex', 'knowledge-matrix': 'codex' }
 
 export function sectionByRouteName(name: unknown): AppSection | undefined {
   const key = typeof name === 'string' ? (SUB_ROUTES[name] ?? name) : name

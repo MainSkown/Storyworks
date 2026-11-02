@@ -5,6 +5,8 @@ import { Notify } from 'quasar'
 import { formatDate } from '../../calendar'
 import { useCodexStore } from '../../codex/store'
 import { jumpToNode } from '../../composables/useJump'
+import { useKnowledgeStore } from '../../knowledge/store'
+import { chronicleKnowledgeEvents } from '../../knowledge/view'
 import { useRelationsStore } from '../../relations/store'
 import { useStatesStore } from '../../states/store'
 import { buildChronicle, type ChronicleExtra, type ChronicleRow } from '../../timeline/chronicle'
@@ -17,18 +19,28 @@ import type { Position } from '../../timeline/order'
 const props = withDefaults(defineProps<{ entryId: string; extra?: ChronicleExtra[] }>(), {
   extra: () => [],
 })
-const emit = defineEmits<{ navigate: [tab: 'states' | 'relations'] }>()
+const emit = defineEmits<{ navigate: [tab: 'states' | 'relations' | 'knowledge'] }>()
 
 const { t } = useI18n()
 const codex = useCodexStore()
 const relations = useRelationsStore()
 const states = useStatesStore()
+const knowledge = useKnowledgeStore()
 const timelines = useTimelinesStore()
 const ctx = useOrderContext()
 
 const fmt = (d: Parameters<typeof formatDate>[1]) => formatDate(timelines.calendar, d)
 
 const entryStates = computed(() => states.statesFor(props.entryId))
+
+const knowledgeEvents = computed(() =>
+  chronicleKnowledgeEvents(
+    knowledge.learningsOfEntry(props.entryId).map((r) => ({
+      item: { id: r.item.id, title: r.item.title || t('knowledge.untitled') },
+      learning: r.learning,
+    })),
+  ),
+)
 
 const rows = computed<ChronicleRow[]>(() => {
   const input = assembleChronicleInput({
@@ -47,7 +59,7 @@ const rows = computed<ChronicleRow[]>(() => {
     }),
     untitledNode: t('chronicle.untitledEvent'),
   })
-  return buildChronicle({ ...input, extra: props.extra }, ctx.value)
+  return buildChronicle({ ...input, extra: [...props.extra, ...knowledgeEvents.value] }, ctx.value)
 })
 
 const sections = computed(() =>
@@ -58,8 +70,17 @@ const sections = computed(() =>
 )
 
 const KIND_ICON: Record<string, string> = { node: 'event', state: 'toggle_on', relationship: 'link' }
-const kindIcon = (r: ChronicleRow) => KIND_ICON[r.kind] ?? 'circle'
-const kindText = (r: ChronicleRow) => (r.kind in KIND_ICON ? t(`chronicle.kind.${r.kind}`) : r.kind)
+const KNOWLEDGE_KINDS: Record<string, { icon: string; key: string }> = {
+  knowledge: { icon: 'lightbulb', key: 'knowledge.chronicle.learns' },
+  'knowledge-forget': { icon: 'history', key: 'knowledge.chronicle.forgets' },
+}
+const kindIcon = (r: ChronicleRow) => KIND_ICON[r.kind] ?? KNOWLEDGE_KINDS[r.kind]?.icon ?? 'circle'
+const kindText = (r: ChronicleRow) =>
+  r.kind in KIND_ICON
+    ? t(`chronicle.kind.${r.kind}`)
+    : KNOWLEDGE_KINDS[r.kind]
+      ? t(KNOWLEDGE_KINDS[r.kind]!.key)
+      : r.kind
 
 function eventTitle(p: Position | null): string | null {
   if (!p || !('node' in p)) return null
@@ -89,12 +110,13 @@ function dateText(r: ChronicleRow): string {
   return r.date ? fmt(r.date) : t('chronicle.dateUnknown')
 }
 
-const clickable = (r: ChronicleRow) => r.target.type !== 'extra'
+const clickable = (r: ChronicleRow) => r.target.type !== 'extra' || r.kind in KNOWLEDGE_KINDS
 
 async function open(r: ChronicleRow): Promise<void> {
   const target = r.target
   if (target.type === 'state') emit('navigate', 'states')
   else if (target.type === 'relationship') emit('navigate', 'relations')
+  else if (target.type === 'extra' && target.kind in KNOWLEDGE_KINDS) emit('navigate', 'knowledge')
   else if (target.type === 'node') {
     const res = await jumpToNode(target.timelineId, target.nodeId)
     if (!res.ok)

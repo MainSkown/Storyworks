@@ -18,8 +18,7 @@
     "show": "Show panel",
     "collapse": "Collapse",
     "expand": "Expand",
-    "empty": "Nothing to show for this section yet.",
-    "later": "Coming in a later milestone."
+    "empty": "Nothing to show for this section yet."
   },
   "contextSections": {
     "write": {
@@ -31,7 +30,6 @@
     "timelines": {
       "selectedEvent": "Selected event",
       "writtenIn": "Written in",
-      "whoLearnsWhat": "Who learns what here",
       "linked": "Linked"
     },
     "rules": {
@@ -698,6 +696,7 @@
     "groupNames": "Groups: {names}",
     "andMore": "and {n} more",
     "nodeRelationships": "No relationships | {n} relationship is linked to this event and will show a broken event link. | {n} relationships are linked to this event and will show a broken event link.",
+    "nodeKnowledge": "No knowledge events | {n} knowledge event is placed on this event and will show as a missing event. | {n} knowledge events are placed on this event and will show as a missing event.",
     "links": "No linked passages | {n} linked passage will show as broken until restored. | {n} linked passages will show as broken until restored."
   },
   "timelineView": {
@@ -1017,6 +1016,62 @@
     "failed": "Could not change the links.",
     "alreadyLinked": "No new links | This paragraph is already linked to that | These {n} paragraphs are already linked to that"
   },
+  "knowledgeMatrix": {
+    "open": "Knowledge matrix",
+    "title": "Knowledge matrix",
+    "back": "Back to Codex",
+    "gridLabel": "Who knows what",
+    "asOf": "As of",
+    "cornerHeader": "Entry / knowledge",
+    "filterType": "Show entries of type",
+    "keyboardHint": "Arrow keys move between cells. Enter opens the knowledge item, Shift+Enter opens the entry.",
+    "state": {
+      "known": "Known",
+      "notYet": "Not yet",
+      "forgotten": "Forgotten",
+      "unknown": "Order unknown",
+      "none": "No learning"
+    },
+    "learns": "Learns: {at}",
+    "forgets": "Forgets: {at}",
+    "untitledItem": "Untitled knowledge",
+    "openEntry": "Open {name}",
+    "emptyItems": "No knowledge items yet. Create them in the Codex.",
+    "emptyLearnings": "Nobody has learned anything yet. Add who learns an item on the item's page.",
+    "noMatch": "No entries of this type learn anything.",
+    "hidden": "No hidden learnings | 1 learning of a deleted entry is hidden | {n} learnings of deleted entries are hidden",
+    "nodeBadge": "No knowledge events | 1 knowledge event at this event | {n} knowledge events at this event"
+  },
+  "knowledgeUse": {
+    "tab": "Knowledge",
+    "pickItem": "Choose a knowledge item",
+    "pickEntry": "Who uses “{item}” here?",
+    "searchItems": "Search knowledge items",
+    "searchEntries": "Search codex entries",
+    "emptyItems": "No knowledge items yet: create one in the Codex",
+    "emptyEntries": "No codex entries yet",
+    "noMatchItems": "No knowledge items match",
+    "noMatchEntries": "No codex entries match",
+    "back": "Back to items",
+    "learners": "Nobody learns it yet | Learned by 1 | Learned by {n}",
+    "learnsAt": "learns at {at}",
+    "pair": "{item} — {entry}",
+    "tag": "Knowledge",
+    "notLearned": "Has not learned it yet",
+    "missingItem": "Missing knowledge item",
+    "missingEntry": "Missing character",
+    "missingBoth": "Missing knowledge item and character",
+    "missing": "Missing knowledge item or character",
+    "marker": {
+      "linked": "Linked to {parts}",
+      "events": "no events | 1 event | {n} events",
+      "entries": "no codex entries | 1 codex entry | {n} codex entries",
+      "uses": "no knowledge uses | 1 knowledge use | {n} knowledge uses"
+    },
+    "inScene": {
+      "heading": "Knowledge used"
+    }
+  },
   "linksPanel": {
     "paragraph": {
       "none": "Click in a paragraph to see its links.",
@@ -1067,6 +1122,140 @@
       "tag": "Event",
       "untitled": "Untitled event",
       "jump": "Jump"
+    }
+  },
+  "knowledge": {
+    "open": "Knowledge",
+    "title": "Knowledge",
+    "back": "Back to Codex",
+    "tab": "Knowledge",
+    "listLabel": "Knowledge items",
+    "newItem": "New item",
+    "newItemTitle": "New knowledge item",
+    "search": "Search knowledge",
+    "filterTag": "Filter by tag",
+    "clearFilter": "Clear filter",
+    "noItems": "No knowledge items yet.",
+    "noItemsHint": "Create an item for something a character can learn: a secret, a rumour, a skill.",
+    "noMatch": "No items match.",
+    "selectOne": "Select an item.",
+    "readOnly": "This book is read-only.",
+    "invalidHeading": "Files that could not be read",
+    "untitled": "Untitled item",
+    "untitledScene": "Untitled scene",
+    "missingEntry": "Missing entry",
+    "learnerCount": "Nobody knows it | 1 character knows it | {n} characters know it",
+    "none": "None",
+    "tagsHint": "Type a tag and press Enter",
+    "failed": "Could not change this knowledge item.",
+    "deleteFailed": "Could not delete the item.",
+    "passageGone": "That passage no longer exists.",
+    "passageMissing": "Missing passage",
+    "jumpToEvent": "Go to event: {event}",
+    "jumpToPassage": "Go to passage in {scene}",
+    "openEntry": "Open entry: {name}",
+    "openItem": "Open knowledge item: {title}",
+    "fields": { "title": "Title", "tags": "Tags", "description": "Description" },
+    "about": {
+      "heading": "About",
+      "hint": "The rule or codex entry this knowledge is about, if any.",
+      "label": "Rule or entry",
+      "rule": "Rule",
+      "entry": "Entry",
+      "missing": "Missing rule or entry",
+      "missingHint": "The rule or entry this item was about is missing or in the trash. Restore it or choose another.",
+      "none": "Nothing matches",
+      "open": "Open"
+    },
+    "who": {
+      "heading": "Who knows it",
+      "none": "Nobody learns this yet.",
+      "entry": "Who",
+      "learnsAt": "Learns at",
+      "forgottenAt": "Forgets at",
+      "note": "Note",
+      "revealedIn": "Told in",
+      "actions": "Actions",
+      "edit": "Edit what {name} learns",
+      "remove": "Remove what {name} learns",
+      "add": "Who learns it"
+    },
+    "asOf": {
+      "heading": "As of",
+      "label": "As of this point",
+      "hint": "Pick an event or a date to see the state at that point. Clear it to hide the view."
+    },
+    "state": {
+      "known": "Knows",
+      "not-yet": "Not yet",
+      "forgotten": "Forgotten",
+      "unknown": "Order unknown"
+    },
+    "delete": {
+      "button": "Delete item",
+      "confirm": "Delete \"{name}\" and everything recorded about who learns it?",
+      "impact": "Passages in the manuscript that use this item will show as broken."
+    },
+    "deleteImpact": "No knowledge | {n} knowledge event will show as broken until restored. | {n} knowledge events will show as broken until restored.",
+    "dialog": {
+      "addTitle": "Learns…",
+      "editTitle": "Edit what is learned",
+      "item": "Knowledge item",
+      "learner": "Who learns it",
+      "at": "Learns at",
+      "atRequired": "Choose when it is learned.",
+      "note": "Note",
+      "forgottenAt": "Forgotten or lost at",
+      "forgottenHint": "Optional. Leave empty if it is never forgotten.",
+      "revealedIn": "Told to the reader in",
+      "revealedScene": "Scene",
+      "revealedBlock": "Passage",
+      "revealedMissing": "Missing passage",
+      "noText": "(no text)",
+      "noBlocks": "No passages in this scene",
+      "createItem": "Create item \"{title}\"",
+      "typeToCreate": "Type a title to create a new item",
+      "noEntries": "No matching entries",
+      "cancel": "Cancel",
+      "save": "Save",
+      "create": "Add",
+      "errors": {
+        "unknown-entry": "That entry is missing or in the trash. Choose another.",
+        "forgotten-before-learned": "It cannot be forgotten before or when it is learned.",
+        "read-only": "This book is read-only.",
+        "createItem": "Could not create the item.",
+        "other": "Could not save this."
+      }
+    },
+    "entry": {
+      "add": "Learns…",
+      "heading": "What this entry knows",
+      "none": "Nothing recorded yet.",
+      "orderUnknown": "Order unknown",
+      "learnedAt": "Learns at",
+      "forgottenAt": "Forgets at",
+      "revealedIn": "Told in",
+      "edit": "Edit: {title}",
+      "remove": "Remove: {title}",
+      "asOfHint": "Pick an event or a date to see what is known at that point.",
+      "group": {
+        "known": "Known",
+        "forgotten": "Forgotten",
+        "unknown": "Order unknown",
+        "not-yet": "Not known yet"
+      }
+    },
+    "chronicle": { "learns": "Learns", "forgets": "Forgets" },
+    "node": {
+      "title": "Who learns what here",
+      "none": "Nobody learns or forgets anything at this event.",
+      "add": "+ Character learns…",
+      "learns": "learns",
+      "forgets": "forgets",
+      "row": {
+        "learns": "{who} learns {what}",
+        "forgets": "{who} forgets {what}"
+      }
     }
   },
   "chronicle": {

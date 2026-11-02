@@ -6,6 +6,7 @@ import { currentBlock } from '../../composables/currentBlock'
 import { paragraphLinks } from '../../composables/contextLinks'
 import {
   linkSelectionToEntry,
+  linkSelectionToKnowledge,
   linkSelectionToNode,
   relinkLink,
   relinkLinkToEntry,
@@ -13,6 +14,7 @@ import {
   type BlockLink,
 } from '../../composables/eventLinks'
 import { jumpToEntry, jumpToNode } from '../../composables/useJump'
+import { openKnowledgeItem } from '../../knowledge/openItem'
 import { useProjectStore } from '../../project/store'
 import NodePickerDialog from '../NodePickerDialog.vue'
 import LinkCard from './LinkCard.vue'
@@ -24,8 +26,12 @@ const pickerOpen = ref(false)
 const picking = ref<{ mode: 'link' } | { mode: 'relink'; linkId: string; kind: 'event' | 'entry' }>({
   mode: 'link',
 })
-const pickerTabs = computed<('events' | 'codex')[]>(() =>
-  picking.value.mode === 'link' ? ['events', 'codex'] : picking.value.kind === 'entry' ? ['codex'] : ['events'],
+const pickerTabs = computed<('events' | 'codex' | 'knowledge')[]>(() =>
+  picking.value.mode === 'link'
+    ? ['events', 'codex', 'knowledge']
+    : picking.value.kind === 'entry'
+      ? ['codex']
+      : ['events'],
 )
 const pickerTitle = computed(() =>
   picking.value.mode === 'link'
@@ -36,13 +42,27 @@ const pickerTitle = computed(() =>
 const warn = (message: string) =>
   Notify.create({ type: 'warning', message, position: 'bottom', timeout: 5000 })
 
+const isMissing = (r: BlockLink) => r.eventMissing || r.entryMissing || r.knowledgeMissing !== null
+const KNOWLEDGE_MISSING = {
+  item: 'knowledgeUse.missingItem',
+  entry: 'knowledgeUse.missingEntry',
+  both: 'knowledgeUse.missingBoth',
+} as const
+
 function cardTag(r: BlockLink): string {
-  if (r.eventMissing || r.entryMissing) return t('eventLink.popover.problem')
+  if (isMissing(r)) return t('eventLink.popover.problem')
+  if (r.knowledge) return t('knowledgeUse.tag')
   if (r.entry) return r.entry.typeName ?? t('eventLink.popover.entry')
   return t('eventLink.popover.event')
 }
 
 function cardTitle(r: BlockLink): string {
+  if (r.knowledgeMissing) return t(KNOWLEDGE_MISSING[r.knowledgeMissing])
+  if (r.knowledge)
+    return t('knowledgeUse.pair', {
+      item: r.knowledge.itemTitle || t('knowledgeMatrix.untitledItem'),
+      entry: r.knowledge.entryName || t('codex.untitled'),
+    })
   if (r.entryMissing) return t('eventLink.popover.missingEntry')
   if (r.eventMissing) return t('eventLink.popover.missing')
   if (r.entry) return r.entry.name || t('codex.untitled')
@@ -87,6 +107,22 @@ async function onPickEntry(entryId: string): Promise<void> {
   }
 }
 
+async function onPickKnowledge(itemId: string, entryId: string): Promise<void> {
+  const cur = currentBlock.value
+  if (picking.value.mode !== 'link' || !cur?.blockId) return
+  const r = await linkSelectionToKnowledge(cur.sceneId, [cur.blockId], itemId, entryId)
+  if (!r.ok) warn(t('eventLink.failed'))
+  else if (r.added === 0) warn(t('eventLink.alreadyLinked', 1))
+}
+
+function cardMeta(r: BlockLink): string {
+  if (r.knowledge)
+    return [r.knowledge.typeName, r.knowledge.learns ? '' : t('knowledgeUse.notLearned')]
+      .filter(Boolean)
+      .join(' · ')
+  return r.target ? [r.target.date, r.target.timelineName].filter(Boolean).join(' · ') : ''
+}
+
 async function unlink(linkId: string): Promise<void> {
   if (!(await unlinkLink(linkId)).ok) warn(t('eventLink.failed'))
 }
@@ -99,18 +135,31 @@ async function unlink(linkId: string): Promise<void> {
       <LinkCard
         v-for="r in paragraphLinks"
         :key="r.link.id"
-        :problem="r.eventMissing || r.entryMissing"
-        :tag-kind="r.entry ? 'codex' : undefined"
+        :problem="isMissing(r)"
+        :tag-kind="r.knowledge ? 'knowledge' : r.entry ? 'codex' : undefined"
         :tag="cardTag(r)"
         :title="cardTitle(r)"
-        :meta="r.target ? [r.target.date, r.target.timelineName].filter(Boolean).join(' · ') : ''"
+        :meta="cardMeta(r)"
       >
-        <template v-if="r.eventMissing || r.entryMissing">
-          <button v-if="canEdit" type="button" class="btn" @click="startRelink(r.link.id, r.kind)">
+        <template v-if="isMissing(r)">
+          <button
+            v-if="canEdit && r.kind !== 'knowledge'"
+            type="button"
+            class="btn"
+            @click="startRelink(r.link.id, r.kind === 'entry' ? 'entry' : 'event')"
+          >
             {{ t('eventLink.popover.relink') }}
           </button>
           <button v-if="canEdit" type="button" class="btn" @click="unlink(r.link.id)">
             {{ t('eventLink.popover.remove') }}
+          </button>
+        </template>
+        <template v-else-if="r.knowledge">
+          <button type="button" class="btn" @click="openKnowledgeItem(r.knowledge.itemId)">
+            {{ t('eventLink.popover.open') }}
+          </button>
+          <button v-if="canEdit" type="button" class="btn" @click="unlink(r.link.id)">
+            {{ t('eventLink.popover.unlink') }}
           </button>
         </template>
         <template v-else-if="r.entry">
@@ -146,6 +195,7 @@ async function unlink(linkId: string): Promise<void> {
     :tabs="pickerTabs"
     @pick="onPick"
     @pick-entry="onPickEntry"
+    @pick-knowledge="onPickKnowledge"
   />
 </template>
 

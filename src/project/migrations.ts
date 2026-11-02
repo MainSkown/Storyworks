@@ -150,7 +150,26 @@ const v7to8: Migration = {
   },
 }
 
-export const migrations: Migration[] = [v1to2, v2to3, v3to4, v4to5, v5to6, v6to7, v7to8]
+/** v8 -> v9: manifest version; scene files v2 -> v3 (links may carry `to.entry`; nothing else changes). */
+const v8to9: Migration = {
+  from: 8,
+  to: 9,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, { ...manifest, version: 9 })
+    for (const path of rawScenePaths(manifest)) {
+      const scene = files.get(path) as Record<string, unknown> | undefined
+      if (typeof scene !== 'object' || scene === null || scene.version !== 2) continue
+      const next = { ...scene, version: 3 }
+      // A broken file is left exactly as it is (it shows up as an invalid file after opening).
+      if (sceneSchema.safeParse(next).success) out.set(path, next)
+    }
+    return out
+  },
+}
+
+export const migrations: Migration[] = [v1to2, v2to3, v3to4, v4to5, v5to6, v6to7, v7to8, v8to9]
 
 export const MANIFEST_FILE = 'project.json'
 const INTERNAL_DIR = '.storyworks'
@@ -212,8 +231,14 @@ function checked<T>(schema: z.ZodType<T>, text: string, path: string): string {
   return serialize(schema, r.value)
 }
 
-/** Serializes every migrated file; manifest and scenes are checked against the current schemas. */
-function validate(files: Map<string, unknown>): Map<string, string> | string {
+/**
+ * Serializes every migrated file; manifest and scenes are checked against the current schemas.
+ * An invalid scene that the migration did not change is skipped (shown as invalid after opening).
+ */
+function validate(
+  files: Map<string, unknown>,
+  original: Map<string, unknown>,
+): Map<string, string> | string {
   const manifest = files.get(MANIFEST_FILE)
   const parsed = parseFile(manifestSchema, JSON.stringify(manifest), MANIFEST_FILE)
   if (!parsed.ok) return `${MANIFEST_FILE}: ${parsed.error.field ?? ''} ${parsed.error.message}`
@@ -223,8 +248,14 @@ function validate(files: Map<string, unknown>): Map<string, string> | string {
     const text = JSON.stringify(value)
     let result: string | null = null
     if (path === MANIFEST_FILE) result = checked(manifestSchema, text, path)
-    else if (scenePaths.has(path)) result = checked(sceneSchema, text, path)
-    else out.set(path, JSON.stringify(value, null, 2) + '\n')
+    else if (scenePaths.has(path)) {
+      result = checked(sceneSchema, text, path)
+      // A scene that was already broken and that no step touched is left as it is, not a failure.
+      if (result.startsWith(ERR) && text === JSON.stringify(original.get(path))) {
+        out.set(path, text)
+        continue
+      }
+    } else out.set(path, JSON.stringify(value, null, 2) + '\n')
     if (result?.startsWith(ERR)) return result.slice(ERR.length)
     if (result !== null) out.set(path, result)
   }
@@ -293,7 +324,7 @@ export async function migrateProject(
   } catch (e) {
     return fail(`Migration failed: ${message(e)}`)
   }
-  const migrated = validate(files)
+  const migrated = validate(files, read.values)
   if (typeof migrated === 'string') return fail(`Migrated file is invalid: ${migrated}`)
 
   const stamp = new Date(env.now()).toISOString().replace(/[:.]/g, '-')

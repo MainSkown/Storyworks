@@ -22,7 +22,6 @@ export const panelSections: Partial<Record<SectionId, readonly PanelSection[]>> 
   timelines: [
     ps('timelines', 'selectedEvent'),
     ps('timelines', 'writtenIn'),
-    ps('timelines', 'whoLearnsWhat'),
     ps('timelines', 'linked'),
   ],
   rules: [ps('rules', 'usedIn')],

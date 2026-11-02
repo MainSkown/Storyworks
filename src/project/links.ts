@@ -10,13 +10,16 @@ export type LinkRef = Link['from']
 export const EVENT_KIND = 'event'
 /** Link from a scene passage to a codex entry (`to.item` = entry id, no `to.block`). */
 export const CODEX_KIND = 'codex'
+/** Link from a scene passage to a (knowledge item, entry) pair (`to.item` = item id, `to.entry` = entry id, no `to.block`). */
+export const KNOWLEDGE_KIND = 'knowledge'
 
 const sameEnds = (a: Link, kind: string, from: LinkRef, to: LinkRef) =>
   a.kind === kind &&
   a.from.item === from.item &&
   a.from.block === from.block &&
   a.to.item === to.item &&
-  a.to.block === to.block
+  a.to.block === to.block &&
+  a.to.entry === to.entry
 
 export interface AddLinkResult {
   links: Link[]
@@ -24,10 +27,17 @@ export interface AddLinkResult {
   reason?: 'duplicate' | 'invalid'
 }
 
-/** Both ends need a block for events; codex links need a passage block and no target block. */
+/**
+ * Events need both blocks. Codex links need a passage block and no target block. Knowledge links
+ * additionally need the entry of the pair.
+ */
 const validEnds = (kind: string, from: LinkRef, to: LinkRef) =>
   from.block !== undefined &&
-  (kind === CODEX_KIND ? to.block === undefined : to.block !== undefined)
+  (kind === KNOWLEDGE_KIND
+    ? to.block === undefined && to.entry !== undefined
+    : kind === CODEX_KIND
+      ? to.block === undefined
+      : to.block !== undefined)
 
 /**
  * Adds a link (default kind: event); unique per (kind, from block, target).
@@ -60,6 +70,31 @@ export function addCodexLink(
   })
 }
 
+/** Adds a scene-block to (knowledge item, entry) link; unique per (block, item, entry). */
+export function addKnowledgeLink(
+  links: readonly Link[],
+  input: { id?: string; sceneId: string; blockId: string; itemId: string; entryId: string },
+): AddLinkResult {
+  return addLink(links, {
+    id: input.id,
+    kind: KNOWLEDGE_KIND,
+    from: { item: input.sceneId, block: input.blockId },
+    to: { item: input.itemId, entry: input.entryId },
+  })
+}
+
+/** Passages that use this knowledge item for this entry. */
+export const knowledgeUsesOfPair = (
+  links: readonly Link[],
+  itemId: string,
+  entryId: string,
+): Link[] =>
+  links.filter((l) => l.kind === KNOWLEDGE_KIND && l.to.item === itemId && l.to.entry === entryId)
+
+/** Knowledge use links owned by one scene. */
+export const knowledgeUsesInScene = (links: readonly Link[], sceneId: string): Link[] =>
+  links.filter((l) => l.kind === KNOWLEDGE_KIND && l.from.item === sceneId)
+
 export function removeLink(links: readonly Link[], id: string): Link[] {
   return links.some((l) => l.id === id) ? links.filter((l) => l.id !== id) : (links as Link[])
 }
@@ -81,11 +116,16 @@ export function relinkTarget(
 }
 
 export type ResolveResult =
-  | { ok: true; kind: 'node' | 'block' | 'entry' }
+  | { ok: true; kind: 'node' | 'block' | 'entry' | 'knowledge' }
   | {
       ok: false
       reason:
-        'missing-node' | 'missing-timeline' | 'missing-block' | 'missing-scene' | 'missing-entry'
+        | 'missing-node'
+        | 'missing-timeline'
+        | 'missing-block'
+        | 'missing-scene'
+        | 'missing-entry'
+        | 'missing-knowledge'
     }
 
 export interface LinkIndexOptions {
@@ -108,6 +148,8 @@ export function createLinkIndex({ isLive, blockExists }: LinkIndexOptions) {
   function isBroken(link: Link): boolean {
     const { item, block } = link.to
     if (!isLive(item)) return true
+    if (link.kind === KNOWLEDGE_KIND && (link.to.entry === undefined || !isLive(link.to.entry)))
+      return true
     return block !== undefined && blockExists !== undefined && !blockExists(item, block)
   }
 
@@ -120,11 +162,19 @@ export function createLinkIndex({ isLive, blockExists }: LinkIndexOptions) {
 
   /**
    * Where a link leads. `to` (default): a timeline node (`kind:'node'`), reasons missing-timeline /
-   * missing-node. For a codex link `to` is the entry (`kind:'entry'`, reason missing-entry).
+   * missing-node. For a codex link `to` is the entry (`kind:'entry'`, reason missing-entry). For a knowledge link
+   * both the item (reason missing-knowledge) and the entry (missing-entry) must be live.
    * `from`: the passage block, reasons missing-scene / missing-block.
    */
   function resolveTarget(link: Link, side: 'to' | 'from' = 'to'): ResolveResult {
     const { item, block } = link[side]
+    if (side === 'to' && link.kind === KNOWLEDGE_KIND) {
+      if (!isLive(item)) return { ok: false, reason: 'missing-knowledge' }
+      const entry = link.to.entry
+      return entry !== undefined && isLive(entry)
+        ? { ok: true, kind: 'knowledge' }
+        : { ok: false, reason: 'missing-entry' }
+    }
     if (side === 'to' && link.kind === CODEX_KIND)
       return isLive(item) ? { ok: true, kind: 'entry' } : { ok: false, reason: 'missing-entry' }
     if (!isLive(item))

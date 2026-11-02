@@ -48,6 +48,7 @@ import { useCodexStore } from '../codex/store'
 import { useRelationsStore } from '../relations/store'
 import { useRulesStore } from '../rules/store'
 import { useStatesStore } from '../states/store'
+import { useKnowledgeStore } from '../knowledge/store'
 import { useTimelinesStore } from '../timeline/store'
 import { seedCodexTypes } from './codex'
 import { seedRelationTypes } from './relations'
@@ -316,6 +317,7 @@ export const useProjectStore = defineStore('project', () => {
     project.value?.manifest.relationships.find((r) => r.path === path)?.id ??
     project.value?.manifest.groups.find((r) => r.path === path)?.id ??
     project.value?.manifest.stateKinds.find((r) => r.path === path)?.id ??
+    project.value?.manifest.knowledge.find((r) => r.path === path)?.id ??
     (project.value?.manifest.relationLayout?.path === path
       ? project.value.manifest.relationLayout.id
       : null) ??
@@ -600,6 +602,7 @@ export const useProjectStore = defineStore('project', () => {
     await useCodexStore().load()
     await useRelationsStore().load()
     await useStatesStore().load()
+    await useKnowledgeStore().load()
   }
 
   function notifyOpened(title: string, path: string): void {
@@ -732,6 +735,7 @@ export const useProjectStore = defineStore('project', () => {
     useCodexStore().reset()
     useRelationsStore().reset()
     useStatesStore().reset()
+    useKnowledgeStore().reset()
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -1197,6 +1201,14 @@ export const useProjectStore = defineStore('project', () => {
     mark(MANIFEST_FILE)
   }
 
+  /** Replaces the manifest's knowledge item refs. */
+  function setKnowledgeRefs(next: { knowledge: Manifest['knowledge'] }): void {
+    const p = assertWritable()
+    p.manifest.knowledge = next.knowledge
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
   async function trashEntry(id: string, title: string): Promise<TrashEntry> {
     const p = assertWritable()
     await flush() // never write to a file that is about to move
@@ -1584,6 +1596,7 @@ export const useProjectStore = defineStore('project', () => {
     setCodexRefs,
     setRelationRefs,
     setStateKindRefs,
+    setKnowledgeRefs,
     trashEntry,
     restoreEntryFile,
     trashNode,

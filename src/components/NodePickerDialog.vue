@@ -7,6 +7,7 @@ import { useCodexStore } from '../codex/store'
 import { lastPickerTab, type PickerTab } from '../composables/pickerTab'
 import { groupPickerNodes } from '../timeline/pick'
 import { useTimelinesStore } from '../timeline/store'
+import KnowledgePairPicker from './KnowledgePairPicker.vue'
 
 const open = defineModel<boolean>({ required: true })
 const props = withDefaults(
@@ -16,6 +17,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   pick: [timelineId: string, nodeId: string]
   pickEntry: [entryId: string]
+  pickKnowledge: [itemId: string, entryId: string]
 }>()
 
 const { t } = useI18n()
@@ -36,6 +38,12 @@ const groups = computed(() => (tab.value === 'events' ? eventGroups.value : entr
 const rowCount = computed(() => groups.value.reduce((n, g) => n + g.rows.length, 0))
 const hasAnyNode = computed(() => timelines.loadedTimelines.some((tl) => tl.nodes.length > 0))
 const hasAny = computed(() => (tab.value === 'events' ? hasAnyNode.value : codex.entries.length > 0))
+
+const TAB_LABEL: Record<PickerTab, string> = {
+  events: 'eventLink.picker.tabEvents',
+  codex: 'eventLink.picker.tabCodex',
+  knowledge: 'knowledgeUse.tab',
+}
 
 const rowId = (i: number) => `node-picker-row-${i}`
 
@@ -117,11 +125,15 @@ const groupName = (g: (typeof groups.value)[number]) =>
             @keydown.left.prevent="onTabKey(-1)"
             @keydown.right.prevent="onTabKey(1)"
           >
-            {{ t(k === 'events' ? 'eventLink.picker.tabEvents' : 'eventLink.picker.tabCodex') }}
+            {{ t(TAB_LABEL[k]) }}
           </button>
         </div>
         <div id="node-picker-panel" :role="tabs.length > 1 ? 'tabpanel' : undefined">
-          <p v-if="!hasAny" class="empty">
+          <KnowledgePairPicker
+            v-if="tab === 'knowledge'"
+            @pick="(itemId, entryId) => ((open = false), emit('pickKnowledge', itemId, entryId))"
+          />
+          <p v-else-if="!hasAny" class="empty">
             {{ t(tab === 'events' ? 'eventLink.picker.empty' : 'eventLink.picker.emptyCodex') }}
           </p>
           <template v-else>

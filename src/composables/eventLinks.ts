@@ -2,7 +2,17 @@ import { formatDate } from '../calendar'
 import { describeEntry } from '../codex/pick'
 import { useCodexStore } from '../codex/store'
 import { linkTargetMissing } from '../project/linkProblems'
-import { addCodexLink, addLink, CODEX_KIND, relinkTarget, removeLink, type Link } from '../project/links'
+import {
+  addCodexLink,
+  addKnowledgeLink,
+  addLink,
+  CODEX_KIND,
+  KNOWLEDGE_KIND,
+  relinkTarget,
+  removeLink,
+  type Link,
+} from '../project/links'
+import { useKnowledgeStore } from '../knowledge/store'
 import { useProjectStore } from '../project/store'
 import { describeTarget } from '../timeline/pick'
 import { useTimelinesStore } from '../timeline/store'
@@ -16,7 +26,7 @@ export type LinkSelectionResult =
 
 export interface BlockLink {
   link: Link
-  kind: 'event' | 'entry'
+  kind: 'event' | 'entry' | 'knowledge'
   /** Either end is gone: the event (or its timeline) or entry, or the passage itself. */
   broken: boolean
   /** An event link whose event side is gone, so it can be relinked. */
@@ -27,6 +37,17 @@ export interface BlockLink {
   target: { timelineName: string; title: string; date: string } | null
   /** Codex links only; null when the entry is gone. An empty name = unnamed or unreadable entry. */
   entry: { id: string; name: string; typeName: string | null; typeColor: string | null } | null
+  /** Knowledge links: which side is gone (deleted or trashed). Null = both are there. */
+  knowledgeMissing: 'item' | 'entry' | 'both' | null
+  /** Knowledge links only; null when the item or the character is gone. `learns` = the character has a learning of the item. */
+  knowledge: {
+    itemId: string
+    itemTitle: string
+    entryId: string
+    entryName: string
+    typeName: string | null
+    learns: boolean
+  } | null
 }
 
 /** Adds one link per block via `add`; blocks that already have it are skipped. */
@@ -72,6 +93,17 @@ export const linkSelectionToEntry = (
   entryId: string,
 ): Promise<LinkSelectionResult> =>
   linkBlocks(sceneId, blockIds, (links, block) => addCodexLink(links, { sceneId, blockId: block, entryId }))
+
+/** Links one (knowledge item, character) pair to every block in `blockIds`; blocks already linked to it are skipped. */
+export const linkSelectionToKnowledge = (
+  sceneId: string,
+  blockIds: readonly string[],
+  itemId: string,
+  entryId: string,
+): Promise<LinkSelectionResult> =>
+  linkBlocks(sceneId, blockIds, (links, block) =>
+    addKnowledgeLink(links, { sceneId, blockId: block, itemId, entryId }),
+  )
 
 function ownerOf(linkId: string): string | null {
   const index = useProjectStore().linkIndex()
@@ -137,12 +169,36 @@ export function linksForBlock(sceneId: string, blockId: string): BlockLink[] {
   if (!index) return []
   const timelines = useTimelinesStore()
   const codex = useCodexStore()
+  const know = useKnowledgeStore()
   const fmt = (d: Parameters<typeof formatDate>[1]) => formatDate(timelines.calendar, d)
   return index
     .linksFrom(sceneId)
     .filter((l) => l.from.block === blockId)
     .map((link): BlockLink => {
       const passageBroken = index.isPassageBroken(link)
+      if (link.kind === KNOWLEDGE_KIND) {
+        const entryId = link.to.entry ?? ''
+        const itemGone = !index.isLive(link.to.item)
+        const entryGone = !index.isLive(entryId)
+        const item = itemGone ? undefined : know.items.find((i) => i.id === link.to.item)
+        const found = entryGone ? null : describeEntry(codex.entries, codex.types, entryId)
+        const missing = itemGone || entryGone
+        return {
+          link, kind: 'knowledge', broken: missing || passageBroken,
+          eventMissing: false, entryMissing: false, target: null, entry: null,
+          knowledgeMissing: itemGone && entryGone ? 'both' : itemGone ? 'item' : entryGone ? 'entry' : null,
+          knowledge: missing
+            ? null
+            : {
+                itemId: link.to.item,
+                itemTitle: item?.title ?? '',
+                entryId,
+                entryName: found?.name ?? '',
+                typeName: found?.typeName ?? null,
+                learns: !!item?.learnings.some((l) => l.entryId === entryId),
+              },
+        }
+      }
       if (link.kind === CODEX_KIND) {
         const entryMissing = index.isBroken(link)
         const found = entryMissing ? null : describeEntry(codex.entries, codex.types, link.to.item)
@@ -152,6 +208,7 @@ export function linksForBlock(sceneId: string, blockId: string): BlockLink[] {
         return {
           link, kind: 'entry', broken: entryMissing || passageBroken,
           eventMissing: false, entryMissing, target: null, entry,
+          knowledgeMissing: null, knowledge: null,
         }
       }
       const target = index.isBroken(link)
@@ -161,6 +218,7 @@ export function linksForBlock(sceneId: string, blockId: string): BlockLink[] {
       return {
         link, kind: 'event', broken: eventMissing || passageBroken,
         eventMissing, entryMissing: false, target, entry: null,
+        knowledgeMissing: null, knowledge: null,
       }
     })
 }

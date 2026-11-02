@@ -4,6 +4,7 @@ import {
   brokenByDeletingNode,
   brokenByDeletingScenes,
   brokenByDeletingTimeline,
+  knowledgeImpactOfNode,
   relationImpactOfEntry,
   relationImpactOfNode,
   sceneIdsUnder,
@@ -30,7 +31,12 @@ const tree: ManuscriptNode[] = [
     type: 'part',
     title: 'P',
     children: [
-      { id: 'c1', type: 'chapter', title: 'C', children: [{ id: 's1', type: 'scene', title: 'S', path: 'x', children: [] }] },
+      {
+        id: 'c1',
+        type: 'chapter',
+        title: 'C',
+        children: [{ id: 's1', type: 'scene', title: 'S', path: 'x', children: [] }],
+      },
       { id: 's2', type: 'scene', title: 'S2', path: 'y', children: [] },
     ],
   },
@@ -87,5 +93,28 @@ describe('relations impact', () => {
     const r = [rel('r1', 'a', 'b', 'n1'), rel('r2', 'a', 'b', 'n2'), rel('r3', 'a', 'b')]
     expect(relationImpactOfNode('tl', 'n1', r).map((x) => x.id)).toEqual(['r1'])
     expect(relationImpactOfNode('other', 'n1', r)).toEqual([])
+  })
+})
+
+describe('knowledge impact', () => {
+  const node = (nodeId: string, timelineId = 'tl') => ({ node: { timelineId, nodeId } })
+  const item = (id: string, learnings: Record<string, unknown>[]) =>
+    ({ version: 1, id, title: id, description: {}, tags: [], about: null, learnings }) as never
+  const l = (id: string, at: unknown, forgottenAt: unknown = null) => ({
+    id,
+    entryId: 'e',
+    at,
+    note: '',
+    forgottenAt,
+    revealedIn: null,
+  })
+  it('counts learn and forget events placed on the node', () => {
+    const items = [
+      item('k1', [l('a', node('n1'), node('n2')), l('b', node('n2'))]),
+      item('k2', [l('c', node('n1', 'other'))]),
+    ]
+    expect(knowledgeImpactOfNode('tl', 'n1', items)).toBe(1)
+    expect(knowledgeImpactOfNode('tl', 'n2', items)).toBe(2)
+    expect(knowledgeImpactOfNode('tl', 'n9', items)).toBe(0)
   })
 })

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const SCENE_VERSION = 2
+export const SCENE_VERSION = 3
 
 export const sceneStatusSchema = z.enum(['idea', 'draft', 'revising', 'final'])
 
@@ -17,7 +17,12 @@ export const todoSchema = z.strictObject({
   done: z.boolean(),
 })
 
-const linkRefSchema = z.strictObject({ item: z.string(), block: z.string().optional() })
+const linkRefSchema = z.strictObject({
+  item: z.string(),
+  block: z.string().optional(),
+  /** Knowledge use links: the entry of the (item, entry) pair. */
+  entry: z.string().optional(),
+})
 
 export const linkSchema = z.strictObject({
   id: z.string(),

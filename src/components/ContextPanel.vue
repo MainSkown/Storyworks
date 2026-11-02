@@ -16,6 +16,7 @@ import LinkedEntriesPanel from './links/LinkedEntriesPanel.vue'
 import EntryLinksPanel from './links/EntryLinksPanel.vue'
 import { useCodexStore } from '../codex/store'
 import { nodeEntries, sceneEntries } from '../composables/entryPanels'
+import { sceneKnowledgeUses } from '../composables/knowledgePanels'
 import { resolveNodeRules } from '../rules/nodeRules'
 import { useRulesStore } from '../rules/store'
 import { useTimelinesStore } from '../timeline/store'
@@ -45,7 +46,7 @@ function countOf(id: string): number {
     case 'timelines.writtenIn':
       return passagesForSelectedNode.value.length
     case 'write.inThisScene':
-      return sceneEntries.value.length
+      return sceneEntries.value.length + sceneKnowledgeUses.value.length
     case 'timelines.linked':
       return linkedRuleCount.value + nodeEntries.value.length
     case 'codex.links': {
@@ -83,7 +84,6 @@ function countOf(id: string): number {
         </template>
         <EntryLinksPanel v-else-if="p.id === 'codex.links'" />
         <RuleUsedInPanel v-else-if="p.id === 'rules.usedIn'" />
-        <p v-else-if="p.id.startsWith('timelines.')" class="later">{{ t('contextPanel.later') }}</p>
         <template v-else>{{ t('sidebar.placeholder') }}</template>
       </CollapsibleSection>
     </template>
@@ -108,11 +108,6 @@ function countOf(id: string): number {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-.later {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
 }
 .empty {
   margin: 0;

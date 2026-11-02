@@ -480,7 +480,7 @@ async function flow(theme) {
   await page.keyboard.press('Escape')
   await page.waitForTimeout(300)
   check(!(await typesDlg(page).isVisible()), 'keyboard: Escape closes the types dialog')
-  check(await page.evaluate(() => document.activeElement?.textContent?.includes('Types')), 'keyboard: focus returns to Types button')
+  check(await page.evaluate(() => document.activeElement?.getAttribute('aria-label') === 'Types'), 'keyboard: focus returns to Types button')
   await shot(T('14-codex-final'), s, 200)
 
   await s.ctx.close()

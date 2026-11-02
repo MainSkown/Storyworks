@@ -15,7 +15,8 @@ export interface Rehomes {
   dupes: { owner: string; linkId: string }[]
 }
 
-const key = (l: Link) => `${l.kind}\u0000${l.from.block}\u0000${l.to.item}\u0000${l.to.block}`
+const key = (l: Link) =>
+  `${l.kind}\u0000${l.from.block}\u0000${l.to.item}\u0000${l.to.block}\u0000${l.to.entry}`
 
 /** Pure: which links follow their block into another scene, and which copies are redundant. */
 export function findRehomes({ links, blocks, isLive }: RehomeInput): Rehomes {

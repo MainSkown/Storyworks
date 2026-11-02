@@ -8,11 +8,23 @@ const emit = defineEmits<{
   close: []
   jump: [row: BlockLink]
   open: [row: BlockLink]
+  openKnowledge: [row: BlockLink]
   unlink: [linkId: string]
   relink: [linkId: string]
 }>()
 const { t } = useI18n()
-const missing = (r: BlockLink) => r.eventMissing || r.entryMissing
+const missing = (r: BlockLink) => r.eventMissing || r.entryMissing || r.knowledgeMissing !== null
+const MISSING_TEXT = {
+  item: 'knowledgeUse.missingItem',
+  entry: 'knowledgeUse.missingEntry',
+  both: 'knowledgeUse.missingBoth',
+} as const
+const missingText = (r: BlockLink) =>
+  r.knowledgeMissing
+    ? MISSING_TEXT[r.knowledgeMissing]
+    : r.entryMissing
+      ? 'eventLink.popover.missingEntry'
+      : 'eventLink.popover.missing'
 const root = ref<HTMLElement | null>(null)
 
 function onPointerDown(e: PointerEvent): void {
@@ -50,7 +62,25 @@ onBeforeUnmount(() => window.removeEventListener('pointerdown', onPointerDown, t
           <template v-if="missing(r)">
             <span class="tag problem">{{ t('eventLink.popover.problem') }}</span>
             <span class="name">
-              {{ t(r.entryMissing ? 'eventLink.popover.missingEntry' : 'eventLink.popover.missing') }}
+              {{ t(missingText(r)) }}
+            </span>
+          </template>
+          <template v-else-if="r.knowledge">
+            <span class="tag knowledge">{{ t('knowledgeUse.tag') }}</span>
+            <span class="name">
+              {{
+                t('knowledgeUse.pair', {
+                  item: r.knowledge.itemTitle || t('knowledgeMatrix.untitledItem'),
+                  entry: r.knowledge.entryName || t('codex.untitled'),
+                })
+              }}
+            </span>
+            <span class="meta">
+              {{
+                [r.knowledge.typeName, r.knowledge.learns ? '' : t('knowledgeUse.notLearned')]
+                  .filter(Boolean)
+                  .join(' · ')
+              }}
             </span>
           </template>
           <template v-else-if="r.entry">
@@ -68,7 +98,12 @@ onBeforeUnmount(() => window.removeEventListener('pointerdown', onPointerDown, t
         </div>
         <div class="actions">
           <template v-if="missing(r)">
-            <button v-if="!readonly" type="button" class="btn" @click="emit('relink', r.link.id)">
+            <button
+              v-if="!readonly && r.kind !== 'knowledge'"
+              type="button"
+              class="btn"
+              @click="emit('relink', r.link.id)"
+            >
               {{ t('eventLink.popover.relink') }}
             </button>
             <button v-if="!readonly" type="button" class="btn" @click="emit('unlink', r.link.id)">
@@ -76,7 +111,10 @@ onBeforeUnmount(() => window.removeEventListener('pointerdown', onPointerDown, t
             </button>
           </template>
           <template v-else>
-            <button v-if="r.entry" type="button" class="btn" @click="emit('open', r)">
+            <button v-if="r.knowledge" type="button" class="btn" @click="emit('openKnowledge', r)">
+              {{ t('eventLink.popover.open') }}
+            </button>
+            <button v-else-if="r.entry" type="button" class="btn" @click="emit('open', r)">
               {{ t('eventLink.popover.open') }}
             </button>
             <button v-else type="button" class="btn" @click="emit('jump', r)">
@@ -137,6 +175,10 @@ onBeforeUnmount(() => window.removeEventListener('pointerdown', onPointerDown, t
 .tag.codex {
   background: var(--section-codex);
   color: var(--section-codex-on);
+}
+.tag.knowledge {
+  background: var(--section-write);
+  color: var(--section-write-on);
 }
 .tag.problem {
   background: var(--tag-problem);

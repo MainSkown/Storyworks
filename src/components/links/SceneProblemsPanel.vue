@@ -4,7 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { Notify } from 'quasar'
 import { sceneProblems, useSnippets } from '../../composables/contextLinks'
 import { relinkLink, relinkLinkToEntry, unlinkLink } from '../../composables/eventLinks'
-import { CODEX_KIND } from '../../project/links'
+import { CODEX_KIND, KNOWLEDGE_KIND } from '../../project/links'
+import type { LinkProblem } from '../../project/linkProblems'
 import { useProjectStore } from '../../project/store'
 import NodePickerDialog from '../NodePickerDialog.vue'
 import LinkCard from './LinkCard.vue'
@@ -12,6 +13,12 @@ import LinkCard from './LinkCard.vue'
 const { t } = useI18n()
 const store = useProjectStore()
 const canEdit = computed(() => !store.readOnly)
+const MISSING_TEXT: Record<LinkProblem['reason'], string> = {
+  'passage-missing': 'linksPanel.passageGone',
+  'node-missing': 'eventLink.popover.missing',
+  'entry-missing': 'eventLink.popover.missingEntry',
+  'knowledge-missing': 'knowledgeUse.missing',
+}
 const pickerOpen = ref(false)
 const relinking = ref('')
 const relinkingEntry = ref(false)
@@ -53,14 +60,10 @@ async function remove(linkId: string): Promise<void> {
       :key="p.link.id"
       problem
       :tag="t('eventLink.popover.problem')"
-      :title="
-        p.passageMissing
-          ? t('linksPanel.passageGone')
-          : t(p.link.kind === CODEX_KIND ? 'eventLink.popover.missingEntry' : 'eventLink.popover.missing')
-      "
+      :title="p.passageMissing ? t('linksPanel.passageGone') : t(MISSING_TEXT[p.reason])"
       :snippet="snippets[p.link.id]"
     >
-      <button v-if="canEdit && p.canRelink" type="button" class="btn" @click="startRelink(p.link.id, p.link.kind === CODEX_KIND)">
+      <button v-if="canEdit && p.canRelink && p.link.kind !== KNOWLEDGE_KIND" type="button" class="btn" @click="startRelink(p.link.id, p.link.kind === CODEX_KIND)">
         {{ t('eventLink.popover.relink') }}
       </button>
       <button v-if="canEdit" type="button" class="btn" @click="remove(p.link.id)">

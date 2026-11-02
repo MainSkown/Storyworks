@@ -234,7 +234,7 @@ async function flow(theme) {
   if (await rn.count()) { await rn.fill('Side story'); await rn.press('Enter'); await page.waitForTimeout(300) }
   await addEvent(page, 'Far-off storm') // F: other timeline, undated
   let m = await readJson(page, 'project.json')
-  check(m.version === 8, `manifest version 8 (${m.version})`)
+  check(m.version >= 8, `manifest version 8 (${m.version})`)
   check((m.stateKinds ?? []).length === 4, `starter state kinds seeded once (${(m.stateKinds ?? []).map((k) => k.title).join(', ')})`)
   check(['Location', 'Owner', 'Status', 'Title'].every((n) => (m.stateKinds ?? []).some((k) => k.title === n)), 'starter kinds named Location, Owner, Status, Title')
   let f = await files(page)
@@ -527,7 +527,7 @@ async function flow(theme) {
   const swordStored = ents.find((e) => e.name === 'Sword').states
   console.log('  sword stored:', JSON.stringify(swordStored.map((x) => ({ k: x.kindId.slice(0, 4), from: x.from, until: x.until }))).slice(0, 400))
   m = await readJson(page, 'project.json')
-  check(m.version === 8 && m.stateKinds.length === 4, `files: manifest v8 with ${m.stateKinds.length} stateKinds`)
+  check(m.version >= 8 && m.stateKinds.length === 4, `files: manifest v8 with ${m.stateKinds.length} stateKinds`)
   await page.reload()
   await page.getByRole('heading', { level: 1 }).first().waitFor()
   await page.getByRole('button', { name: 'Open project' }).click()
@@ -653,7 +653,7 @@ async function migration(theme) {
     return page.evaluate((k) => localStorage.getItem(k), `${PFX}${OLD}/${rel}`)
   }
   const mm = JSON.parse(await g('project.json'))
-  check(mm.version === 8 && mm.stateKinds.length === 4, `v7 book: manifest migrated to 8 with ${mm.stateKinds?.length} starter kinds`)
+  check(mm.version >= 8 && mm.stateKinds.length === 4, `v7 book: manifest migrated to 8 with ${mm.stateKinds?.length} starter kinds`)
   const swordPath = mm.codexEntries.find((e) => e.title === 'Sword').path
   const sw = JSON.parse(await g(swordPath))
   check(sw.version === 2 && sw.states.length === 1, `v7 book: entry file rewritten as version 2 with the new state (${sw.version}/${sw.states.length})`)

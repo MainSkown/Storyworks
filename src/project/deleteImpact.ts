@@ -1,6 +1,8 @@
 import type { LinkIndex } from './links'
+import { knowledgeEventCountAtNode } from './knowledge'
 import { relationshipsOnNode } from './relations'
 import type { Group } from './schemas/group'
+import type { KnowledgeItem } from './schemas/knowledge'
 import type { Relationship } from './schemas/relationship'
 import { findNode } from './tree'
 import type { ManuscriptNode } from './schemas/manifest'
@@ -45,6 +47,13 @@ export const relationImpactOfNode = (
   nodeId: string,
   relationships: readonly Relationship[],
 ): Relationship[] => relationshipsOnNode(relationships, timelineId, nodeId)
+
+/** Learn and forget events placed on this node (kept, shown as a missing event). */
+export const knowledgeImpactOfNode = (
+  timelineId: string,
+  nodeId: string,
+  items: readonly KnowledgeItem[],
+): number => knowledgeEventCountAtNode(items, timelineId, nodeId)
 
 /** Scene ids in document order under a part, chapter or scene (itself included). */
 export function sceneIdsUnder(tree: ManuscriptNode[], id: string): string[] {

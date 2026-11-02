@@ -1,4 +1,4 @@
-import { CODEX_KIND, type Link } from './links'
+import { CODEX_KIND, KNOWLEDGE_KIND, type Link } from './links'
 
 /** Plain text of one block (by id) of ProseMirror-style content, shortened to `max` chars; null when the block is gone. */
 export function blockSnippet(content: unknown, blockId: string, max = 110): string | null {
@@ -40,6 +40,8 @@ export interface LinkProblem {
   passageMissing: boolean
   /** Only a missing event can be relinked; a missing passage can only be removed. */
   canRelink: boolean
+  /** What to tell the writer (picks the text): the passage wins over the target. */
+  reason: 'passage-missing' | 'node-missing' | 'entry-missing' | 'knowledge-missing'
 }
 
 export function buildProblems(
@@ -51,15 +53,30 @@ export function buildProblems(
     const targetMissing = check.targetMissing(link)
     const passageMissing = check.passageMissing(link)
     if (targetMissing || passageMissing)
-      out.push({ link, targetMissing, passageMissing, canRelink: targetMissing && !passageMissing })
+      out.push({
+        link,
+        targetMissing,
+        passageMissing,
+        canRelink: targetMissing && !passageMissing,
+        reason: passageMissing
+          ? 'passage-missing'
+          : link.kind === KNOWLEDGE_KIND
+            ? 'knowledge-missing'
+            : link.kind === CODEX_KIND
+              ? 'entry-missing'
+              : 'node-missing',
+      })
   }
   return out
 }
 
-/** Target side gone: an event link needs its node, a codex link only a live entry. */
+/** Target side gone: an event link needs its node, a codex or knowledge link only live targets. */
 export function linkTargetMissing(
   link: Link,
   deps: { isBroken: (l: Link) => boolean; nodeExists: (l: Link) => boolean },
 ): boolean {
-  return deps.isBroken(link) || (link.kind !== CODEX_KIND && !deps.nodeExists(link))
+  return (
+    deps.isBroken(link) ||
+    (link.kind !== CODEX_KIND && link.kind !== KNOWLEDGE_KIND && !deps.nodeExists(link))
+  )
 }

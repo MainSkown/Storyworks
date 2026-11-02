@@ -2,7 +2,7 @@ import { z } from 'zod'
 import type { Env } from '../types'
 import { defaultNames } from '../defaultNames'
 
-export const MANIFEST_VERSION = 8
+export const MANIFEST_VERSION = 9
 export const BOOK_KIND = 'book'
 
 /** Index entry for one item file (or one singleton file). */

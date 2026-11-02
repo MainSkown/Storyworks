@@ -18,8 +18,7 @@
     "show": "Pokaż panel",
     "collapse": "Zwiń",
     "expand": "Rozwiń",
-    "empty": "Nie ma jeszcze nic do pokazania w tej sekcji.",
-    "later": "Pojawi się w późniejszym etapie."
+    "empty": "Nie ma jeszcze nic do pokazania w tej sekcji."
   },
   "contextSections": {
     "write": {
@@ -31,7 +30,6 @@
     "timelines": {
       "selectedEvent": "Wybrane wydarzenie",
       "writtenIn": "Zapisane w",
-      "whoLearnsWhat": "Kto tu czego się dowiaduje",
       "linked": "Powiązane"
     },
     "rules": {
@@ -698,6 +696,7 @@
     "groupNames": "Grupy: {names}",
     "andMore": "i {n} więcej",
     "nodeRelationships": "Brak relacji | {n} relacja jest powiązana z tym wydarzeniem i pokaże uszkodzone powiązanie. | {n} relacje są powiązane z tym wydarzeniem i pokażą uszkodzone powiązanie. | {n} relacji jest powiązanych z tym wydarzeniem i pokaże uszkodzone powiązanie.",
+    "nodeKnowledge": "Brak zdarzeń wiedzy | {n} zdarzenie wiedzy jest przypisane do tego wydarzenia i pokaże brakujące wydarzenie. | {n} zdarzenia wiedzy są przypisane do tego wydarzenia i pokażą brakujące wydarzenie. | {n} zdarzeń wiedzy jest przypisanych do tego wydarzenia i pokaże brakujące wydarzenie.",
     "links": "Brak powiązanych fragmentów | {n} powiązany fragment pokaże się jako uszkodzony do czasu przywrócenia. | {n} powiązane fragmenty pokażą się jako uszkodzone do czasu przywrócenia. | {n} powiązanych fragmentów pokaże się jako uszkodzone do czasu przywrócenia."
   },
   "timelineView": {
@@ -1017,6 +1016,62 @@
     "failed": "Nie udało się zmienić powiązań.",
     "alreadyLinked": "Brak nowych powiązań | Ten akapit jest już z tym powiązany | Te {n} akapity są już z tym powiązane | Tych {n} akapitów jest już z tym powiązanych"
   },
+  "knowledgeMatrix": {
+    "open": "Macierz wiedzy",
+    "title": "Macierz wiedzy",
+    "back": "Wróć do Kodeksu",
+    "gridLabel": "Kto co wie",
+    "asOf": "Stan na",
+    "cornerHeader": "Hasło / wiedza",
+    "filterType": "Pokaż hasła typu",
+    "keyboardHint": "Strzałki przesuwają między komórkami. Enter otwiera wiedzę, Shift+Enter otwiera hasło.",
+    "state": {
+      "known": "Wie",
+      "notYet": "Jeszcze nie",
+      "forgotten": "Zapomniane",
+      "unknown": "Kolejność nieznana",
+      "none": "Brak wpisu"
+    },
+    "learns": "Dowiaduje się: {at}",
+    "forgets": "Zapomina: {at}",
+    "untitledItem": "Wiedza bez tytułu",
+    "openEntry": "Otwórz: {name}",
+    "emptyItems": "Nie ma jeszcze żadnej wiedzy. Dodaj ją w Kodeksie.",
+    "emptyLearnings": "Nikt jeszcze niczego się nie dowiedział. Dodaj, kto się dowiaduje, na stronie wiedzy.",
+    "noMatch": "Żadne hasło tego typu niczego się nie dowiaduje.",
+    "hidden": "Brak ukrytych wpisów | Ukryto 1 wpis o usuniętym haśle | Ukryto {n} wpisy o usuniętych hasłach | Ukryto {n} wpisów o usuniętych hasłach",
+    "nodeBadge": "Brak zdarzeń wiedzy | 1 zdarzenie wiedzy w tym wydarzeniu | {n} zdarzenia wiedzy w tym wydarzeniu | {n} zdarzeń wiedzy w tym wydarzeniu"
+  },
+  "knowledgeUse": {
+    "tab": "Wiedza",
+    "pickItem": "Wybierz wiedzę",
+    "pickEntry": "Kto wykorzystuje tu „{item}”?",
+    "searchItems": "Szukaj wiedzy",
+    "searchEntries": "Szukaj haseł kodeksu",
+    "emptyItems": "Nie ma jeszcze żadnej wiedzy: utwórz ją w Kodeksie",
+    "emptyEntries": "Nie ma jeszcze haseł kodeksu",
+    "noMatchItems": "Żadna wiedza nie pasuje",
+    "noMatchEntries": "Żadne hasło kodeksu nie pasuje",
+    "back": "Wróć do wiedzy",
+    "learners": "Nikt jeszcze jej nie zna | Zna ją 1 hasło | Znają ją {n} hasła | Zna ją {n} haseł",
+    "learnsAt": "dowiaduje się: {at}",
+    "pair": "{item} — {entry}",
+    "tag": "Wiedza",
+    "notLearned": "Jeszcze tego nie wie",
+    "missingItem": "Brakująca wiedza",
+    "missingEntry": "Brakująca postać",
+    "missingBoth": "Brakująca wiedza i postać",
+    "missing": "Brakująca wiedza lub postać",
+    "marker": {
+      "linked": "Powiązania: {parts}",
+      "events": "brak wydarzeń | 1 wydarzenie | {n} wydarzenia | {n} wydarzeń",
+      "entries": "brak haseł kodeksu | 1 hasło kodeksu | {n} hasła kodeksu | {n} haseł kodeksu",
+      "uses": "brak użyć wiedzy | 1 użycie wiedzy | {n} użycia wiedzy | {n} użyć wiedzy"
+    },
+    "inScene": {
+      "heading": "Użyta wiedza"
+    }
+  },
   "linksPanel": {
     "paragraph": {
       "none": "Kliknij w akapit, aby zobaczyć jego powiązania.",
@@ -1067,6 +1122,140 @@
       "tag": "Wydarzenie",
       "untitled": "Wydarzenie bez tytułu",
       "jump": "Przejdź"
+    }
+  },
+  "knowledge": {
+    "open": "Wiedza",
+    "title": "Wiedza",
+    "back": "Wróć do Kodeksu",
+    "tab": "Wiedza",
+    "listLabel": "Elementy wiedzy",
+    "newItem": "Nowy element",
+    "newItemTitle": "Nowy element wiedzy",
+    "search": "Szukaj w wiedzy",
+    "filterTag": "Filtruj po tagu",
+    "clearFilter": "Wyczyść filtr",
+    "noItems": "Nie ma jeszcze elementów wiedzy.",
+    "noItemsHint": "Utwórz element dla czegoś, czego postać może się dowiedzieć: sekretu, plotki, umiejętności.",
+    "noMatch": "Nic nie pasuje.",
+    "selectOne": "Wybierz element.",
+    "readOnly": "Ta książka jest tylko do odczytu.",
+    "invalidHeading": "Pliki, których nie udało się wczytać",
+    "untitled": "Element bez tytułu",
+    "untitledScene": "Scena bez tytułu",
+    "missingEntry": "Brakujący wpis",
+    "learnerCount": "Nikt tego nie wie | Wie to {n} postać | Wiedzą to {n} postacie | Wie to {n} postaci",
+    "none": "Brak",
+    "tagsHint": "Wpisz tag i naciśnij Enter",
+    "failed": "Nie udało się zmienić tego elementu wiedzy.",
+    "deleteFailed": "Nie udało się usunąć elementu.",
+    "passageGone": "Ten fragment już nie istnieje.",
+    "passageMissing": "Brakujący fragment",
+    "jumpToEvent": "Przejdź do wydarzenia: {event}",
+    "jumpToPassage": "Przejdź do fragmentu w scenie {scene}",
+    "openEntry": "Otwórz wpis: {name}",
+    "openItem": "Otwórz element wiedzy: {title}",
+    "fields": { "title": "Tytuł", "tags": "Tagi", "description": "Opis" },
+    "about": {
+      "heading": "Dotyczy",
+      "hint": "Zasada lub wpis w kodeksie, której dotyczy ta wiedza, jeśli jakiejś.",
+      "label": "Zasada lub wpis",
+      "rule": "Zasada",
+      "entry": "Wpis",
+      "missing": "Brakująca zasada lub wpis",
+      "missingHint": "Zasada lub wpis, których dotyczył ten element, zniknęły albo są w koszu. Przywróć je lub wybierz inne.",
+      "none": "Nic nie pasuje",
+      "open": "Otwórz"
+    },
+    "who": {
+      "heading": "Kto to wie",
+      "none": "Nikt jeszcze tego nie poznaje.",
+      "entry": "Kto",
+      "learnsAt": "Dowiaduje się",
+      "forgottenAt": "Zapomina",
+      "note": "Notatka",
+      "revealedIn": "Opowiedziane w",
+      "actions": "Działania",
+      "edit": "Edytuj, czego dowiaduje się: {name}",
+      "remove": "Usuń, czego dowiaduje się: {name}",
+      "add": "Kto się tego dowiaduje"
+    },
+    "asOf": {
+      "heading": "Stan na moment",
+      "label": "Stan na ten moment",
+      "hint": "Wybierz wydarzenie lub datę, aby zobaczyć stan w tym momencie. Wyczyść, aby ukryć widok."
+    },
+    "state": {
+      "known": "Wie",
+      "not-yet": "Jeszcze nie",
+      "forgotten": "Zapomniane",
+      "unknown": "Kolejność nieznana"
+    },
+    "delete": {
+      "button": "Usuń element",
+      "confirm": "Usunąć „{name}” i wszystko, co zapisano o tym, kto się tego dowiaduje?",
+      "impact": "Fragmenty rękopisu, które używają tego elementu, pokażą się jako uszkodzone."
+    },
+    "deleteImpact": "Brak wiedzy | {n} zdarzenie wiedzy pokaże się jako uszkodzone do czasu przywrócenia. | {n} zdarzenia wiedzy pokażą się jako uszkodzone do czasu przywrócenia. | {n} zdarzeń wiedzy pokaże się jako uszkodzone do czasu przywrócenia.",
+    "dialog": {
+      "addTitle": "Dowiaduje się…",
+      "editTitle": "Edytuj zdobytą wiedzę",
+      "item": "Element wiedzy",
+      "learner": "Kto się dowiaduje",
+      "at": "Dowiaduje się",
+      "atRequired": "Wybierz, kiedy się dowiaduje.",
+      "note": "Notatka",
+      "forgottenAt": "Zapomina lub traci",
+      "forgottenHint": "Opcjonalnie. Zostaw puste, jeśli nigdy nie zapomina.",
+      "revealedIn": "Czytelnik dowiaduje się w",
+      "revealedScene": "Scena",
+      "revealedBlock": "Fragment",
+      "revealedMissing": "Brakujący fragment",
+      "noText": "(bez tekstu)",
+      "noBlocks": "Brak fragmentów w tej scenie",
+      "createItem": "Utwórz element „{title}”",
+      "typeToCreate": "Wpisz tytuł, aby utworzyć nowy element",
+      "noEntries": "Brak pasujących wpisów",
+      "cancel": "Anuluj",
+      "save": "Zapisz",
+      "create": "Dodaj",
+      "errors": {
+        "unknown-entry": "Ten wpis zniknął lub jest w koszu. Wybierz inny.",
+        "forgotten-before-learned": "Nie można zapomnieć przed poznaniem ani w tym samym momencie.",
+        "read-only": "Ta książka jest tylko do odczytu.",
+        "createItem": "Nie udało się utworzyć elementu.",
+        "other": "Nie udało się tego zapisać."
+      }
+    },
+    "entry": {
+      "add": "Dowiaduje się…",
+      "heading": "Co wie ten wpis",
+      "none": "Nic jeszcze nie zapisano.",
+      "orderUnknown": "Kolejność nieznana",
+      "learnedAt": "Dowiaduje się",
+      "forgottenAt": "Zapomina",
+      "revealedIn": "Opowiedziane w",
+      "edit": "Edytuj: {title}",
+      "remove": "Usuń: {title}",
+      "asOfHint": "Wybierz wydarzenie lub datę, aby zobaczyć, co jest wiadome w tym momencie.",
+      "group": {
+        "known": "Wie",
+        "forgotten": "Zapomniane",
+        "unknown": "Kolejność nieznana",
+        "not-yet": "Jeszcze nie wie"
+      }
+    },
+    "chronicle": { "learns": "Dowiaduje się", "forgets": "Zapomina" },
+    "node": {
+      "title": "Kto czego się tu dowiaduje",
+      "none": "Nikt niczego się tu nie dowiaduje ani nie zapomina.",
+      "add": "+ Postać się dowiaduje…",
+      "learns": "dowiaduje się",
+      "forgets": "zapomina",
+      "row": {
+        "learns": "{who} dowiaduje się: {what}",
+        "forgets": "{who} zapomina: {what}"
+      }
     }
   },
   "chronicle": {

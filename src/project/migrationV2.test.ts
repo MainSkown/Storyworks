@@ -3,7 +3,7 @@ import { createMemoryProjectIO, type MemoryProjectIO } from './io/memory'
 import { migrations } from './migrations'
 import { createProject, openProject } from './open'
 import { manifestSchema, MANIFEST_VERSION } from './schemas/manifest'
-import { sceneSchema } from './schemas/scene'
+import { sceneSchema, SCENE_VERSION } from './schemas/scene'
 import { parseFile } from './serialize'
 import type { Env } from './types'
 
@@ -56,7 +56,7 @@ describe('migration v1 to v2', () => {
     const io = await v1Project()
     await openProject(io, makeEnv())
     const scene = json(io, sceneOf(io))
-    expect(scene.version).toBe(2)
+    expect(scene.version).toBe(SCENE_VERSION)
     expect(scene.todos).toEqual([])
   })
 

@@ -45,9 +45,9 @@ describe('scene schema', () => {
   })
 })
 
-describe('scene schema v2', () => {
+describe('scene schema (todos, comments)', () => {
   const v2 = (extra: Record<string, unknown> = {}) => ({
-    version: 2,
+    version: SCENE_VERSION,
     id: 's1',
     title: 'Scene',
     content: doc(block('a')),
@@ -55,8 +55,8 @@ describe('scene schema v2', () => {
   })
   const comment = { id: 'c1', text: 'check this', createdAt: '2026-01-01T00:00:00.000Z', resolved: false }
 
-  it('is version 2', () => {
-    expect(SCENE_VERSION).toBe(2)
+  it('is version 3', () => {
+    expect(SCENE_VERSION).toBe(3)
   })
 
   it('defaults todos to an empty list', () => {

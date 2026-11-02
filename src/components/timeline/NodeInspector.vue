@@ -14,7 +14,9 @@ import { useRelationsStore } from '../../relations/store'
 import { addRuleId, resolveNodeRules } from '../../rules/nodeRules'
 import { openRule } from '../../rules/openRule'
 import { useRulesStore } from '../../rules/store'
-import { relationImpactOfNode } from '../../project/deleteImpact'
+import { knowledgeImpactOfNode, relationImpactOfNode } from '../../project/deleteImpact'
+import { useKnowledgeStore } from '../../knowledge/store'
+import LearningDialog from '../knowledge/LearningDialog.vue'
 import EditorToolbar from '../EditorToolbar.vue'
 import EntryPickerDialog from './EntryPickerDialog.vue'
 import RulePickerDialog from './RulePickerDialog.vue'
@@ -27,6 +29,28 @@ const uid = useId()
 const rules = useRulesStore()
 const codex = useCodexStore()
 const relations = useRelationsStore()
+const knowledge = useKnowledgeStore()
+
+// Who learns or forgets what at this event; a missing learner is flagged and not openable.
+const learnDialogOpen = ref(false)
+const nodeKnowledge = computed(() => {
+  const x = tl.current
+  const n = node.value
+  if (!x || !n) return []
+  return knowledge.learningsAtNode(x.id, n.id).map((r) => {
+    const e = codex.entries.find((c) => c.id === r.learning.entryId)
+    return {
+      key: `${r.learning.id}:${r.kind}`,
+      entryId: e ? e.id : null,
+      who: e ? e.name || t('codex.untitled') : t('knowledge.missingEntry'),
+      what: r.item.title || t('knowledge.untitled'),
+      kind: r.kind,
+    }
+  })
+})
+const learnPosition = computed(() =>
+  tl.current && node.value ? { node: { timelineId: tl.current.id, nodeId: node.value.id } } : null,
+)
 
 // Relationships linked to this event (back-links), with names resolved and missing ends flagged.
 const linkedRelations = computed(() => {
@@ -64,6 +88,11 @@ const linkCount = computed(() =>
 const relationCount = computed(() =>
   tl.current && node.value
     ? relationImpactOfNode(tl.current.id, node.value.id, relations.relationships).length
+    : 0,
+)
+const knowledgeCount = computed(() =>
+  tl.current && node.value
+    ? knowledgeImpactOfNode(tl.current.id, node.value.id, knowledge.items)
     : 0,
 )
 const message = ref('')
@@ -218,7 +247,13 @@ function removeEntry(id: string): void {
 const confirmOpen = ref(false)
 async function remove(): Promise<void> {
   if (!node.value) return
-  if (edgeCount.value > 0 || linkCount.value > 0 || relationCount.value > 0) confirmOpen.value = true
+  if (
+    edgeCount.value > 0 ||
+    linkCount.value > 0 ||
+    relationCount.value > 0 ||
+    knowledgeCount.value > 0
+  )
+    confirmOpen.value = true
   else report(await tl.deleteNode(node.value.id))
 }
 async function confirmRemove(): Promise<void> {
@@ -491,6 +526,31 @@ async function confirmRemove(): Promise<void> {
     </ul>
     <p v-else class="note">{{ t('nodeRelations.none') }}</p>
 
+    <span class="label">{{ t('knowledge.node.title') }}</span>
+    <ul v-if="nodeKnowledge.length" class="rels">
+      <li v-for="k in nodeKnowledge" :key="k.key" data-testid="node-knowledge-row">
+        <button
+          type="button"
+          class="rel-row"
+          :disabled="!k.entryId"
+          :aria-label="t(`knowledge.node.row.${k.kind}`, { who: k.who, what: k.what })"
+          @click="k.entryId && openEntry(k.entryId)"
+        >
+          <span :class="{ gone: !k.entryId }">
+            <QIcon v-if="!k.entryId" name="warning" size="1rem" aria-hidden="true" />
+            {{ k.who }}
+          </span>
+          <span class="rel-type">{{ t(`knowledge.node.${k.kind}`) }}</span>
+          <span>{{ k.what }}</span>
+        </button>
+      </li>
+    </ul>
+    <p v-else class="note">{{ t('knowledge.node.none') }}</p>
+    <button type="button" class="btn" :disabled="locked" @click="learnDialogOpen = true">
+      {{ t('knowledge.node.add') }}
+    </button>
+    <LearningDialog v-model="learnDialogOpen" :position="learnPosition" />
+
     <p v-if="message" class="error" role="alert">{{ message }}</p>
 
     <button type="button" class="btn danger" :disabled="locked" @click="remove">
@@ -509,6 +569,9 @@ async function confirmRemove(): Promise<void> {
           </p>
           <p v-if="relationCount > 0">
             {{ t('deleteImpact.nodeRelationships', { n: relationCount }, relationCount) }}
+          </p>
+          <p v-if="knowledgeCount > 0">
+            {{ t('deleteImpact.nodeKnowledge', { n: knowledgeCount }, knowledgeCount) }}
           </p>
         </QCardSection>
         <QCardActions align="right">

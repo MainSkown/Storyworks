@@ -1,11 +1,11 @@
 <script setup lang="ts">
-defineProps<{ tag?: string; tagKind?: 'rule' | 'codex'; problem?: boolean; title: string; meta?: string; snippet?: string }>()
+defineProps<{ tag?: string; tagKind?: 'rule' | 'codex' | 'knowledge'; problem?: boolean; title: string; meta?: string; snippet?: string }>()
 </script>
 
 <template>
   <li class="card" :class="{ problem }">
     <div class="head">
-      <span v-if="tag" class="tag" :class="{ problem, rule: tagKind === 'rule', codex: tagKind === 'codex' }">{{ tag }}</span>
+      <span v-if="tag" class="tag" :class="{ problem, rule: tagKind === 'rule', codex: tagKind === 'codex', knowledge: tagKind === 'knowledge' }">{{ tag }}</span>
       <span class="name">{{ title }}</span>
     </div>
     <div v-if="meta" class="meta">{{ meta }}</div>
@@ -42,6 +42,10 @@ defineProps<{ tag?: string; tagKind?: 'rule' | 'codex'; problem?: boolean; title
 .tag.codex {
   background: var(--tag-character);
   color: var(--tag-character-on);
+}
+.tag.knowledge {
+  background: var(--tag-scene);
+  color: var(--tag-scene-on);
 }
 .tag.problem {
   background: var(--tag-problem);

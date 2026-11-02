@@ -7,15 +7,18 @@ import EntryAppearsIn from '../components/codex/EntryAppearsIn.vue'
 import EntryMentions from '../components/codex/EntryMentions.vue'
 import EntryChronicle from '../components/codex/EntryChronicle.vue'
 import EntryRelations from '../components/relations/EntryRelations.vue'
+import EntryKnowledge from '../components/knowledge/EntryKnowledge.vue'
 import EntryStates from '../components/states/EntryStates.vue'
 import MiniRichText from '../components/MiniRichText.vue'
 import { jumpToNode } from '../composables/useJump'
 import { useEntryMentions } from '../codex/useEntryMentions'
+import IconExpandBtn from '../components/IconExpandBtn.vue'
 import { useCodexStore } from '../codex/store'
 import { imageExt } from '../editor/projectImage'
 import { pickImage } from '../project/pickImage'
 import type { EntryUsage } from '../project/codex'
 import { brokenByDeletingEntry, relationImpactOfEntry } from '../project/deleteImpact'
+import { useKnowledgeStore } from '../knowledge/store'
 import { useRelationsStore } from '../relations/store'
 import { useProjectStore } from '../project/store'
 import { openRule } from '../rules/openRule'
@@ -25,6 +28,7 @@ const { t } = useI18n()
 const store = useCodexStore()
 const rulesStore = useRulesStore()
 const relationsStore = useRelationsStore()
+const knowledgeStore = useKnowledgeStore()
 const project = useProjectStore()
 const uid = useId()
 
@@ -42,7 +46,9 @@ const canCreate = computed(() => !readOnly.value && store.types.length > 0)
 const typeOf = (id: string) => store.types.find((x) => x.id === id) ?? null
 
 // ---- tabs and mentions ----
-const tab = ref<'details' | 'links' | 'relations' | 'states' | 'chronicle' | 'mentions'>('details')
+const tab = ref<
+  'details' | 'links' | 'relations' | 'states' | 'knowledge' | 'chronicle' | 'mentions'
+>('details')
 const scan = useEntryMentions(() => entry.value)
 const mentions = computed(() => scan.mentions.value.filter((m) => m.entryId === entry.value?.id))
 const mentionCount = computed(() => mentions.value.length)
@@ -248,6 +254,9 @@ const deletePassages = computed(() => {
   const index = project.linkIndex()
   return entry.value && index ? brokenByDeletingEntry(index, entry.value.id) : 0
 })
+const deleteLearnings = computed(() =>
+  entry.value ? knowledgeStore.learningsOfEntry(entry.value.id).length : 0,
+)
 const NAMES_SHOWN = 5
 const deleteRelations = computed(() => {
   const id = entry.value?.id
@@ -292,28 +301,25 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
   <section class="page">
     <aside class="side" :aria-label="t('codex.listLabel')">
       <div class="bar">
-        <QBtn
-          unelevated
-          no-caps
+        <IconExpandBtn
           icon="add"
           class="btn-section"
           :label="t('codex.newEntry')"
           :disable="!canCreate"
           @click="create"
         />
-        <QBtn
-          flat
-          no-caps
-          icon="palette"
-          :label="t('codex.manageTypes')"
-          @click="typesOpen = true"
-        />
-        <QBtn
-          flat
-          no-caps
+        <IconExpandBtn icon="palette" :label="t('codex.manageTypes')" @click="typesOpen = true" />
+        <IconExpandBtn
           icon="hub"
           :label="t('relationGraph.open')"
           :to="{ name: 'relationships' }"
+        />
+        <IconExpandBtn icon="psychology" :label="t('knowledge.open')" :to="{ name: 'knowledge' }" />
+        <IconExpandBtn
+          end
+          icon="grid_on"
+          :label="t('knowledgeMatrix.open')"
+          :to="{ name: 'knowledge-matrix' }"
         />
       </div>
 
@@ -423,6 +429,8 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
           v-model="tab"
           dense
           no-caps
+          outside-arrows
+          mobile-arrows
           align="left"
           active-color="accent"
           indicator-color="accent"
@@ -433,6 +441,7 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
           <QTab name="links" :label="t('codex.tabLinks')" />
           <QTab name="relations" :label="t('relations.tab')" />
           <QTab name="states" :label="t('states.tab')" />
+          <QTab name="knowledge" :label="t('knowledge.tab')" />
           <QTab name="chronicle" :label="t('chronicle.tab')" />
           <QTab name="mentions">
             <span>{{ t('codex.tabMentions') }}</span>
@@ -666,6 +675,15 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
         </div>
 
         <div
+          v-else-if="tab === 'knowledge'"
+          class="panel"
+          role="tabpanel"
+          :aria-label="t('knowledge.tab')"
+        >
+          <EntryKnowledge :entry-id="entry.id" />
+        </div>
+
+        <div
           v-else-if="tab === 'chronicle'"
           class="panel"
           role="tabpanel"
@@ -713,6 +731,9 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
               {{ t('deleteImpact.relationNames', { names: deleteRelations.relationNames }) }}
             </p>
           </template>
+          <p v-if="deleteLearnings > 0" class="warn">
+            {{ t('knowledge.deleteImpact', { n: deleteLearnings }, deleteLearnings) }}
+          </p>
           <template v-if="deleteRelations.groups > 0">
             <p class="warn">
               {{ t('deleteImpact.groups', { n: deleteRelations.groups }, deleteRelations.groups) }}
@@ -749,15 +770,15 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
-  max-width: 44rem;
   padding: 1.25rem 1.5rem;
 }
 .bar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.25rem;
 }
-.btn-section {
+.bar :deep(.btn-section),
+.bar :deep(.btn-section + .expand-label) {
   background: var(--section-codex);
   color: var(--section-codex-on);
 }

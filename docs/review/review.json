@@ -4,6 +4,494 @@
   "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
   "milestones": [
     {
+      "id": "m6c",
+      "title": "M6c · Knowledge",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Knowledge item page",
+          "intro": "Codex, then Knowledge. Each item has a title, tags, a description, an optional rule or entry it is about, and a Who knows it table. Learnings are added with Who learns it and edited or removed per row.",
+          "figures": [
+            {
+              "img": "shots/m6c/01-item-page-light.png",
+              "alt": "Item page, light",
+              "bold": "Who knows it.",
+              "muted": "Aldric learns at Treaty signed and forgets at Return of the heir; Mara learns at Harvest ends. About points at the Sword entry."
+            },
+            {
+              "img": "shots/m6c/01-item-page-dark.png",
+              "alt": "Item page, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/02a-item-asof-before-light.png",
+              "alt": "Item page as of Coronation, light",
+              "bold": "As of Coronation.",
+              "muted": "Neither character knows it yet."
+            },
+            {
+              "img": "shots/m6c/02a-item-asof-before-dark.png",
+              "alt": "Item page as of Coronation, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/02-item-asof-light.png",
+              "alt": "Item page as of Return of the heir, light",
+              "bold": "As of Return of the heir.",
+              "muted": "Aldric: Forgotten (forgotten at that event counts). Mara: Knows. An event on another timeline shows Order unknown for both, never a guess."
+            },
+            {
+              "img": "shots/m6c/02-item-asof-dark.png",
+              "alt": "Item page as of Return of the heir, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Learning dialog",
+          "intro": "The same dialog opens from the item page, the character page and the timeline node; the item or character is fixed when you come from its own page.",
+          "figures": [
+            {
+              "img": "shots/m6c/03a-learning-dialog-light.png",
+              "alt": "Learning dialog, light",
+              "bold": "Add.",
+              "muted": "Who learns it, where, an optional note, an optional forgotten-at and the passage that tells the reader."
+            },
+            {
+              "img": "shots/m6c/03a-learning-dialog-dark.png",
+              "alt": "Learning dialog, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/03-forgotten-before-learned-light.png",
+              "alt": "Forgotten before learned refused, light",
+              "bold": "Refused.",
+              "muted": "Forgotten at Coronation, before Harvest ends: the dialog stays open with a message. A forgotten-at on another timeline is accepted (order unknown)."
+            },
+            {
+              "img": "shots/m6c/03-forgotten-before-learned-dark.png",
+              "alt": "Forgotten before learned refused, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Character page",
+          "intro": "Knowledge tab on every entry: what it knows in chronological order, with Learns… to add, and an As of selector.",
+          "figures": [
+            {
+              "img": "shots/m6c/06-entry-knowledge-tab-light.png",
+              "alt": "Aldric Knowledge tab, light",
+              "bold": "What Aldric knows.",
+              "muted": "Three learnings in order; positions jump to the event."
+            },
+            {
+              "img": "shots/m6c/06-entry-knowledge-tab-dark.png",
+              "alt": "Aldric Knowledge tab, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/05a-entry-asof-before-light.png",
+              "alt": "As of Coronation, light",
+              "bold": "As of Coronation.",
+              "muted": "The fraud is Not known yet; the curse is Known."
+            },
+            {
+              "img": "shots/m6c/05a-entry-asof-before-dark.png",
+              "alt": "As of Coronation, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/05-entry-asof-light.png",
+              "alt": "As of Treaty signed, light",
+              "bold": "As of Treaty signed.",
+              "muted": "The fraud is Known from that event on; the curse is forgotten at the same event."
+            },
+            {
+              "img": "shots/m6c/05-entry-asof-dark.png",
+              "alt": "As of Treaty signed, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/05b-entry-asof-forgotten-light.png",
+              "alt": "As of Return of the heir, light",
+              "bold": "After forgetting.",
+              "muted": "Both are Forgotten."
+            },
+            {
+              "img": "shots/m6c/05b-entry-asof-forgotten-dark.png",
+              "alt": "As of Return of the heir, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/05c-entry-asof-unknown-light.png",
+              "alt": "As of an event on another timeline, light",
+              "bold": "Other timeline.",
+              "muted": "Order unknown, shown on its own and never guessed."
+            },
+            {
+              "img": "shots/m6c/05c-entry-asof-unknown-dark.png",
+              "alt": "As of an event on another timeline, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Timeline node",
+          "intro": "The inspector lists who learns or forgets what at the selected event and adds with + Character learns… (event preset). Nodes show a small count that is hidden at zero.",
+          "figures": [
+            {
+              "img": "shots/m6c/07-node-inspector-knowledge-light.png",
+              "alt": "Node inspector Who learns what here, light",
+              "bold": "Inspector.",
+              "muted": "Coronation: Aldric learns The sword is cursed. The badge on the node shows 1."
+            },
+            {
+              "img": "shots/m6c/07-node-inspector-knowledge-dark.png",
+              "alt": "Node inspector Who learns what here, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/07b-node-badges-light.png",
+              "alt": "Node badges on the canvas, light",
+              "bold": "Badges.",
+              "muted": "Treaty signed shows 3 (a learning, a forgetting and a learning); Exile of the heir shows none."
+            },
+            {
+              "img": "shots/m6c/07b-node-badges-dark.png",
+              "alt": "Node badges on the canvas, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Knowledge matrix",
+          "intro": "Codex, then Knowledge matrix. Rows are characters, columns are items; each cell shows the state and the learning position. Arrow keys move, Enter opens the item, Shift+Enter the entry.",
+          "figures": [
+            {
+              "img": "shots/m6c/08-matrix-light.png",
+              "alt": "Matrix, light",
+              "bold": "Matrix.",
+              "muted": "Learning and forgetting positions in each cell; a dash where nothing is learned."
+            },
+            {
+              "img": "shots/m6c/08-matrix-dark.png",
+              "alt": "Matrix, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/09-matrix-asof-light.png",
+              "alt": "Matrix as of Coronation, light",
+              "bold": "As of Coronation.",
+              "muted": "Cells not known yet are greyed."
+            },
+            {
+              "img": "shots/m6c/09-matrix-asof-dark.png",
+              "alt": "Matrix as of Coronation, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/00-matrix-empty-light.png",
+              "alt": "Empty matrix, light",
+              "bold": "Empty.",
+              "muted": "No items yet."
+            },
+            {
+              "img": "shots/m6c/00-matrix-empty-dark.png",
+              "alt": "Empty matrix, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Editor: knowledge uses",
+          "intro": "Link to… has a Knowledge tab: choose an item, then the character who uses it. Knowledge uses show as a square marker; mixed with event (diamond) or codex (circle) links it sits beside them, in the margin.",
+          "figures": [
+            {
+              "img": "shots/m6c/11-editor-gutter-mixed-light.png",
+              "alt": "Gutter markers, light",
+              "bold": "Markers.",
+              "muted": "Paragraph 1: event + knowledge. Paragraph 2: codex entry + knowledge. Paragraphs 3 and 4: knowledge only. The This paragraph panel lists the pair."
+            },
+            {
+              "img": "shots/m6c/11-editor-gutter-mixed-dark.png",
+              "alt": "Gutter markers, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/14-in-this-scene-panel-light.png",
+              "alt": "In this scene panel, light",
+              "bold": "In this scene.",
+              "muted": "Knowledge used lists every pair of the scene."
+            },
+            {
+              "img": "shots/m6c/14-in-this-scene-panel-dark.png",
+              "alt": "In this scene panel, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/15-popover-light.png",
+              "alt": "Marker popover, light",
+              "bold": "Popover.",
+              "muted": "Open goes to the knowledge item; Unlink removes the use."
+            },
+            {
+              "img": "shots/m6c/15-popover-dark.png",
+              "alt": "Marker popover, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/13-duplicate-refused-light.png",
+              "alt": "Duplicate refused, light",
+              "bold": "Duplicate.",
+              "muted": "Linking the same item and character to the same paragraph again is refused with a notice."
+            },
+            {
+              "img": "shots/m6c/13-duplicate-refused-dark.png",
+              "alt": "Duplicate refused, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/16-picker-knowledge-items-light.png",
+              "alt": "Picker, items, light",
+              "bold": "Step 1.",
+              "muted": "Items with how many characters learn them."
+            },
+            {
+              "img": "shots/m6c/16-picker-knowledge-items-dark.png",
+              "alt": "Picker, items, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/17-picker-knowledge-entries-light.png",
+              "alt": "Picker, characters, light",
+              "bold": "Step 2.",
+              "muted": "Characters grouped by type; learners show where they learn it."
+            },
+            {
+              "img": "shots/m6c/17-picker-knowledge-entries-dark.png",
+              "alt": "Picker, characters, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Deleting",
+          "intro": "Learnings and uses are kept and shown as broken, never silently dropped.",
+          "figures": [
+            {
+              "img": "shots/m6c/18-node-delete-confirm-light.png",
+              "alt": "Node delete confirm, light",
+              "bold": "Event with a learning.",
+              "muted": "The confirm says the learning will show as a missing event."
+            },
+            {
+              "img": "shots/m6c/18-node-delete-confirm-dark.png",
+              "alt": "Node delete confirm, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/19-missing-event-light.png",
+              "alt": "Learning on a deleted event, light",
+              "bold": "Missing event.",
+              "muted": "The learning stays on the item page."
+            },
+            {
+              "img": "shots/m6c/19-missing-event-dark.png",
+              "alt": "Learning on a deleted event, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/20-item-delete-confirm-light.png",
+              "alt": "Item delete confirm, light",
+              "bold": "Delete item.",
+              "muted": "Says that passages using the item will show as broken (item delete is permanent, no restore)."
+            },
+            {
+              "img": "shots/m6c/20-item-delete-confirm-dark.png",
+              "alt": "Item delete confirm, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/21-broken-item-problems-light.png",
+              "alt": "Use of a deleted item, light",
+              "bold": "Broken marker.",
+              "muted": "The marker turns into a red triangle; the paragraph card says Missing knowledge item."
+            },
+            {
+              "img": "shots/m6c/21-broken-item-problems-dark.png",
+              "alt": "Use of a deleted item, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/21b-problems-panel-light.png",
+              "alt": "Problems panel for a deleted item, light",
+              "bold": "Problems.",
+              "muted": "Reason and Remove (no Relink for knowledge uses)."
+            },
+            {
+              "img": "shots/m6c/21b-problems-panel-dark.png",
+              "alt": "Problems panel for a deleted item, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/22-entry-delete-confirm-light.png",
+              "alt": "Character delete confirm, light",
+              "bold": "Delete character.",
+              "muted": "Counts the passages and the learnings that will show as broken."
+            },
+            {
+              "img": "shots/m6c/22-entry-delete-confirm-dark.png",
+              "alt": "Character delete confirm, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/23-broken-learning-light.png",
+              "alt": "Learning of a deleted character, light",
+              "bold": "Missing entry.",
+              "muted": "The row is flagged; restoring from Trash un-breaks it."
+            },
+            {
+              "img": "shots/m6c/23-broken-learning-dark.png",
+              "alt": "Learning of a deleted character, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/24-broken-entry-uses-light.png",
+              "alt": "Uses of a deleted character, light",
+              "bold": "Broken uses.",
+              "muted": "Markers and cards show Missing character until the entry is restored."
+            },
+            {
+              "img": "shots/m6c/24-broken-entry-uses-dark.png",
+              "alt": "Uses of a deleted character, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/24b-problems-panel-light.png",
+              "alt": "Problems panel for a deleted character, light",
+              "bold": "Problems.",
+              "muted": "The same problem under Problems, with Remove."
+            },
+            {
+              "img": "shots/m6c/24b-problems-panel-dark.png",
+              "alt": "Problems panel for a deleted character, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Chronicle",
+          "intro": "Learns and Forgets rows join the entry Chronicle in order, with in-world dates; a row opens the Knowledge tab.",
+          "figures": [
+            {
+              "img": "shots/m6c/25-chronicle-light.png",
+              "alt": "Aldric Chronicle, light",
+              "bold": "Chronicle.",
+              "muted": "3 May: learns the curse; 20 June: learns the fraud and forgets the curse; Return of the heir (undated, after Harvest ends by the path): forgets the fraud."
+            },
+            {
+              "img": "shots/m6c/25-chronicle-dark.png",
+              "alt": "Aldric Chronicle, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Older book",
+          "intro": "A version 8 book (manifest 8, scenes version 2) opens and migrates; a hand-broken scene file stays byte-identical and is listed as invalid.",
+          "figures": [
+            {
+              "img": "shots/m6c/30-v8-migrated-light.png",
+              "alt": "Version 8 book after opening, light",
+              "bold": "Migrated.",
+              "muted": "Scene 1 is rewritten as version 3 and the manifest as 9. Arrival stays untouched and shows as an invalid file."
+            },
+            {
+              "img": "shots/m6c/30-v8-migrated-dark.png",
+              "alt": "Version 8 book after opening, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Polish",
+          "intro": "No raw keys or English left on the Knowledge page, dialog, matrix, picker tab or panels.",
+          "figures": [
+            {
+              "img": "shots/m6c/26-knowledge-polish-light.png",
+              "alt": "Polish Knowledge page, light",
+              "bold": "Wiedza."
+            },
+            {
+              "img": "shots/m6c/26-knowledge-polish-dark.png",
+              "alt": "Polish Knowledge page, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/27-learning-dialog-polish-light.png",
+              "alt": "Polish learning dialog, light",
+              "bold": "Okno."
+            },
+            {
+              "img": "shots/m6c/27-learning-dialog-polish-dark.png",
+              "alt": "Polish learning dialog, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/28-matrix-polish-light.png",
+              "alt": "Polish matrix, light",
+              "bold": "Macierz."
+            },
+            {
+              "img": "shots/m6c/28-matrix-polish-dark.png",
+              "alt": "Polish matrix, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/29a-panels-polish-light.png",
+              "alt": "Polish editor panels, light",
+              "bold": "Panele."
+            },
+            {
+              "img": "shots/m6c/29a-panels-polish-dark.png",
+              "alt": "Polish editor panels, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6c/29-picker-polish-light.png",
+              "alt": "Polish picker, light",
+              "bold": "Wybór."
+            },
+            {
+              "img": "shots/m6c/29-picker-polish-dark.png",
+              "alt": "Polish picker, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Driven through the UI in the browser build, Light and Dark (198 checks): six events on two timelines (dated, and undated on a path) plus one on a side timeline; learnings created from the character page, the item page and the node inspector all store the same record; forgotten-before-learned refused with a message, unknown order accepted; As of before, at, after forgetting and on another timeline on both the character and the item page; node badge counts (hidden at 0, learn and forget both counted); matrix with positions, As of greying, arrow keys, Enter and Shift+Enter, empty state; Link to… Knowledge tab (both steps), distinct square marker with its own label, mixed markers, popover Open and Unlink, duplicate refused, This paragraph and In this scene panels; deleted event shows Missing event; deleted item and deleted character show broken uses with Problems and Remove, restore from Trash un-breaks; Chronicle order and row click; reload keeps everything; knowledge/*.json files, scene version 3 with to.entry, manifest 9; a version 8 book migrates and a hand-broken scene stays byte-identical; Polish screens free of raw keys and English.",
+            "Fixed on the way: deleting an event now warns when learnings sit on it; the learning dialog title overlapped its first field (a class name collided with a Quasar utility class); mixed gutter markers ran over the paragraph text; the Who knows it table wrapped letter by letter and showed its hidden caption; the Timelines panel still showed a Coming in a later milestone placeholder for Who learns what here.",
+            "Performance (browser build): matrix of 100 characters by 60 items renders in about 0.3 s, arrow keys move in one frame (16 ms), As of applies in 0.35 s; a character with 216 learnings opens its Knowledge tab in 0.12 s and its Chronicle in 0.07 s; a scene with 300 knowledge-linked paragraphs shows all markers in 0.15 s and typing stays under 30 ms.",
+            "Not yet checked: the real Tauri window (knowledge files on disk, scene version 3 and the 8 to 9 migration on a real folder)."
+          ]
+        }
+      ]
+    },
+    {
       "id": "m6b",
       "title": "M6b · States, kinds, Chronicle",
       "sections": [
@@ -243,7 +731,7 @@
             "Driven through the UI in the browser build, Light and Dark: six events on two timelines (dated and undated on a path), starter kinds created once, overlap on both rows, touching clears it, unknown order (other timeline, undated) gives no warning, until-before-from refused with a message, date and event positions, Final status, reverse view on the Town, broken value and restore, kinds manager (add, rename, exclusive, type locked in use, delete with reassign and the type warning), Chronicle order, Date unknown, Order unknown and row clicks, reload keeps the states, entry files version 2 with states, manifest version 8, and a version 7 book with a hand-broken entry file that opens and keeps that file untouched. Polish screens checked for raw keys and English.",
             "Fixed on the way: the overlap warning showed the other state's entry id instead of its name; Chronicle rows were squeezed into a narrow column in the detail panel and a relationship row ran its two names together; an old refusal message stayed in the state dialog after the value was fixed; the Polish word for Final differed between the States tab and the Chronicle.",
             "One entry with 200 states, 150 linked events and 150 relationships: States tab about 0.3 s, Chronicle (500 rows) about 0.15 s, saving an edited state under 1 s.",
-  "Not yet checked: the real Tauri window (state-kinds files, entry files version 2, migration on a real folder)."
+            "Not yet checked: the real Tauri window (state-kinds files, entry files version 2, migration on a real folder)."
           ]
         }
       ]

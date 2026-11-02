@@ -18,6 +18,7 @@ import {
   blockLinkInfoMap,
   linksForBlock,
   linkSelectionToEntry,
+  linkSelectionToKnowledge,
   linkSelectionToNode,
   relinkLink,
   relinkLinkToEntry,
@@ -34,6 +35,7 @@ import CommentRail from './CommentRail.vue'
 import NodePickerDialog from './NodePickerDialog.vue'
 import EventLinkGutter, { type GutterMarker } from './EventLinkGutter.vue'
 import EventLinkPopover from './EventLinkPopover.vue'
+import { openKnowledgeItem } from '../knowledge/openItem'
 import '../editor/editor.css'
 
 const props = defineProps<{ sceneId: string; path: string; nodeTitle: string }>()
@@ -304,8 +306,12 @@ const pickerOpen = ref(false)
 const picking = ref<
   { mode: 'link'; blockIds: string[] } | { mode: 'relink'; linkId: string; kind: 'event' | 'entry' }
 >({ mode: 'link', blockIds: [] })
-const pickerTabs = computed<('events' | 'codex')[]>(() =>
-  picking.value.mode === 'link' ? ['events', 'codex'] : picking.value.kind === 'entry' ? ['codex'] : ['events'],
+const pickerTabs = computed<('events' | 'codex' | 'knowledge')[]>(() =>
+  picking.value.mode === 'link'
+    ? ['events', 'codex', 'knowledge']
+    : picking.value.kind === 'entry'
+      ? ['codex']
+      : ['events'],
 )
 const pickerTitle = computed(() =>
   picking.value.mode === 'link'
@@ -332,7 +338,7 @@ function layoutMarkers(): void {
         const dom = ed.view.nodeDOM(b.pos)
         if (!(dom instanceof HTMLElement)) return []
         return [
-          { id: b.id, count: b.count, broken: b.broken, events: b.events, entries: b.entries, top: dom.getBoundingClientRect().top - base + 2 },
+          { id: b.id, count: b.count, broken: b.broken, events: b.events, entries: b.entries, knowledge: b.knowledge, top: dom.getBoundingClientRect().top - base + 2 },
         ]
       },
     )
@@ -371,6 +377,16 @@ async function onPickEntry(entryId: string): Promise<void> {
     const r = await relinkLinkToEntry(target.linkId, entryId)
     if (!r.ok) warn(t(r.reason === 'duplicate' ? 'eventLink.alreadyLinked' : 'eventLink.failed', 1))
   }
+  editor.value?.commands.focus()
+}
+
+async function onPickKnowledge(itemId: string, entryId: string): Promise<void> {
+  const target = picking.value
+  const scene = loaded.value
+  if (!scene || target.mode !== 'link') return
+  const r = await linkSelectionToKnowledge(scene.id, target.blockIds, itemId, entryId)
+  if (!r.ok) warn(t('eventLink.failed'))
+  else if (r.added === 0) warn(t('eventLink.alreadyLinked', target.blockIds.length))
   editor.value?.commands.focus()
 }
 
@@ -432,8 +448,13 @@ function openEntryFromPopover(row: BlockLink): void {
   void jumpToEntry(row.link.to.item)
 }
 
+function openKnowledgeFromPopover(row: BlockLink): void {
+  closePopover(false)
+  void openKnowledgeItem(row.link.to.item)
+}
+
 function relinkFromPopover(linkId: string): void {
-  const kind = popRows.value.find((r) => r.link.id === linkId)?.kind ?? 'event'
+  const kind = popRows.value.find((r) => r.link.id === linkId)?.kind === 'entry' ? 'entry' : 'event'
   closePopover(false)
   picking.value = { mode: 'relink', linkId, kind }
   pickerOpen.value = true
@@ -640,6 +661,7 @@ onBeforeUnmount(() => {
       :tabs="pickerTabs"
       @pick="onPick"
       @pick-entry="onPickEntry"
+      @pick-knowledge="onPickKnowledge"
     />
     <EventLinkPopover
       v-if="pop && popRows.length"
@@ -650,6 +672,7 @@ onBeforeUnmount(() => {
       @close="closePopover()"
       @jump="jumpFromPopover"
       @open="openEntryFromPopover"
+      @open-knowledge="openKnowledgeFromPopover"
       @unlink="unlinkFromPopover"
       @relink="relinkFromPopover"
     />
