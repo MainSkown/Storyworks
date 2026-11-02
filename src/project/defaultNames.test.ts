@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { DEFAULT_CODEX_TYPES, seedCodexTypes } from './codex'
 import { defaultNames } from './defaultNames'
 import { createProject, defaultEnv } from './open'
+import { DEFAULT_RELATION_TYPES } from './relations'
 import { DEFAULT_RULE_CATEGORIES, seedRuleCategories } from './rules'
 import { DEFAULT_TIMELINE_NAME } from './timelines'
 import { createMemoryProjectIO } from './io/memory'
@@ -12,6 +13,7 @@ describe('default names', () => {
       const n = defaultNames(lang)
       expect(n.ruleCategories).toHaveLength(DEFAULT_RULE_CATEGORIES.length)
       expect(n.codexTypes).toHaveLength(DEFAULT_CODEX_TYPES.length)
+      expect(n.relationTypes).toHaveLength(DEFAULT_RELATION_TYPES.length)
     }
     expect(defaultNames('en').timeline).toBe(DEFAULT_TIMELINE_NAME)
   })

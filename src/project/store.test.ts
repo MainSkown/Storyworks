@@ -536,3 +536,31 @@ describe('project store', () => {
     })
   })
 })
+
+describe('relation refs in the project store', () => {
+  it('setRelationRefs replaces the lists and saves them to project.json', async () => {
+    const { s } = await openedStore()
+    s.setRelationRefs({
+      relationTypes: [{ id: 't1', path: 'relation-types/t1.json', title: 'Friend' }],
+      relationLayout: { id: 'lay', path: 'relationships/layout.json' },
+    })
+    expect(s.project?.manifest.relationTypes).toHaveLength(1)
+    await s.flush()
+    const disk = JSON.parse(io.files.get('project.json') as string)
+    expect(disk.relationTypes[0].id).toBe('t1')
+    expect(disk.relationLayout.id).toBe('lay')
+    await s.close()
+  })
+
+  it('an invalid relationship file is reported under its id', async () => {
+    const { s } = await openedStore()
+    await s.close()
+    const m = JSON.parse(io.files.get('project.json') as string)
+    m.relationships = [{ id: 'r1', path: 'relationships/r1.json' }]
+    io.files.set('project.json', JSON.stringify(m))
+    io.files.set('relationships/r1.json', '{"version":1}')
+    await s.open('book')
+    expect(s.issues).toEqual([expect.objectContaining({ kind: 'invalid', itemId: 'r1' })])
+    await s.close()
+  })
+})

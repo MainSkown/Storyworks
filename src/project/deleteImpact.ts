@@ -1,4 +1,7 @@
 import type { LinkIndex } from './links'
+import { relationshipsOnNode } from './relations'
+import type { Group } from './schemas/group'
+import type { Relationship } from './schemas/relationship'
 import { findNode } from './tree'
 import type { ManuscriptNode } from './schemas/manifest'
 
@@ -23,6 +26,25 @@ export function brokenByDeletingTimeline(index: Reader, timelineId: string): num
 export function brokenByDeletingEntry(index: Reader, entryId: string): number {
   return index.linksTo({ item: entryId }).length
 }
+
+/** Relationships and group memberships of an entry (kept, shown broken, until it is restored). */
+export function relationImpactOfEntry(
+  entryId: string,
+  relationships: readonly Relationship[],
+  groups: readonly Group[],
+): { relationships: Relationship[]; groups: Group[] } {
+  return {
+    relationships: relationships.filter((r) => r.fromId === entryId || r.toId === entryId),
+    groups: groups.filter((g) => g.memberIds.includes(entryId)),
+  }
+}
+
+/** Relationships whose node link points at this node. */
+export const relationImpactOfNode = (
+  timelineId: string,
+  nodeId: string,
+  relationships: readonly Relationship[],
+): Relationship[] => relationshipsOnNode(relationships, timelineId, nodeId)
 
 /** Scene ids in document order under a part, chapter or scene (itself included). */
 export function sceneIdsUnder(tree: ManuscriptNode[], id: string): string[] {

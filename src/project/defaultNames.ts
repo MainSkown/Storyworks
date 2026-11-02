@@ -12,6 +12,16 @@ const NAMES = {
     // Same order as DEFAULT_RULE_CATEGORIES / DEFAULT_CODEX_TYPES.
     ruleCategories: ['Magic', 'Physics', 'Society', 'Technology', 'Religion'],
     codexTypes: ['Character', 'Item', 'Place', 'Country', 'Town', 'Building'],
+    // Same order as DEFAULT_RELATION_TYPES.
+    relationTypes: [
+      { name: 'Friend', reverseLabel: '' },
+      { name: 'Enemy', reverseLabel: '' },
+      { name: 'Parent', reverseLabel: 'Child' },
+      { name: 'Sibling', reverseLabel: '' },
+      { name: 'Lover', reverseLabel: '' },
+      { name: 'Located in', reverseLabel: 'Contains' },
+      { name: 'Owns', reverseLabel: 'Owned by' },
+    ],
   },
   pl: {
     chapter: 'Rozdział 1',
@@ -19,6 +29,15 @@ const NAMES = {
     timeline: 'Główna oś czasu',
     ruleCategories: ['Magia', 'Fizyka', 'Społeczeństwo', 'Technologia', 'Religia'],
     codexTypes: ['Postać', 'Przedmiot', 'Miejsce', 'Kraj', 'Miasto', 'Budynek'],
+    relationTypes: [
+      { name: 'Przyjaciel', reverseLabel: '' },
+      { name: 'Wróg', reverseLabel: '' },
+      { name: 'Rodzic', reverseLabel: 'Dziecko' },
+      { name: 'Rodzeństwo', reverseLabel: '' },
+      { name: 'Partner', reverseLabel: '' },
+      { name: 'Znajduje się w', reverseLabel: 'Zawiera' },
+      { name: 'Posiada', reverseLabel: 'Należy do' },
+    ],
   },
 } as const
 

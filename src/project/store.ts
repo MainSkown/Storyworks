@@ -45,9 +45,11 @@ import { NodeRestoreError } from './trash'
 import { parseFile } from './serialize'
 import { useSettingsStore } from '../settings/store'
 import { useCodexStore } from '../codex/store'
+import { useRelationsStore } from '../relations/store'
 import { useRulesStore } from '../rules/store'
 import { useTimelinesStore } from '../timeline/store'
 import { seedCodexTypes } from './codex'
+import { seedRelationTypes } from './relations'
 import { seedRuleCategories } from './rules'
 import { ensureDefaults } from './timelines'
 import type {
@@ -182,7 +184,7 @@ function liveIds(m: Manifest): Set<string> {
     m.stateKinds,
     m.knowledge,
   ]
-  for (const ref of [m.calendar, m.inbox, m.ignoredFindings, ...lists.flat()]) {
+  for (const ref of [m.calendar, m.inbox, m.ignoredFindings, m.relationLayout, ...lists.flat()]) {
     if (ref) ids.add(ref.id)
   }
   return ids
@@ -308,6 +310,12 @@ export const useProjectStore = defineStore('project', () => {
     project.value?.manifest.ruleCategories.find((r) => r.path === path)?.id ??
     project.value?.manifest.codexEntries.find((r) => r.path === path)?.id ??
     project.value?.manifest.codexTypes.find((r) => r.path === path)?.id ??
+    project.value?.manifest.relationTypes.find((r) => r.path === path)?.id ??
+    project.value?.manifest.relationships.find((r) => r.path === path)?.id ??
+    project.value?.manifest.groups.find((r) => r.path === path)?.id ??
+    (project.value?.manifest.relationLayout?.path === path
+      ? project.value.manifest.relationLayout.id
+      : null) ??
     path
 
   function setItemIssue(path: string, res: ReloadResult): void {
@@ -573,10 +581,16 @@ export const useProjectStore = defineStore('project', () => {
     } catch (e) {
       console.error('Could not create the starter codex types', e)
     }
+    try {
+      await seedRelationTypes(p, defaultEnv)
+    } catch (e) {
+      console.error('Could not create the starter relation types', e)
+    }
     revision.value++
     await useTimelinesStore().load()
     await useRulesStore().load()
     await useCodexStore().load()
+    await useRelationsStore().load()
   }
 
   function notifyOpened(title: string, path: string): void {
@@ -707,6 +721,7 @@ export const useProjectStore = defineStore('project', () => {
     useTimelinesStore().reset()
     useRulesStore().reset()
     useCodexStore().reset()
+    useRelationsStore().reset()
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -1148,6 +1163,22 @@ export const useProjectStore = defineStore('project', () => {
     mark(MANIFEST_FILE)
   }
 
+  /** Replaces the manifest's relation type, relationship, group and/or layout refs. */
+  function setRelationRefs(next: {
+    relationTypes?: Manifest['relationTypes']
+    relationships?: Manifest['relationships']
+    groups?: Manifest['groups']
+    relationLayout?: Manifest['relationLayout']
+  }): void {
+    const p = assertWritable()
+    if (next.relationTypes) p.manifest.relationTypes = next.relationTypes
+    if (next.relationships) p.manifest.relationships = next.relationships
+    if (next.groups) p.manifest.groups = next.groups
+    if (next.relationLayout !== undefined) p.manifest.relationLayout = next.relationLayout
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
   async function trashEntry(id: string, title: string): Promise<TrashEntry> {
     const p = assertWritable()
     await flush() // never write to a file that is about to move
@@ -1533,6 +1564,7 @@ export const useProjectStore = defineStore('project', () => {
     restoreRuleFile,
     removeUnlistedFile,
     setCodexRefs,
+    setRelationRefs,
     trashEntry,
     restoreEntryFile,
     trashNode,

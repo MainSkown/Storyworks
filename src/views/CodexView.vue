@@ -5,6 +5,7 @@ import { Notify, type QSelect } from 'quasar'
 import CodexTypeDialog from '../components/CodexTypeDialog.vue'
 import EntryAppearsIn from '../components/codex/EntryAppearsIn.vue'
 import EntryMentions from '../components/codex/EntryMentions.vue'
+import EntryRelations from '../components/relations/EntryRelations.vue'
 import MiniRichText from '../components/MiniRichText.vue'
 import { jumpToNode } from '../composables/useJump'
 import { useEntryMentions } from '../codex/useEntryMentions'
@@ -12,7 +13,8 @@ import { useCodexStore } from '../codex/store'
 import { imageExt } from '../editor/projectImage'
 import { pickImage } from '../project/pickImage'
 import type { EntryUsage } from '../project/codex'
-import { brokenByDeletingEntry } from '../project/deleteImpact'
+import { brokenByDeletingEntry, relationImpactOfEntry } from '../project/deleteImpact'
+import { useRelationsStore } from '../relations/store'
 import { useProjectStore } from '../project/store'
 import { openRule } from '../rules/openRule'
 import { useRulesStore } from '../rules/store'
@@ -20,6 +22,7 @@ import { useRulesStore } from '../rules/store'
 const { t } = useI18n()
 const store = useCodexStore()
 const rulesStore = useRulesStore()
+const relationsStore = useRelationsStore()
 const project = useProjectStore()
 const uid = useId()
 
@@ -37,7 +40,7 @@ const canCreate = computed(() => !readOnly.value && store.types.length > 0)
 const typeOf = (id: string) => store.types.find((x) => x.id === id) ?? null
 
 // ---- tabs and mentions ----
-const tab = ref<'details' | 'links' | 'mentions'>('details')
+const tab = ref<'details' | 'links' | 'relations' | 'mentions'>('details')
 const scan = useEntryMentions(() => entry.value)
 const mentions = computed(() => scan.mentions.value.filter((m) => m.entryId === entry.value?.id))
 const mentionCount = computed(() => mentions.value.length)
@@ -243,6 +246,29 @@ const deletePassages = computed(() => {
   const index = project.linkIndex()
   return entry.value && index ? brokenByDeletingEntry(index, entry.value.id) : 0
 })
+const NAMES_SHOWN = 5
+const deleteRelations = computed(() => {
+  const id = entry.value?.id
+  if (!id) return { relationships: 0, groups: 0, relationNames: '', groupNames: '' }
+  const impact = relationImpactOfEntry(id, relationsStore.relationships, relationsStore.groups)
+  const names = (list: string[]) => {
+    const unique = [...new Set(list)]
+    const shown = unique.slice(0, NAMES_SHOWN).join(', ')
+    return unique.length > NAMES_SHOWN
+      ? `${shown} ${t('deleteImpact.andMore', { n: unique.length - NAMES_SHOWN })}`
+      : shown
+  }
+  const otherName = (otherId: string) =>
+    store.entries.find((e) => e.id === otherId)?.name || t('codex.untitled')
+  return {
+    relationships: impact.relationships.length,
+    groups: impact.groups.length,
+    relationNames: names(
+      impact.relationships.map((r) => otherName(r.fromId === id ? r.toId : r.fromId)),
+    ),
+    groupNames: names(impact.groups.map((g) => g.name)),
+  }
+})
 async function doDelete(): Promise<void> {
   deleteOpen.value = false
   if (entry.value && !(await store.deleteEntry(entry.value.id)))
@@ -279,6 +305,13 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
           icon="palette"
           :label="t('codex.manageTypes')"
           @click="typesOpen = true"
+        />
+        <QBtn
+          flat
+          no-caps
+          icon="hub"
+          :label="t('relationGraph.open')"
+          :to="{ name: 'relationships' }"
         />
       </div>
 
@@ -396,6 +429,7 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
         >
           <QTab name="details" :label="t('codex.tabDetails')" />
           <QTab name="links" :label="t('codex.tabLinks')" />
+          <QTab name="relations" :label="t('relations.tab')" />
           <QTab name="mentions">
             <span>{{ t('codex.tabMentions') }}</span>
             <QBadge
@@ -609,6 +643,15 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
           <EntryAppearsIn :entry-id="entry.id" />
         </div>
 
+        <div
+          v-else-if="tab === 'relations'"
+          class="panel"
+          role="tabpanel"
+          :aria-label="t('relations.tab')"
+        >
+          <EntryRelations :entry-id="entry.id" />
+        </div>
+
         <div v-else class="panel" role="tabpanel" :aria-label="t('codex.tabMentions')">
           <EntryMentions
             :mentions="mentions"
@@ -634,6 +677,28 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
           <p v-if="deletePassages > 0" class="warn">
             {{ t('deleteImpact.links', { n: deletePassages }, deletePassages) }}
           </p>
+          <template v-if="deleteRelations.relationships > 0">
+            <p class="warn">
+              {{
+                t(
+                  'deleteImpact.relationships',
+                  { n: deleteRelations.relationships },
+                  deleteRelations.relationships,
+                )
+              }}
+            </p>
+            <p class="muted">
+              {{ t('deleteImpact.relationNames', { names: deleteRelations.relationNames }) }}
+            </p>
+          </template>
+          <template v-if="deleteRelations.groups > 0">
+            <p class="warn">
+              {{ t('deleteImpact.groups', { n: deleteRelations.groups }, deleteRelations.groups) }}
+            </p>
+            <p class="muted">
+              {{ t('deleteImpact.groupNames', { names: deleteRelations.groupNames }) }}
+            </p>
+          </template>
         </QCardSection>
         <QCardActions align="right">
           <QBtn flat no-caps :label="t('codex.cancel')" @click="deleteOpen = false" />

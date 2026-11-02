@@ -36,17 +36,16 @@ async function v5Project(): Promise<MemoryProjectIO> {
 }
 
 describe('migration v5 to v6', () => {
-  it('manifest version is 6 and the step is registered', () => {
-    expect(MANIFEST_VERSION).toBe(6)
+  it('the step is registered', () => {
     expect(migrations.find((m) => m.from === 5)?.to).toBe(6)
   })
 
-  it('opens a v5 project as v6 and keeps trash entries', async () => {
+  it('opens a v5 project at the current version and keeps trash entries', async () => {
     const io = await v5Project()
     const r = await openProject(io, makeEnv())
     expect(r.status).toBe('ok')
     if (r.status === 'ok') {
-      expect(r.project.manifest.version).toBe(6)
+      expect(r.project.manifest.version).toBe(MANIFEST_VERSION)
       expect(r.project.manifest.trash).toEqual([trashed])
     }
   })
@@ -70,7 +69,7 @@ describe('migration v5 to v6', () => {
     expect(io.files.get(backup as string)).toBe(old)
   })
 
-  it('a v6 manifest accepts an entry trash entry', () => {
+  it('the manifest accepts an entry trash entry', () => {
     const base = createManifest({ title: 'T', author: 'A', language: 'en' }, makeEnv())
     const entry = { ...trashed, id: 'e-1', type: 'entry', originalPath: 'codex/e-1.json' }
     expect(manifestSchema.safeParse({ ...base, trash: [entry] }).success).toBe(true)

@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { createLinkIndex, EVENT_KIND, type Link } from './links'
-import { brokenByDeletingNode, brokenByDeletingScenes, brokenByDeletingTimeline, sceneIdsUnder } from './deleteImpact'
+import {
+  brokenByDeletingNode,
+  brokenByDeletingScenes,
+  brokenByDeletingTimeline,
+  relationImpactOfEntry,
+  relationImpactOfNode,
+  sceneIdsUnder,
+} from './deleteImpact'
 import type { ManuscriptNode } from './schemas/manifest'
 
 const L = (id: string, scene: string, tl: string, node: string): Link => ({
@@ -48,5 +55,37 @@ describe('delete impact', () => {
     expect(sceneIdsUnder(tree, 'c1')).toEqual(['s1'])
     expect(sceneIdsUnder(tree, 's2')).toEqual(['s2'])
     expect(sceneIdsUnder(tree, 'nope')).toEqual([])
+  })
+})
+
+describe('relations impact', () => {
+  const rel = (id: string, fromId: string, toId: string, nodeId?: string) => ({
+    version: 1 as const,
+    id,
+    fromId,
+    toId,
+    typeId: 't',
+    note: {},
+    nodeRef: nodeId ? { timelineId: 'tl', nodeId } : null,
+  })
+  const grp = (id: string, memberIds: string[]) => ({
+    version: 1 as const,
+    id,
+    name: id,
+    color: '#000',
+    memberIds,
+  })
+  it('lists the relationships and groups touching an entry', () => {
+    const r = [rel('r1', 'a', 'b'), rel('r2', 'c', 'a'), rel('r3', 'b', 'c')]
+    const g = [grp('g1', ['a', 'b']), grp('g2', ['c'])]
+    const out = relationImpactOfEntry('a', r, g)
+    expect(out.relationships.map((x) => x.id)).toEqual(['r1', 'r2'])
+    expect(out.groups.map((x) => x.id)).toEqual(['g1'])
+    expect(relationImpactOfEntry('z', r, g)).toEqual({ relationships: [], groups: [] })
+  })
+  it('lists relationships linked to a node', () => {
+    const r = [rel('r1', 'a', 'b', 'n1'), rel('r2', 'a', 'b', 'n2'), rel('r3', 'a', 'b')]
+    expect(relationImpactOfNode('tl', 'n1', r).map((x) => x.id)).toEqual(['r1'])
+    expect(relationImpactOfNode('other', 'n1', r)).toEqual([])
   })
 })

@@ -4,6 +4,210 @@
   "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
   "milestones": [
     {
+      "id": "m6a",
+      "title": "M6a · Relationships, groups, relationship graph",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Relations tab",
+          "figures": [
+            {
+              "img": "shots/m6a/00-relations-empty-light.png",
+              "alt": "Relations tab, empty",
+              "bold": "Empty.",
+              "muted": "New fourth tab on every entry: Add relationship, Relation types…, Groups…."
+            },
+            {
+              "img": "shots/m6a/03-relations-tab-light.png",
+              "alt": "Relations tab with two relationships, light",
+              "bold": "Two relationships.",
+              "muted": "Direction arrow, coloured type label, the other entry (opens it), its type, optional note and a linked event (opens the node)."
+            },
+            {
+              "img": "shots/m6a/03-relations-tab-dark.png",
+              "alt": "Relations tab, dark",
+              "bold": "Dark."
+            }
+          ],
+          "intro": "Starter relation types are created once (Friend, Enemy, Parent↔Child, Sibling, Lover, Located in↔Contains, Owns↔Owned by). Mara's page shows the same relationship with the reverse label, or the same label when none is set."
+        },
+        {
+          "type": "figures",
+          "title": "Add relationship",
+          "figures": [
+            {
+              "img": "shots/m6a/01-add-relationship-dialog-light.png",
+              "alt": "Add relationship dialog, light",
+              "bold": "New type typed on the fly.",
+              "muted": "\"the object of pure hatred\" shows as New type and becomes a reusable type on save; a reverse label can be given."
+            },
+            {
+              "img": "shots/m6a/01-add-relationship-dialog-dark.png",
+              "alt": "Add relationship dialog, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6a/02-duplicate-refused-light.png",
+              "alt": "Duplicate refused, light",
+              "bold": "Duplicate refused.",
+              "muted": "Same pair and same type shows a message and saves nothing. The entry itself is never offered as the other end."
+            },
+            {
+              "img": "shots/m6a/02-duplicate-refused-dark.png",
+              "alt": "Duplicate refused, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Event link",
+          "figures": [
+            {
+              "img": "shots/m6a/04-node-inspector-relationships-light.png",
+              "alt": "Timeline node inspector with Relationships section, light",
+              "bold": "Node inspector.",
+              "muted": "A relationship linked to the event lists in a new Relationships section; clicking a row opens the entry."
+            },
+            {
+              "img": "shots/m6a/04-node-inspector-relationships-dark.png",
+              "alt": "Node inspector, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Managers",
+          "figures": [
+            {
+              "img": "shots/m6a/10-relation-types-manager-light.png",
+              "alt": "Relation types manager, light",
+              "bold": "Relation types.",
+              "muted": "Rename, recolour, reverse label, usage count; delete asks where its relationships go."
+            },
+            {
+              "img": "shots/m6a/10-relation-types-manager-dark.png",
+              "alt": "Relation types manager, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6a/11-relation-type-delete-light.png",
+              "alt": "Delete relation type with reassign, light",
+              "bold": "Delete with reassign.",
+              "muted": "The relationships using the type move to the chosen one."
+            },
+            {
+              "img": "shots/m6a/05-groups-manager-light.png",
+              "alt": "Groups manager, light",
+              "bold": "Groups.",
+              "muted": "House Stark with three members; members are chips, add by search."
+            },
+            {
+              "img": "shots/m6a/05-groups-manager-dark.png",
+              "alt": "Groups manager, dark",
+              "bold": "Dark."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Relationship graph",
+          "figures": [
+            {
+              "img": "shots/m6a/06-graph-light.png",
+              "alt": "Relationship graph with group regions, light",
+              "bold": "Graph.",
+              "muted": "Codex → Relationship graph. Labelled, coloured edges; each group is a dashed region with its name, so colour is not the only cue."
+            },
+            {
+              "img": "shots/m6a/06-graph-dark.png",
+              "alt": "Relationship graph, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6a/07-graph-group-filter-light.png",
+              "alt": "Graph filtered by group, light",
+              "bold": "Group filter.",
+              "muted": "Only House Stark's members; relation type and entry type filters work the same way."
+            },
+            {
+              "img": "shots/m6a/07-graph-group-filter-dark.png",
+              "alt": "Graph filtered by group, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6a/08-graph-list-light.png",
+              "alt": "Graph list view, light",
+              "bold": "List view.",
+              "muted": "Same data as a table plus group members, for keyboard and screen reader use."
+            },
+            {
+              "img": "shots/m6a/08-graph-list-dark.png",
+              "alt": "Graph list view, dark",
+              "bold": "Dark."
+            }
+          ],
+          "intro": "Automatic layout pulls group members together; a dragged position is saved in relationships/layout.json and survives a restart; Re-layout forgets them."
+        },
+        {
+          "type": "figures",
+          "title": "Deleting an entry",
+          "figures": [
+            {
+              "img": "shots/m6a/12-entry-delete-confirm-light.png",
+              "alt": "Delete entry confirm listing relationships, light",
+              "bold": "Confirm.",
+              "muted": "Lists the relationships and groups that will show as broken."
+            },
+            {
+              "img": "shots/m6a/12-entry-delete-confirm-dark.png",
+              "alt": "Delete entry confirm, dark",
+              "bold": "Dark."
+            },
+            {
+              "img": "shots/m6a/13-relations-broken-light.png",
+              "alt": "Relations tab with a broken relationship, light",
+              "bold": "Broken row.",
+              "muted": "The deleted entry's name stays, marked broken; restoring from the trash repairs it."
+            },
+            {
+              "img": "shots/m6a/14-graph-with-broken-light.png",
+              "alt": "Graph with hidden relationships, light",
+              "bold": "Graph.",
+              "muted": "A banner counts the relationships hidden because an end is missing."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Polish",
+          "figures": [
+            {
+              "img": "shots/m6a/15-relations-polish-light.png",
+              "alt": "Relations tab in Polish",
+              "bold": "Relations, Polish."
+            },
+            {
+              "img": "shots/m6a/16-graph-list-polish-light.png",
+              "alt": "Graph list in Polish",
+              "bold": "Graph list, Polish."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Driven through the UI in the browser build, Light and Dark: new type typed on the fly, reverse label on the other entry's page (Contains, Child, same label when none), duplicate refused with a message, event link and node inspector section, groups, graph (edges, group regions, filters, list view), drag saved to layout.json and kept after reload, Re-layout, relation types manager (rename, reverse label, delete with reassign), entry delete confirm, broken rows, restore, Polish screens.",
+            "Fixed on the way: the graph's List button showed a raw key (name clash in the language file); separate clusters flew thousands of units apart; the first drag now saves every position so other nodes do not shift on reopen; relationship rows wrapped one word per line; the type menu stayed open after Enter.",
+            "300 entries and 450 relationships: first node about 0.7 s, filter 60 ms, list 80 ms, Re-layout about 0.3 s.",
+            "Not yet checked: the real Tauri window (relation, group and layout files, manifest v7)."
+          ]
+        }
+      ]
+    },
+    {
       "id": "m5b",
       "title": "M5b · Codex (list, entries, types)",
       "sections": [

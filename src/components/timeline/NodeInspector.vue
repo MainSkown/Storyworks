@@ -10,9 +10,11 @@ import { dateToInput, readDateInput } from '../../timeline/dateInput'
 import { addEntryId, resolveNodeEntries } from '../../codex/nodeEntries'
 import { openEntry } from '../../codex/openEntry'
 import { useCodexStore } from '../../codex/store'
+import { useRelationsStore } from '../../relations/store'
 import { addRuleId, resolveNodeRules } from '../../rules/nodeRules'
 import { openRule } from '../../rules/openRule'
 import { useRulesStore } from '../../rules/store'
+import { relationImpactOfNode } from '../../project/deleteImpact'
 import EditorToolbar from '../EditorToolbar.vue'
 import EntryPickerDialog from './EntryPickerDialog.vue'
 import RulePickerDialog from './RulePickerDialog.vue'
@@ -24,6 +26,29 @@ const project = useProjectStore()
 const uid = useId()
 const rules = useRulesStore()
 const codex = useCodexStore()
+const relations = useRelationsStore()
+
+// Relationships linked to this event (back-links), with names resolved and missing ends flagged.
+const linkedRelations = computed(() => {
+  const x = tl.current
+  const n = node.value
+  if (!x || !n) return []
+  const nameOf = (id: string) => {
+    const e = codex.entries.find((c) => c.id === id)
+    return e ? { name: e.name || t('codex.untitled'), missing: false } : { name: '', missing: true }
+  }
+  return relations.relationshipsOnNode(x.id, n.id).map((r) => {
+    const from = nameOf(r.fromId)
+    const to = nameOf(r.toId)
+    return {
+      id: r.id,
+      from,
+      to,
+      type: relations.types.find((ty) => ty.id === r.typeId)?.name ?? '',
+      openId: !from.missing ? r.fromId : !to.missing ? r.toId : null,
+    }
+  })
+})
 
 const node = computed(() => tl.current?.nodes.find((n) => n.id === tl.selectedNodeId) ?? null)
 const branches = computed(() => tl.current?.branches ?? [])
@@ -35,6 +60,11 @@ const edgeCount = computed(
 )
 const linkCount = computed(() =>
   tl.current && node.value ? project.linksBrokenByDeletingNode(tl.current.id, node.value.id) : 0,
+)
+const relationCount = computed(() =>
+  tl.current && node.value
+    ? relationImpactOfNode(tl.current.id, node.value.id, relations.relationships).length
+    : 0,
 )
 const message = ref('')
 
@@ -188,7 +218,7 @@ function removeEntry(id: string): void {
 const confirmOpen = ref(false)
 async function remove(): Promise<void> {
   if (!node.value) return
-  if (edgeCount.value > 0 || linkCount.value > 0) confirmOpen.value = true
+  if (edgeCount.value > 0 || linkCount.value > 0 || relationCount.value > 0) confirmOpen.value = true
   else report(await tl.deleteNode(node.value.id))
 }
 async function confirmRemove(): Promise<void> {
@@ -431,6 +461,36 @@ async function confirmRemove(): Promise<void> {
     </button>
     <EntryPickerDialog v-model="entryPickerOpen" :linked="node.codexIds" @pick="addEntry" />
 
+    <span class="label">{{ t('nodeRelations.title') }}</span>
+    <ul v-if="linkedRelations.length" class="rels">
+      <li v-for="r in linkedRelations" :key="r.id" data-testid="node-relation-row">
+        <button
+          type="button"
+          class="rel-row"
+          :disabled="!r.openId"
+          :aria-label="
+            t('nodeRelations.row', {
+              from: r.from.missing ? t('nodeRelations.missing') : r.from.name,
+              type: r.type,
+              to: r.to.missing ? t('nodeRelations.missing') : r.to.name,
+            })
+          "
+          @click="r.openId && openEntry(r.openId)"
+        >
+          <span :class="{ gone: r.from.missing }">
+            <QIcon v-if="r.from.missing" name="warning" size="1rem" aria-hidden="true" />
+            {{ r.from.missing ? t('nodeRelations.missing') : r.from.name }}
+          </span>
+          <span class="rel-type">{{ r.type }}</span>
+          <span :class="{ gone: r.to.missing }">
+            <QIcon v-if="r.to.missing" name="warning" size="1rem" aria-hidden="true" />
+            {{ r.to.missing ? t('nodeRelations.missing') : r.to.name }}
+          </span>
+        </button>
+      </li>
+    </ul>
+    <p v-else class="note">{{ t('nodeRelations.none') }}</p>
+
     <p v-if="message" class="error" role="alert">{{ message }}</p>
 
     <button type="button" class="btn danger" :disabled="locked" @click="remove">
@@ -446,6 +506,9 @@ async function confirmRemove(): Promise<void> {
           </p>
           <p v-if="linkCount > 0">
             {{ t('deleteImpact.links', { n: linkCount }, linkCount) }}
+          </p>
+          <p v-if="relationCount > 0">
+            {{ t('deleteImpact.nodeRelationships', { n: relationCount }, relationCount) }}
           </p>
         </QCardSection>
         <QCardActions align="right">
@@ -469,6 +532,53 @@ async function confirmRemove(): Promise<void> {
 </template>
 
 <style scoped>
+.rels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rel-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.rel-row:hover:not(:disabled) {
+  background: var(--bg-selected);
+}
+.rel-row:disabled {
+  cursor: default;
+}
+.rel-row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+.rel-type {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+.rel-type::before {
+  content: '\2192  ';
+}
+.rel-type::after {
+  content: '  \2192';
+}
+.gone {
+  color: var(--text-secondary);
+  font-style: italic;
+}
 .props {
   display: flex;
   flex-direction: column;

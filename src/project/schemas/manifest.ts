@@ -2,7 +2,7 @@ import { z } from 'zod'
 import type { Env } from '../types'
 import { defaultNames } from '../defaultNames'
 
-export const MANIFEST_VERSION = 6
+export const MANIFEST_VERSION = 7
 export const BOOK_KIND = 'book'
 
 /** Index entry for one item file (or one singleton file). */
@@ -73,6 +73,7 @@ export const manifestSchema = z.strictObject({
   calendar: itemRefSchema.nullable().default(null),
   inbox: itemRefSchema.nullable().default(null),
   ignoredFindings: itemRefSchema.nullable().default(null),
+  relationLayout: itemRefSchema.nullable().default(null),
   timelines: refs(),
   rules: refs(),
   ruleCategories: refs(),

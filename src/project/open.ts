@@ -20,6 +20,10 @@ import { ignoredSchema } from './schemas/ignored'
 import { inboxSchema } from './schemas/inbox'
 import { codexEntrySchema } from './schemas/codexEntry'
 import { codexTypeSchema } from './schemas/codexType'
+import { groupSchema } from './schemas/group'
+import { relationLayoutSchema } from './schemas/relationLayout'
+import { relationshipSchema } from './schemas/relationship'
+import { relationTypeSchema } from './schemas/relationType'
 import { ruleSchema } from './schemas/rule'
 import { ruleCategorySchema } from './schemas/ruleCategory'
 import { sceneSchema, SCENE_VERSION } from './schemas/scene'
@@ -73,6 +77,10 @@ interface ListedItem {
   ruleCategory?: boolean
   codexEntry?: boolean
   codexType?: boolean
+  relationType?: boolean
+  relationship?: boolean
+  group?: boolean
+  relationLayout?: boolean
 }
 
 /** Every item file the manifest points at (trash excluded). */
@@ -85,7 +93,7 @@ function listedItems(m: Manifest): ListedItem[] {
     }
   }
   walk(m.manuscript)
-  const refs = [m.calendar, m.inbox, m.ignoredFindings]
+  const refs = [m.calendar, m.inbox, m.ignoredFindings, m.relationLayout]
   const lists = [
     m.timelines,
     m.rules,
@@ -110,6 +118,10 @@ function listedItems(m: Manifest): ListedItem[] {
       ruleCategory: m.ruleCategories.includes(ref),
       codexEntry: m.codexEntries.includes(ref),
       codexType: m.codexTypes.includes(ref),
+      relationType: m.relationTypes.includes(ref),
+      relationship: m.relationships.includes(ref),
+      group: m.groups.includes(ref),
+      relationLayout: ref === m.relationLayout,
     })
   }
   return out
@@ -282,11 +294,28 @@ function parseItem(item: ListedItem, text: string): ParseResult<unknown> {
     return withIdCheck(parseFile(codexEntrySchema, text, item.path), item.path, item.id)
   if (item.codexType)
     return withIdCheck(parseFile(codexTypeSchema, text, item.path), item.path, item.id)
+  if (item.relationType)
+    return withIdCheck(parseFile(relationTypeSchema, text, item.path), item.path, item.id)
+  if (item.relationship)
+    return withIdCheck(parseFile(relationshipSchema, text, item.path), item.path, item.id)
+  if (item.group) return withIdCheck(parseFile(groupSchema, text, item.path), item.path, item.id)
+  if (item.relationLayout) return parseFile(relationLayoutSchema, text, item.path)
   return withIdCheck(parseFile(sceneSchema, text, item.path), item.path, item.id)
 }
 
 const isParsed = (item: ListedItem) =>
-  item.scene || item.inbox || item.ignored || item.timeline || item.rule || item.ruleCategory || item.codexEntry || item.codexType
+  item.scene ||
+  item.inbox ||
+  item.ignored ||
+  item.timeline ||
+  item.rule ||
+  item.ruleCategory ||
+  item.codexEntry ||
+  item.codexType ||
+  item.relationType ||
+  item.relationship ||
+  item.group ||
+  item.relationLayout
 
 async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Promise<Issue[]> {
   const results = await Promise.all(

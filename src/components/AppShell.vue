@@ -109,7 +109,11 @@ function colorStyle(s: AppSection) {
         <template v-for="group in [mainSections, bottomSections]" :key="group[0]!.position">
           <ul class="nav-list" :class="{ bottom: group[0]!.position === 'bottom' }">
             <li v-for="s in group" :key="s.id" :style="colorStyle(s)">
-              <RouterLink :to="{ name: s.routeName }" class="nav-link">
+              <RouterLink
+                :to="{ name: s.routeName }"
+                class="nav-link"
+                :class="{ 'router-link-active': s.id === active.id }"
+              >
                 <span class="icon-square" aria-hidden="true"><QIcon :name="s.icon" /></span>
                 <span class="nav-label">{{ t(s.i18nKey) }}</span>
                 <span v-if="s.id === 'checks'" class="badge-slot" />

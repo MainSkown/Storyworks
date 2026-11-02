@@ -105,7 +105,19 @@ const v5to6: Migration = {
   },
 }
 
-export const migrations: Migration[] = [v1to2, v2to3, v3to4, v4to5, v5to6]
+/** v6 -> v7: manifest version only (`relationLayout` ref defaults to null). */
+const v6to7: Migration = {
+  from: 6,
+  to: 7,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, { ...manifest, version: 7 })
+    return out
+  },
+}
+
+export const migrations: Migration[] = [v1to2, v2to3, v3to4, v4to5, v5to6, v6to7]
 
 export const MANIFEST_FILE = 'project.json'
 const INTERNAL_DIR = '.storyworks'
