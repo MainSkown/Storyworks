@@ -2,7 +2,7 @@ import { z } from 'zod'
 import type { Env } from '../types'
 import { defaultNames } from '../defaultNames'
 
-export const MANIFEST_VERSION = 9
+export const MANIFEST_VERSION = 10
 export const BOOK_KIND = 'book'
 
 /** Index entry for one item file (or one singleton file). */
@@ -85,6 +85,8 @@ export const manifestSchema = z.strictObject({
   stateKinds: refs(),
   knowledge: refs(),
   trash: z.array(trashEntrySchema).default([]),
+  // Per-check on/off; a missing id means enabled.
+  checkSettings: z.record(z.string(), z.boolean()).default({}),
 })
 
 export type Manifest = z.infer<typeof manifestSchema>

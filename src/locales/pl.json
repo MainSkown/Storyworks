@@ -72,6 +72,97 @@
     "exists": "Ten folder zawiera już projekt. Wybierz inny folder albo otwórz ten projekt.",
     "failed": "Nie udało się utworzyć projektu: {message}"
   },
+  "checks": {
+    "badge": "Brak problemów | {n} problem | {n} problemy | {n} problemów",
+    "title": "Kontrole",
+    "run": "Uruchom kontrole",
+    "running": "Trwa kontrola…",
+    "lastRun": "Ostatnio uruchomiono {time}",
+    "neverRun": "Jeszcze nie uruchomiono",
+    "showIgnored": "Pokaż zignorowane",
+    "group": { "error": "Błędy", "warning": "Ostrzeżenia", "info": "Informacje" },
+    "severity": { "error": "Błąd", "warning": "Ostrzeżenie", "info": "Informacja" },
+    "kind": { "scene": "Scena", "node": "Wydarzenie", "rule": "Zasada", "entry": "Hasło kodeksu", "file": "Plik" },
+    "openLocation": "Otwórz: {kind}, {label}",
+    "ignore": "Ignoruj",
+    "ignoreLabel": "Ignoruj to zgłoszenie: {message}",
+    "unignore": "Przestań ignorować",
+    "unignoreLabel": "Przestań ignorować to zgłoszenie: {message}",
+    "ignoredTag": "Zignorowane",
+    "ignoredInvalid": "Nie udało się odczytać listy zignorowanych zgłoszeń, więc pokazujemy wszystkie i nic nie można zignorować, dopóki plik nie zostanie naprawiony.",
+    "empty": "Nie znaleziono problemów.",
+    "emptyNever": "Kontrole jeszcze nie były uruchomione. Wybierz Uruchom kontrole, aby poszukać problemów.",
+    "emptyAllIgnored": "Wszystkie zgłoszenia są zignorowane. Włącz Pokaż zignorowane, aby je zobaczyć.",
+    "listLabel": "Zgłoszenia",
+    "jumpFailed": "Nie udało się otworzyć tego elementu. Mógł zostać usunięty.",
+    "ignoreFailed": "Nie udało się zmienić listy zignorowanych. Książka może być tylko do odczytu albo lista jest nieczytelna.",
+    "name": {
+      "broken-link": "Uszkodzone powiązania",
+      "invalid-file": "Brakujące lub nieprawidłowe pliki",
+      "invalid-date": "Niemożliwe daty",
+      "date-order": "Daty w złej kolejności",
+      "duplicate-name": "Powtórzone nazwy",
+      "state-overlap": "Nakładające się stany",
+      "appearance-after-final": "Występowanie po stanie końcowym",
+      "knowledge-timing": "Wiedza użyta w złym czasie",
+      "node-no-passage": "Wydarzenia bez fragmentu",
+      "scene-no-links": "Sceny bez powiązań z wydarzeniami",
+      "isolated-node": "Niepołączone wydarzenia",
+      "unlinked-rule": "Niepowiązane zasady",
+      "entry-no-connections": "Niepołączone hasła kodeksu",
+      "open-todo": "Otwarte zadania redakcyjne"
+    },
+    "desc": {
+      "broken-link": "Powiązanie wskazuje coś, czego brakuje lub co usunięto.",
+      "invalid-file": "Plik z listy książki nie istnieje albo nie da się go odczytać.",
+      "invalid-date": "Wydarzenie ma datę, która nie istnieje w kalendarzu książki.",
+      "date-order": "Wydarzenie ma datę wcześniejszą niż poprzednie wydarzenie na osi czasu.",
+      "duplicate-name": "Dwa hasła kodeksu tego samego typu mają tę samą nazwę lub alias.",
+      "state-overlap": "Hasło ma jednocześnie dwa stany wykluczającego się rodzaju.",
+      "appearance-after-final": "Hasło występuje we fragmencie po rozpoczęciu jego stanu końcowego.",
+      "knowledge-timing": "Postać używa wiedzy przed jej poznaniem, po jej zapomnieniu albo bez jej poznania.",
+      "node-no-passage": "Wydarzenie na osi czasu nie ma powiązanego fragmentu w rękopisie.",
+      "scene-no-links": "Scena nie ma fragmentu powiązanego z wydarzeniem na osi czasu.",
+      "isolated-node": "Wydarzenie nie ma połączeń na osi czasu z kilkoma wydarzeniami.",
+      "unlinked-rule": "Zasada nie jest powiązana z żadnym wydarzeniem ani hasłem kodeksu.",
+      "entry-no-connections": "Hasło kodeksu nie ma relacji, grup, zasad ani powiązań.",
+      "open-todo": "Scena ma jeszcze otwarte zadania redakcyjne."
+    },
+    "msg": {
+      "broken-link": {
+        "passage-missing": "Powiązany fragment już nie istnieje.",
+        "node-missing": "Powiązanie wskazuje wydarzenie na osi czasu, którego brakuje lub które usunięto.",
+        "entry-missing": "Powiązanie wskazuje hasło kodeksu, którego brakuje lub które usunięto.",
+        "knowledge-missing": "Powiązanie wiedzy wskazuje element lub hasło, którego brakuje lub które usunięto.",
+        "ref": "„{owner}” odwołuje się do elementu, którego brakuje lub który usunięto."
+      },
+      "invalid-file": {
+        "missing": "Plik {path} jest na liście książki, ale go brakuje.",
+        "invalid": "Plik {path} jest nieprawidłowy.",
+        "invalid-detail": "Plik {path} jest nieprawidłowy: {error}"
+      },
+      "invalid-date": {
+        "year": "Wydarzenie „{title}” ma datę, która nie istnieje w kalendarzu (nieprawidłowy rok).",
+        "month": "Wydarzenie „{title}” ma datę, która nie istnieje w kalendarzu (nieprawidłowy miesiąc).",
+        "day": "Wydarzenie „{title}” ma datę, która nie istnieje w kalendarzu (nieprawidłowy dzień)."
+      },
+      "date-order": "„{later}” jest na osi czasu po „{earlier}”, ale ma wcześniejszą datę.",
+      "duplicate-name": "„{a}” i „{b}” mają tę samą nazwę lub alias „{name}”.",
+      "state-overlap": "{entry}: nakładające się stany „{kind}”: „{a}” i „{b}”.",
+      "appearance-after-final": "{entry} występuje tu po rozpoczęciu stanu końcowego „{state}”.",
+      "knowledge-timing": {
+        "before-learning": "{entry} używa tu „{item}” przed poznaniem tego.",
+        "never-learned": "{entry} używa tu „{item}”, ale nigdy tego nie poznaje.",
+        "after-forgetting": "{entry} używa tu „{item}” po zapomnieniu tego."
+      },
+      "node-no-passage": "Wydarzenie „{title}” nie ma powiązanego fragmentu w rękopisie.",
+      "scene-no-links": "Scena „{title}” nie ma fragmentu powiązanego z wydarzeniem na osi czasu.",
+      "isolated-node": "„{title}” nie ma połączeń na osi czasu „{timeline}”.",
+      "unlinked-rule": "Zasada „{title}” nie jest z niczym powiązana.",
+      "entry-no-connections": "„{name}” nie ma relacji, grup ani powiązań.",
+      "open-todo": "Scena „{title}” nie ma otwartych zadań redakcyjnych | Scena „{title}” ma {n} otwarte zadanie redakcyjne | Scena „{title}” ma {n} otwarte zadania redakcyjne | Scena „{title}” ma {n} otwartych zadań redakcyjnych"
+    }
+  },
   "settings": {
     "title": "Ustawienia",
     "theme": "Motyw",
@@ -90,7 +181,15 @@
     "samplePreview": "Podgląd",
     "readOnlyHint": "Ustawienia są tylko do odczytu.",
     "loadError": "Plik ustawień jest nieprawidłowy i nie został wczytany.",
-    "readOnlyNewer": "Ten plik ustawień zapisała nowsza wersja Storyworks i jest tylko do odczytu."
+    "readOnlyNewer": "Ten plik ustawień zapisała nowsza wersja Storyworks i jest tylko do odczytu.",
+    "checks": {
+      "title": "Kontrole spójności",
+      "hint": "Wybierz, które kontrole mają działać w tej książce. Wyłączone kontrole niczego nie zgłaszają.",
+      "readOnly": "Ta książka jest tylko do odczytu, więc ustawień kontroli nie można zmieniać.",
+      "error": "Błędy",
+      "warning": "Ostrzeżenia",
+      "info": "Informacje"
+    }
   },
   "status": {
     "saved": "Zapisano",

@@ -122,6 +122,18 @@ export async function jumpToEntry(entryId: string): Promise<boolean> {
   return true
 }
 
+/** Opens a scene in the Write editor (no block). Never navigates when the scene is gone; false = refused. */
+export async function jumpToScene(sceneId: string): Promise<boolean> {
+  const p = useProjectStore()
+  if (!p.linkIndex()?.isLive(sceneId)) return false
+  writeView.value = 'editor'
+  p.openNote(null)
+  p.selectedId = sceneId
+  const { router } = await import('../router')
+  await router.push({ name: 'write' })
+  return true
+}
+
 export function useJump() {
   return { jumpToNode, jumpToBlock, pendingNodeJump, takePendingNodeJump }
 }

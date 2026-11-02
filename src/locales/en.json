@@ -72,6 +72,97 @@
     "exists": "This folder already contains a project. Choose another folder or open it instead.",
     "failed": "Could not create the project: {message}"
   },
+  "checks": {
+    "badge": "No problems | {n} problem | {n} problems",
+    "title": "Checks",
+    "run": "Run checks",
+    "running": "Running checks…",
+    "lastRun": "Last run {time}",
+    "neverRun": "Not run yet",
+    "showIgnored": "Show ignored",
+    "group": { "error": "Errors", "warning": "Warnings", "info": "Info" },
+    "severity": { "error": "Error", "warning": "Warning", "info": "Info" },
+    "kind": { "scene": "Scene", "node": "Event", "rule": "Rule", "entry": "Codex entry", "file": "File" },
+    "openLocation": "Open {kind}: {label}",
+    "ignore": "Ignore",
+    "ignoreLabel": "Ignore this finding: {message}",
+    "unignore": "Stop ignoring",
+    "unignoreLabel": "Stop ignoring this finding: {message}",
+    "ignoredTag": "Ignored",
+    "ignoredInvalid": "The list of ignored findings could not be read, so every finding is shown and nothing can be ignored until the file is fixed.",
+    "empty": "No problems found.",
+    "emptyNever": "The checks have not run yet. Choose Run checks to look for problems.",
+    "emptyAllIgnored": "Every finding is ignored. Turn on Show ignored to see them.",
+    "listLabel": "Findings",
+    "jumpFailed": "Could not open that item. It may have been deleted.",
+    "ignoreFailed": "Could not change the ignored list. The book may be read-only or the list unreadable.",
+    "name": {
+      "broken-link": "Broken links",
+      "invalid-file": "Missing or invalid files",
+      "invalid-date": "Impossible dates",
+      "date-order": "Dates out of order",
+      "duplicate-name": "Duplicate names",
+      "state-overlap": "Overlapping states",
+      "appearance-after-final": "Appearance after a final state",
+      "knowledge-timing": "Knowledge used out of time",
+      "node-no-passage": "Events without a passage",
+      "scene-no-links": "Scenes without event links",
+      "isolated-node": "Unconnected events",
+      "unlinked-rule": "Unlinked rules",
+      "entry-no-connections": "Unconnected codex entries",
+      "open-todo": "Open revision to-dos"
+    },
+    "desc": {
+      "broken-link": "A link points to something that is missing or deleted.",
+      "invalid-file": "A file listed in the book is missing or cannot be read.",
+      "invalid-date": "An event has a date that does not exist in the book's calendar.",
+      "date-order": "An event is dated earlier than the event before it on the timeline.",
+      "duplicate-name": "Two codex entries of one type share a name or alias.",
+      "state-overlap": "An entry has two states of an exclusive kind at the same time.",
+      "appearance-after-final": "An entry appears in a passage after its final state has begun.",
+      "knowledge-timing": "A character uses knowledge before learning it, after forgetting it, or without ever learning it.",
+      "node-no-passage": "A timeline event has no linked passage in the manuscript.",
+      "scene-no-links": "A scene has no passage linked to a timeline event.",
+      "isolated-node": "An event has no connections in a timeline with several events.",
+      "unlinked-rule": "A rule is not linked to any event or codex entry.",
+      "entry-no-connections": "A codex entry has no relationships, groups, rules or links.",
+      "open-todo": "A scene still has open revision to-dos."
+    },
+    "msg": {
+      "broken-link": {
+        "passage-missing": "A linked passage no longer exists.",
+        "node-missing": "A link points to a timeline event that is missing or deleted.",
+        "entry-missing": "A link points to a codex entry that is missing or deleted.",
+        "knowledge-missing": "A knowledge link points to an item or entry that is missing or deleted.",
+        "ref": "\"{owner}\" links to an item that is missing or deleted."
+      },
+      "invalid-file": {
+        "missing": "File {path} is listed in the book but missing.",
+        "invalid": "File {path} is not valid.",
+        "invalid-detail": "File {path} is not valid: {error}"
+      },
+      "invalid-date": {
+        "year": "Event \"{title}\" has a date that does not exist in the calendar (invalid year).",
+        "month": "Event \"{title}\" has a date that does not exist in the calendar (invalid month).",
+        "day": "Event \"{title}\" has a date that does not exist in the calendar (invalid day)."
+      },
+      "date-order": "\"{later}\" comes after \"{earlier}\" on the timeline but is dated earlier.",
+      "duplicate-name": "\"{a}\" and \"{b}\" share the name or alias \"{name}\".",
+      "state-overlap": "{entry} has overlapping \"{kind}\" states: \"{a}\" and \"{b}\".",
+      "appearance-after-final": "{entry} appears here after its final state \"{state}\" has begun.",
+      "knowledge-timing": {
+        "before-learning": "{entry} uses \"{item}\" here before learning it.",
+        "never-learned": "{entry} uses \"{item}\" here but never learns it.",
+        "after-forgetting": "{entry} uses \"{item}\" here after forgetting it."
+      },
+      "node-no-passage": "Event \"{title}\" has no linked passage in the manuscript.",
+      "scene-no-links": "Scene \"{title}\" has no passage linked to a timeline event.",
+      "isolated-node": "\"{title}\" has no connections in timeline \"{timeline}\".",
+      "unlinked-rule": "Rule \"{title}\" is not linked to anything.",
+      "entry-no-connections": "\"{name}\" has no relationships, groups or links.",
+      "open-todo": "Scene \"{title}\" has {n} open revision to-do | Scene \"{title}\" has {n} open revision to-dos"
+    }
+  },
   "settings": {
     "title": "Settings",
     "theme": "Theme",
@@ -90,7 +181,15 @@
     "samplePreview": "Preview",
     "readOnlyHint": "Settings are read-only.",
     "loadError": "The settings file is invalid and was not loaded.",
-    "readOnlyNewer": "This settings file was saved by a newer version of Storyworks and is read-only."
+    "readOnlyNewer": "This settings file was saved by a newer version of Storyworks and is read-only.",
+    "checks": {
+      "title": "Consistency checks",
+      "hint": "Choose which checks run on this book. Turned-off checks report nothing.",
+      "readOnly": "This book is read-only, so check settings cannot be changed.",
+      "error": "Errors",
+      "warning": "Warnings",
+      "info": "Info"
+    }
   },
   "status": {
     "saved": "Saved",

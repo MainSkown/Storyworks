@@ -75,6 +75,8 @@ export interface SceneMeta {
   synopsis: string
   povId: string | undefined
   wordCount: number
+  /** ids of the revision to-dos not done yet (for the open-to-do check) */
+  openTodoIds: string[]
 }
 
 const metaOfScene = (sc: Scene): SceneMeta => ({
@@ -82,6 +84,7 @@ const metaOfScene = (sc: Scene): SceneMeta => ({
   synopsis: sc.synopsis,
   povId: sc.povId,
   wordCount: sc.wordCount,
+  openTodoIds: sc.todos.filter((t) => !t.done).map((t) => t.id),
 })
 
 let ioFactory: (root: string) => ProjectIO = createProjectIO
@@ -226,6 +229,8 @@ export const useProjectStore = defineStore('project', () => {
   /** bumped whenever the manifest content changes (its arrays are replaced, not edited) */
   const revision = ref(0)
   const linkRevision = ref(0)
+  /** bumped when a project has finished opening (all content stores loaded) */
+  const openedCount = ref(0)
   const epoch = ref(0)
   const itemVersions = ref<Record<string, number>>({})
   /** scene id -> metadata; mutated in place, then triggerRef (cheap for hundreds of scenes) */
@@ -356,7 +361,8 @@ export const useProjectStore = defineStore('project', () => {
       cur.status === next.status &&
       cur.synopsis === next.synopsis &&
       cur.povId === next.povId &&
-      cur.wordCount === next.wordCount
+      cur.wordCount === next.wordCount &&
+      cur.openTodoIds.join('\n') === next.openTodoIds.join('\n')
     )
       return false
     map.set(id, next)
@@ -566,6 +572,7 @@ export const useProjectStore = defineStore('project', () => {
     await loadIgnored(s, opened.project)
     await rebuildLinks(s, opened.project)
     await openContent(opened.project)
+    openedCount.value++
     notifyOpened(opened.project.manifest.title, root)
   }
 
@@ -1115,6 +1122,21 @@ export const useProjectStore = defineStore('project', () => {
     linkRevision.value++
   }
 
+  // ---- check settings ----
+
+  /** A check with no saved setting is enabled. */
+  function isCheckEnabled(id: string): boolean {
+    void revision.value // the manifest object is not reactive
+    return project.value?.manifest.checkSettings[id] !== false
+  }
+
+  function setCheckEnabled(id: string, enabled: boolean): void {
+    const p = assertWritable()
+    p.manifest.checkSettings = { ...p.manifest.checkSettings, [id]: enabled }
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
   // ---- timelines (the timelines store holds the content) ----
 
   /** Replaces the manifest's timeline list (create, rename). */
@@ -1534,6 +1556,9 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   return {
+    isCheckEnabled,
+    setCheckEnabled,
+    openedCount,
     project,
     rootPath,
     issues,

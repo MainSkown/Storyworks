@@ -169,7 +169,33 @@ const v8to9: Migration = {
   },
 }
 
-export const migrations: Migration[] = [v1to2, v2to3, v3to4, v4to5, v5to6, v6to7, v7to8, v8to9]
+/** v9 -> v10: manifest only (`checkSettings: {}`: every check enabled). */
+const v9to10: Migration = {
+  from: 9,
+  to: 10,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, {
+      ...manifest,
+      version: 10,
+      checkSettings: manifest.checkSettings ?? {},
+    })
+    return out
+  },
+}
+
+export const migrations: Migration[] = [
+  v1to2,
+  v2to3,
+  v3to4,
+  v4to5,
+  v5to6,
+  v6to7,
+  v7to8,
+  v8to9,
+  v9to10,
+]
 
 export const MANIFEST_FILE = 'project.json'
 const INTERNAL_DIR = '.storyworks'

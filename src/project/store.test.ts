@@ -96,6 +96,18 @@ describe('project store', () => {
     expect(io.files.get(path)).not.toContain('Nope')
   })
 
+  it('check toggles default to enabled and are saved in the manifest', async () => {
+    const { s } = await openedStore()
+    expect(s.isCheckEnabled('date-order')).toBe(true)
+    s.setCheckEnabled('date-order', false)
+    expect(s.isCheckEnabled('date-order')).toBe(false)
+    expect(s.isCheckEnabled('other')).toBe(true)
+    await s.flush()
+    expect(JSON.parse(io.files.get('project.json') as string).checkSettings).toEqual({
+      'date-order': false,
+    })
+  })
+
   it('deleting moves the item to the trash; restore puts it back', async () => {
     const { s, scene, path } = await openedStore()
     await s.deleteItem(scene.id)
@@ -329,6 +341,7 @@ describe('project store', () => {
         synopsis: 'Syn',
         povId: undefined,
         wordCount: 7,
+        openTodoIds: [],
       })
     })
 
@@ -369,6 +382,15 @@ describe('project store', () => {
       expect(JSON.parse(io.files.get(path) as string).todos).toEqual(todos)
       const r = await s.loadScene(path)
       expect(r.ok && r.value.todos).toEqual(todos)
+    })
+
+    it('the metadata index tracks open to-do ids', async () => {
+      const { s, scene } = await openedStore()
+      await s.setSceneTodos(scene.id, [
+        { id: 't1', text: 'a', done: false },
+        { id: 't2', text: 'b', done: true },
+      ])
+      expect(s.sceneMeta.get(scene.id)?.openTodoIds).toEqual(['t1'])
     })
 
     it('setSceneTodos refuses non-scenes, unknown ids and invalid files', async () => {

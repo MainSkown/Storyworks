@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import AppShell from './components/AppShell.vue'
 import SectionPlaceholder from './views/SectionPlaceholder.vue'
 import CodexView from './views/CodexView.vue'
+import ChecksView from './views/ChecksView.vue'
 import KnowledgeView from './views/KnowledgeView.vue'
 import KnowledgeMatrixView from './views/KnowledgeMatrixView.vue'
 import RelationshipsView from './views/RelationshipsView.vue'
@@ -29,7 +30,7 @@ export const router = createRouter({
         { path: 'codex/relationships', name: 'relationships', component: RelationshipsView },
         { path: 'codex/knowledge', name: 'knowledge', component: KnowledgeView },
         { path: 'codex/knowledge-matrix', name: 'knowledge-matrix', component: KnowledgeMatrixView },
-        { path: 'checks', name: 'checks', component: SectionPlaceholder },
+        { path: 'checks', name: 'checks', component: ChecksView },
         { path: 'stats', name: 'stats', component: SectionPlaceholder },
         { path: 'history', name: 'history', component: SectionPlaceholder },
         { path: 'settings', name: 'settings', component: SettingsView },

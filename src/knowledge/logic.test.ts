@@ -4,6 +4,8 @@ import type { OrderContext, OrderTimeline, Position } from '../timeline/order'
 import {
   knowledgeMatrix,
   knowsAsOf,
+  knowledgeUseIssues,
+  usedAfterForgetting,
   usedBeforeLearned,
   whoKnowsAsOf,
   type LearningLike,
@@ -223,5 +225,100 @@ describe('usedBeforeLearned', () => {
 
   it('no blocks: nothing', () => {
     expect(usedBeforeLearned([], [], ctx)).toEqual([])
+  })
+})
+
+describe('usedAfterForgetting', () => {
+  const blocks = [
+    { id: 'b1', position: at('t', 'a') },
+    { id: 'b2', position: at('t', 'b') },
+    { id: 'b3', position: at('t', 'e') },
+  ]
+
+  it('flags only blocks definitely after the forgetting; at the forgetting is not flagged', () => {
+    const ls = [learn('e1', at('t', 'a'), at('t', 'b'))]
+    expect(usedAfterForgetting(ls, blocks, ctx)).toEqual([{ blockId: 'b3', reason: 'after-forgetting' }])
+  })
+
+  it('never forgotten: nothing', () => {
+    expect(usedAfterForgetting([learn('e1', at('t', 'a'))], blocks, ctx)).toEqual([])
+  })
+
+  it('no learnings: nothing (that is never-learned, not this)', () => {
+    expect(usedAfterForgetting([], blocks, ctx)).toEqual([])
+  })
+
+  it('a block before the learning is not after-forgetting', () => {
+    const ls = [learn('e1', at('t', 'c'), at('t', 'e'))]
+    expect(usedAfterForgetting(ls, blocks, ctx)).toEqual([])
+  })
+
+  it('unknown order to the forgetting is not flagged', () => {
+    const ls = [learn('e1', at('t', 'a'), at('u', 'x'))]
+    expect(usedAfterForgetting(ls, blocks, ctx)).toEqual([])
+  })
+
+  it('unknown order to the learning is not flagged', () => {
+    const ls = [learn('e1', at('u', 'x'), at('u', 'y'))]
+    expect(usedAfterForgetting(ls, blocks, ctx)).toEqual([])
+  })
+
+  describe('relearning (dates)', () => {
+    const ls = [
+      learn('e1', on(d(1000)), on(d(1200))),
+      learn('e1', on(d(1800))),
+    ]
+    const use = (id: string, y: number) => ({ id, position: on(d(y)) })
+
+    it('use between forgetting and relearning is flagged', () => {
+      expect(usedAfterForgetting(ls, [use('mid', 1500)], ctx)).toEqual([
+        { blockId: 'mid', reason: 'after-forgetting' },
+      ])
+    })
+
+    it('use after the relearning is fine', () => {
+      expect(usedAfterForgetting(ls, [use('late', 2000)], ctx)).toEqual([])
+    })
+
+    it('use while known is fine', () => {
+      expect(usedAfterForgetting(ls, [use('early', 1100)], ctx)).toEqual([])
+    })
+
+    it('a later learning with unknown order protects the block', () => {
+      const withUnknown = [...ls.slice(0, 1), learn('e1', at('u', 'x'))]
+      expect(usedAfterForgetting(withUnknown, [use('mid', 1500)], ctx)).toEqual([])
+    })
+  })
+})
+
+describe('knowledgeUseIssues', () => {
+  const blocks = [
+    { id: 'b1', position: at('t', 'a') },
+    { id: 'b2', position: at('t', 'b') },
+    { id: 'b3', position: at('t', 'e') },
+  ]
+
+  it('never learned: every block', () => {
+    expect(knowledgeUseIssues([], blocks, ctx).map((i) => i.reason)).toEqual([
+      'never-learned',
+      'never-learned',
+      'never-learned',
+    ])
+  })
+
+  it('before learning and after forgetting together, in block order', () => {
+    const ls = [learn('e1', at('t', 'b'), at('t', 'c'))]
+    expect(knowledgeUseIssues(ls, blocks, ctx)).toEqual([
+      { blockId: 'b1', reason: 'before-learning' },
+      { blockId: 'b3', reason: 'after-forgetting' },
+    ])
+  })
+
+  it('good case yields nothing', () => {
+    expect(knowledgeUseIssues([learn('e1', at('t', 'a'))], blocks, ctx)).toEqual([])
+  })
+
+  it('unknown order yields nothing', () => {
+    expect(knowledgeUseIssues([learn('e1', at('u', 'x'), at('u', 'y'))], blocks, ctx)).toEqual([])
   })
 })

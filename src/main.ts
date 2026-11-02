@@ -10,11 +10,13 @@ import App from './App.vue'
 import { router } from './router'
 import { i18n, setLanguage } from './i18n'
 import { useSettingsStore } from './settings/store'
+import { useChecksStore } from './checks/store'
 
 const pinia = createPinia()
 const settings = useSettingsStore(pinia)
 await settings.load()
 setLanguage(settings.settings.language)
+useChecksStore(pinia) // runs the checks whenever a book finishes opening
 
 createApp(App)
   .use(pinia)

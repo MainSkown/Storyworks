@@ -63,7 +63,7 @@ async function v8Project(): Promise<{ io: MemoryProjectIO; scenePath: string }> 
 describe('migration v8 to v9', () => {
   it('the step is registered, and versions are 9 and 3', () => {
     expect(migrations.find((m) => m.from === 8)?.to).toBe(9)
-    expect(MANIFEST_VERSION).toBe(9)
+    expect(MANIFEST_VERSION).toBeGreaterThanOrEqual(9)
     expect(SCENE_VERSION).toBe(3)
   })
 

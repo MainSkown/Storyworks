@@ -96,3 +96,56 @@ export function usedBeforeLearned(
   }
   return out
 }
+
+export type UseReason = 'before-learning' | 'never-learned' | 'after-forgetting'
+
+/**
+ * Blocks that use an item for an entry definitely after it was forgotten. A block is flagged only
+ * when at least one learning covers it (the block is at or after `at`), every covering learning has
+ * a `forgottenAt` the block is strictly after, and no learning has unknown order to the block.
+ * A later re-learning that covers the block, or any unknown order, protects it.
+ */
+export function usedAfterForgetting(
+  learnings: LearningLike[],
+  blockPositions: { id: string; position: Position }[],
+  ctx: OrderContext,
+): { blockId: string; reason: 'after-forgetting' }[] {
+  const out: { blockId: string; reason: 'after-forgetting' }[] = []
+  for (const b of blockPositions) {
+    let covering = 0
+    let protectedUse = false
+    for (const l of learnings) {
+      const o = compare(b.position, l.at, ctx)
+      if (o === 'before') continue
+      if (o === 'unknown') {
+        protectedUse = true
+        break
+      }
+      if (!l.forgottenAt || compare(b.position, l.forgottenAt, ctx) !== 'after') {
+        protectedUse = true
+        break
+      }
+      covering++
+    }
+    if (!protectedUse && covering > 0) out.push({ blockId: b.id, reason: 'after-forgetting' })
+  }
+  return out
+}
+
+/** Both knowledge-use problems in block order; a block gets at most one reason. */
+export function knowledgeUseIssues(
+  learnings: LearningLike[],
+  blockPositions: { id: string; position: Position }[],
+  ctx: OrderContext,
+): { blockId: string; reason: UseReason }[] {
+  const before = new Map<string, UseReason>(
+    usedBeforeLearned(learnings, blockPositions, ctx).map((i) => [i.blockId, i.reason]),
+  )
+  const after = new Set(usedAfterForgetting(learnings, blockPositions, ctx).map((i) => i.blockId))
+  const out: { blockId: string; reason: UseReason }[] = []
+  for (const b of blockPositions) {
+    const reason = before.get(b.id) ?? (after.has(b.id) ? 'after-forgetting' : null)
+    if (reason) out.push({ blockId: b.id, reason })
+  }
+  return out
+}

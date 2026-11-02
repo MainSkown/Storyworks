@@ -10,6 +10,7 @@ import { focusMode } from '../composables/focusMode'
 import { useProjectStore } from '../project/store'
 import { findNode } from '../project/tree'
 import { useTimelinesStore } from '../timeline/store'
+import { useChecksStore } from '../checks/store'
 import ContextPanel from './ContextPanel.vue'
 import InboxNoteEditor from './InboxNoteEditor.vue'
 import InboxPanel from './InboxPanel.vue'
@@ -24,6 +25,7 @@ const router = useRouter()
 const project = useProjectStore()
 const store = useSettingsStore()
 const timelines = useTimelinesStore()
+const checks = useChecksStore()
 const { settings } = storeToRefs(store)
 
 const active = computed(() => sectionByRouteName(route.name) ?? sections[0]!)
@@ -116,7 +118,13 @@ function colorStyle(s: AppSection) {
               >
                 <span class="icon-square" aria-hidden="true"><QIcon :name="s.icon" /></span>
                 <span class="nav-label">{{ t(s.i18nKey) }}</span>
-                <span v-if="s.id === 'checks'" class="badge-slot" />
+                <span
+                  v-if="s.id === 'checks' && checks.badge > 0"
+                  class="badge"
+                  role="img"
+                  :aria-label="t('checks.badge', checks.badge)"
+                  >{{ checks.badge > 99 ? '99+' : checks.badge }}</span
+                >
               </RouterLink>
               <div
                 v-if="s.id === active.id && s.id === 'write' && project.project"
@@ -132,7 +140,7 @@ function colorStyle(s: AppSection) {
                 <TimelineSidebar />
               </div>
               <div
-                v-else-if="s.id === active.id && s.id !== 'rules' && s.id !== 'codex'"
+                v-else-if="s.id === active.id && !['rules', 'codex', 'checks'].includes(s.id)"
                 class="expand"
               >
                 {{ t('sidebar.placeholder') }}
@@ -308,8 +316,16 @@ function colorStyle(s: AppSection) {
 .nav-label {
   flex: 1;
 }
-.badge-slot:empty {
-  display: none;
+.badge {
+  min-width: 1.25rem;
+  padding: 0 0.375rem;
+  border-radius: 0.625rem;
+  background: var(--section-checks);
+  color: var(--section-checks-on);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  text-align: center;
 }
 .expand {
   margin: 0.25rem 0 0.5rem 2.625rem;

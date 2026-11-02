@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import CalendarEditor from '../components/CalendarEditor.vue'
+import ChecksSettings from '../components/ChecksSettings.vue'
 import NumberField from '../components/NumberField.vue'
 import { useSettingsStore } from '../settings/store'
 import type { Language, Theme } from '../settings/schema'
@@ -177,6 +178,7 @@ function step(current: number, delta: number, r: { min: number; max: number }): 
     </div>
 
     <CalendarEditor />
+    <ChecksSettings />
   </section>
 </template>
 
