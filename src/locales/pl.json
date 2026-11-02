@@ -180,6 +180,16 @@
     "increase": "Zwiększ",
     "dismiss": "Zamknij",
     "samplePreview": "Podgląd",
+    "backups": {
+      "title": "Kopie zapasowe",
+      "hint": "Kopie całej książki, przechowywane w folderze książki, osobno od migawek.",
+      "interval": "Kopia co",
+      "minutes": "min",
+      "intervalHint": "Gdy książka jest otwarta i się zmieniła. 0 wyłącza kopie czasowe.",
+      "keep": "Zachowaj ostatnie",
+      "copies": "kopii",
+      "onClose": "Rób też kopię przy zamykaniu książki"
+    },
     "readOnlyHint": "Ustawienia są tylko do odczytu.",
     "loadError": "Plik ustawień jest nieprawidłowy i nie został wczytany.",
     "readOnlyNewer": "Ten plik ustawień zapisała nowsza wersja Storyworks i jest tylko do odczytu.",
@@ -1526,5 +1536,147 @@
     },
     "contents": "Spis treści",
     "notes": "Przypisy"
+  },
+  "history": {
+    "title": "Historia",
+    "tabs": {
+      "changes": "Zmiany",
+      "history": "Historia",
+      "backups": "Kopie zapasowe"
+    },
+    "intro": "Migawka to zapisany punkt w historii książki, do którego możesz wrócić. Praca zapisuje się sama; migawki są opcjonalne.",
+    "readOnly": "Ta książka jest otwarta tylko do odczytu, więc migawki i przywracanie są wyłączone. Historię nadal można przeglądać.",
+    "type": {
+      "part": "Część",
+      "chapter": "Rozdział",
+      "scene": "Scena",
+      "timeline": "Oś czasu",
+      "rule": "Zasada",
+      "ruleCategory": "Kategoria zasad",
+      "codexType": "Typ w kodeksie",
+      "entry": "Hasło kodeksu",
+      "relationType": "Typ relacji",
+      "relationship": "Relacja",
+      "group": "Grupa",
+      "stateKind": "Rodzaj stanu",
+      "knowledge": "Wiedza",
+      "calendar": "Kalendarz",
+      "inbox": "Skrzynka",
+      "ignoredFindings": "Odrzucone uwagi",
+      "relationLayout": "Układ relacji",
+      "settings": "Ustawienia książki",
+      "asset": "Obraz",
+      "dictionary": "Słownik",
+      "file": "Plik"
+    },
+    "kind": {
+      "added": "dodano",
+      "modified": "zmieniono",
+      "deleted": "usunięto",
+      "moved": "przeniesiono",
+      "renamed": "zmieniono nazwę"
+    },
+    "group": {
+      "manuscript": "Rękopis",
+      "timelines": "Osie czasu",
+      "rules": "Zasady",
+      "codex": "Kodeks",
+      "other": "Inne"
+    },
+    "changes": {
+      "count": "Brak zmian | {n} zmiana od ostatniej migawki | {n} zmiany od ostatniej migawki | {n} zmian od ostatniej migawki",
+      "empty": "Brak zmian od ostatniej migawki.",
+      "never": "Nie zrobiono jeszcze żadnej migawki, więc wszystko liczy się jako zmiana.",
+      "selectAll": "Zaznacz wszystko",
+      "selectNone": "Odznacz wszystko",
+      "include": "Uwzględnij w migawce",
+      "message": "Opis (opcjonalnie)",
+      "messageHint": "Zostaw puste, aby użyć daty i godziny.",
+      "snapshotAll": "Zrób migawkę wszystkich zmian",
+      "snapshotSelected": "Zrób migawkę zaznaczonych ({n})",
+      "needOne": "Zaznacz co najmniej jedną zmianę.",
+      "done": "Migawka zapisana.",
+      "pulledIn": "Uwzględniono też te elementy, bo są ze sobą powiązane:",
+      "forcedAll": "Uwzględniono wszystko, bo od ostatniej migawki format plików książki został zaktualizowany.",
+      "list": "Zmiany pogrupowane według obszaru"
+    },
+    "log": {
+      "list": "Migawki",
+      "empty": "Nie ma jeszcze migawek. Zrób pierwszą na karcie Zmiany.",
+      "changed": "Brak zmienionych elementów | {n} zmieniony element | {n} zmienione elementy | {n} zmienionych elementów",
+      "pick": "Wybierz migawkę, aby zobaczyć jej zawartość.",
+      "items": "Zmienione w tej migawce",
+      "noItems": "W tej migawce nic się nie zmieniło.",
+      "view": "Pokaż tę wersję",
+      "compareCurrent": "Porównaj z bieżącą",
+      "comparePrevious": "Porównaj z poprzednią",
+      "restore": "Przywróć tę wersję",
+      "restoreBook": "Przywróć całą książkę do tej migawki",
+      "notThere": "Tego elementu nie było w migawce.",
+      "nothing": "Nie ma czego pokazać.",
+      "noDifference": "Bez różnic.",
+      "unchangedLines": "Brak niezmienionych linii | {n} niezmieniona linia | {n} niezmienione linie | {n} niezmienionych linii",
+      "added": "Dodana linia",
+      "removed": "Usunięta linia",
+      "viewing": "Tak wyglądało w tej migawce",
+      "vsCurrent": "Ta migawka w porównaniu z teraźniejszością",
+      "vsPrevious": "Poprzednia migawka w porównaniu z tą",
+      "close": "Zamknij podgląd"
+    },
+    "confirm": {
+      "cancel": "Anuluj",
+      "safety": "Najpierw powstanie kopia zapasowa książki w obecnym stanie, więc możesz to cofnąć na karcie Kopie zapasowe.",
+      "itemTitle": "Przywrócić tę wersję?",
+      "itemReplace": "„{label}” zostanie zastąpione wersją z tej migawki. Obecna wersja zostanie w kopii zapasowej.",
+      "itemBack": "„{label}” nie ma już w książce. Wróci na swoje dawne miejsce.",
+      "itemDo": "Przywróć",
+      "bookTitle": "Przywrócić całą książkę?",
+      "bookBody": "Cała książka wróci do stanu z tej migawki.",
+      "bookTrash": "Elementy dodane po tej migawce trafią do Kosza, nie zostaną usunięte.",
+      "bookUnsaved": "Brak zmian spoza migawek. | Masz {n} zmianę, której nie ma w żadnej migawce. Zostanie zastąpiona; zostanie tylko w kopii zapasowej. | Masz {n} zmiany, których nie ma w żadnej migawce. Zostaną zastąpione; zostaną tylko w kopii zapasowej. | Masz {n} zmian, których nie ma w żadnej migawce. Zostaną zastąpione; zostaną tylko w kopii zapasowej.",
+      "bookDo": "Przywróć całą książkę",
+      "backupTitle": "Przywrócić tę kopię zapasową?",
+      "backupBody": "Cała książka wróci do stanu z {when}. Elementy dodane od tamtej pory trafią do Kosza.",
+      "backupDo": "Przywróć kopię"
+    },
+    "restored": "Przywrócono. Wcześniej powstała kopia zapasowa.",
+    "backups": {
+      "intro": "Kopie zapasowe to pełne kopie książki, robione automatycznie podczas pisania i przed każdym przywracaniem. Częstotliwość zmienisz w Ustawieniach.",
+      "empty": "Nie ma jeszcze kopii zapasowych.",
+      "auto": "Kopia automatyczna",
+      "safety": "Przed przywróceniem",
+      "restore": "Przywróć"
+    },
+    "broken": {
+      "title": "Nie można odczytać historii. Twoja książka jest cała.",
+      "body": "Migawki są niedostępne, ale pisanie i zapisywanie działa jak zwykle. Możesz zacząć nową historię; stara zostanie odłożona, nie usunięta.",
+      "start": "Zacznij nową historię",
+      "manifest": "Nie można odczytać pliku projektu książki, więc nie da się wyświetlić zmian."
+    },
+    "error": {
+      "corrupt": "Nie można odczytać historii.",
+      "nothing-to-commit": "Nie ma nic nowego do zapisania w migawce.",
+      "manifest": "Nie można odczytać pliku projektu książki.",
+      "read-only": "Ta książka jest otwarta tylko do odczytu.",
+      "version": "Ta migawka pochodzi ze starszego formatu plików, więc nie można z niej przywrócić całej książki. Pojedyncze elementy można.",
+      "not-in-snapshot": "Tego elementu nie ma w tej migawce.",
+      "invalid": "Przywrócona książka byłaby nieprawidłowa, więc nic nie zmieniono.",
+      "failed": "Przywracanie zatrzymało się w połowie.",
+      "generic": "Coś poszło nie tak."
+    },
+    "dialog": {
+      "title": "Migawka",
+      "body": "Zapisz ten punkt w książce. Możesz do niego później wrócić.",
+      "choose": "Wybierz, co uwzględnić",
+      "none": "Nie ma zmian do zapisania w migawce.",
+      "save": "Zrób migawkę wszystkich zmian",
+      "cancel": "Anuluj",
+      "button": "Migawka",
+      "buttonLabel": "Zrób migawkę"
+    },
+    "status": {
+      "changes": "Brak zmian od ostatniej migawki | {n} zmiana od ostatniej migawki | {n} zmiany od ostatniej migawki | {n} zmian od ostatniej migawki",
+      "open": "Otwórz Historię"
+    }
   }
 }

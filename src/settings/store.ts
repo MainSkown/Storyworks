@@ -6,6 +6,7 @@ import {
   MAX_RECENT_PROJECTS,
   SETTINGS_VERSION,
   settingsSchema,
+  type BackupSettings,
   type Language,
   type Settings,
   type Theme,
@@ -52,6 +53,11 @@ function serialize(s: Settings): string {
       title: r.title,
       openedAt: r.openedAt,
     })),
+    backups: {
+      intervalMinutes: s.backups.intervalMinutes,
+      keep: s.backups.keep,
+      onClose: s.backups.onClose,
+    },
   }
   return JSON.stringify(settingsSchema.parse(ordered), null, 2) + '\n'
 }
@@ -166,6 +172,7 @@ export const useSettingsStore = defineStore('settings', () => {
     setLanguage: (v: Language) => update((d) => void (d.language = v)),
     setUiZoom: (v: number) => update((d) => void (d.uiZoom = v)),
     setEditorFontSize: (v: number) => update((d) => void (d.editorFontSize = v)),
+    setBackups: (v: BackupSettings) => update((d) => void (d.backups = v)),
     setContextPanelHidden: (v: boolean) => update((d) => void (d.contextPanel.hidden = v)),
     toggleSection: (id: string) =>
       update((d) => void (d.contextPanel.collapsed[id] = !d.contextPanel.collapsed[id])),

@@ -54,9 +54,9 @@ describe('open', () => {
   it('reopening creates nothing more', async () => {
     const { p } = await opened()
     await p.flush()
-    const snap = new Map([...io.files].filter(([k]) => !k.endsWith('.lock')))
+    const snap = new Map([...io.files].filter(([k]) => !k.endsWith('.lock') && !k.includes('/backups/')))
     await p.open('book')
-    expect(new Map([...io.files].filter(([k]) => !k.endsWith('.lock')))).toEqual(snap)
+    expect(new Map([...io.files].filter(([k]) => !k.endsWith('.lock') && !k.includes('/backups/')))).toEqual(snap)
   })
 
   it('read-only open creates nothing and shows no timelines', async () => {

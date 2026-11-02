@@ -89,7 +89,7 @@ describe('settings store', () => {
   })
 
   it('newer version is read-only and left untouched', async () => {
-    const newer = JSON.stringify({ version: 3, whatever: true })
+    const newer = JSON.stringify({ version: 4, whatever: true })
     io.files.set(FILE, newer)
     const s = freshStore()
     await s.load()
@@ -159,6 +159,7 @@ describe('settings store', () => {
       'editorFontSize',
       'contextPanel',
       'recentProjects',
+      'backups',
     ])
     expect(Object.keys(JSON.parse(text).contextPanel.collapsed)).toEqual(['a', 'b'])
     expect(text).toContain('\n  "theme"')
@@ -229,7 +230,7 @@ describe('settings store', () => {
     })
 
     it('is not changed when settings are read-only', async () => {
-      const newer = JSON.stringify({ version: 3 })
+      const newer = JSON.stringify({ version: 4 })
       io.files.set(FILE, newer)
       const s = freshStore()
       await s.load()
@@ -243,19 +244,41 @@ describe('settings store', () => {
     const v1: Record<string, unknown> = { ...defaultSettings, version: 1, theme: 'dark' }
     delete v1.recentProjects
 
-    it('a v1 file loads with empty recent projects and is saved as v2', async () => {
+    it('a v1 file loads with empty recent projects and is saved as v3', async () => {
       io.files.set(FILE, JSON.stringify(v1))
       const s = freshStore()
       await s.load()
       expect(s.loadError).toBeNull()
-      expect(s.settings.version).toBe(2)
+      expect(s.settings.version).toBe(3)
       expect(s.settings.theme).toBe('dark')
       expect(s.settings.recentProjects).toEqual([])
       await s.flush()
       const saved = JSON.parse(io.files.get(FILE)!)
-      expect(saved.version).toBe(2)
+      expect(saved.version).toBe(3)
       expect(saved.recentProjects).toEqual([])
       expect(saved.theme).toBe('dark')
+    })
+
+    it('a v2 file gets default backup settings and keeps its values', async () => {
+      const v2: Record<string, unknown> = { ...defaultSettings, version: 2, theme: 'dark' }
+      delete v2.backups
+      io.files.set(FILE, JSON.stringify(v2))
+      const s = freshStore()
+      await s.load()
+      expect(s.loadError).toBeNull()
+      expect(s.settings.theme).toBe('dark')
+      expect(s.settings.backups).toEqual({ intervalMinutes: 30, keep: 20, onClose: true })
+      await s.flush()
+      expect(JSON.parse(io.files.get(FILE)!).backups.keep).toBe(20)
+    })
+
+    it('backup settings can be changed and are validated', async () => {
+      const s = freshStore()
+      await s.load()
+      s.setBackups({ intervalMinutes: 10, keep: 5, onClose: false })
+      expect(s.settings.backups).toEqual({ intervalMinutes: 10, keep: 5, onClose: false })
+      s.setBackups({ intervalMinutes: -1, keep: 5, onClose: false })
+      expect(s.settings.backups.intervalMinutes).toBe(10)
     })
 
     it('an invalid v1 file is rejected and left untouched', async () => {

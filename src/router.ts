@@ -10,6 +10,7 @@ import RelationshipsView from './views/RelationshipsView.vue'
 import RulesView from './views/RulesView.vue'
 import TimelinesView from './views/TimelinesView.vue'
 import ExportView from './views/ExportView.vue'
+import HistoryView from './views/HistoryView.vue'
 import SettingsView from './views/SettingsView.vue'
 import WelcomeView from './views/WelcomeView.vue'
 import WriteView from './views/WriteView.vue'
@@ -33,7 +34,7 @@ export const router = createRouter({
         { path: 'codex/knowledge-matrix', name: 'knowledge-matrix', component: KnowledgeMatrixView },
         { path: 'checks', name: 'checks', component: ChecksView },
         { path: 'stats', name: 'stats', component: SectionPlaceholder },
-        { path: 'history', name: 'history', component: SectionPlaceholder },
+        { path: 'history', name: 'history', component: HistoryView },
         { path: 'export', name: 'export', component: ExportView },
         { path: 'settings', name: 'settings', component: SettingsView },
       ],

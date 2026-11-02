@@ -6,6 +6,7 @@ import CorkboardView from '../components/CorkboardView.vue'
 import ManuscriptEditor from '../components/ManuscriptEditor.vue'
 import { focusMode, isFocusShortcut } from '../composables/focusMode'
 import { writeView } from '../composables/writeView'
+import { useHistoryStore } from '../history/store'
 import { useProjectStore } from '../project/store'
 import { sceneStatusSchema, type Scene } from '../project/schemas/scene'
 import type { ManuscriptNode } from '../project/schemas/manifest'
@@ -13,6 +14,7 @@ import type { Issue } from '../project/types'
 
 const { t } = useI18n()
 const store = useProjectStore()
+const history = useHistoryStore()
 const { selectedId } = storeToRefs(store)
 
 // The selected node and its nearest container (chapter or part).
@@ -166,6 +168,9 @@ watch(corkboard, (v) => {
         </span>
       </template>
       <span>{{ t('write.book') }}: {{ bookWords }} {{ t('sidebar.words') }}</span>
+      <RouterLink class="changes-link" :to="{ name: 'history', query: { tab: 'changes' } }" :title="t('history.status.open')">
+        {{ t('history.status.changes', history.changeCount) }}
+      </RouterLink>
       <span class="save"
         ><QIcon :name="saveIcon" aria-hidden="true" /> {{ t(`status.${store.saveStatus}`) }}</span
       >
@@ -214,6 +219,11 @@ watch(corkboard, (v) => {
   background: var(--bg-panel);
   color: var(--text-secondary);
   font-size: 0.8125rem;
+}
+.changes-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .save {
   display: inline-flex;

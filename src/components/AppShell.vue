@@ -17,6 +17,7 @@ import InboxPanel from './InboxPanel.vue'
 import OutlineTree from './OutlineTree.vue'
 import ProjectBanners from './ProjectBanners.vue'
 import TimelineSidebar from './timeline/TimelineSidebar.vue'
+import SnapshotDialog from './SnapshotDialog.vue'
 import TrashDialog from './TrashDialog.vue'
 
 const { t } = useI18n()
@@ -32,6 +33,7 @@ const active = computed(() => sectionByRouteName(route.name) ?? sections[0]!)
 const panelHidden = computed(() => settings.value.contextPanel.hidden)
 const mainEl = ref<HTMLElement | null>(null)
 const trashOpen = ref(false)
+const snapshotOpen = ref(false)
 
 // The open item named in the header band (Write shows the selected tree item).
 const openItem = computed(() => {
@@ -140,7 +142,7 @@ function colorStyle(s: AppSection) {
                 <TimelineSidebar />
               </div>
               <div
-                v-else-if="s.id === active.id && !['rules', 'codex', 'checks'].includes(s.id)"
+                v-else-if="s.id === active.id && !['rules', 'codex', 'checks', 'history'].includes(s.id)"
                 class="expand"
               >
                 {{ t('sidebar.placeholder') }}
@@ -173,6 +175,17 @@ function colorStyle(s: AppSection) {
         <div class="band-actions">
           <div id="band-actions-target" class="band-actions"></div>
           <button
+            v-if="project.project"
+            type="button"
+            class="band-button band-text"
+            :disabled="!!project.readOnly"
+            :title="t('history.dialog.buttonLabel')"
+            @click="snapshotOpen = true"
+          >
+            <QIcon name="photo_camera" aria-hidden="true" />
+            <span>{{ t('history.dialog.button') }}</span>
+          </button>
+          <button
             type="button"
             class="band-button"
             :aria-pressed="!panelHidden"
@@ -197,6 +210,7 @@ function colorStyle(s: AppSection) {
 
     <ContextPanel v-if="!panelHidden" v-show="!focusMode" :section-id="active.id" />
     <TrashDialog v-model="trashOpen" />
+    <SnapshotDialog v-model="snapshotOpen" />
   </div>
 </template>
 
@@ -383,6 +397,17 @@ function colorStyle(s: AppSection) {
   background: transparent;
   color: inherit;
   cursor: pointer;
+}
+.band-text {
+  width: auto;
+  gap: 0.375rem;
+  padding-inline: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.band-button:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 .band-button:focus-visible {
   outline-color: var(--sec-on);

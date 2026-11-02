@@ -1,7 +1,16 @@
 import { z } from 'zod'
 
-export const SETTINGS_VERSION = 2
+export const SETTINGS_VERSION = 3
 export const MAX_RECENT_PROJECTS = 10
+
+export const backupSettingsSchema = z.strictObject({
+  /** Minutes between automatic backups while a book is open; 0 = off. */
+  intervalMinutes: z.number().int().min(0).max(1440),
+  /** How many automatic backups to keep. */
+  keep: z.number().int().min(1).max(200),
+  onClose: z.boolean(),
+})
+export type BackupSettings = z.infer<typeof backupSettingsSchema>
 
 export const settingsSchema = z.strictObject({
   version: z.literal(SETTINGS_VERSION),
@@ -16,6 +25,7 @@ export const settingsSchema = z.strictObject({
   recentProjects: z
     .array(z.strictObject({ path: z.string(), title: z.string(), openedAt: z.string() }))
     .max(MAX_RECENT_PROJECTS),
+  backups: backupSettingsSchema,
 })
 
 export type Settings = z.infer<typeof settingsSchema>
@@ -30,4 +40,5 @@ export const defaultSettings: Settings = {
   editorFontSize: 18,
   contextPanel: { hidden: false, collapsed: {} },
   recentProjects: [],
+  backups: { intervalMinutes: 30, keep: 20, onClose: true },
 }

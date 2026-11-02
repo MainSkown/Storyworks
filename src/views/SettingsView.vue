@@ -7,7 +7,7 @@ import CalendarEditor from '../components/CalendarEditor.vue'
 import ChecksSettings from '../components/ChecksSettings.vue'
 import NumberField from '../components/NumberField.vue'
 import { useSettingsStore } from '../settings/store'
-import type { Language, Theme } from '../settings/schema'
+import type { BackupSettings, Language, Theme } from '../settings/schema'
 
 const { t } = useI18n()
 const store = useSettingsStore()
@@ -45,6 +45,15 @@ const uiZoom = computed({
   get: () => settings.value.uiZoom,
   set: (v: number | null) => v !== null && store.setUiZoom(v),
 })
+const backupField = <K extends keyof BackupSettings>(key: K) =>
+  computed({
+    get: () => settings.value.backups[key],
+    set: (v: BackupSettings[K] | null) =>
+      v !== null && store.setBackups({ ...settings.value.backups, [key]: v }),
+  })
+const backupInterval = backupField('intervalMinutes')
+const backupKeep = backupField('keep')
+const backupOnClose = backupField('onClose')
 const fontSize = computed({
   get: () => settings.value.editorFontSize,
   set: (v: number | null) => v !== null && store.setEditorFontSize(v),
@@ -175,6 +184,40 @@ function step(current: number, delta: number, r: { min: number; max: number }): 
       </div>
       <p id="set-sample-label" class="sample-label">{{ t('settings.samplePreview') }}</p>
       <p class="sample" aria-labelledby="set-sample-label">{{ t('settings.editorSample') }}</p>
+    </div>
+
+    <div class="group" role="group" aria-labelledby="set-backups">
+      <h2 id="set-backups">{{ t('settings.backups.title') }}</h2>
+      <p class="detail">{{ t('settings.backups.hint') }}</p>
+      <div class="row">
+        <span id="set-backup-interval">{{ t('settings.backups.interval') }}</span>
+        <NumberField
+          v-model="backupInterval"
+          :min="0"
+          :max="1440"
+          :suffix="t('settings.backups.minutes')"
+          :disabled="savingDisabled"
+          labelledby="set-backup-interval"
+        />
+      </div>
+      <p class="detail">{{ t('settings.backups.intervalHint') }}</p>
+      <div class="row">
+        <span id="set-backup-keep">{{ t('settings.backups.keep') }}</span>
+        <NumberField
+          v-model="backupKeep"
+          :min="1"
+          :max="200"
+          :suffix="t('settings.backups.copies')"
+          :disabled="savingDisabled"
+          labelledby="set-backup-keep"
+        />
+      </div>
+      <QToggle
+        v-model="backupOnClose"
+        :disable="savingDisabled"
+        :label="t('settings.backups.onClose')"
+        color="primary"
+      />
     </div>
 
     <CalendarEditor />

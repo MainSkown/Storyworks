@@ -180,6 +180,16 @@
     "increase": "Increase",
     "dismiss": "Dismiss",
     "samplePreview": "Preview",
+    "backups": {
+      "title": "Backups",
+      "hint": "Copies of the whole book, kept inside the book folder, separate from snapshots.",
+      "interval": "Back up every",
+      "minutes": "min",
+      "intervalHint": "While a book is open and has changed. 0 turns timed backups off.",
+      "keep": "Keep the latest",
+      "copies": "copies",
+      "onClose": "Also back up when the book is closed"
+    },
     "readOnlyHint": "Settings are read-only.",
     "loadError": "The settings file is invalid and was not loaded.",
     "readOnlyNewer": "This settings file was saved by a newer version of Storyworks and is read-only.",
@@ -1526,5 +1536,147 @@
     },
     "contents": "Contents",
     "notes": "Notes"
+  },
+  "history": {
+    "title": "History",
+    "tabs": {
+      "changes": "Changes",
+      "history": "History",
+      "backups": "Backups"
+    },
+    "intro": "A snapshot is a saved point in your book's story that you can come back to. Your work is always saved automatically; snapshots are optional.",
+    "readOnly": "This book is open read-only, so snapshots and restores are off. You can still look at the history.",
+    "type": {
+      "part": "Part",
+      "chapter": "Chapter",
+      "scene": "Scene",
+      "timeline": "Timeline",
+      "rule": "Rule",
+      "ruleCategory": "Rule category",
+      "codexType": "Codex type",
+      "entry": "Codex entry",
+      "relationType": "Relationship type",
+      "relationship": "Relationship",
+      "group": "Group",
+      "stateKind": "State kind",
+      "knowledge": "Knowledge item",
+      "calendar": "Calendar",
+      "inbox": "Inbox",
+      "ignoredFindings": "Dismissed findings",
+      "relationLayout": "Relationship layout",
+      "settings": "Book settings",
+      "asset": "Image",
+      "dictionary": "Dictionary",
+      "file": "File"
+    },
+    "kind": {
+      "added": "added",
+      "modified": "edited",
+      "deleted": "deleted",
+      "moved": "moved",
+      "renamed": "renamed"
+    },
+    "group": {
+      "manuscript": "Manuscript",
+      "timelines": "Timelines",
+      "rules": "Rules",
+      "codex": "Codex",
+      "other": "Other"
+    },
+    "changes": {
+      "count": "No changes | {n} change since the last snapshot | {n} changes since the last snapshot",
+      "empty": "No changes since the last snapshot.",
+      "never": "No snapshot has been made yet, so everything counts as a change.",
+      "selectAll": "Select all",
+      "selectNone": "Select none",
+      "include": "Include in snapshot",
+      "message": "Message (optional)",
+      "messageHint": "Leave empty to use the date and time.",
+      "snapshotAll": "Snapshot all changes",
+      "snapshotSelected": "Snapshot selected ({n})",
+      "needOne": "Tick at least one change to include.",
+      "done": "Snapshot saved.",
+      "pulledIn": "These were included too, because they belong together:",
+      "forcedAll": "Everything was included, because the book was updated to a newer file format since the last snapshot.",
+      "list": "Changes grouped by area"
+    },
+    "log": {
+      "list": "Snapshots",
+      "empty": "No snapshots yet. Make one from the Changes tab.",
+      "changed": "{n} item changed | {n} items changed",
+      "pick": "Choose a snapshot to see what it contains.",
+      "items": "Changed in this snapshot",
+      "noItems": "Nothing changed in this snapshot.",
+      "view": "View this version",
+      "compareCurrent": "Compare with current",
+      "comparePrevious": "Compare with previous",
+      "restore": "Restore this version",
+      "restoreBook": "Restore whole book to this snapshot",
+      "notThere": "This item was not in the snapshot.",
+      "nothing": "Nothing to show.",
+      "noDifference": "No difference.",
+      "unchangedLines": "{n} unchanged line | {n} unchanged lines",
+      "added": "Added line",
+      "removed": "Removed line",
+      "viewing": "As it was in this snapshot",
+      "vsCurrent": "This snapshot compared with now",
+      "vsPrevious": "The snapshot before compared with this one",
+      "close": "Close preview"
+    },
+    "confirm": {
+      "cancel": "Cancel",
+      "safety": "A safety copy of the book as it is now is made first, so you can undo this from the Backups tab.",
+      "itemTitle": "Restore this version?",
+      "itemReplace": "“{label}” will be replaced by the version from this snapshot. The current version is kept in the safety copy.",
+      "itemBack": "“{label}” is no longer in the book. It will be put back where it was.",
+      "itemDo": "Restore",
+      "bookTitle": "Restore the whole book?",
+      "bookBody": "Everything in the book goes back to how it was in this snapshot.",
+      "bookTrash": "Items added after this snapshot are moved to the Trash, not deleted.",
+      "bookUnsaved": "You have {n} change that is not in any snapshot. It will be replaced; it stays in the safety copy only. | You have {n} changes that are not in any snapshot. They will be replaced; they stay in the safety copy only.",
+      "bookDo": "Restore whole book",
+      "backupTitle": "Restore this backup?",
+      "backupBody": "The whole book goes back to how it was at {when}. Items added since then are moved to the Trash.",
+      "backupDo": "Restore backup"
+    },
+    "restored": "Restored. A safety copy was made first.",
+    "backups": {
+      "intro": "Backups are whole copies of the book, made automatically while you write and before every restore. Change how often in Settings.",
+      "empty": "No backups yet.",
+      "auto": "Automatic backup",
+      "safety": "Before a restore",
+      "restore": "Restore"
+    },
+    "broken": {
+      "title": "The history can't be read. Your book is fine.",
+      "body": "Snapshots are unavailable, but writing and saving work as usual. You can start a new history; the old one is set aside, not deleted.",
+      "start": "Start new history",
+      "manifest": "The book's project file can't be read, so changes can't be listed."
+    },
+    "error": {
+      "corrupt": "The history can't be read.",
+      "nothing-to-commit": "There is nothing new to put in a snapshot.",
+      "manifest": "The book's project file can't be read.",
+      "read-only": "This book is open read-only.",
+      "version": "This snapshot comes from an older file format, so the whole book can't be restored from it. Single items can.",
+      "not-in-snapshot": "That item is not in this snapshot.",
+      "invalid": "The restored book would not be valid, so nothing was changed.",
+      "failed": "The restore stopped part-way.",
+      "generic": "Something went wrong."
+    },
+    "dialog": {
+      "title": "Snapshot",
+      "body": "Save this point in your book. You can come back to it later.",
+      "choose": "Choose what to include",
+      "none": "There are no changes to snapshot.",
+      "save": "Snapshot all changes",
+      "cancel": "Cancel",
+      "button": "Snapshot",
+      "buttonLabel": "Make a snapshot"
+    },
+    "status": {
+      "changes": "No changes since the last snapshot | {n} change since the last snapshot | {n} changes since the last snapshot",
+      "open": "Open History"
+    }
   }
 }

@@ -46,6 +46,7 @@ import type { TrashedNode } from './schemas/trashedNode'
 import { NodeRestoreError } from './trash'
 import { parseFile } from './serialize'
 import { useSettingsStore } from '../settings/store'
+import { startBackupScheduler, type BackupScheduler } from '../history/backups'
 import { useCodexStore } from '../codex/store'
 import { useRelationsStore } from '../relations/store'
 import { useRulesStore } from '../rules/store'
@@ -216,6 +217,8 @@ interface Session {
   pending: Map<string, Pending>
   touched: Set<string>
   detach: Array<() => void>
+  /** automatic backups; null for read-only books */
+  backup: BackupScheduler | null
 }
 
 export const useProjectStore = defineStore('project', () => {
@@ -537,7 +540,7 @@ export const useProjectStore = defineStore('project', () => {
     opened: Extract<OpenResult, { status: 'ok' }>,
     lock: ProjectLock | null,
   ): Promise<void> {
-    const s = { io, lock, detach: [] } as unknown as Session
+    const s = { io, lock, detach: [], backup: null } as unknown as Session
     buildPieces(s)
     session = s
     project.value = opened.project
@@ -554,7 +557,10 @@ export const useProjectStore = defineStore('project', () => {
 
     if (typeof window !== 'undefined') {
       const onFocus = () => void s.watcher.recheck()
-      const onUnload = () => void s.lock?.release()
+      const onUnload = () => {
+        void s.backup?.runOnClose() // best effort: the page may go before it finishes
+        void s.lock?.release()
+      }
       window.addEventListener('focus', onFocus)
       window.addEventListener('beforeunload', onUnload)
       s.detach.push(
@@ -565,6 +571,10 @@ export const useProjectStore = defineStore('project', () => {
     lock?.startAutoRefresh(() => {
       lockNote.value = 'lost'
     })
+    if (!opened.project.readOnly) {
+      const settings = useSettingsStore()
+      s.backup = startBackupScheduler({ io, env: defaultEnv, getSettings: () => settings.settings.backups })
+    }
     try {
       await s.watcher.start()
     } catch (e) {
@@ -721,6 +731,8 @@ export const useProjectStore = defineStore('project', () => {
         console.error(e)
       }
       s.autosaver.dispose()
+      await s.backup?.runOnClose().catch((e) => console.error(e))
+      s.backup?.stop()
       await s.watcher.stop().catch(() => {})
       s.detach.forEach((fn) => fn())
       await s.lock?.release().catch(() => {})
@@ -751,6 +763,11 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /** Saves everything pending now. */
+  /** The open book's file access (history and backups work on it directly); null when none is open. */
+  function projectIO(): ProjectIO | null {
+    return session?.io ?? null
+  }
+
   async function flush(): Promise<void> {
     await session?.autosaver.flushAll()
     refreshStatus()
@@ -1581,6 +1598,8 @@ export const useProjectStore = defineStore('project', () => {
     exportSettings,
     setExportSettings,
     openedCount,
+    revision,
+    projectIO,
     project,
     rootPath,
     issues,
