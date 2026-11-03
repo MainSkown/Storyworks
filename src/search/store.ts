@@ -7,7 +7,7 @@ import { useProjectStore } from '../project/store'
 import { findNode } from '../project/tree'
 import { useRulesStore } from '../rules/store'
 import { useTimelinesStore } from '../timeline/store'
-import { conversationParts, loadBodies, sceneParts } from './build'
+import { bodyVersions, changedBodies, conversationParts, loadBodies, sceneParts } from './build'
 import type { IndexPart } from './index'
 import { AREAS, createIndex, type Area, type SearchIndex } from './index'
 import { openTarget, type OpenTarget } from './open'
@@ -142,9 +142,11 @@ export const useSearchStore = defineStore('search', () => {
     }
   }
 
-  // A conversation changed (edit, undo, restore): read it again; pending edits are served from memory.
+  // A conversation changed (edit, undo, node added): read it again; pending edits are served from memory.
+  // Other store actions patch through the inner function, so they are listed here.
+  const CONVERSATION_PATCHERS = ['patchConversation', 'addConversationNode']
   project.$onAction(({ name, args, after }) => {
-    if (name !== 'patchConversation' || !active) return
+    if (!CONVERSATION_PATCHERS.includes(name) || !active) return
     const id = args[0] as string
     after((ok) => {
       if (ok) void reloadBody(id)
@@ -166,6 +168,20 @@ export const useSearchStore = defineStore('search', () => {
     },
   )
 
+  // Snapshot restore and external reloads bump a file's version; the word count may stay the same.
+  const seenVersions = new Map<string, number>()
+  watch(
+    () => bodyVersions(project.tree, project.itemVersion),
+    (versions) => {
+      if (active)
+        for (const id of changedBodies(seenVersions, versions)) {
+          if (index.has(id)) void reloadBody(id)
+        }
+      seenVersions.clear()
+      for (const [id, v] of versions) seenVersions.set(id, v)
+    },
+  )
+
   watch(
     () => [project.tree, rules.rules, codex.entries, timelines.loadedTimelines, knowledge.items],
     syncAll,
@@ -179,6 +195,7 @@ export const useSearchStore = defineStore('search', () => {
     clearTimeout(editTimer)
     edits.clear()
     seenWords.clear()
+    seenVersions.clear()
     index = createIndex()
     syncs = makeSyncs(index)
     recents.value = []
@@ -194,6 +211,7 @@ export const useSearchStore = defineStore('search', () => {
     root = project.rootPath ?? ''
     recents.value = loadRecents(root)
     active = true
+    for (const [id, v] of bodyVersions(project.tree, project.itemVersion)) seenVersions.set(id, v)
     syncAll()
   }
 

@@ -36,9 +36,7 @@ const sources = (over: Partial<SearchSources> = {}): SearchSources => ({
     {
       id: 't1',
       name: 'Main',
-      nodes: [
-        { id: 'n1', title: 'Siege', description: doc(p('z', 'The gate falls.')) },
-      ],
+      nodes: [{ id: 'n1', title: 'Siege', description: doc(p('z', 'The gate falls.')) }],
     },
   ],
   entries: [
@@ -91,7 +89,10 @@ describe('buildIndex', () => {
   })
 
   it('scene bodies without ids still match', () => {
-    const bare = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'no ids here' }] }] }
+    const bare = {
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [{ type: 'text', text: 'no ids here' }] }],
+    }
     expect(ids('no ids', sources({ sceneContent: new Map([['s1', bare]]) }))).toEqual(['s1'])
   })
 
@@ -105,7 +106,9 @@ describe('buildIndex', () => {
 describe('loadBodies', () => {
   it('fills pending scene bodies and makes them searchable', async () => {
     const ix = buildIndex(sources({ sceneContent: new Map() }))
-    const n = await loadBodies(ix, async () => sceneParts(doc(p('b1', 'late arrival of text'))), { chunk: 1 })
+    const n = await loadBodies(ix, async () => sceneParts(doc(p('b1', 'late arrival of text'))), {
+      chunk: 1,
+    })
     expect(n).toBe(1)
     expect(search(ix, 'late arrival').groups[0].hits[0].id).toBe('s1')
   })
@@ -140,11 +143,30 @@ describe('conversationParts', () => {
       id: 'c',
       title: 'T',
       nodes: [
-        { id: 'a', x: 0, y: 0, type: 'lines', next: null, content: doc(line('1', 'Hello there'), line('2', '')) },
-        { id: 'b', x: 0, y: 0, type: 'choice', options: [{ id: 'o', text: 'Goodbye', target: null }, { id: 'p', text: ' ', target: null }] },
+        {
+          id: 'a',
+          x: 0,
+          y: 0,
+          type: 'lines',
+          next: null,
+          content: doc(line('1', 'Hello there'), line('2', '')),
+        },
+        {
+          id: 'b',
+          x: 0,
+          y: 0,
+          type: 'choice',
+          options: [
+            { id: 'o', text: 'Goodbye', target: null },
+            { id: 'p', text: ' ', target: null },
+          ],
+        },
       ],
     })
-    expect(conversationParts(c)).toEqual([{ text: 'Hello there', blockId: '1' }, { text: 'Goodbye' }])
+    expect(conversationParts(c)).toEqual([
+      { text: 'Hello there', blockId: '1', nodeId: 'a' },
+      { text: 'Goodbye', nodeId: 'b' },
+    ])
   })
 })
 
@@ -166,7 +188,15 @@ describe('conversations in the index', () => {
     })
   const tree = (withConv: boolean) => [
     ...(withConv
-      ? [{ id: 'c1', type: 'conversation' as const, title: 'Tavern talk', path: 'conversations/c1.json', children: [] }]
+      ? [
+          {
+            id: 'c1',
+            type: 'conversation' as const,
+            title: 'Tavern talk',
+            path: 'conversations/c1.json',
+            children: [],
+          },
+        ]
       : []),
     { id: 's1', type: 'scene' as const, title: 'Docks', path: 'manuscript/s1.json', children: [] },
   ]
@@ -181,7 +211,8 @@ describe('conversations in the index', () => {
       }),
     )
     expect(found(ix, 'traveller')).toEqual(['conversation:c1'])
-    expect(search(ix, 'traveller').groups[0].hits[0].blockId).toBe('1')
+    expect(search(ix, 'traveller').groups[0].hits[0]).toMatchObject({ blockId: '1', nodeId: 'a' })
+    expect(search(ix, 'buy a drink').groups[0].hits[0].nodeId).toBe('b')
     expect(found(ix, 'buy a drink')).toEqual(['conversation:c1'])
     expect(found(ix, 'tavern')).toEqual(['conversation:c1'])
     expect(found(ix, 'ship')).toEqual(['scene:s1'])

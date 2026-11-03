@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useId } from 'vue'
+import { computed, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   addOption,
@@ -22,10 +22,15 @@ import { NODE_ICON, useNodeLabel } from './nodeTypes'
 import SetsEditor from './SetsEditor.vue'
 
 const props = defineProps<{ conversation: Conversation; nodeId: string; editable: boolean }>()
-const emit = defineEmits<{ update: [change: (c: Conversation) => Conversation] }>()
+const emit = defineEmits<{
+  update: [change: (c: Conversation) => Conversation]
+  /** Escape was pressed in the inspector: the parent returns focus to the node. */
+  leave: []
+}>()
 
 const { t } = useI18n()
 const uid = useId()
+const root = ref<HTMLElement | null>(null)
 const labelOf = useNodeLabel()
 
 const node = computed(() => props.conversation.nodes.find((n) => n.id === props.nodeId) ?? null)
@@ -35,6 +40,31 @@ const ids = computed(() => new Set(props.conversation.nodes.map((n) => n.id)))
 const targets = computed(() =>
   props.conversation.nodes.map((n) => ({ id: n.id, label: labelOf(n) })),
 )
+
+const PRIMARY = '[contenteditable="true"], .opts input.control, select.control'
+const ANY = 'input:not(:disabled), select:not(:disabled), button:not(:disabled)'
+
+/** Focuses the main control (the line editor, the first option, the target); false if none showed up. */
+async function focusFirst(): Promise<boolean> {
+  for (let i = 0; i < 12; i++) {
+    const el =
+      root.value?.querySelector<HTMLElement>(PRIMARY) ?? root.value?.querySelector<HTMLElement>(ANY)
+    if (el && !el.hasAttribute('disabled')) {
+      el.focus()
+      return true
+    }
+    await new Promise((r) => requestAnimationFrame(r))
+  }
+  return false
+}
+defineExpose({ focusFirst })
+
+function onKeydown(e: KeyboardEvent): void {
+  if (e.key === 'Escape' && !e.defaultPrevented) {
+    e.preventDefault()
+    emit('leave')
+  }
+}
 
 const update = (change: (c: Conversation) => Conversation) => emit('update', change)
 
@@ -79,7 +109,13 @@ const setSets = (s: SetOp[]) => update((x) => setNodeSets(x, props.nodeId, s))
 </script>
 
 <template>
-  <aside v-if="node" class="insp" :aria-label="t('game.conversation.inspector')">
+  <aside
+    v-if="node"
+    ref="root"
+    class="insp"
+    :aria-label="t('game.conversation.inspector')"
+    @keydown="onKeydown"
+  >
     <h2 class="title">
       <QIcon :name="NODE_ICON[node.type]" size="1.25rem" aria-hidden="true" />
       {{ t(`game.conversation.type.${node.type}`) }}

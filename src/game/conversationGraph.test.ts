@@ -90,11 +90,32 @@ describe('addNode and placeNew', () => {
     expect(node(c, 'a')).toMatchObject({ next: 'n' })
   })
 
-  it('places right of the focused node, else below the lowest', () => {
+  it('places right of the focused node when that spot is free', () => {
     const c = addNode(build(), 'end', { id: 'low', ...at(0, 300) })
-    expect(placeNew(c, 'b')).toEqual({ x: 440, y: 0 })
-    expect(placeNew(c, null).y).toBeGreaterThan(300)
+    expect(placeNew(c, 'e')).toEqual({ x: 760, y: 0 })
+    expect(placeNew(c, 'low')).toEqual({ x: 320, y: 300 })
+  })
+
+  it('steps down when the spot right of the focused node is taken', () => {
+    let c = build()
+    expect(placeNew(c, 'a')).toEqual({ x: 320, y: 120 })
+    c = addNode(c, 'end', { id: 'n1', ...at(320, 120) })
+    expect(placeNew(c, 'a')).toEqual({ x: 320, y: 240 })
+  })
+
+  it('counts a node that only partly overlaps the spot as taking it', () => {
+    const c = addNode(build(), 'end', { id: 'n1', ...at(300, 100) })
+    expect(placeNew(c, 'a')).toEqual({ x: 320, y: 240 })
+  })
+
+  it('with no focus uses the first free spot below the lowest node', () => {
+    const c = addNode(build(), 'end', { id: 'low', ...at(0, 300) })
+    expect(placeNew(c, null)).toEqual({ x: 0, y: 420 })
     expect(placeNew(empty(), null)).toEqual({ x: 0, y: 0 })
+  })
+
+  it('treats an unknown focus id like no focus', () => {
+    expect(placeNew(build(), 'gone')).toEqual({ x: 0, y: 120 })
   })
 })
 

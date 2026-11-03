@@ -16,6 +16,8 @@ export interface SearchHit {
   matchEnd: number
   /** Manuscript body hits: the block to open at. */
   blockId?: string
+  /** Conversation body hits: the graph node to select. */
+  nodeId?: string
   /** The scene's chapter or the node's timeline. */
   parentId?: string
 }
@@ -80,6 +82,7 @@ function hitOf(item: IndexedItem, qf: string): SearchHit | null {
       field: 'body',
       ...snippetOf(part.text, r.start, r.end),
       ...(part.blockId ? { blockId: part.blockId } : {}),
+      ...(part.nodeId ? { nodeId: part.nodeId } : {}),
     }
   }
   return null

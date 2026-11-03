@@ -88,7 +88,7 @@ async function activate(row: Row | undefined): Promise<void> {
   }
   open.value = false
   const { hit } = row
-  await store.open({ id: hit.id, kind: hit.kind, parentId: hit.parentId, blockId: hit.blockId })
+  await store.open({ id: hit.id, kind: hit.kind, parentId: hit.parentId, blockId: hit.blockId, nodeId: hit.nodeId })
 }
 
 function onKeydown(e: KeyboardEvent): void {

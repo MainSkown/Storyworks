@@ -2,10 +2,13 @@
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
+  BaseEdge,
+  EdgeLabelRenderer,
   Handle,
   MarkerType,
   Position,
   VueFlow,
+  getBezierPath,
   useVueFlow,
   type Connection,
   type Edge,
@@ -15,6 +18,7 @@ import {
   type NodeMouseEvent,
 } from '@vue-flow/core'
 import '@vue-flow/core/dist/style.css'
+import { backEdgePath, isBackEdge } from './edgePath'
 import {
   connectReduce,
   keyToAction,
@@ -45,6 +49,8 @@ const props = withDefaults(
     /** false: positions are computed by the parent, nodes cannot be moved. */
     draggable?: boolean
     selectedId?: string | null
+    /** Back/self edges loop around the nodes; labels stay readable when zoomed out. */
+    routeBackEdges?: boolean
   }>(),
   {
     canConnect: () => ({ ok: true as const }),
@@ -53,6 +59,7 @@ const props = withDefaults(
     nudgeStep: 10,
     draggable: true,
     selectedId: null,
+    routeBackEdges: false,
   },
 )
 
@@ -135,6 +142,7 @@ const flowEdges = computed<Edge[]>(() =>
     const color = s.color ?? 'var(--border-strong)'
     return {
       id: e.id,
+      ...(props.routeBackEdges ? { type: 'graph' } : {}),
       source: e.from,
       target: e.to,
       label: e.label,
@@ -150,6 +158,52 @@ const flowEdges = computed<Edge[]>(() =>
     }
   }),
 )
+
+// Edge drawing (opt-in): forward edges stay Bezier curves, back edges go round the nodes.
+const MAX_LABEL = 24
+const labelScale = computed(() => Math.min(2.5, Math.max(1, 1 / viewport.value.zoom)))
+const backLanes = computed(() => {
+  const lanes = new Map<string, number>()
+  let i = 0
+  for (const e of props.edges) {
+    const a = nodeById.value.get(e.from)
+    const b = nodeById.value.get(e.to)
+    if (!a || !b) continue
+    if (b.x <= a.x + (a.width ?? DEFAULT_NODE_WIDTH)) lanes.set(e.id, i++ % 4)
+  }
+  return lanes
+})
+interface EdgeSlot {
+  id: string
+  sourceX: number
+  sourceY: number
+  targetX: number
+  targetY: number
+  sourcePosition: Position
+  targetPosition: Position
+  label?: unknown
+}
+function edgeGeometry(e: EdgeSlot) {
+  const s = { x: e.sourceX, y: e.sourceY }
+  const t = { x: e.targetX, y: e.targetY }
+  if (isBackEdge(s, t)) {
+    const r = backEdgePath(s, t, boxes.value, { lane: backLanes.value.get(e.id) ?? 0 })
+    return { path: r.path, x: r.labelX, y: r.labelY }
+  }
+  const [path, x, y] = getBezierPath({
+    sourceX: e.sourceX,
+    sourceY: e.sourceY,
+    sourcePosition: e.sourcePosition,
+    targetX: e.targetX,
+    targetY: e.targetY,
+    targetPosition: e.targetPosition,
+  })
+  return { path, x, y }
+}
+function labelText(label: unknown): string {
+  const s = String(label ?? '')
+  return s.length > MAX_LABEL ? `${s.slice(0, MAX_LABEL - 1)}…` : s
+}
 
 function nodeLabel(id: string): string {
   return nodeById.value.get(id)?.label ?? id
@@ -193,6 +247,44 @@ function ensureVisible(id: string) {
   if (!inside) void setCenter(b.x + b.w / 2, b.y + b.h / 2, { zoom, duration: ms(150) })
 }
 
+/** Brings a node into view with its linked nodes, without zooming out below a readable size. */
+function reveal(id: string) {
+  const b = boxes.value.find((x) => x.id === id)
+  const root = rootEl.value
+  if (!b || !root) return
+  const { x: vx, y: vy, zoom } = viewport.value
+  const pad = 40
+  const inside =
+    b.x * zoom + vx >= pad &&
+    b.y * zoom + vy >= pad &&
+    (b.x + b.w) * zoom + vx <= root.clientWidth - pad &&
+    (b.y + b.h) * zoom + vy <= root.clientHeight - pad
+  if (inside) return
+  const linked = new Set([id])
+  for (const e of props.edges) {
+    if (e.from === id) linked.add(e.to)
+    else if (e.to === id) linked.add(e.from)
+  }
+  const group = boxes.value.filter((x) => linked.has(x.id))
+  const x0 = Math.min(...group.map((g) => g.x))
+  const y0 = Math.min(...group.map((g) => g.y))
+  const x1 = Math.max(...group.map((g) => g.x + g.w))
+  const y1 = Math.max(...group.map((g) => g.y + g.h))
+  const margin = 80
+  const fitZoom = Math.min(
+    root.clientWidth / (x1 - x0 + margin * 2),
+    root.clientHeight / (y1 - y0 + margin * 2),
+  )
+  const minZoom = Math.min(zoom, 0.55)
+  const z = Math.min(zoom, Math.max(minZoom, fitZoom))
+  const whole = fitZoom >= minZoom
+  void setCenter(
+    whole ? (x0 + x1) / 2 : b.x + b.w / 2,
+    whole ? (y0 + y1) / 2 : b.y + b.h / 2,
+    { zoom: z, duration: ms(200) },
+  )
+}
+
 /** Viewport animation length; none when the user prefers reduced motion. */
 const ms = (n: number) => (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : n)
 
@@ -206,13 +298,14 @@ function centerOn(id: string, duration = 200) {
     })
 }
 
-async function focusNode(id: string) {
+async function focusNode(id: string, opts: { reveal?: boolean } = {}) {
   activeId.value = id
   await nextTick()
   // A node added a moment ago is rendered by Vue Flow a frame or two later.
   for (let i = 0; i < 10 && !nodeEl(id); i++) await new Promise((r) => requestAnimationFrame(r))
   nodeEl(id)?.focus({ preventScroll: true })
-  ensureVisible(id)
+  if (opts.reveal) reveal(id)
+  else ensureVisible(id)
 }
 
 function onFocusin(e: FocusEvent) {
@@ -336,12 +429,13 @@ function onPaneClick() {
   selectedEdgeId.value = null
   emit('select', null)
 }
-function onEdgeClick(e: EdgeMouseEvent) {
-  selectedEdgeId.value = e.edge.id
+function selectEdge(id: string) {
+  selectedEdgeId.value = id
   rootEl.value?.focus({ preventScroll: true })
-  const m = props.edges.find((x) => x.id === e.edge.id)
+  const m = props.edges.find((x) => x.id === id)
   if (m) announce(t('graph.edge.selected', { from: nodeLabel(m.from), to: nodeLabel(m.to) }))
 }
+const onEdgeClick = (e: EdgeMouseEvent) => selectEdge(e.edge.id)
 
 watch(
   () => props.nodes,
@@ -417,6 +511,28 @@ defineExpose({
       @edge-click="onEdgeClick"
       @pane-click="onPaneClick"
     >
+      <template #edge-graph="e">
+        <BaseEdge
+          :id="e.id"
+          :path="edgeGeometry(e).path"
+          :marker-end="e.markerEnd"
+          :style="e.style"
+          :interaction-width="e.interactionWidth"
+        />
+        <EdgeLabelRenderer v-if="e.label">
+          <div
+            class="elabel nodrag nopan"
+            :class="{ 'is-selected': e.selected }"
+            aria-hidden="true"
+            :style="{
+              transform: `translate(-50%, -50%) translate(${edgeGeometry(e).x}px, ${edgeGeometry(e).y}px) scale(${labelScale})`,
+            }"
+            @click.stop="selectEdge(e.id)"
+          >
+            {{ labelText(e.label) }}
+          </div>
+        </EdgeLabelRenderer>
+      </template>
       <template #node-graph="{ id }">
         <div
           v-if="nodeById.get(id)"
@@ -505,6 +621,26 @@ defineExpose({
 .graph-canvas :deep(.vue-flow__edge-text) {
   fill: var(--text-secondary);
   font-size: 11px;
+}
+.elabel {
+  position: absolute;
+  padding: 2px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: all;
+  cursor: pointer;
+}
+.elabel.is-selected {
+  border-color: var(--focus-ring);
+  border-width: 2px;
+}
+.graph-canvas :deep(.vue-flow__edge-labels) {
+  z-index: 10;
 }
 .graph-canvas :deep(.vue-flow__connection-path) {
   stroke: var(--focus-ring);

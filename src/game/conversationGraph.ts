@@ -9,7 +9,10 @@ import type {
 export type NodeType = ConversationNode['type']
 type Choice = Extract<ConversationNode, { type: 'choice' }>
 
-const X_STEP = 220
+/** Card size on the canvas (ConversationView draws nodes this big). */
+export const NODE_W = 200
+export const NODE_H = 72
+const X_STEP = 320
 const Y_STEP = 120
 
 const find = (c: Conversation, id: string) => c.nodes.find((n) => n.id === id)
@@ -63,13 +66,18 @@ export function brokenTargets(c: Conversation): BrokenTarget[] {
   return out
 }
 
-/** Right of the focused node, else below the lowest node, else the origin. */
+const taken = (c: Conversation, x: number, y: number) =>
+  c.nodes.some((n) => Math.abs(n.x - x) < NODE_W && Math.abs(n.y - y) < NODE_H)
+
+/** Right of the focused node, stepping down while taken; else below the lowest node. */
 export function placeNew(c: Conversation, afterId: string | null): { x: number; y: number } {
   const after = afterId ? find(c, afterId) : undefined
-  if (after) return { x: after.x + X_STEP, y: after.y }
-  if (!c.nodes.length) return { x: 0, y: 0 }
-  const lowest = c.nodes.reduce((a, b) => (b.y > a.y ? b : a))
-  return { x: lowest.x, y: lowest.y + Y_STEP }
+  if (!after && !c.nodes.length) return { x: 0, y: 0 }
+  const lowest = after ? null : c.nodes.reduce((a, b) => (b.y > a.y ? b : a))
+  const x = after ? after.x + X_STEP : lowest!.x
+  let y = after ? after.y : lowest!.y + Y_STEP
+  while (taken(c, x, y)) y += Y_STEP
+  return { x, y }
 }
 
 export interface NewNode {

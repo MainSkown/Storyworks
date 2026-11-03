@@ -9,6 +9,8 @@ export interface IndexPart {
   text: string
   /** Manuscript: the block the text sits in. */
   blockId?: string
+  /** Conversations: the graph node the text sits in. */
+  nodeId?: string
 }
 
 export interface IndexInput {

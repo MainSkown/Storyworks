@@ -1,3 +1,4 @@
+import { pendingConversationNode } from '../composables/conversationFocus'
 import { jumpToBlock, jumpToNode, jumpToScene } from '../composables/useJump'
 import { writeView } from '../composables/writeView'
 import { openEntry } from '../codex/openEntry'
@@ -13,6 +14,8 @@ export interface OpenTarget {
   parentId?: string
   /** Scenes: reveal this block. */
   blockId?: string
+  /** Conversations: select this node. */
+  nodeId?: string
 }
 
 /** Opens the item through the existing jump helpers; scenes land on the matching block. */
@@ -29,6 +32,8 @@ export async function openTarget(t: OpenTarget): Promise<void> {
       writeView.value = 'editor'
       p.openNote(null)
       p.selectedId = t.id
+      pendingConversationNode.value =
+        t.kind === 'conversation' && t.nodeId ? { conversationId: t.id, nodeId: t.nodeId } : null
       await router.push({ name: 'write' })
       return
     }

@@ -35,10 +35,35 @@ export function conversationParts(c: Conversation): IndexPart[] {
     if (n.type === 'lines')
       return blockTexts(n.content)
         .filter((b) => b.text.trim() !== '')
-        .map((b) => ({ text: b.text, blockId: b.blockId }))
-    return n.type === 'choice' ? textParts(...n.options.map((o) => o.text)) : []
+        .map((b) => ({ text: b.text, blockId: b.blockId, nodeId: n.id }))
+    return n.type === 'choice'
+      ? n.options.filter((o) => o.text.trim() !== '').map((o) => ({ text: o.text, nodeId: n.id }))
+      : []
   })
 }
+
+/** File version of every scene and conversation, by id. */
+export function bodyVersions(
+  tree: ManuscriptNode[],
+  versionOf: (path: string) => number,
+): Map<string, number> {
+  const out = new Map<string, number>()
+  const walk = (nodes: ManuscriptNode[]) => {
+    for (const n of nodes) {
+      if ((n.type === 'scene' || n.type === 'conversation') && n.path)
+        out.set(n.id, versionOf(n.path))
+      walk(n.children)
+    }
+  }
+  walk(tree)
+  return out
+}
+
+/** Ids whose version moved since `seen`; ids not seen before do not count. */
+export const changedBodies = (
+  seen: ReadonlyMap<string, number>,
+  now: ReadonlyMap<string, number>,
+): string[] => [...now].filter(([id, v]) => seen.has(id) && seen.get(id) !== v).map(([id]) => id)
 
 export interface ItemEntry {
   area: Area
@@ -79,7 +104,10 @@ export function manuscriptItems(
           },
         })
       } else if (n.type === 'chapter') {
-        out.push({ area: 'manuscript', item: { id: n.id, kind: 'chapter', title: n.title, parentId } })
+        out.push({
+          area: 'manuscript',
+          item: { id: n.id, kind: 'chapter', title: n.title, parentId },
+        })
       }
       walk(n.children, n.id)
     }
@@ -88,7 +116,9 @@ export function manuscriptItems(
   return out
 }
 
-export const ruleItem = (r: Pick<Rule, 'id' | 'title' | 'description' | 'exceptions'>): ItemEntry => ({
+export const ruleItem = (
+  r: Pick<Rule, 'id' | 'title' | 'description' | 'exceptions'>,
+): ItemEntry => ({
   area: 'rules',
   item: {
     id: r.id,

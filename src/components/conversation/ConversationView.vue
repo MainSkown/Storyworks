@@ -9,9 +9,12 @@ import {
   deleteNode,
   disconnect,
   moveNode,
+  NODE_H,
+  NODE_W,
   toGraph,
   type NodeType,
 } from '../../game/conversationGraph'
+import { pendingConversationNode } from '../../composables/conversationFocus'
 import { brokenUses } from '../../game/variableUses'
 import { newId } from '../../project/ids'
 import { useProjectStore } from '../../project/store'
@@ -27,14 +30,11 @@ import PlaythroughPanel from './PlaythroughPanel.vue'
 import { NODE_COLOR, NODE_ICON, NODE_TYPES, useNodeLabel } from './nodeTypes'
 
 interface CanvasHandle {
-  focusNode(id: string): Promise<void>
+  focusNode(id: string, opts?: { reveal?: boolean }): Promise<void>
   fit(): unknown
   zoomIn(): unknown
   zoomOut(): unknown
 }
-
-const NODE_W = 200
-const NODE_H = 72
 
 const props = defineProps<{ conversationId: string }>()
 defineSlots<{
@@ -88,6 +88,12 @@ watch(
 )
 // Snapshot restore, external changes.
 watch(version, () => void load())
+// A search hit pointing at a node of this conversation selects it.
+watch([conv, pendingConversationNode], ([c, p]) => {
+  if (!c || p?.conversationId !== props.conversationId) return
+  if (c.nodes.some((n) => n.id === p.nodeId)) selectedId.value = p.nodeId
+  pendingConversationNode.value = null
+})
 watch(
   () => conv.value?.nodes.some((n) => n.id === selectedId.value),
   (has) => {
@@ -160,7 +166,13 @@ function onConnect(from: string, to: string): void {
 const onDisconnect = (edgeId: string) => void apply((c) => disconnect(c, edgeId))
 const onMove = (id: string, x: number, y: number) =>
   void apply((c) => moveNode(c, id, Math.round(x), Math.round(y)))
-const onOpen = (id: string) => (selectedId.value = id)
+const inspector = ref<{ focusFirst(): Promise<boolean> } | null>(null)
+async function onOpen(id: string): Promise<void> {
+  selectedId.value = id
+  await nextTick()
+  await inspector.value?.focusFirst()
+}
+const onLeaveInspector = () => selectedId.value && void canvas.value?.focusNode(selectedId.value)
 
 async function addNodeOf(type: NodeType, afterId: string | null): Promise<void> {
   if (locked.value) return toast(t('game.conversation.readOnly'))
@@ -171,7 +183,7 @@ async function addNodeOf(type: NodeType, afterId: string | null): Promise<void> 
   if (display.value === 'canvas') {
     await nextTick()
     // After the button's own focus handling (Quasar refocuses it on release).
-    setTimeout(() => void canvas.value?.focusNode(id), 60)
+    setTimeout(() => void canvas.value?.focusNode(id, { reveal: true }), 60)
   }
 }
 
@@ -317,6 +329,7 @@ watch(
           :node-style="nodeStyle"
           :draggable="!locked"
           :selected-id="selectedId"
+          route-back-edges
           @select="selectedId = $event"
           @move="onMove"
           @connect="onConnect"
@@ -338,11 +351,13 @@ watch(
       </div>
       <ConversationInspector
         v-if="selectedId && !playthroughOpen"
+        ref="inspector"
         class="side"
         :conversation="conv"
         :node-id="selectedId"
         :editable="!locked"
         @update="apply"
+        @leave="onLeaveInspector"
       />
       <div v-if="playthroughOpen" class="side play-panel">
         <slot name="playthrough" :conversation="conv" :close="() => (playthroughOpen = false)">
