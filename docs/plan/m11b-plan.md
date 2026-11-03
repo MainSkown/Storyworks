@@ -3,7 +3,7 @@
 Scope: the script-kind parts of [M11](milestones.md#m11--import-onboarding-polish-and-release). Spec: [script spec](../features/script-writing.md) (samples and audit), Comfort and accessibility.
 Tags: **T** trivial → Haiku · **N** normal → Sonnet · **H** hard → Sonnet with extra care (tests first, reviewed before accepting).
 
-**Status: blocked.** Needs S1–S6 (screenplay editor, exports and Fountain, game linear scripts, conversations, story map and routes, script checks). None is built, so file formats, section names and canvases do not exist yet. Steps below are fixed in scope; exact files and tests are filled in when the S milestones land. Next real work: plan and build **S1**.
+**Status: ready.** S1–S7 are built (manifest v18; S6 = game document: Overview, Mechanics, Glossary, links, `gamedoc` section; S7 = game checks and exports). Steps below are updated for S6/S7; exact files and tests are filled in as each step starts. Next real work: step 1 and 2 in parallel.
 
 ## Carried over from M11a (do here or earlier if cheap)
 - Real-window checks on the packaged builds (Linux, Windows): import native multi-select and sibling images, marker removal on close, "Open log folder", bundled dictionaries, `stats.json`/backups in app data, 300k-word book, crash dialog after a kill. M9/M10 items too.
@@ -19,26 +19,26 @@ Tags: **T** trivial → Haiku · **N** normal → Sonnet · **H** hard → Sonne
 
 ## Steps
 
-### 1. Sample screenplay (N, **H** for the Fountain round trip check) · after S2
+### 1. Sample screenplay (N, **H** for the Fountain round trip check)
 Short scene set (≈6 scenes, a title page, scene numbers, cues from codex characters, a timeline link, a margin comment), one deliberate script finding. Test: opens against all schemas, checks give exactly the expected finding, Fountain export → import reproduces the elements.
 
-### 2. Sample game script (N) · after S6
-One linear script, one conversation with choices, a condition and a variable change, a story map with 3+ items and unlock conditions, a route via a timeline branch, one deliberate finding (e.g. unreachable node). Test: opens, play-through reaches the expected end with the expected variables, checks give exactly the one finding, game JSON export re-reads to the same graph.
+### 2. Sample game script (N)
+One linear script, one conversation with choices, a condition and a variable change, a story map with 3+ items and unlock conditions, a route via a timeline branch, **a game document (filled Overview, 4–5 mechanics across categories and statuses with parameters and links to a variable, an item, a beat and a codex entry, 4–6 glossary terms)**, one deliberate finding (e.g. unreachable node; the game-document checks stay clean). Test: opens, play-through reaches the expected end with the expected variables, checks give exactly the one finding, game JSON export re-reads to the same graph, **document export (PDF/DOCX/Markdown) contains Overview, mechanics and glossary, every mechanic link resolves**.
 
 ### 3. Welcome chooser and tour per kind (N) · after 1, 2
-Chooser UI (3 cards); tour steps: screenplay (elements and Tab flow, scene numbers, Fountain, page count), game script (variables, conversation canvas, story map, routes, checks). `tourSeen` stays one flag; re-run from Help picks steps by kind. i18n EN/PL (**T**).
+Chooser UI (3 cards); tour steps: screenplay (elements and Tab flow, scene numbers, Fountain, page count), game script (variables, conversation canvas, story map, routes, **game document: mechanics and links**, checks, game export). `tourSeen` stays one flag; re-run from Help picks steps by kind. i18n EN/PL (**T**).
 
-### 4. Accessibility audit of script canvases (N, H review) · after S5
-Conversation canvas and story-map canvas: Tab/arrow/Enter operation, add and connect nodes by keyboard, list-view equivalents, accessible names, section colour token contrast (both themes, extend `tokens.contrast.test.ts`), reduced motion. Template-scan test covers new components. Findings in `docs/review/a11y-m11b.md`.
+### 4. Accessibility audit of script canvases and game document (N, H review)
+Conversation canvas and story-map canvas: Tab/arrow/Enter operation, add and connect nodes by keyboard, list-view equivalents, accessible names, section colour token contrast (both themes, extend `tokens.contrast.test.ts`), reduced motion. **Game document: tabs via `?tab=`, mechanic list filters and keyboard reorder alternative, status chips (text label, not colour only), parameters table, link picker dialog (focus trap, tabs), broken-link styling not colour only, glossary inline edit and delete confirm; two known S6 gaps: focus not returned to Edit after glossary edit, opening a variable from a mechanic does not highlight it.** Template-scan test covers new components. Findings in `docs/review/a11y-m11b.md`.
 
-### 5. Performance on large scripts (N) · after S6
-Fixtures: 120-page screenplay, game script with ~5 000 lines and ~300 conversation nodes, story map of ~100 items. Budgets as M11a (open < 3 s, switch < 300 ms, search < 100 ms, script checks < 2 s). Fix only what misses.
+### 5. Performance on large scripts (N)
+Fixtures: 120-page screenplay, game script with ~5 000 lines and ~300 conversation nodes, story map of ~100 items, **game document with ~300 mechanics (each ~5 links) and ~500 glossary terms (list, filter, search, broken-link and reverse-link computation, document export)**. Budgets as M11a (open < 3 s, switch < 300 ms, search < 100 ms, script checks < 2 s). Fix only what misses.
 
 ### 6. Final review, screenshots, docs, release (N)
-Spec ticks (script spec samples and audit lines), README feature list gets script kinds, screenshots of chooser, sample screens, tour per kind and canvases into the "Storyworks Screens" Artifact, version bump, tag, CI release, install check on both platforms.
+Spec ticks (script spec samples and audit lines), README feature list gets script kinds and the game document, screenshots of chooser, sample screens, tour per kind and canvases into the "Storyworks Screens" Artifact, version bump, tag, CI release, install check on both platforms.
 
 ## Order
-S1 → S2 → … → S6 (own plans), then 1 ∥ 2 → 3 → 4 ∥ 5 → 6. Carry-over items can run any time.
+S1–S7 done; now 1 ∥ 2 → 3 → 4 ∥ 5 → 6. Carry-over items can run any time.
 
 ## Done when (M11b)
-Both script samples open and demonstrate their features, the tour covers all three kinds, the script canvases pass the audit, large scripts meet the budgets, and the carried-over real-window checks are done on both platforms.
+Both script samples open and demonstrate their features (the game sample includes a game document), the tour covers all three kinds, the script canvases and game document pass the audit, large scripts meet the budgets, and the carried-over real-window checks are done on both platforms.
