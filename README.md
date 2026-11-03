@@ -69,9 +69,8 @@ App settings, logs, the crash marker and global dictionaries live in the per-use
 
 | OS | Path |
 | --- | --- |
-| Linux | `~/.local/share/io.github.mainskown.storyworks/` |
-| Windows | `%APPDATA%\io.github.mainskown.storyworks\` |
-| macOS (not shipped) | `~/Library/Application Support/io.github.mainskown.storyworks/` |
+| Linux | `~/.local/share/storyworks/` |
+| Windows | `%APPDATA%\storyworks\` |
 
 The logs hold event names only, never manuscript text. Do not change the app identifier: it fixes this path.
 
