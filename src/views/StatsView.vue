@@ -17,6 +17,7 @@ useClockRefresh()
 const series = computed(() => lastDays(stats.days, stats.today, 30))
 const hasWords = computed(() => stats.days.some((d) => d.net > 0))
 const bookWords = computed(() => project.wordCounts.get('') ?? 0)
+const isScreenplay = computed(() => project.project?.manifest.kind === 'screenplay')
 
 const pct = (p: Progress) => Math.round(p.fraction * 100)
 
@@ -101,6 +102,13 @@ const liveId = computed(() => stats.liveSession?.id ?? null)
           </p>
         </template>
         <p v-else class="sub">{{ t('stats.today.noGoal') }}</p>
+      </section>
+
+      <section v-if="isScreenplay" class="card" aria-labelledby="st-script">
+        <h2 id="st-script">{{ t('stats.script.title') }}</h2>
+        <p class="big">{{ t('stats.script.pages', { n: project.pageStats.pages }, project.pageStats.pages) }}</p>
+        <p class="sub">{{ t('stats.script.runtime', { n: project.pageStats.minutes }) }}</p>
+        <p class="sub">{{ t('stats.script.note') }}</p>
       </section>
 
       <section class="card" aria-labelledby="st-book">

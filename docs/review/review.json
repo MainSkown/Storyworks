@@ -4,6 +4,104 @@
   "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
   "milestones": [
     {
+      "id": "s2",
+      "title": "S2 · Screenplay export, Fountain and page count",
+      "intro": "Export is now open for screenplays (PDF, Word, Fountain), Fountain files import and paste, and the status bar and Stats show pages and runtime.",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Export page",
+          "intro": "Same page as for books, with screenplay options. Fountain hides the page options. Nothing selected disables Export.",
+          "figures": [
+            {
+              "img": "shots/s2/export-pdf.png",
+              "alt": "Export page, PDF",
+              "bold": "PDF.",
+              "muted": "Sequences, title page, page size (Letter or A4), scene numbers, page numbers, (MORE)/(CONT'D). Summary shows pages."
+            },
+            {
+              "img": "shots/s2/export-fountain.png",
+              "alt": "Export page, Fountain",
+              "bold": "Fountain.",
+              "muted": "Page setup is replaced by a one-line note."
+            },
+            {
+              "img": "shots/s2/export-nothing-selected.png",
+              "alt": "Export with nothing selected",
+              "bold": "Nothing selected.",
+              "muted": "Export is disabled and says why."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Exported files",
+          "intro": "The PDF is drawn page by page from the same layout as the page count, so both agree: 8 pages plus the title page. Word follows the same indents and numbers; Word paginates itself, so its count can differ slightly.",
+          "figures": [
+            {
+              "img": "shots/s2/pdf-pages.png",
+              "alt": "PDF title page and two script pages",
+              "bold": "PDF.",
+              "muted": "Courier 12, 1.5 in left margin, scene numbers in both margins, page number from page 2, speech indents."
+            },
+            {
+              "img": "shots/s2/docx-pages.png",
+              "alt": "Word file title page and two script pages, opened in LibreOffice",
+              "bold": "Word.",
+              "muted": "Named styles per element; title page in its own section."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Fountain import",
+          "intro": "The Import button now takes a .fountain or .txt file. Sections become sequences, each scene heading starts a scene. What cannot be imported is listed.",
+          "figures": [
+            {
+              "img": "shots/s2/import-preview.png",
+              "alt": "Fountain import preview with the not-imported list",
+              "bold": "Preview.",
+              "muted": "Sequences and scenes with word counts; the list names title page keys, boneyard, notes, synopsis lines, page breaks and emphasis."
+            },
+            {
+              "img": "shots/s2/paste.png",
+              "alt": "Fountain pasted into the editor",
+              "bold": "Paste.",
+              "muted": "Pasted Fountain becomes typed elements; plain text still becomes action lines."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Pages and runtime",
+          "intro": "Counted from the standard layout, about one page per minute.",
+          "figures": [
+            {
+              "img": "shots/s2/write-statusbar.png",
+              "alt": "Write view with the status bar showing pages",
+              "bold": "Status bar.",
+              "muted": "Pages: 8 · about 7 min, next to the word counts."
+            },
+            {
+              "img": "shots/s2/stats.png",
+              "alt": "Stats with a Pages and runtime card",
+              "bold": "Stats.",
+              "muted": "New card for screenplays."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Tests green (npm test: 217 files, 2287 tests). Screens driven in the browser build (Playwright, 1280 px wide): import, paste, status bar, Stats, export of all three formats, round trip into a second project; no console errors.",
+            "The exported PDF has exactly the status-bar page count plus the title page. Word opened and converted in LibreOffice (same page count here).",
+            "Not verified in a real Tauri window: native Save-as and file picker for .fountain."
+          ]
+        }
+      ]
+    },
+    {
       "id": "s1",
       "title": "S1 · Project kinds and screenplay editor",
       "sections": [

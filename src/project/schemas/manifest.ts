@@ -3,8 +3,9 @@ import type { Env } from '../types'
 import { defaultNames } from '../defaultNames'
 import { isKindId, type KindId } from '../kinds'
 import { defaultExportOptions, type ExportOptions } from '../../export/options'
+import { defaultScriptExportOptions, type ScriptExportOptions } from '../../export/scriptOptions'
 
-export const MANIFEST_VERSION = 13
+export const MANIFEST_VERSION = 14
 export const BOOK_KIND: KindId = 'book'
 
 /** Index entry for one item file (or one singleton file). */
@@ -70,6 +71,15 @@ export const exportSettingsSchema = z.strictObject({
   }),
 }) satisfies z.ZodType<ExportOptions>
 
+/** Mirrors `ScriptExportOptions` (src/export/scriptOptions.ts). */
+export const scriptExportSchema = z.strictObject({
+  pageSize: z.enum(['Letter', 'A4']),
+  titlePage: z.boolean(),
+  sceneNumbers: z.boolean(),
+  pageNumbers: z.boolean(),
+  moreContd: z.boolean(),
+}) satisfies z.ZodType<ScriptExportOptions>
+
 export const goalsSchema = z.strictObject({
   daily: z.number().int().min(0).nullable().default(null),
   book: z.number().int().min(0).nullable().default(null),
@@ -128,6 +138,8 @@ export const manifestSchema = z.strictObject({
   checkSettings: z.record(z.string(), z.boolean()).default({}),
   // Per-book export form values.
   exportSettings: exportSettingsSchema.default(defaultExportOptions),
+  // Per-screenplay export form values.
+  scriptExport: scriptExportSchema.default(defaultScriptExportOptions),
 })
 
 export type Manifest = z.infer<typeof manifestSchema>

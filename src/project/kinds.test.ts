@@ -85,12 +85,13 @@ describe('project kinds', () => {
     expect(io.files.get('project.json')).toBe(before)
   })
 
-  it('profiles: book shows everything; script kinds hide Export and Import', () => {
+  it('profiles: book shows everything; the game hides Export and Import', () => {
     expect(kindProfile('book').hiddenSections).toEqual([])
-    expect(kindProfile('screenplay').hiddenSections).toContain('export')
+    expect(kindProfile('screenplay').hiddenSections).not.toContain('export')
     expect(kindProfile('game').hiddenSections).toContain('export')
     expect(kindProfile('book').hasImport).toBe(true)
-    expect(kindProfile('screenplay').hasImport).toBe(false)
+    expect(kindProfile('screenplay').hasImport).toBe(true)
+    expect(kindProfile('game').hasImport).toBe(false)
     expect(kindProfile('book').hasParts).toBe(true)
     expect(kindProfile('screenplay').hasParts).toBe(false)
     expect(kindProfile('screenplay').folderLabel).toBe('sequence')

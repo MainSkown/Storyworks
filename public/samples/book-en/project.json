@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 14,
   "kind": "book",
   "title": "The Last Light at Gull Point",
   "author": "Storyworks sample",
@@ -330,5 +330,12 @@
         "timelineId": null
       }
     }
+  },
+  "scriptExport": {
+    "pageSize": "Letter",
+    "titlePage": true,
+    "sceneNumbers": true,
+    "pageNumbers": true,
+    "moreContd": true
   }
 }

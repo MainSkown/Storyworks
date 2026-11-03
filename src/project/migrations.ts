@@ -1,5 +1,6 @@
 import type { z } from 'zod'
 import { defaultExportOptions } from '../export/options'
+import { defaultScriptExportOptions } from '../export/scriptOptions'
 import { manifestSchema, MANIFEST_VERSION, type Manifest } from './schemas/manifest'
 import { codexEntrySchema } from './schemas/codexEntry'
 import { sceneSchema } from './schemas/scene'
@@ -237,6 +238,22 @@ const v12to13: Migration = {
   },
 }
 
+/** v13 -> v14: manifest only (`scriptExport`: screenplay export options). */
+const v13to14: Migration = {
+  from: 13,
+  to: 14,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, {
+      ...manifest,
+      version: 14,
+      scriptExport: manifest.scriptExport ?? defaultScriptExportOptions(),
+    })
+    return out
+  },
+}
+
 export const migrations: Migration[] = [
   v1to2,
   v2to3,
@@ -250,6 +267,7 @@ export const migrations: Migration[] = [
   v10to11,
   v11to12,
   v12to13,
+  v13to14,
 ]
 
 export const MANIFEST_FILE = 'project.json'

@@ -23,13 +23,18 @@ export function resolveSibling(filePath: string, ref: string): string | null {
 }
 
 export const IMPORT_EXTENSIONS = ['md', 'markdown', 'txt']
+export const FOUNTAIN_EXTENSIONS = ['fountain', 'txt']
 
 /** Native multi-select in the app (images read next to each file). Empty = cancelled. */
-export async function pickImportFilesNative(): Promise<ImportFile[]> {
+export async function pickImportFilesNative(fountain = false): Promise<ImportFile[]> {
   const { open } = await import('@tauri-apps/plugin-dialog')
   const picked = await open({
-    multiple: true,
-    filters: [{ name: 'Markdown / text', extensions: IMPORT_EXTENSIONS }],
+    multiple: !fountain,
+    filters: [
+      fountain
+        ? { name: 'Fountain / text', extensions: FOUNTAIN_EXTENSIONS }
+        : { name: 'Markdown / text', extensions: IMPORT_EXTENSIONS },
+    ],
   })
   if (!picked) return []
   const paths = Array.isArray(picked) ? picked : [picked]

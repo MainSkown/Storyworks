@@ -2,7 +2,7 @@ import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces'
 import { imageInfo } from './imageSize'
 import type { ExportBlock, ExportDoc, Run } from './model'
 import type { FontFamily } from './options'
-import type { Exporter } from './registry'
+import type { BookExporter } from './registry'
 
 export interface PdfLabels {
   contents: string
@@ -68,7 +68,7 @@ const PAGE_PT = {
 // eslint-disable-next-line no-control-regex
 const clean = (s: string) => s.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '')
 
-function toBase64(b: Uint8Array): string {
+export function toBase64(b: Uint8Array): string {
   let s = ''
   for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000))
   return btoa(s)
@@ -352,7 +352,7 @@ export interface PdfExporterConfig {
   labels?: Partial<PdfLabels>
 }
 
-export function createPdfExporter(config: PdfExporterConfig = {}): Exporter {
+export function createPdfExporter(config: PdfExporterConfig = {}): BookExporter {
   const loadFonts = config.loadFonts ?? loadBundledFonts
   return {
     id: 'pdf',
@@ -378,4 +378,4 @@ export function createPdfExporter(config: PdfExporterConfig = {}): Exporter {
   }
 }
 
-export const pdfExporter: Exporter = createPdfExporter()
+export const pdfExporter: BookExporter = createPdfExporter()

@@ -416,6 +416,8 @@ describe('project store', () => {
         wordCount: 7,
         openTodoIds: [],
         headingIds: [],
+        elements: [],
+        elementsKey: '',
       })
     })
 
@@ -429,6 +431,15 @@ describe('project store', () => {
       expect(s.sceneNumbering.byBlock.get('h1')).toBe(1)
       expect(s.sceneNumbering.byItem.get(scene.id)).toBe(1)
       expect(s.sceneNumbering.byItem.has(second)).toBe(false)
+    })
+
+    it('page stats stay zero for a book', async () => {
+      const { s, path } = await openedStore()
+      const r = await s.loadScene(path)
+      if (!r.ok) throw new Error('scene invalid')
+      const doc = { type: 'doc', content: [{ type: 'action', content: [{ type: 'text', text: 'x' }] }] }
+      s.updateItem(path, sceneSchema, { ...r.value, content: doc })
+      expect(s.pageStats).toEqual({ pages: 0, minutes: 0 })
     })
 
     it('editing a scene updates the index and the roll-up at once', async () => {

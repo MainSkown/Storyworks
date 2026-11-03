@@ -6,6 +6,9 @@ import { useProjectStore } from '../project/store'
 import type { ManuscriptNode } from '../project/schemas/manifest'
 import { applyImport, type ApplyResult } from '../import/apply'
 import { pickImportFilesNative, readBrowserFiles } from '../import/pick'
+import { decodeUtf8 } from '../import/decode'
+import { parseFountain, type FountainResult } from '../import/fountain'
+import { buildFountainPlan } from '../import/fountainPlan'
 import { buildPlan, loadImport, type ImportFile, type LoadedImport } from '../import/plan'
 import type { SplitRule } from '../import/split'
 
@@ -14,6 +17,9 @@ const { t } = useI18n()
 const store = useProjectStore()
 
 const files = ref<ImportFile[]>([])
+// Screenplays import Fountain: one file, no split rule.
+const isScript = computed(() => store.project?.manifest.kind === 'screenplay')
+const fountain = ref<{ name: string; result: FountainResult } | null>(null)
 const loaded = ref<LoadedImport | null>(null)
 const badFiles = ref<string[]>([])
 const rule = ref<SplitRule>('h1h2')
@@ -45,7 +51,20 @@ const selectedTitle = computed(() => {
 })
 
 const plan = computed(() =>
-  loaded.value
+  isScript.value
+    ? fountain.value
+      ? buildFountainPlan(fountain.value.result, {
+          fileBase: fountain.value.name.replace(/\.[^.]*$/, ''),
+          placement:
+            placeKind.value === 'after' && store.selectedId && selectedTitle.value !== null
+              ? { kind: 'after', id: store.selectedId }
+              : { kind: 'end' },
+          sceneName: (n) => t('import.sceneName', { n }),
+          sequenceName: (n) => t('import.sequenceName', { n }),
+          edits: { titles: titles.value, skipped: skipped.value },
+        })
+      : null
+    : loaded.value
     ? buildPlan(loaded.value, {
         rule: rule.value,
         placement:
@@ -77,6 +96,7 @@ watch(open, (isOpen) => {
   if (!isOpen) return
   files.value = []
   loaded.value = null
+  fountain.value = null
   badFiles.value = []
   rule.value = 'h1h2'
   placeKind.value = selectedTitle.value !== null ? 'after' : 'end'
@@ -99,6 +119,18 @@ function accept(picked: ImportFile[]): void {
   titles.value = {}
   skipped.value = []
   failure.value = ''
+  if (isScript.value) {
+    const file = picked[0]!
+    const d = decodeUtf8(file.name, file.bytes)
+    if (d.ok) {
+      fountain.value = { name: file.name, result: parseFountain(d.text) }
+      badFiles.value = []
+    } else {
+      fountain.value = null
+      badFiles.value = [d.error.file]
+    }
+    return
+  }
   const r = loadImport(picked)
   if (r.ok) {
     loaded.value = r.loaded
@@ -112,7 +144,7 @@ function accept(picked: ImportFile[]): void {
 async function choose(): Promise<void> {
   failure.value = ''
   try {
-    if (isTauri()) accept(await pickImportFilesNative())
+    if (isTauri()) accept(await pickImportFilesNative(isScript.value))
     else fileInput.value?.click()
   } catch (e) {
     failure.value = t('import.readFailed', { message: e instanceof Error ? e.message : String(e) })
@@ -161,7 +193,7 @@ async function focusPick(): Promise<void> {
   <QDialog v-model="open" :persistent="busy" @show="focusPick">
     <QCard class="dialog" role="dialog" aria-labelledby="import-title">
       <QCardSection class="head">
-        <h2 id="import-title" class="title">{{ t('import.title') }}</h2>
+        <h2 id="import-title" class="title">{{ t(isScript ? 'import.fountain.title' : 'import.title') }}</h2>
       </QCardSection>
 
       <template v-if="result">
@@ -201,12 +233,12 @@ async function focusPick(): Promise<void> {
             <span v-if="files.length" class="muted" data-test="import-files">
               {{ t('import.fileCount', files.length, { named: { n: files.length } }) }}
             </span>
-            <span v-else class="muted">{{ t('import.hint') }}</span>
+            <span v-else class="muted">{{ t(isScript ? 'import.fountain.hint' : 'import.hint') }}</span>
             <input
               ref="fileInput"
               type="file"
-              multiple
-              accept=".md,.markdown,.txt,text/markdown,text/plain"
+              :multiple="!isScript"
+              :accept="isScript ? '.fountain,.txt,text/plain' : '.md,.markdown,.txt,text/markdown,text/plain'"
               class="sr-only"
               tabindex="-1"
               :aria-label="t('import.choose')"
@@ -223,6 +255,7 @@ async function focusPick(): Promise<void> {
           <template v-if="plan">
             <div class="options">
               <QSelect
+                v-if="!isScript"
                 v-model="rule"
                 dense
                 outlined
@@ -295,6 +328,16 @@ async function focusPick(): Promise<void> {
                 </ul>
               </li>
             </ul>
+
+            <div v-if="isScript && fountain && (fountain.result.skipped.length || fountain.result.noSceneHeadings)" class="warn-box" role="status">
+              <h3 class="warn-title">{{ t('import.fountain.skippedTitle') }}</h3>
+              <ul class="warnings">
+                <li v-if="fountain.result.noSceneHeadings">{{ t('import.fountain.noHeadings') }}</li>
+                <li v-for="s in fountain.result.skipped" :key="s.construct">
+                  {{ t(`import.fountain.skipped.${s.construct}`, { n: s.count }) }}
+                </li>
+              </ul>
+            </div>
 
             <div v-if="plan.warnings.length" class="warn-box" role="status">
               <h3 class="warn-title">{{ t('import.warnings') }}</h3>

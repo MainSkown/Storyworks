@@ -382,6 +382,8 @@
   },
   "editor": {
     "toolbar": {
+      "undo": "Undo",
+      "redo": "Redo",
       "element": "Element type",
       "label": "Formatting",
       "paragraphStyle": "Paragraph style",
@@ -444,6 +446,7 @@
     "chapter": "Chapter",
     "book": "Book",
     "script": "Script",
+    "pagesRuntime": "Pages: {pages} · about {min} min",
     "problem": {
       "missing": "Missing file",
       "invalid": "Invalid file",
@@ -500,6 +503,25 @@
     "renameScene": "Scene name: {title}",
     "words": "No words | {n} word | {n} words",
     "sceneName": "Scene {n}",
+    "sequenceName": "Sequence {n}",
+    "fountain": {
+      "title": "Import a Fountain script",
+      "hint": "Choose a .fountain or .txt file (UTF-8).",
+      "skippedTitle": "Not imported",
+      "noHeadings": "No scene headings were found, so everything was placed in one scene as action.",
+      "skipped": {
+        "titlePage": "Title page keys ({n}); use Settings to set the title page.",
+        "boneyard": "Boneyard blocks /* */ ({n}) were removed.",
+        "note": "Notes [[ ]] ({n}) were removed.",
+        "synopsis": "Synopsis lines ({n}) were skipped.",
+        "centered": "Centered lines ({n}) were imported as plain action.",
+        "pageBreak": "Page breaks ({n}) were skipped.",
+        "sceneNumber": "Scene number tags ({n}) were dropped; numbers are counted automatically.",
+        "dualDialogue": "Dual dialogue ({n}) was imported as normal dialogue.",
+        "emphasis": "Bold, italic and underline marks ({n}) were removed.",
+        "lyrics": "Lyric lines ({n}) were imported as action."
+      }
+    },
     "nothing": "Nothing to import in these files.",
     "warnings": "Warnings",
     "warning": {
@@ -1649,10 +1671,27 @@
     },
     "formats": {
       "pdf": "PDF",
-      "docx": "Word (DOCX)"
+      "docx": "Word (DOCX)",
+      "fountain": "Fountain (.fountain)"
     },
     "contents": "Contents",
-    "notes": "Notes"
+    "notes": "Notes",
+    "script": {
+      "sequences": "Sequences",
+      "looseScenes": "Scenes outside any sequence are always included.",
+      "titlePageHint": "Uses the title, author, contact and date from Settings.",
+      "sceneNumbers": "Scene numbers",
+      "moreContd": "(MORE) and (CONT'D) at page breaks",
+      "fountainHint": "Fountain is plain text with no page layout. Sequences become sections. Scene numbers are not written.",
+      "summarySequences": "Sequences selected: {n}",
+      "summaryScenes": "Scenes: {n}",
+      "nothingSelected": "Select at least one sequence to export.",
+      "error": {
+        "nothingSelected": "Select at least one sequence to export.",
+        "sceneMissing": "A scene of a selected sequence is missing ({detail}).",
+        "sceneUnreadable": "The scene “{detail}” could not be read. Fix or restore it, then export again."
+      }
+    }
   },
   "stats": {
     "title": "Stats",
@@ -1666,6 +1705,12 @@
       "goal": "of {goal} daily goal",
       "noGoal": "No daily goal set",
       "met": "Goal reached"
+    },
+    "script": {
+      "title": "Pages and runtime",
+      "pages": "No pages | {n} page | {n} pages",
+      "runtime": "About {n} min",
+      "note": "Counted from the standard screenplay layout, about one page per minute."
     },
     "book": {
       "title": "Book",

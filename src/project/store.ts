@@ -18,6 +18,9 @@ import { MANIFEST_FILE } from './migrations'
 import { createProject, defaultEnv, openProject, readOnlyReasonOf } from './open'
 import { createProjectIO } from './io'
 import { countWords, rollUp } from '../editor/wordCount'
+import { elementsOfDoc } from '../editor/screenplay/elements'
+import type { ScriptElement } from '../editor/screenplay/layout'
+import { scriptPageStats } from './pageStats'
 import { sceneHeadingIds, sceneNumbers } from './sceneNumbers'
 import { appendNoteToScene, noteToSceneContent } from './inbox'
 import { commentIdsIn } from '../editor/comments'
@@ -25,8 +28,10 @@ import { addImage } from './assets'
 import { findNode, moveTo } from './tree'
 import { isTauri } from './pickFolder'
 import { defaultExportOptions, type ExportOptions } from '../export/options'
+import { defaultScriptExportOptions, type ScriptExportOptions } from '../export/scriptOptions'
 import {
   exportSettingsSchema,
+  scriptExportSchema,
   dictionariesSchema,
   goalsSchema,
   MANIFEST_VERSION,
@@ -89,9 +94,19 @@ export interface SceneMeta {
   openTodoIds: string[]
   /** scene heading block ids in document order (screenplay scene numbers) */
   headingIds: string[]
+  /** screenplay elements in order (page count); empty for books */
+  elements: ScriptElement[]
+  /** cheap change test for `elements` */
+  elementsKey: string
+}
+
+function elementsMeta(sc: Scene): Pick<SceneMeta, 'elements' | 'elementsKey'> {
+  const elements = elementsOfDoc(sc.content).map(({ type, text }) => ({ type, text }))
+  return { elements, elementsKey: elements.map((e) => `${e.type}:${e.text}`).join('\u0000') }
 }
 
 const metaOfScene = (sc: Scene): SceneMeta => ({
+  ...elementsMeta(sc),
   status: sc.status,
   synopsis: sc.synopsis,
   povId: sc.povId,
@@ -299,6 +314,17 @@ export const useProjectStore = defineStore('project', () => {
     for (const [id, m] of sceneMeta.value) if (m.headingIds.length) ids.set(id, m.headingIds)
     return sceneNumbers(tree.value, ids)
   })
+  /** Screenplay pages and runtime, laid out like the PDF export (zero for other kinds). */
+  const pageStats = computed(() => {
+    void revision.value // scriptExport lives in the manifest
+    const m = project.value?.manifest
+    if (!m || m.kind !== 'screenplay') return { pages: 0, minutes: 0 }
+    return scriptPageStats(tree.value, (id) => sceneMeta.value.get(id)?.elements, {
+      pageSize: m.scriptExport.pageSize,
+      language: m.language,
+      moreContd: m.scriptExport.moreContd,
+    })
+  })
   const brokenLinkCount = computed(() => {
     void revision.value
     void linkRevision.value
@@ -396,7 +422,8 @@ export const useProjectStore = defineStore('project', () => {
       cur.povId === next.povId &&
       cur.wordCount === next.wordCount &&
       cur.openTodoIds.join('\n') === next.openTodoIds.join('\n') &&
-      cur.headingIds.join('\n') === next.headingIds.join('\n')
+      cur.headingIds.join('\n') === next.headingIds.join('\n') &&
+      cur.elementsKey === next.elementsKey
     )
       return false
     map.set(id, next)
@@ -1318,6 +1345,22 @@ export const useProjectStore = defineStore('project', () => {
     return true
   }
 
+  const scriptExport = computed<ScriptExportOptions>(() => {
+    void revision.value
+    return project.value?.manifest.scriptExport ?? defaultScriptExportOptions()
+  })
+
+  /** Validates and saves; returns false (nothing changed) when the value is invalid. */
+  function setScriptExport(next: ScriptExportOptions): boolean {
+    const p = assertWritable()
+    const r = scriptExportSchema.safeParse(next)
+    if (!r.success) return false
+    p.manifest.scriptExport = r.data
+    revision.value++
+    mark(MANIFEST_FILE)
+    return true
+  }
+
   // ---- timelines (the timelines store holds the content) ----
 
   /** Replaces the manifest's timeline list (create, rename). */
@@ -1789,6 +1832,8 @@ export const useProjectStore = defineStore('project', () => {
     dictionaries,
     setDictionaries,
     exportSettings,
+    scriptExport,
+    setScriptExport,
     setExportSettings,
     openedCount,
     revision,
@@ -1810,6 +1855,7 @@ export const useProjectStore = defineStore('project', () => {
     sceneMeta,
     wordCounts,
     sceneNumbering,
+    pageStats,
     selectedId,
     openNoteId,
     inboxNotes,

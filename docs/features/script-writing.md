@@ -34,7 +34,7 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - [x] Automatic scene numbers, shown in the tree and the editor margin (S1); the PDF follows in S2.
 - [x] Title page (title, author, contact, date), edited in project settings.
 - [x] Book-only features are hidden in screenplay projects: footnotes, headings H1-H3, TOC and chapter styles. Margin comments, scene status/synopsis, corkboard, inbox and focus mode stay.
-- [ ] Stats show pages and estimated runtime (about 1 page per minute) next to words, in the status bar and Stats.
+- [x] Stats show pages and estimated runtime (about 1 page per minute) next to words, in the status bar and Stats (S2).
 
 ### Game script: linear scripts
 - [ ] Item type "Script": ordered lines. Each line has a speaker (link to a codex Character, stable ID, shown with its current name) and text.
@@ -66,9 +66,9 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - [ ] Each check can be switched on or off in project settings and produces findings with stable IDs (same finding format as existing checks).
 
 ### Export / import
-- [ ] Screenplay PDF in standard layout: Courier 12, standard margins and element indents, scene numbers, page numbers, optional title page.
-- [ ] DOCX with script styles, via the existing DOCX exporter.
-- [ ] Fountain (.fountain) export and import for screenplays.
+- [x] Screenplay PDF in standard layout: Courier 12, standard margins and element indents, scene numbers, page numbers, optional title page.
+- [x] DOCX with script styles, via the existing DOCX exporter.
+- [x] Fountain (.fountain) export and import for screenplays (import also by paste).
 - [ ] Game JSON: lines with IDs, speakers, text; conversations as nodes and edges with conditions and sets; variable list; story map; routes.
 - [ ] Game CSV: one row per line (item, node, line ID, speaker, text) for localisation sheets.
 - [ ] Appendices, comments and private notes are excluded as in book export. Export options that do not apply to a kind (e.g. chapter selection for CSV) are hidden.
@@ -88,7 +88,7 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - **Conditions** use only variables; no scripting language. A node or option with a condition that fails is hidden in play-through.
 - **Story map starts.** The user marks one or more boxes as "Start". Reachability checks and play-through use them; with none set, the first box is the start and the Checks page says so.
 - **Routes** reuse timeline branches (a branch name is the route name). Tagging is on the item. A route with no items is allowed.
-- **Fountain mapping.** Scene heading, action, character, dialogue, parenthetical, transition map one-to-one; unsupported Fountain features (dual dialogue, boneyard, notes, sections, synopses) import as action text or are skipped with a message listing what was skipped.
+- **Fountain mapping.** Scene heading, action, character, dialogue, parenthetical, transition map one-to-one. `# Sections` map to Sequences (export writes one per sequence). Unsupported features (title page keys, dual dialogue, boneyard, notes, synopses, page breaks, scene-number tags, emphasis marks, centred and lyric lines) are skipped or imported as plain text, and the import preview lists what was skipped.
 - Shared features keep working on script blocks through stable block IDs: timeline links, rule links, margin comments, snapshots, search, goals.
 
 ## Edge cases
@@ -129,8 +129,10 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - **S1 decisions (user-confirmed):** a screenplay tree is Sequence > Scene, no parts. Every scene-heading line gets a number running through the whole script in tree order; the tree shows an item's first number; numbers are derived, never stored. Game projects can be created in S1; Write shows a "coming in a later version" placeholder while Codex, Timelines, Rules, Checks, Stats and History work.
 - **S1 defaults:** Tab order scene heading → action → character → dialogue → parenthetical → transition; empty Enter falls back per `src/editor/screenplay/rules.ts`; stored text is as typed and uppercase is display-only; pasted plain text becomes action blocks; Export and Import are hidden for script kinds until S2/S6; manifest v13 adds `titlePage {contact, date}`; saving a manifest with a different kind is rejected.
 
+- **S2 decisions (user-confirmed):** page count and runtime (about 1 page per minute) stay in the status bar and Stats; Fountain text pasted into the editor becomes typed elements (only when it has a scene heading or a cue followed by dialogue); Sequences round-trip as Fountain sections; screenplay export lives on the Export page (PDF, Word, Fountain; options: page size Letter/A4, title page, scene numbers, page numbers, (MORE)/(CONT'D), sequence selection), saved per project in manifest v14 (`scriptExport`).
+- **S2 defaults:** our own paginator lays out every page (Liberation Mono 12 pt, 55 rows on Letter, 58 on A4; heading never last on a page; a cue keeps 2 speech rows; speeches split at sentence ends with (MORE)/(CONT'D), Polish (DALEJ)/(CD.)); the PDF draws exactly those pages, so the status-bar page count equals the PDF's (title page not counted). Word paginates itself and may differ slightly. Scene numbers are not written to Fountain.
+
 ## Open questions
-- Page count and runtime estimate were not selected in the screenplay extras. Keep the Stats page count (assumed) or drop it?
 - Is the story map a separate sidebar section (assumed) or a view inside Write? Needs a section colour token if separate.
 - Routes reuse timeline branches (assumed). Should a game project without timelines still be able to define routes directly?
 - Condition model: single comparison per condition (assumed) or AND/OR groups?
@@ -138,7 +140,7 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - Play-through: show hidden options as disabled or hide them? Assumed hidden.
 - Where does this land in the milestones? Proposal: project kind + screenplay editor/export after M2; conversation graph and logic after M3 (shares the canvas); story map, routes, play-through and script checks after M6; game export with the export milestone. The milestones file needs updating once confirmed.
 - Does the "Book language"/dictionary selection apply to script projects unchanged? Assumed yes.
-- Screenplay PDF with pdfmake: page-accurate layout (page breaks inside dialogue, "(MORE)/(CONT'D)") needs verification, as with the book PDF open question.
+- ~~Screenplay PDF with pdfmake~~ Resolved in the S2 spike (2026-11-03): pdfmake's own page breaking is not used. Our paginator decides every page; the PDF draws each page with absolutely positioned left-aligned lines (page margins 0, 12 pt pitch, Liberation Mono at 7.2 pt per character, x computed for right-aligned/centred text, one empty `pageBreak: 'before'` node between pages). Verified: PDF page count equals laid-out pages, positions exact, Polish characters and selectable text fine. Lines must stay inside the page, or pdfmake pushes them to a new page.
 
 ## Relevant code
 - Spec: [docs/features/storyworks-app.md](storyworks-app.md), sections Project / platform (manifest, schemas, migrations), Manuscript editor, Timeline editor (canvas, branches), Codex, Consistency checks, Export, UI design.

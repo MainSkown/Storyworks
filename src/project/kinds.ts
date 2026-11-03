@@ -33,8 +33,8 @@ const PROFILES: Record<KindId, KindProfile> = {
     id: 'screenplay',
     hasParts: false,
     folderLabel: 'sequence',
-    hiddenSections: ['export'],
-    hasImport: false,
+    hiddenSections: [],
+    hasImport: true,
     writeIsPlaceholder: false,
   },
   game: {

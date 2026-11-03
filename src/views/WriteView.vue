@@ -67,6 +67,7 @@ const chapterWords = computed(() =>
   chapter.value ? (store.wordCounts.get(chapter.value.id) ?? 0) : 0,
 )
 const bookWords = computed(() => store.wordCounts.get('') ?? 0)
+const isScreenplay = computed(() => store.project?.manifest.kind === 'screenplay')
 const saveIcon = computed(
   () => ({ saved: 'check_circle', saving: 'sync', error: 'error_outline' })[store.saveStatus],
 )
@@ -187,6 +188,7 @@ watch(corkboard, (v) => {
         </span>
       </template>
       <span>{{ t(store.project?.manifest.kind === 'book' ? 'write.book' : 'write.script') }}: {{ bookWords }} {{ t('sidebar.words') }}</span>
+      <span v-if="isScreenplay">{{ t('write.pagesRuntime', { pages: store.pageStats.pages, min: store.pageStats.minutes }) }}</span>
       <span class="today" :class="{ met: stats.goalProgress?.met }">{{ todayText }}</span>
       <span class="timer">
         <button

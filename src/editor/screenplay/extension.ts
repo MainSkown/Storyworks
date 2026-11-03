@@ -1,6 +1,7 @@
 import { Extension, Node, mergeAttributes } from '@tiptap/core'
-import { Fragment, Slice } from '@tiptap/pm/model'
+import { Fragment, Slice, type Node as ProseNode } from '@tiptap/pm/model'
 import { Plugin, TextSelection, type EditorState, type Transaction } from '@tiptap/pm/state'
+import { fountainElements } from './pasteFountain'
 import { cycle, emptyFallback, isElement, nextElement, type ElementType } from './rules'
 
 declare module '@tiptap/core' {
@@ -110,6 +111,7 @@ export const ScreenplayElements = Extension.create({
   },
 
   addProseMirrorPlugins() {
+    let fountainPaste = false
     return [
       new Plugin({
         // An empty scene file loads as a doc without blocks: give it one action block.
@@ -121,8 +123,28 @@ export const ScreenplayElements = Extension.create({
           return {}
         },
         props: {
-          // Plain-text paste: one action block per non-empty line.
+          // ProseMirror re-opens every slice a text parser returns; Fountain blocks must stay whole.
+          transformPasted(slice) {
+            if (!fountainPaste) return slice
+            fountainPaste = false
+            return new Slice(slice.content, 0, 0)
+          },
+          // Text paste: Fountain becomes typed blocks, anything else one action block per line.
           clipboardTextParser(text, _ctx, _plain, view) {
+            const els = fountainElements(text)
+            if (els) {
+              const nodes = els.map((e) => {
+                const kids: ProseNode[] = []
+                e.text.split('\n').forEach((line, i) => {
+                  if (i > 0) kids.push(view.state.schema.nodes.hardBreak!.create())
+                  if (line) kids.push(view.state.schema.text(line))
+                })
+                return view.state.schema.nodes[e.type]!.create(null, kids)
+              })
+              fountainPaste = true
+              return new Slice(Fragment.from(nodes), 0, 0)
+            }
+            fountainPaste = false
             const action = view.state.schema.nodes.action!
             const lines = text.split(/\r?\n/).filter((l) => l.trim() !== '')
             const nodes = lines.map((l) => action.create(null, view.state.schema.text(l)))

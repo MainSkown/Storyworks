@@ -22,17 +22,17 @@ describe('section registry', () => {
     expect(sections.filter((s) => s.position === 'bottom')).toHaveLength(4)
   })
 
-  it('book shows every section; script kinds hide Export', () => {
+  it('book and screenplay show every section; game hides Export until S6', () => {
     expect(sectionsFor('book')).toHaveLength(sections.length)
-    for (const kind of ['screenplay', 'game']) {
-      const ids = sectionsFor(kind).map((s) => s.id)
-      expect(ids).not.toContain('export')
-      expect(ids).toContain('write')
-    }
+    expect(sectionsFor('screenplay').map((s) => s.id)).toContain('export')
+    const ids = sectionsFor('game').map((s) => s.id)
+    expect(ids).not.toContain('export')
+    expect(ids).toContain('write')
   })
 
   it('a hidden section route redirects to write; others are left alone', () => {
-    expect(hiddenSectionRedirect('screenplay', 'export')).toEqual({ name: 'write' })
+    expect(hiddenSectionRedirect('game', 'export')).toEqual({ name: 'write' })
+    expect(hiddenSectionRedirect('screenplay', 'export')).toBeNull()
     expect(hiddenSectionRedirect('book', 'export')).toBeNull()
     expect(hiddenSectionRedirect('game', 'codex')).toBeNull()
     expect(hiddenSectionRedirect('game', 'relationships')).toBeNull()

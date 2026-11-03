@@ -382,6 +382,8 @@
   },
   "editor": {
     "toolbar": {
+      "undo": "Cofnij",
+      "redo": "Ponów",
       "element": "Typ elementu",
       "label": "Formatowanie",
       "paragraphStyle": "Styl akapitu",
@@ -444,6 +446,7 @@
     "chapter": "Rozdział",
     "book": "Książka",
     "script": "Scenariusz",
+    "pagesRuntime": "Strony: {pages} · ok. {min} min",
     "problem": {
       "missing": "Brak pliku",
       "invalid": "Nieprawidłowy plik",
@@ -500,6 +503,25 @@
     "renameScene": "Nazwa sceny: {title}",
     "words": "Brak słów | {n} słowo | {n} słowa | {n} słów",
     "sceneName": "Scena {n}",
+    "sequenceName": "Sekwencja {n}",
+    "fountain": {
+      "title": "Importuj scenariusz Fountain",
+      "hint": "Wybierz plik .fountain lub .txt (UTF-8).",
+      "skippedTitle": "Nie zaimportowano",
+      "noHeadings": "Nie znaleziono nagłówków scen, więc całość trafiła do jednej sceny jako akcja.",
+      "skipped": {
+        "titlePage": "Pola strony tytułowej ({n}); ustaw stronę tytułową w Ustawieniach.",
+        "boneyard": "Bloki boneyard /* */ ({n}) zostały usunięte.",
+        "note": "Notatki [[ ]] ({n}) zostały usunięte.",
+        "synopsis": "Linie streszczeń ({n}) pominięto.",
+        "centered": "Wyśrodkowane linie ({n}) zaimportowano jako zwykłą akcję.",
+        "pageBreak": "Podziały stron ({n}) pominięto.",
+        "sceneNumber": "Znaczniki numerów scen ({n}) usunięto; numery liczą się automatycznie.",
+        "dualDialogue": "Dialog równoległy ({n}) zaimportowano jako zwykły dialog.",
+        "emphasis": "Pogrubienia, kursywę i podkreślenia ({n}) usunięto.",
+        "lyrics": "Linie piosenek ({n}) zaimportowano jako akcję."
+      }
+    },
     "nothing": "W tych plikach nie ma nic do zaimportowania.",
     "warnings": "Ostrzeżenia",
     "warning": {
@@ -1649,10 +1671,27 @@
     },
     "formats": {
       "pdf": "PDF",
-      "docx": "Word (DOCX)"
+      "docx": "Word (DOCX)",
+      "fountain": "Fountain (.fountain)"
     },
     "contents": "Spis treści",
-    "notes": "Przypisy"
+    "notes": "Przypisy",
+    "script": {
+      "sequences": "Sekwencje",
+      "looseScenes": "Sceny poza sekwencjami są zawsze uwzględniane.",
+      "titlePageHint": "Używa tytułu, autora, kontaktu i daty z Ustawień.",
+      "sceneNumbers": "Numery scen",
+      "moreContd": "(DALEJ) i (CD.) na granicach stron",
+      "fountainHint": "Fountain to zwykły tekst bez układu stron. Sekwencje stają się sekcjami. Numery scen nie są zapisywane.",
+      "summarySequences": "Wybrane sekwencje: {n}",
+      "summaryScenes": "Sceny: {n}",
+      "nothingSelected": "Wybierz co najmniej jedną sekwencję do eksportu.",
+      "error": {
+        "nothingSelected": "Wybierz co najmniej jedną sekwencję do eksportu.",
+        "sceneMissing": "Brakuje sceny wybranej sekwencji ({detail}).",
+        "sceneUnreadable": "Nie można odczytać sceny „{detail}”. Napraw ją lub przywróć, a potem wyeksportuj ponownie."
+      }
+    }
   },
   "stats": {
     "title": "Statystyki",
@@ -1666,6 +1705,12 @@
       "goal": "z dziennego celu {goal}",
       "noGoal": "Brak dziennego celu",
       "met": "Cel osiągnięty"
+    },
+    "script": {
+      "title": "Strony i czas trwania",
+      "pages": "Brak stron | {n} strona | {n} strony | {n} stron",
+      "runtime": "Około {n} min",
+      "note": "Liczone ze standardowego układu scenariusza, około jednej strony na minutę."
     },
     "book": {
       "title": "Książka",

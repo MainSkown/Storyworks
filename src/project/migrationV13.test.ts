@@ -28,7 +28,7 @@ async function v12Project(patch: Record<string, unknown> = {}): Promise<MemoryPr
 describe('migration v12 to v13', () => {
   it('the step is registered, and the version is 13', () => {
     expect(migrations.find((m) => m.from === 12)?.to).toBe(13)
-    expect(MANIFEST_VERSION).toBe(13)
+    expect(MANIFEST_VERSION).toBeGreaterThanOrEqual(13)
   })
 
   it('adds an empty title page and keeps everything else', async () => {
@@ -37,7 +37,7 @@ describe('migration v12 to v13', () => {
     const r = await openProject(io, makeEnv())
     expect(r.status).toBe('ok')
     const m = json(io, 'project.json')
-    expect(m.version).toBe(13)
+    expect(m.version).toBe(MANIFEST_VERSION)
     expect(m.titlePage).toEqual({ contact: '', date: '' })
     expect(m.title).toBe('Old')
     expect(m.manuscript).toEqual(before.manuscript)

@@ -21,7 +21,7 @@ import {
 import { imageInfo } from './imageSize'
 import type { Align, ExportBlock, ExportDoc, Run } from './model'
 import type { ExportOptions, PageSize } from './options'
-import type { Exporter } from './registry'
+import type { BookExporter } from './registry'
 
 type Child = ISectionOptions['children'][number]
 type Footnotes = Record<number, { children: Paragraph[] }>
@@ -186,7 +186,7 @@ const h1 = (
     children: [new TextRun(clean(title))],
   })
 
-export const docxExporter: Exporter = {
+export const docxExporter: BookExporter = {
   id: 'docx',
   labelKey: 'export.formats.docx',
   extension: 'docx',
