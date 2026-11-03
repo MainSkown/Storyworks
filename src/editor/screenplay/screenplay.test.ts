@@ -103,6 +103,18 @@ describe('Tab and Shift+Tab', () => {
     expect(types(e)).toEqual(['transition'])
   })
 
+  it('Escape then Tab leaves the editor instead of cycling; one key in between cancels it', () => {
+    const e = makeEditor(doc(block('action', 'x')))
+    cursorAtEnd(e, 0)
+    key(e, 'Escape')
+    expect(key(e, 'Tab')).toBe(false)
+    expect(types(e)).toEqual(['action'])
+    expect(key(e, 'Tab')).toBe(true)
+    key(e, 'Escape')
+    key(e, 'a')
+    expect(key(e, 'Tab')).toBe(true)
+  })
+
   it('changes only the block with the cursor and keeps its text and id', () => {
     const e = makeEditor(doc(block('action', 'one', 'a'), block('action', 'two', 'b')))
     cursorAtEnd(e, 1)

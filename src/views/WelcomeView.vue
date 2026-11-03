@@ -156,6 +156,7 @@ async function takeTour(): Promise<void> {
             :key="k"
             type="button"
             class="sample-option"
+            :autofocus="k === SAMPLE_KINDS[0]"
             @click="openSample(k)"
           >
             <QIcon :name="sampleIcons[k]" size="1.5rem" aria-hidden="true" />

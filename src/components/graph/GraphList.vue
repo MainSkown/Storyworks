@@ -104,6 +104,7 @@ function edgeColor(e: GraphEdgeModel<ED>) {
               dense
               no-caps
               :label="t('graph.list.open')"
+              :aria-label="t('graph.list.openOf', { label: row.node.label })"
               @click="emit('open', row.node.id)"
             />
             <QBtn
@@ -111,6 +112,7 @@ function edgeColor(e: GraphEdgeModel<ED>) {
               dense
               no-caps
               :label="t('graph.list.addAfter')"
+              :aria-label="t('graph.list.addAfterOf', { label: row.node.label })"
               @click="emit('add', row.node.id)"
             />
             <QBtn
@@ -118,6 +120,7 @@ function edgeColor(e: GraphEdgeModel<ED>) {
               dense
               no-caps
               :label="t('graph.list.delete')"
+              :aria-label="t('graph.list.deleteOf', { label: row.node.label })"
               @click="emit('delete', row.node.id, row.out.length + row.inc.length)"
             />
           </div>
@@ -178,6 +181,11 @@ function edgeColor(e: GraphEdgeModel<ED>) {
               map-options
               :options="options(row.node.id, dir)"
               :label="dir === 'out' ? t('graph.list.pickOut') : t('graph.list.pickIn')"
+              :aria-label="
+                t(dir === 'out' ? 'graph.list.pickOutOf' : 'graph.list.pickInOf', {
+                  label: row.node.label,
+                })
+              "
               class="pick"
             />
             <QBtn
@@ -185,6 +193,7 @@ function edgeColor(e: GraphEdgeModel<ED>) {
               dense
               no-caps
               :label="t('graph.list.connect')"
+              :aria-label="t('graph.list.connectOf', { label: row.node.label })"
               :disable="!picks[`${row.node.id}:${dir}`]"
               @click="addConnection(row.node.id, dir)"
             />

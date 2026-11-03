@@ -76,6 +76,11 @@ describe.each(Object.entries(themes))('%s theme contrast', (_name, t) => {
       expect(ratio(get('--section-storymap'), get(s)), s).toBeGreaterThanOrEqual(4.5)
   })
 
+  it('script and game colours used as text meet 4.5:1 on every surface', () => {
+    for (const k of ['--section-gamedoc', '--section-checks', '--tag-problem'])
+      for (const s of surfaces) expect(ratio(get(k), get(s)), `${k} on ${s}`).toBeGreaterThanOrEqual(4.5)
+  })
+
   it('strong border and focus ring meet 3:1 against surfaces', () => {
     for (const s of surfaces)
       for (const k of ['--border-strong', '--focus-ring'])

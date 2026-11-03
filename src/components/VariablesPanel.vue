@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MechanicsUsing from './gamedoc/MechanicsUsing.vue'
 import { mechanicLinkCount } from '../project/mechanicImpact'
+import { pendingVariableId } from '../composables/variablesPanel'
 import { useMechanicsStore } from '../gamedoc/mechanicsStore'
 import { useVariablesStore, type VariableOutcome } from '../variables/store'
 import { VARIABLE_TYPES, type Variable, type VariableType } from '../project/schemas/variables'
@@ -48,7 +49,32 @@ async function askDelete(id: string): Promise<void> {
 function remove(): void {
   if (confirmId.value) report(vars.remove(confirmId.value))
   confirmId.value = null
+  void nextTick(() => addNameEl.value?.focus())
 }
+
+const addNameEl = useTemplateRef<HTMLInputElement>('addNameEl')
+const tableEl = useTemplateRef<HTMLElement>('tableEl')
+const flashId = ref<string | null>(null)
+let flashTimer: ReturnType<typeof setTimeout> | undefined
+
+// A mechanic link opened this panel on one variable: show and focus its row.
+watch(
+  [pendingVariableId, () => vars.variables.length],
+  async ([id]) => {
+    if (!id) return
+    await nextTick()
+    const row = tableEl.value?.querySelector<HTMLElement>(`[data-var="${CSS.escape(id)}"]`)
+    if (!row) return
+    pendingVariableId.value = null
+    const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    row.scrollIntoView({ block: 'center', behavior: calm ? 'auto' : 'smooth' })
+    row.querySelector<HTMLElement>('input')?.focus({ preventScroll: true })
+    flashId.value = id
+    clearTimeout(flashTimer)
+    flashTimer = setTimeout(() => (flashId.value = null), 2400)
+  },
+  { immediate: true, flush: 'post' },
+)
 </script>
 
 <template>
@@ -65,7 +91,7 @@ function remove(): void {
     <form class="add" @submit.prevent="add">
       <label>
         <span>{{ t('variables.name') }}</span>
-        <input v-model="newName" type="text" :disabled="locked" autocomplete="off" />
+        <input ref="addNameEl" v-model="newName" type="text" :disabled="locked" autocomplete="off" />
       </label>
       <label>
         <span>{{ t('variables.type') }}</span>
@@ -78,7 +104,7 @@ function remove(): void {
     <p v-if="error" class="error" role="alert">{{ error }}</p>
 
     <p v-if="vars.variables.length === 0" class="empty">{{ t('variables.empty') }}</p>
-    <table v-else class="list">
+    <table v-else ref="tableEl" class="list">
       <caption class="sr-only">{{ t('variables.title') }}</caption>
       <thead>
         <tr>
@@ -90,7 +116,12 @@ function remove(): void {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="v in vars.variables" :key="v.id">
+        <tr
+          v-for="v in vars.variables"
+          :key="v.id"
+          :data-var="v.id"
+          :class="{ flash: flashId === v.id }"
+        >
           <td>
             <input
               :value="v.name"
@@ -253,6 +284,10 @@ th {
 td {
   padding: 0.25rem 0.5rem;
   border-top: 1px solid var(--border-strong);
+}
+.flash td {
+  background: var(--bg-selected);
+  border-block: 2px solid var(--focus-ring);
 }
 td input[type='text'],
 td input[type='number'] {

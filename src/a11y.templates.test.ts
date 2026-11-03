@@ -199,6 +199,21 @@ describe('unnamed button and field scan', () => {
     ).toHaveLength(0)
   })
 
+  it('scans the script and game components too', () => {
+    const files = vueFiles(root).map((f) => f.slice(root.length))
+    for (const f of [
+      'views/WelcomeView.vue',
+      'views/GameDocView.vue',
+      'views/StoryMapView.vue',
+      'components/conversation/ConversationView.vue',
+      'components/gamedoc/MechanicLinkPicker.vue',
+      'components/gamedoc/GlossaryTab.vue',
+      'components/storymap/StoryPlaythroughPanel.vue',
+      'components/graph/GraphList.vue',
+    ])
+      expect(files, f).toContain(f)
+  })
+
   it('finds no unnamed icon buttons or fields in src/**/*.vue', () => {
     const found = vueFiles(root).flatMap((f) =>
       unnamedButtons(readFileSync(f, 'utf8')).map((l) => `${f.slice(root.length)}:${l}`),

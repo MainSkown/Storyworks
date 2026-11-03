@@ -226,6 +226,12 @@ async function addNodeOf(type: NodeType, afterId: string | null): Promise<void> 
   }
 }
 
+const playBtn = ref<{ $el: HTMLElement } | null>(null)
+function closePlay(): void {
+  playthroughOpen.value = false
+  void nextTick(() => playBtn.value?.$el.focus())
+}
+
 const pendingDelete = ref<{ id: string; label: string; count: number } | null>(null)
 function onDelete(id: string, count: number): void {
   if (locked.value) return toast(t('game.conversation.readOnly'))
@@ -307,6 +313,7 @@ watch(
         />
       </template>
       <QBtn
+        ref="playBtn"
         class="play-btn"
         unelevated
         dense
@@ -404,12 +411,12 @@ watch(
         @leave="onLeaveInspector"
       />
       <div v-if="playthroughOpen" class="side play-panel">
-        <slot name="playthrough" :conversation="conv" :close="() => (playthroughOpen = false)">
+        <slot name="playthrough" :conversation="conv" :close="closePlay">
           <StoryPlaythroughPanel
             v-if="storyModel"
             :model="storyModel"
             :start="{ itemId: conversationId }"
-            @close="playthroughOpen = false"
+            @close="closePlay"
           />
         </slot>
       </div>

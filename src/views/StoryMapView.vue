@@ -359,6 +359,12 @@ async function rebuild(): Promise<void> {
   model.value = await build()
   runKey.value++
 }
+const playBtn = ref<{ $el: HTMLElement } | null>(null)
+// The panel's own Close button disappears with it; focus goes back to Play.
+function closePlay(): void {
+  playOpen.value = false
+  void nextTick(() => playBtn.value?.$el.focus())
+}
 async function togglePlay(): Promise<void> {
   playOpen.value = !playOpen.value
   if (!playOpen.value) return
@@ -436,6 +442,7 @@ watch(startId, () => {
         />
       </template>
       <QBtn
+        ref="playBtn"
         class="play-btn"
         unelevated
         dense
@@ -523,7 +530,7 @@ watch(startId, () => {
           :key="runKey"
           :model="model"
           :start="{ boxId: startId }"
-          @close="playOpen = false"
+          @close="closePlay"
         />
       </div>
     </div>

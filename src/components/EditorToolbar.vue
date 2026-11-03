@@ -99,7 +99,7 @@ const tip = (i: ToolbarItem): string =>
         v-if="hasElement"
         class="style-select"
         :aria-label="t('editor.toolbar.element')"
-        :title="t('editor.toolbar.element')"
+        :title="t('editor.toolbar.elementHint')"
         :value="activeElement"
         :disabled="disabled || !editor"
         @change="setElement(($event.target as HTMLSelectElement).value)"

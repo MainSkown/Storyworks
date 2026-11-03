@@ -84,11 +84,20 @@ async function startEdit(e: GlossaryEntry) {
   await nextTick()
   editTermEl.value?.[0]?.focus()
 }
-function cancelEdit() {
+const listEl = ref<HTMLElement>()
+// Keyboard and button exits put focus back on the row's Edit button.
+function focusEditBtn(id: string) {
+  void nextTick(() =>
+    listEl.value?.querySelector<HTMLElement>(`[data-entry="${id}"] [data-edit]`)?.focus(),
+  )
+}
+function cancelEdit(refocus = true) {
+  const id = editId.value
   editId.value = null
   editError.value = ''
+  if (refocus && id) focusEditBtn(id)
 }
-function saveEdit(): boolean {
+function saveEdit(refocus = true): boolean {
   const id = editId.value
   if (!id) return true
   const term = editTerm.value.trim()
@@ -105,14 +114,15 @@ function saveEdit(): boolean {
     message.value = t('gamedoc.glossaryTab.saved', { term })
   }
   editId.value = null
+  if (refocus) focusEditBtn(id)
   return true
 }
 // Focus moving between the row's own fields/buttons is not leaving the row.
 function onEditFocusout(ev: FocusEvent) {
   const row = ev.currentTarget as HTMLElement
   if (row.contains(ev.relatedTarget as Node | null)) return
-  if (!editTerm.value.trim()) cancelEdit()
-  else saveEdit()
+  if (!editTerm.value.trim()) cancelEdit(false)
+  else saveEdit(false)
 }
 
 // ---- delete ----
@@ -126,7 +136,13 @@ const deleteOpen = computed({
 function doDelete() {
   const e = deleting.value
   deleting.value = null
-  if (e && store.remove(e.id)) message.value = t('gamedoc.glossaryTab.deleted', { term: e.term })
+  if (!e) return
+  const i = shown.value.findIndex((x) => x.id === e.id)
+  const next = shown.value[i + 1] ?? shown.value[i - 1]
+  if (!store.remove(e.id)) return
+  message.value = t('gamedoc.glossaryTab.deleted', { term: e.term })
+  if (next) focusEditBtn(next.id)
+  else void nextTick(() => addBtn.value?.$el.focus())
 }
 </script>
 
@@ -204,13 +220,13 @@ function doDelete() {
         {{ t('gamedoc.glossaryTab.noMatch') }}
       </p>
 
-      <ul v-if="shown.length" class="list" :aria-label="t('gamedoc.glossaryTab.title')">
-        <li v-for="e in shown" :key="e.id" class="entry">
+      <ul v-if="shown.length" ref="listEl" class="list" :aria-label="t('gamedoc.glossaryTab.title')">
+        <li v-for="e in shown" :key="e.id" class="entry" :data-entry="e.id">
           <div
             v-if="editId === e.id"
             class="row edit-row"
             @focusout="onEditFocusout"
-            @keydown.esc.stop="cancelEdit"
+            @keydown.esc.stop="cancelEdit()"
           >
             <label :for="`${uid}-et`" class="label">{{ t('gamedoc.glossaryTab.term') }}</label>
             <input
@@ -235,7 +251,7 @@ function doDelete() {
             <p v-if="editError" :id="`${uid}-ee`" class="error" role="alert">{{ editError }}</p>
             <div class="actions">
               <QBtn no-caps unelevated class="btn-section" :label="t('gamedoc.glossaryTab.save')" @click="saveEdit()" />
-              <QBtn flat no-caps :label="t('gamedoc.glossaryTab.cancel')" @click="cancelEdit" />
+              <QBtn flat no-caps :label="t('gamedoc.glossaryTab.cancel')" @click="cancelEdit()" />
             </div>
           </div>
           <div v-else class="view">
@@ -249,6 +265,7 @@ function doDelete() {
                 round
                 dense
                 icon="edit"
+                data-edit
                 :aria-label="t('gamedoc.glossaryTab.edit', { term: e.term })"
                 :disable="disabled"
                 @click="startEdit(e)"
@@ -277,7 +294,13 @@ function doDelete() {
           <p>{{ t('gamedoc.glossaryTab.deleteConfirm', { term: deleting?.term ?? '' }) }}</p>
         </QCardSection>
         <QCardActions align="right">
-          <QBtn flat no-caps :label="t('gamedoc.glossaryTab.cancel')" @click="deleteOpen = false" />
+          <QBtn
+            flat
+            no-caps
+            autofocus
+            :label="t('gamedoc.glossaryTab.cancel')"
+            @click="deleteOpen = false"
+          />
           <QBtn
             flat
             no-caps

@@ -169,6 +169,11 @@ async function doDelete(): Promise<void> {
       timeout: 5000,
     })
   if (invalidId.value === id) invalidId.value = null
+  // The Delete button is gone; keep focus in the list.
+  void nextTick(() =>
+    (listEl.value?.querySelector<HTMLElement>('[data-mech]') ??
+      document.querySelector<HTMLElement>('.page .bar button'))?.focus(),
+  )
   Notify.create({
     message: T('deleted', { title }),
     position: 'bottom',
@@ -443,7 +448,7 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
             <tr>
               <th scope="col">{{ T('parameters.name') }}</th>
               <th scope="col">{{ T('parameters.value') }}</th>
-              <td />
+              <th scope="col" class="sr-only">{{ T('parameters.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -548,7 +553,7 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
           <p class="warn">{{ T('deleteLinks') }}</p>
         </QCardSection>
         <QCardActions align="right">
-          <QBtn flat no-caps :label="T('cancel')" @click="deleteId = null" />
+          <QBtn flat no-caps autofocus :label="T('cancel')" @click="deleteId = null" />
           <QBtn flat no-caps color="negative" :label="T('deleteMechanic')" @click="doDelete" />
         </QCardActions>
       </QCard>

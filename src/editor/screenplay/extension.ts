@@ -65,6 +65,11 @@ export const ScreenplayElements = Extension.create({
   name: 'screenplayElements',
   priority: 1000,
 
+  // Tab cycles elements, so Escape then Tab is the way out of the editor (no keyboard trap).
+  addStorage() {
+    return { leaveOnTab: false }
+  },
+
   addCommands() {
     return {
       setElement: (type) => (props) => retype(props, () => type),
@@ -99,11 +104,23 @@ export const ScreenplayElements = Extension.create({
           }
           return true
         }),
+      Escape: () => {
+        this.storage.leaveOnTab = true
+        return false
+      },
       Tab: ({ editor }) => {
+        if (this.storage.leaveOnTab) {
+          this.storage.leaveOnTab = false
+          return false
+        }
         editor.commands.command((p) => retype(p, (t) => cycle(t, 1)))
         return true
       },
       'Shift-Tab': ({ editor }) => {
+        if (this.storage.leaveOnTab) {
+          this.storage.leaveOnTab = false
+          return false
+        }
         editor.commands.command((p) => retype(p, (t) => cycle(t, -1)))
         return true
       },
@@ -112,7 +129,18 @@ export const ScreenplayElements = Extension.create({
 
   addProseMirrorPlugins() {
     let fountainPaste = false
+    const storage = this.storage
     return [
+      new Plugin({
+        props: {
+          // Any other key cancels a pending Escape.
+          handleKeyDown(_view, e) {
+            if (!['Escape', 'Tab', 'Shift', 'Control', 'Alt', 'Meta'].includes(e.key))
+              storage.leaveOnTab = false
+            return false
+          },
+        },
+      }),
       new Plugin({
         // An empty scene file loads as a doc without blocks: give it one action block.
         view(view) {

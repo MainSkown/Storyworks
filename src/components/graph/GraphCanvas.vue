@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="ND = unknown, ED = unknown">
-import { computed, nextTick, ref, useId, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   BaseEdge,
@@ -94,6 +94,21 @@ const hintId = `${uid}-hint`
 const { viewport, setCenter, fitView, zoomIn, zoomOut } = useVueFlow(flowId)
 
 const rootEl = ref<HTMLElement | null>(null)
+
+// Vue Flow's edge SVGs have no text; keep them out of the reader's tree (edges are announced on nodes).
+let edgeObserver: MutationObserver | undefined
+function hideEdgeSvgs(pane: Element): void {
+  for (const s of pane.querySelectorAll(':scope > svg:not([aria-hidden])'))
+    s.setAttribute('aria-hidden', 'true')
+}
+onMounted(() => {
+  const pane = rootEl.value?.querySelector('.vue-flow__transformationpane')
+  if (!pane) return
+  hideEdgeSvgs(pane)
+  edgeObserver = new MutationObserver(() => hideEdgeSvgs(pane))
+  edgeObserver.observe(pane, { childList: true })
+})
+onBeforeUnmount(() => edgeObserver?.disconnect())
 const announcement = ref('')
 const activeId = ref<string | null>(null)
 const selectedEdgeId = ref<string | null>(null)

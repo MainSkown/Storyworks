@@ -88,7 +88,7 @@ function choose(i: number): void {
             {{ tabLabel(k) }}
           </button>
         </div>
-        <div id="mech-link-panel" role="tabpanel">
+        <div id="mech-link-panel" role="tabpanel" :aria-labelledby="`mech-link-tab-${tab}`">
           <input
             ref="searchEl"
             v-model="query"
@@ -96,7 +96,7 @@ function choose(i: number): void {
             type="search"
             autofocus
             role="combobox"
-            aria-expanded="true"
+            :aria-expanded="rows.length > 0"
             aria-controls="mech-link-list"
             :aria-activedescendant="rows.length ? rowId(active) : undefined"
             :aria-label="t('gamedoc.links.search', { kind: tabLabel(tab) })"
@@ -108,7 +108,14 @@ function choose(i: number): void {
           <p v-if="rows.length === 0" class="empty" role="status">
             {{ t(query.trim() ? 'gamedoc.links.noMatch' : 'gamedoc.links.nothingToLink') }}
           </p>
-          <div v-else id="mech-link-list" ref="listEl" class="list" role="listbox">
+          <div
+            v-else
+            id="mech-link-list"
+            ref="listEl"
+            class="list"
+            role="listbox"
+            :aria-label="tabLabel(tab)"
+          >
             <div
               v-for="(r, i) in rows"
               :id="rowId(i)"

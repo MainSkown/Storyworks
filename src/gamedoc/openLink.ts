@@ -1,5 +1,5 @@
 import { openEntry } from '../codex/openEntry'
-import { variablesOpen } from '../composables/variablesPanel'
+import { pendingVariableId, variablesOpen } from '../composables/variablesPanel'
 import type { MechanicLink } from '../project/schemas/mechanic'
 import { useProjectStore } from '../project/store'
 import { findNode } from '../project/tree'
@@ -13,6 +13,7 @@ export async function openLink(link: MechanicLink): Promise<void> {
   switch (link.kind) {
     case 'variable':
       variablesOpen.value = true
+      pendingVariableId.value = link.id
       await router.push({ name: 'write' })
       return
     case 'item': {
