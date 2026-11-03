@@ -5,6 +5,7 @@ import { quasar } from '@quasar/vite-plugin'
 export default defineConfig({
   plugins: [vue(), quasar({ autoImportComponentCase: 'combined' })],
   clearScreen: false,
+  worker: { format: 'es' },
   server: { port: 1420, strictPort: true, watch: { ignored: ['**/src-tauri/**'] } },
   test: { environment: 'node' },
 })

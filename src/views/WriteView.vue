@@ -8,13 +8,19 @@ import { focusMode, isFocusShortcut } from '../composables/focusMode'
 import { writeView } from '../composables/writeView'
 import { useHistoryStore } from '../history/store'
 import { useProjectStore } from '../project/store'
+import { formatClock } from '../stats/timer'
+import { useSessionTimer } from '../stats/sessionTimer'
+import { useStatsStore } from '../stats/store'
+import { useClockRefresh } from '../stats/useClockRefresh'
 import { sceneStatusSchema, type Scene } from '../project/schemas/scene'
 import type { ManuscriptNode } from '../project/schemas/manifest'
 import type { Issue } from '../project/types'
 
-const { t } = useI18n()
+const { t, n } = useI18n()
 const store = useProjectStore()
 const history = useHistoryStore()
+const stats = useStatsStore()
+useClockRefresh()
 const { selectedId } = storeToRefs(store)
 
 // The selected node and its nearest container (chapter or part).
@@ -61,6 +67,14 @@ const bookWords = computed(() => store.wordCounts.get('') ?? 0)
 const saveIcon = computed(
   () => ({ saved: 'check_circle', saving: 'sync', error: 'error_outline' })[store.saveStatus],
 )
+
+const todayText = computed(() =>
+  stats.dailyGoal
+    ? t('stats.status.todayGoal', { n: n(stats.todayNet), goal: n(stats.dailyGoal) })
+    : t('stats.status.today', { n: n(stats.todayNet) }),
+)
+const timer = useSessionTimer()
+const clockText = computed(() => formatClock(timer.elapsed()))
 
 // ---- focus mode ----
 function onKeydown(e: KeyboardEvent): void {
@@ -168,6 +182,28 @@ watch(corkboard, (v) => {
         </span>
       </template>
       <span>{{ t('write.book') }}: {{ bookWords }} {{ t('sidebar.words') }}</span>
+      <span class="today" :class="{ met: stats.goalProgress?.met }">{{ todayText }}</span>
+      <span class="timer">
+        <button
+          type="button"
+          class="timer-btn"
+          :aria-label="timer.running.value ? t('stats.timer.pause') : t('stats.timer.start')"
+          :title="timer.running.value ? t('stats.timer.pause') : t('stats.timer.start')"
+          @click="timer.toggle()"
+        >
+          <QIcon :name="timer.running.value ? 'pause' : 'play_arrow'" aria-hidden="true" />
+        </button>
+        <span role="timer" aria-live="off" :aria-label="t('stats.timer.label')" class="clock">{{ clockText }}</span>
+        <button
+          type="button"
+          class="timer-btn"
+          :aria-label="t('stats.timer.reset')"
+          :title="t('stats.timer.reset')"
+          @click="timer.reset()"
+        >
+          <QIcon name="restart_alt" aria-hidden="true" />
+        </button>
+      </span>
       <RouterLink class="changes-link" :to="{ name: 'history', query: { tab: 'changes' } }" :title="t('history.status.open')">
         {{ t('history.status.changes', history.changeCount) }}
       </RouterLink>
@@ -219,6 +255,40 @@ watch(corkboard, (v) => {
   background: var(--bg-panel);
   color: var(--text-secondary);
   font-size: 0.8125rem;
+}
+.today.met {
+  color: var(--section-rules);
+  font-weight: 600;
+}
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+}
+.clock {
+  min-inline-size: 3.25rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.timer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.timer-btn:hover {
+  background: var(--bg-selected);
+}
+.timer-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
 }
 .changes-link {
   color: inherit;

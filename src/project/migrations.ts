@@ -202,6 +202,25 @@ const v10to11: Migration = {
   },
 }
 
+/** v11 -> v12: manifest only (`stats` slot; dictionary names become `{ name, scope: 'global' }`). */
+const v11to12: Migration = {
+  from: 11,
+  to: 12,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    const old = Array.isArray(manifest.dictionaries) ? manifest.dictionaries : []
+    out.set(MANIFEST_FILE, {
+      ...manifest,
+      version: 12,
+      // Anything that is not a name stays as it is and fails validation.
+      dictionaries: old.map((d) => (typeof d === 'string' ? { name: d, scope: 'global' } : d)),
+      stats: manifest.stats ?? null,
+    })
+    return out
+  },
+}
+
 export const migrations: Migration[] = [
   v1to2,
   v2to3,
@@ -213,6 +232,7 @@ export const migrations: Migration[] = [
   v8to9,
   v9to10,
   v10to11,
+  v11to12,
 ]
 
 export const MANIFEST_FILE = 'project.json'

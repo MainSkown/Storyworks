@@ -1,0 +1,8 @@
+export { createDictionaryStore, createBundledSource, DictionaryError } from './dictionaryStore'
+export type { DictionaryInfo, DictionaryStore, ImportInput } from './dictionaryStore'
+export { createCustomWords } from './customWords'
+export { createSpellEngine } from './engine'
+export type { Misspelling, SpellEngine } from './engine'
+export { createGlobalDictStorage } from './globalStorage'
+export { defaultDictionaryFor } from './language'
+export type { DictRef, DictScope, LoadedDictionary } from './types'

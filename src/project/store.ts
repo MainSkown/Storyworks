@@ -26,6 +26,8 @@ import { isTauri } from './pickFolder'
 import { defaultExportOptions, type ExportOptions } from '../export/options'
 import {
   exportSettingsSchema,
+  dictionariesSchema,
+  goalsSchema,
   MANIFEST_VERSION,
   peekManifestHeader,
   type BookMeta,
@@ -40,6 +42,7 @@ import {
   removeIgnored,
   type Ignored,
 } from './schemas/ignored'
+import { emptyStats, statsSchema, type Stats } from './schemas/stats'
 import { INBOX_VERSION, inboxSchema, type Inbox, type InboxNote } from './schemas/inbox'
 import { blockIds, sceneSchema, SCENE_VERSION, type Scene } from './schemas/scene'
 import type { TrashedNode } from './schemas/trashedNode'
@@ -52,6 +55,7 @@ import { useRelationsStore } from '../relations/store'
 import { useRulesStore } from '../rules/store'
 import { useStatesStore } from '../states/store'
 import { useKnowledgeStore } from '../knowledge/store'
+import { useStatsStore } from '../stats/store'
 import { useTimelinesStore } from '../timeline/store'
 import { seedCodexTypes } from './codex'
 import { seedRelationTypes } from './relations'
@@ -193,7 +197,7 @@ function liveIds(m: Manifest): Set<string> {
     m.stateKinds,
     m.knowledge,
   ]
-  for (const ref of [m.calendar, m.inbox, m.ignoredFindings, m.relationLayout, ...lists.flat()]) {
+  for (const ref of [m.calendar, m.inbox, m.ignoredFindings, m.stats, m.relationLayout, ...lists.flat()]) {
     if (ref) ids.add(ref.id)
   }
   return ids
@@ -247,6 +251,8 @@ export const useProjectStore = defineStore('project', () => {
   const inbox = shallowRef<Inbox | null>(null)
   /** dismissed finding ids (ignored.json), including edits not saved yet; replaced, never edited */
   const ignored = shallowRef<Ignored | null>(null)
+  /** writing stats (stats.json), including edits not saved yet; replaced, never edited */
+  const stats = shallowRef<Stats | null>(null)
 
   const readOnly = computed(() => project.value?.readOnly ?? null)
   const tree = computed<ManuscriptNode[]>(() => {
@@ -267,6 +273,11 @@ export const useProjectStore = defineStore('project', () => {
   const ignoredInvalid = computed(() => {
     void revision.value
     const path = project.value?.manifest.ignoredFindings?.path
+    return !!path && issues.value.some((i) => i.kind === 'invalid' && i.path === path)
+  })
+  const statsInvalid = computed(() => {
+    void revision.value
+    const path = project.value?.manifest.stats?.path
     return !!path && issues.value.some((i) => i.kind === 'invalid' && i.path === path)
   })
   /** Words per node id (containers sum their scenes); the book total is under ''. */
@@ -318,6 +329,7 @@ export const useProjectStore = defineStore('project', () => {
     (project.value?.manifest.ignoredFindings?.path === path
       ? project.value.manifest.ignoredFindings.id
       : null) ??
+    (project.value?.manifest.stats?.path === path ? project.value.manifest.stats.id : null) ??
     project.value?.manifest.timelines.find((t) => t.path === path)?.id ??
     project.value?.manifest.rules.find((r) => r.path === path)?.id ??
     project.value?.manifest.ruleCategories.find((r) => r.path === path)?.id ??
@@ -407,11 +419,21 @@ export const useProjectStore = defineStore('project', () => {
     ignored.value = r?.ok ? r.value : null
   }
 
+  async function loadStats(s: Session, p: OpenProject): Promise<void> {
+    const ref = p.manifest.stats
+    stats.value = null
+    if (!ref) return
+    const text = await s.io.readText(ref.path)
+    const r = text === null ? null : parseFile(statsSchema, text, ref.path)
+    stats.value = r?.ok ? r.value : null
+  }
+
   /** Re-reads what the app keeps in memory about a file that changed on disk. */
   async function reindex(s: Session, path: string): Promise<void> {
     const p = project.value
     if (p?.manifest.inbox?.path === path) await loadInbox(s, p)
     else if (p?.manifest.ignoredFindings?.path === path) await loadIgnored(s, p)
+    else if (p?.manifest.stats?.path === path) await loadStats(s, p)
     else await indexScene(s, nodeIdOfPath(path), path)
   }
 
@@ -582,6 +604,7 @@ export const useProjectStore = defineStore('project', () => {
     }
     await loadInbox(s, opened.project)
     await loadIgnored(s, opened.project)
+    await loadStats(s, opened.project)
     await rebuildLinks(s, opened.project)
     await openContent(opened.project)
     openedCount.value++
@@ -751,6 +774,8 @@ export const useProjectStore = defineStore('project', () => {
     openNoteId.value = null
     inbox.value = null
     ignored.value = null
+    stats.value = null
+    useStatsStore().reset()
     useTimelinesStore().reset()
     useRulesStore().reset()
     useCodexStore().reset()
@@ -993,13 +1018,28 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** Stores the editor content and its word count; other scene fields stay as they are. */
-  function setSceneContent(
+  /**
+   * Stores the editor content and its word count; other scene fields stay as they are.
+   * This is the only path for real edits, so the writing stats are fed from here (not from loads).
+   */
+  async function setSceneContent(
     id: string,
     content: Scene['content'],
     wordCount: number,
   ): Promise<boolean> {
-    return patchScene(id, (sc) => ({ ...sc, content, wordCount }))
+    let delta = 0
+    const ok = await patchScene(id, (sc) => {
+      delta = wordCount - sc.wordCount
+      return { ...sc, content, wordCount }
+    })
+    if (ok) {
+      try {
+        await useStatsStore().recordEdit(delta)
+      } catch (e) {
+        console.error('Could not record writing stats', e)
+      }
+    }
+    return ok
   }
 
   /** Drops comments whose mark left the text. Run when leaving a scene, so undo can still bring one back. */
@@ -1154,6 +1194,45 @@ export const useProjectStore = defineStore('project', () => {
     p.manifest.checkSettings = { ...p.manifest.checkSettings, [id]: enabled }
     revision.value++
     mark(MANIFEST_FILE)
+  }
+
+  // ---- writing goals ----
+
+  const goals = computed(() => {
+    void revision.value // the manifest object is not reactive
+    return project.value?.manifest.goals ?? { daily: null, book: null }
+  })
+
+  /** null = no goal. false (nothing changed) when invalid or the project is read-only. */
+  function setGoals(next: { daily: number | null; book: number | null }): boolean {
+    const p = project.value
+    if (!p || !session || p.readOnly) return false
+    const r = goalsSchema.safeParse(next)
+    if (!r.success) return false
+    p.manifest.goals = r.data
+    revision.value++
+    mark(MANIFEST_FILE)
+    return true
+  }
+
+  // ---- spellcheck dictionary selection ----
+
+  /** The book's own selection (name + scope); empty = nothing chosen yet. */
+  const dictionaries = computed(() => {
+    void revision.value // the manifest object is not reactive
+    return project.value?.manifest.dictionaries ?? []
+  })
+
+  /** false (nothing changed) when invalid or the project is read-only. */
+  function setDictionaries(next: { name: string; scope: 'local' | 'global' }[]): boolean {
+    const p = project.value
+    if (!p || !session || p.readOnly) return false
+    const r = dictionariesSchema.safeParse(next)
+    if (!r.success) return false
+    p.manifest.dictionaries = r.data
+    revision.value++
+    mark(MANIFEST_FILE)
+    return true
   }
 
   // ---- export settings ----
@@ -1352,6 +1431,46 @@ export const useProjectStore = defineStore('project', () => {
   /** Brings a dismissed finding back. */
   const unignoreFinding = (id: string) => changeIgnored((cur) => removeIgnored(cur, id))
 
+  // ---- writing stats ----
+
+  const STATS_FILE = 'stats.json'
+  let statsCreating: Promise<void> | null = null
+
+  /** Creates stats.json and registers it in project.json on first use. */
+  async function ensureStats(p: OpenProject): Promise<void> {
+    if (p.manifest.stats) return
+    statsCreating ??= (async () => {
+      const empty = emptyStats()
+      await p.saveItem(STATS_FILE, statsSchema, empty)
+      p.manifest.stats = { id: newId(), path: STATS_FILE }
+      stats.value = empty
+      revision.value++
+      mark(MANIFEST_FILE)
+    })().finally(() => {
+      statsCreating = null
+    })
+    await statsCreating
+  }
+
+  /** Replaces the stats with `change(current)` (autosaved, created on first use). false = refused (read-only, invalid file). */
+  async function changeStats(change: (cur: Stats) => Stats): Promise<boolean> {
+    const p = project.value
+    if (!p || !session || p.readOnly) return false
+    const ref = p.manifest.stats
+    if (ref && p.isInvalid(ref.path)) return false
+    try {
+      await ensureStats(p)
+    } catch (e) {
+      console.error('Could not create the stats file', e)
+      return false
+    }
+    const path = (p.manifest.stats as { path: string }).path
+    const next = change(stats.value ?? emptyStats())
+    if (!updateItem(path, statsSchema, next)) return false
+    stats.value = next
+    return true
+  }
+
   // ---- inbox ----
 
   const INBOX_FILE = 'inbox.json'
@@ -1531,6 +1650,7 @@ export const useProjectStore = defineStore('project', () => {
     await s.watcher.start().catch((e) => console.error(e))
     await loadInbox(s, r.project)
     await loadIgnored(s, r.project)
+    await loadStats(s, r.project)
     await rebuildLinks(s, r.project)
     await openContent(r.project)
     return true
@@ -1595,6 +1715,10 @@ export const useProjectStore = defineStore('project', () => {
   return {
     isCheckEnabled,
     setCheckEnabled,
+    goals,
+    setGoals,
+    dictionaries,
+    setDictionaries,
     exportSettings,
     setExportSettings,
     openedCount,
@@ -1620,6 +1744,9 @@ export const useProjectStore = defineStore('project', () => {
     inboxInvalid,
     ignoredIds: ignoredIdSet,
     ignoredInvalid,
+    stats,
+    statsInvalid,
+    changeStats,
     ignoreFinding,
     unignoreFinding,
     brokenLinkCount,

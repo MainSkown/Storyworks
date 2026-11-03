@@ -121,6 +121,47 @@ describe('project store', () => {
     expect(JSON.parse(io.files.get('project.json') as string).exportSettings).toEqual(next)
   })
 
+  it('goals are validated, saved in the manifest, and refused when read-only', async () => {
+    const { s } = await openedStore()
+    expect(s.goals).toEqual({ daily: null, book: null })
+    expect(s.setGoals({ daily: 500, book: 80000 })).toBe(true)
+    expect(s.goals).toEqual({ daily: 500, book: 80000 })
+    expect(s.setGoals({ daily: -1, book: null })).toBe(false)
+    expect(s.setGoals({ daily: 1.5, book: null })).toBe(false)
+    expect(s.goals).toEqual({ daily: 500, book: 80000 })
+    expect(s.setGoals({ daily: null, book: 0 })).toBe(true)
+    await s.flush()
+    expect(JSON.parse(io.files.get('project.json') as string).goals).toEqual({ daily: null, book: 0 })
+  })
+
+  it('setGoals is refused when the project is read-only', async () => {
+    const { s } = await openedStore()
+    await s.close()
+    io.files.set(LOCK_PATH, otherHolder())
+    await s.open('book')
+    await s.resolveLockPrompt('readOnly')
+    expect(s.setGoals({ daily: 10, book: null })).toBe(false)
+    expect(s.goals).toEqual({ daily: null, book: null })
+  })
+
+  it('dictionary selection is validated, saved in the manifest, and refused when read-only', async () => {
+    const { s } = await openedStore()
+    expect(s.dictionaries).toEqual([])
+    const refs = [{ name: 'en', scope: 'global' as const }, { name: 'mine', scope: 'local' as const }]
+    expect(s.setDictionaries(refs)).toBe(true)
+    expect(s.dictionaries).toEqual(refs)
+    expect(s.setDictionaries([{ name: 'x', scope: 'cloud' as never }])).toBe(false)
+    expect(s.dictionaries).toEqual(refs)
+    await s.flush()
+    expect(JSON.parse(io.files.get('project.json') as string).dictionaries).toEqual(refs)
+    await s.close()
+    io.files.set(LOCK_PATH, otherHolder())
+    await s.open('book')
+    await s.resolveLockPrompt('readOnly')
+    expect(s.setDictionaries([])).toBe(false)
+    expect(s.dictionaries).toEqual(refs)
+  })
+
   it('deleting moves the item to the trash; restore puts it back', async () => {
     const { s, scene, path } = await openedStore()
     await s.deleteItem(scene.id)

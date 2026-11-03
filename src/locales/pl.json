@@ -308,6 +308,43 @@
       "dashed": "przerywane"
     }
   },
+  "search": {
+    "open": "Szukaj w książce",
+    "title": "Szukaj",
+    "inputLabel": "Szukaj w książce",
+    "placeholder": "Szukaj w scenach, kodeksie, zasadach, osiach czasu…",
+    "results": "Wyniki wyszukiwania",
+    "hint": "Wpisz tekst, aby przeszukać całą książkę.",
+    "none": "Nic nie znaleziono dla „{query}”.",
+    "count": "Brak wyników | {n} wynik | {n} wyniki | {n} wyników",
+    "more": "jeszcze {n}…",
+    "loading": "Sceny są jeszcze wczytywane, więc wyniki mogą być niepełne.",
+    "keys": "↑ ↓ – wybór · Enter – otwórz · Esc – zamknij",
+    "untitled": "Bez tytułu",
+    "also": "także:",
+    "area": {
+      "manuscript": "Rękopis",
+      "codex": "Kodeks",
+      "rules": "Zasady",
+      "timelines": "Osie czasu",
+      "knowledge": "Wiedza"
+    },
+    "kind": {
+      "scene": "Scena",
+      "chapter": "Rozdział",
+      "rule": "Zasada",
+      "entry": "Hasło kodeksu",
+      "knowledge": "Element wiedzy",
+      "timeline": "Oś czasu",
+      "node": "Wydarzenie"
+    },
+    "switcher": {
+      "title": "Przejdź do…",
+      "placeholder": "Wpisz nazwę, aby tam przejść…",
+      "recent": "Ostatnio otwarte",
+      "empty": "Nic jeszcze nie otwarto. Wpisz nazwę, aby znaleźć element."
+    }
+  },
   "a11y": {
     "skipToContent": "Przejdź do treści",
     "mainNavigation": "Nawigacja główna",
@@ -367,7 +404,7 @@
     "cancel": "Anuluj",
     "focus": "Skupienie",
     "exitFocus": "Zakończ skupienie",
-    "focusTitle": "Tryb skupienia (Ctrl+Shift+F, Esc kończy)",
+    "focusTitle": "Tryb skupienia (Ctrl+Alt+F, Esc kończy)",
     "status": "Status sceny",
     "readOnlyNotice": "Ta książka jest tylko do odczytu, więc nie można edytować tekstu.",
     "statusBar": "Liczba słów i stan zapisu",
@@ -1537,6 +1574,91 @@
     "contents": "Spis treści",
     "notes": "Przypisy"
   },
+  "stats": {
+    "title": "Statystyki",
+    "intro": "Słowa napisane danego dnia, sesje i postęp wobec celów. Dzień liczy słowa netto, które dodano; usuwanie odejmuje.",
+    "setGoals": "Ustaw cele",
+    "invalid": "Nie udało się odczytać pliku stats.json, więc statystyki pisania nie są zapisywane. Napraw lub przywróć plik w Historii.",
+    "readOnly": "Ta książka jest tylko do odczytu, więc nowe pisanie nie jest zapisywane.",
+    "today": {
+      "title": "Dziś",
+      "words": "{n} słów",
+      "goal": "z dziennego celu {goal}",
+      "noGoal": "Brak dziennego celu",
+      "met": "Cel osiągnięty"
+    },
+    "book": {
+      "title": "Książka",
+      "words": "{n} słów",
+      "goal": "z celu {goal}",
+      "noGoal": "Brak celu dla książki",
+      "met": "Cel osiągnięty"
+    },
+    "streak": {
+      "title": "Serie",
+      "current": "Obecna seria",
+      "longest": "Najdłuższa seria",
+      "days": "0 dni | {n} dzień | {n} dni | {n} dni",
+      "ruleGoal": "Dni, w których osiągnięto dzienny cel",
+      "ruleAny": "Dni z co najmniej jednym słowem"
+    },
+    "progress": "{label}: {percent}%",
+    "chart": {
+      "title": "Słowa na dzień, ostatnie 30 dni",
+      "summary": "Wykres słupkowy słów netto napisanych dziennie w ciągu ostatnich 30 dni, od {from} do {to}. Najwięcej w jednym dniu: {max}.",
+      "goalLine": "Cel {n}",
+      "empty": "Nic jeszcze nie napisano. Dodawane słowa pojawią się tutaj, dzień po dniu.",
+      "showTable": "Pokaż jako tabelę",
+      "hideTable": "Ukryj tabelę",
+      "date": "Data",
+      "words": "Słowa",
+      "goalMet": "Cel osiągnięty",
+      "yes": "Tak",
+      "no": "Nie",
+      "tableCaption": "Słowa napisane dziennie, ostatnie 30 dni",
+      "bar": "{date}: {n} słów"
+    },
+    "totals": {
+      "title": "Liczba słów",
+      "empty": "Brak jeszcze rękopisu.",
+      "expand": "Rozwiń: {title}",
+      "collapse": "Zwiń: {title}",
+      "kind": {
+        "part": "Część",
+        "chapter": "Rozdział",
+        "scene": "Scena"
+      },
+      "total": "Cała książka"
+    },
+    "sessions": {
+      "title": "Sesje pisania",
+      "empty": "Brak sesji. Sesja zaczyna się od pierwszej zmiany i kończy po 10 minutach bezczynności.",
+      "date": "Data",
+      "time": "Czas",
+      "net": "Słowa netto",
+      "live": "W toku",
+      "showAll": "Pokaż wszystkie sesje ({n})",
+      "showLess": "Pokaż mniej"
+    },
+    "goals": {
+      "title": "Cele pisania",
+      "hint": "Cele są zapisywane razem z tą książką. Wpisz 0, aby nie mieć celu.",
+      "readOnly": "Ta książka jest tylko do odczytu, więc nie można zmieniać celów.",
+      "daily": "Dzienny cel słów",
+      "book": "Cel słów dla książki",
+      "words": "słów"
+    },
+    "status": {
+      "today": "Dziś: {n}",
+      "todayGoal": "Dziś: {n} / {goal}"
+    },
+    "timer": {
+      "label": "Stoper sesji",
+      "start": "Uruchom stoper",
+      "pause": "Wstrzymaj stoper",
+      "reset": "Wyzeruj stoper"
+    }
+  },
   "history": {
     "title": "Historia",
     "tabs": {
@@ -1677,6 +1799,78 @@
     "status": {
       "changes": "Brak zmian od ostatniej migawki | {n} zmiana od ostatniej migawki | {n} zmiany od ostatniej migawki | {n} zmian od ostatniej migawki",
       "open": "Otwórz Historię"
+    }
+  },
+  "spell": {
+    "menu": {
+      "noSuggestions": "Brak podpowiedzi",
+      "add": "Dodaj do słownika",
+      "ignore": "Ignoruj w tej sesji"
+    },
+    "title": "Słowniki sprawdzania pisowni",
+    "hint": "Wybierz, które słowniki sprawdzają tę książkę. Słowniki lokalne podróżują razem z książką; globalne są wspólne dla wszystkich książek na tym komputerze.",
+    "readOnly": "Ta książka jest tylko do odczytu: nie można zmienić wyboru ani listy słów.",
+    "defaultUsed": "Nie wybrano jeszcze słownika: używany jest domyślny dla języka książki ({name}). Włącz lub wyłącz słownik poniżej, aby wybrać własne.",
+    "defaultNone": "Żaden wbudowany słownik nie pasuje do języka książki ({language}). Zaimportuj słownik lub włącz któryś poniżej.",
+    "missing": "Słownik „{name}” ({scope}) nie jest zainstalowany na tym komputerze. Pozostaje wybrany w książce; sprawdzanie pisowni pomija go, dopóki nie zostanie zainstalowany.",
+    "scope": {
+      "bundled": "Wbudowany",
+      "global": "Globalny",
+      "local": "Lokalny"
+    },
+    "scopeName": {
+      "local": "lokalnych",
+      "global": "globalnych"
+    },
+    "kind": {
+      "hunspell": "Hunspell",
+      "wordlist": "Lista słów"
+    },
+    "shadowed": "Przesłonięty przez słownik lokalny o tej samej nazwie",
+    "use": "Używaj w tej książce",
+    "move": "Przenieś do słowników {scope}",
+    "copy": "Kopiuj do słowników {scope}",
+    "delete": "Usuń",
+    "deleteTitle": "Usunąć słownik „{name}”?",
+    "deleteLine": "Jego pliki zostaną usunięte z dysku. Książki, które go używają, będą go pomijać, dopóki nie zostanie zaimportowany ponownie.",
+    "moved": "Przeniesiono „{name}” do słowników {scope}.",
+    "copied": "Skopiowano „{name}” do słowników {scope}.",
+    "imported": "Zaimportowano „{name}”. Włącz go na liście, aby używać w tej książce.",
+    "errors": {
+      "invalid-name": "Nazwa jest pusta, za długa, zaczyna się od kropki albo zawiera znaki niedozwolone w nazwie pliku.",
+      "bad-dic": "Plik .dic nie jest słownikiem Hunspell: pierwsza linia musi zawierać liczbę słów.",
+      "bad-aff": "Plik .aff nie jest poprawnym plikiem afiksów Hunspell.",
+      "unsupported-encoding": "Obsługiwane są tylko słowniki w UTF-8. Przekonwertuj pliki na UTF-8 i spróbuj ponownie.",
+      "empty-wordlist": "Lista słów jest pusta.",
+      "exists": "Słownik o tej nazwie już istnieje w tym miejscu.",
+      "not-found": "Nie znaleziono słownika.",
+      "read-only": "Nie można tego zmienić: książka lub słownik jest tylko do odczytu.",
+      "no-local": "Aby używać słowników lokalnych, najpierw otwórz książkę.",
+      "same-scope": "Słownik już się tam znajduje."
+    },
+    "import": {
+      "open": "Importuj słownik",
+      "title": "Import słownika",
+      "kind": "Format",
+      "kindHunspell": "Hunspell (.dic + .aff)",
+      "kindWordlist": "Lista słów (.txt)",
+      "dic": "Plik słownika (.dic)",
+      "aff": "Plik afiksów (.aff)",
+      "list": "Plik z listą słów (jedno słowo w linii)",
+      "name": "Nazwa",
+      "scope": "Gdzie go przechowywać",
+      "scopeHint": {
+        "local": "Zapisany w folderze tej książki i podróżuje razem z nią.",
+        "global": "Zapisany na tym komputerze i dostępny w każdej książce."
+      },
+      "cancel": "Anuluj",
+      "do": "Importuj"
+    },
+    "custom": {
+      "title": "Słowa dodane do tej książki",
+      "hint": "Imiona i wymyślone terminy dodane przez „Dodaj do słownika”. Zapisane razem z książką.",
+      "empty": "Brak słów. Kliknij prawym przyciskiem podkreślone słowo w edytorze i wybierz „Dodaj do słownika”.",
+      "remove": "Usuń słowo"
     }
   }
 }

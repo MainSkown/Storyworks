@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import CalendarEditor from '../components/CalendarEditor.vue'
 import ChecksSettings from '../components/ChecksSettings.vue'
+import GoalsSettings from '../components/stats/GoalsSettings.vue'
+import DictionarySettings from '../components/spell/DictionarySettings.vue'
 import NumberField from '../components/NumberField.vue'
 import { useSettingsStore } from '../settings/store'
 import type { BackupSettings, Language, Theme } from '../settings/schema'
@@ -14,9 +16,9 @@ const store = useSettingsStore()
 const route = useRoute()
 
 onMounted(async () => {
-  if (route.hash !== '#calendar') return
+  if (route.hash !== '#calendar' && route.hash !== '#goals' && route.hash !== '#dictionaries') return
   await nextTick()
-  document.getElementById('calendar')?.scrollIntoView({ block: 'start' })
+  document.getElementById(route.hash.slice(1))?.scrollIntoView({ block: 'start' })
 })
 const { settings, loadError, savingDisabled } = storeToRefs(store)
 
@@ -220,6 +222,8 @@ function step(current: number, delta: number, r: { min: number; max: number }): 
       />
     </div>
 
+    <GoalsSettings />
+    <DictionarySettings />
     <CalendarEditor />
     <ChecksSettings />
   </section>

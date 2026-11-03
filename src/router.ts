@@ -1,7 +1,6 @@
 import { watch } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import AppShell from './components/AppShell.vue'
-import SectionPlaceholder from './views/SectionPlaceholder.vue'
 import CodexView from './views/CodexView.vue'
 import ChecksView from './views/ChecksView.vue'
 import KnowledgeView from './views/KnowledgeView.vue'
@@ -12,6 +11,7 @@ import TimelinesView from './views/TimelinesView.vue'
 import ExportView from './views/ExportView.vue'
 import HistoryView from './views/HistoryView.vue'
 import SettingsView from './views/SettingsView.vue'
+import StatsView from './views/StatsView.vue'
 import WelcomeView from './views/WelcomeView.vue'
 import WriteView from './views/WriteView.vue'
 import { useProjectStore } from './project/store'
@@ -33,7 +33,7 @@ export const router = createRouter({
         { path: 'codex/knowledge', name: 'knowledge', component: KnowledgeView },
         { path: 'codex/knowledge-matrix', name: 'knowledge-matrix', component: KnowledgeMatrixView },
         { path: 'checks', name: 'checks', component: ChecksView },
-        { path: 'stats', name: 'stats', component: SectionPlaceholder },
+        { path: 'stats', name: 'stats', component: StatsView },
         { path: 'history', name: 'history', component: HistoryView },
         { path: 'export', name: 'export', component: ExportView },
         { path: 'settings', name: 'settings', component: SettingsView },

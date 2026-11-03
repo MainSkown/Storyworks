@@ -308,6 +308,43 @@
       "dashed": "dashed"
     }
   },
+  "search": {
+    "open": "Search the book",
+    "title": "Search",
+    "inputLabel": "Search the book",
+    "placeholder": "Search scenes, codex, rules, timelines…",
+    "results": "Search results",
+    "hint": "Type to search the whole book.",
+    "none": "Nothing found for “{query}”.",
+    "count": "No results | {n} result | {n} results",
+    "more": "{n} more…",
+    "loading": "Still reading scenes, so results may be incomplete.",
+    "keys": "↑ ↓ to move · Enter to open · Esc to close",
+    "untitled": "Untitled",
+    "also": "also:",
+    "area": {
+      "manuscript": "Manuscript",
+      "codex": "Codex",
+      "rules": "Rules",
+      "timelines": "Timelines",
+      "knowledge": "Knowledge"
+    },
+    "kind": {
+      "scene": "Scene",
+      "chapter": "Chapter",
+      "rule": "Rule",
+      "entry": "Codex entry",
+      "knowledge": "Knowledge item",
+      "timeline": "Timeline",
+      "node": "Timeline event"
+    },
+    "switcher": {
+      "title": "Go to…",
+      "placeholder": "Type a name to jump to it…",
+      "recent": "Recently opened",
+      "empty": "Nothing opened yet. Type a name to find an item."
+    }
+  },
   "a11y": {
     "skipToContent": "Skip to content",
     "mainNavigation": "Main navigation",
@@ -367,7 +404,7 @@
     "cancel": "Cancel",
     "focus": "Focus",
     "exitFocus": "Exit focus",
-    "focusTitle": "Focus mode (Ctrl+Shift+F, Esc exits)",
+    "focusTitle": "Focus mode (Ctrl+Alt+F, Esc exits)",
     "status": "Scene status",
     "readOnlyNotice": "This book is read-only, so the text cannot be edited.",
     "statusBar": "Word counts and save state",
@@ -1537,6 +1574,91 @@
     "contents": "Contents",
     "notes": "Notes"
   },
+  "stats": {
+    "title": "Stats",
+    "intro": "Words written per day, sessions and progress toward your goals. A day counts the net words you added; deleting subtracts.",
+    "setGoals": "Set goals",
+    "invalid": "stats.json could not be read, so writing stats are not being recorded. Fix or restore the file in History.",
+    "readOnly": "This book is read-only, so new writing is not recorded.",
+    "today": {
+      "title": "Today",
+      "words": "{n} words",
+      "goal": "of {goal} daily goal",
+      "noGoal": "No daily goal set",
+      "met": "Goal reached"
+    },
+    "book": {
+      "title": "Book",
+      "words": "{n} words",
+      "goal": "of {goal} target",
+      "noGoal": "No book target set",
+      "met": "Target reached"
+    },
+    "streak": {
+      "title": "Streaks",
+      "current": "Current streak",
+      "longest": "Longest streak",
+      "days": "No days | {n} day | {n} days",
+      "ruleGoal": "Days that reached the daily goal",
+      "ruleAny": "Days with at least one word"
+    },
+    "progress": "{label}: {percent}%",
+    "chart": {
+      "title": "Words per day, last 30 days",
+      "summary": "Bar chart of net words written per day over the last 30 days, from {from} to {to}. Most written in a day: {max}.",
+      "goalLine": "Goal {n}",
+      "empty": "Nothing written yet. Words you add will appear here, day by day.",
+      "showTable": "Show as table",
+      "hideTable": "Hide table",
+      "date": "Date",
+      "words": "Words",
+      "goalMet": "Goal reached",
+      "yes": "Yes",
+      "no": "No",
+      "tableCaption": "Words written per day, last 30 days",
+      "bar": "{date}: {n} words"
+    },
+    "totals": {
+      "title": "Word totals",
+      "empty": "No manuscript yet.",
+      "expand": "Expand {title}",
+      "collapse": "Collapse {title}",
+      "kind": {
+        "part": "Part",
+        "chapter": "Chapter",
+        "scene": "Scene"
+      },
+      "total": "Whole book"
+    },
+    "sessions": {
+      "title": "Writing sessions",
+      "empty": "No sessions yet. A session starts with your first edit and ends after 10 minutes idle.",
+      "date": "Date",
+      "time": "Time",
+      "net": "Net words",
+      "live": "In progress",
+      "showAll": "Show all {n} sessions",
+      "showLess": "Show fewer"
+    },
+    "goals": {
+      "title": "Writing goals",
+      "hint": "Goals are saved with this book. Use 0 for no goal.",
+      "readOnly": "This book is read-only, so goals cannot be changed.",
+      "daily": "Daily word goal",
+      "book": "Book word target",
+      "words": "words"
+    },
+    "status": {
+      "today": "Today: {n}",
+      "todayGoal": "Today: {n} / {goal}"
+    },
+    "timer": {
+      "label": "Session timer",
+      "start": "Start timer",
+      "pause": "Pause timer",
+      "reset": "Reset timer"
+    }
+  },
   "history": {
     "title": "History",
     "tabs": {
@@ -1677,6 +1799,78 @@
     "status": {
       "changes": "No changes since the last snapshot | {n} change since the last snapshot | {n} changes since the last snapshot",
       "open": "Open History"
+    }
+  },
+  "spell": {
+    "menu": {
+      "noSuggestions": "No suggestions",
+      "add": "Add to dictionary",
+      "ignore": "Ignore for this session"
+    },
+    "title": "Spellcheck dictionaries",
+    "hint": "Choose which dictionaries check this book. Local dictionaries travel with the book; global ones are shared by all books on this computer.",
+    "readOnly": "This book is read-only: the selection and the word list cannot be changed.",
+    "defaultUsed": "No dictionary chosen yet: using the default for the book language ({name}). Turn a dictionary on or off below to choose your own.",
+    "defaultNone": "No bundled dictionary matches the book language ({language}). Import one, or turn one on below.",
+    "missing": "The dictionary \"{name}\" ({scope}) is not installed on this computer. It stays selected in the book; spellcheck skips it until it is installed.",
+    "scope": {
+      "bundled": "Bundled",
+      "global": "Global",
+      "local": "Local"
+    },
+    "scopeName": {
+      "local": "Local",
+      "global": "Global"
+    },
+    "kind": {
+      "hunspell": "Hunspell",
+      "wordlist": "Word list"
+    },
+    "shadowed": "Hidden by a local dictionary with the same name",
+    "use": "Use in this book",
+    "move": "Move to {scope}",
+    "copy": "Copy to {scope}",
+    "delete": "Delete",
+    "deleteTitle": "Delete the dictionary \"{name}\"?",
+    "deleteLine": "Its files are removed from disk. Books that use it will skip it until it is imported again.",
+    "moved": "Moved \"{name}\" to {scope}.",
+    "copied": "Copied \"{name}\" to {scope}.",
+    "imported": "Imported \"{name}\". Turn it on in the list to use it in this book.",
+    "errors": {
+      "invalid-name": "The name is empty, too long, starts with a dot or contains characters that are not allowed in a file name.",
+      "bad-dic": "The .dic file is not a Hunspell dictionary: its first line must be the number of words.",
+      "bad-aff": "The .aff file is not a valid Hunspell affix file.",
+      "unsupported-encoding": "Only UTF-8 dictionaries are supported. Convert the files to UTF-8 and try again.",
+      "empty-wordlist": "The word list has no words.",
+      "exists": "A dictionary with this name already exists in that place.",
+      "not-found": "The dictionary was not found.",
+      "read-only": "This cannot be changed: the book or the dictionary is read-only.",
+      "no-local": "Open a book first to use local dictionaries.",
+      "same-scope": "The dictionary is already in that place."
+    },
+    "import": {
+      "open": "Import a dictionary",
+      "title": "Import a dictionary",
+      "kind": "Format",
+      "kindHunspell": "Hunspell (.dic + .aff)",
+      "kindWordlist": "Word list (.txt)",
+      "dic": "Dictionary file (.dic)",
+      "aff": "Affix file (.aff)",
+      "list": "Word list file (one word per line)",
+      "name": "Name",
+      "scope": "Where to keep it",
+      "scopeHint": {
+        "local": "Stored inside this book's folder and travels with it.",
+        "global": "Stored on this computer and available in every book."
+      },
+      "cancel": "Cancel",
+      "do": "Import"
+    },
+    "custom": {
+      "title": "Words added to this book",
+      "hint": "Names and invented terms you added with \"Add to dictionary\". Stored with the book.",
+      "empty": "No words yet. Right-click an underlined word in the editor and choose \"Add to dictionary\".",
+      "remove": "Remove word"
     }
   }
 }

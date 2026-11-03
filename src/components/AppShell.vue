@@ -6,6 +6,8 @@ import { storeToRefs } from 'pinia'
 import { sectionByRouteName, sections, type AppSection } from '../sections'
 import { useSettingsStore } from '../settings/store'
 import { usePanelShortcut } from '../composables/panelShortcut'
+import { shortcutLabel, useSearchShortcuts } from '../composables/searchShortcuts'
+import { openSearch, openSwitcher, searchOpen, switcherOpen } from '../search/ui'
 import { focusMode } from '../composables/focusMode'
 import { useProjectStore } from '../project/store'
 import { findNode } from '../project/tree'
@@ -16,6 +18,8 @@ import InboxNoteEditor from './InboxNoteEditor.vue'
 import InboxPanel from './InboxPanel.vue'
 import OutlineTree from './OutlineTree.vue'
 import ProjectBanners from './ProjectBanners.vue'
+import QuickSwitcher from './QuickSwitcher.vue'
+import SearchDialog from './SearchDialog.vue'
 import TimelineSidebar from './timeline/TimelineSidebar.vue'
 import SnapshotDialog from './SnapshotDialog.vue'
 import TrashDialog from './TrashDialog.vue'
@@ -66,6 +70,12 @@ function togglePanel(): void {
   store.setContextPanelHidden(!panelHidden.value)
 }
 usePanelShortcut(togglePanel)
+useSearchShortcuts((which) => {
+  if (!project.project) return
+  if (which === 'search') openSearch()
+  else openSwitcher()
+})
+const searchTip = computed(() => `${t('search.open')} (${shortcutLabel('search')})`)
 
 // A plain "#id" link would change the hash-router route.
 function skipToContent(): void {
@@ -142,7 +152,7 @@ function colorStyle(s: AppSection) {
                 <TimelineSidebar />
               </div>
               <div
-                v-else-if="s.id === active.id && !['rules', 'codex', 'checks', 'history'].includes(s.id)"
+                v-else-if="s.id === active.id && !['rules', 'codex', 'checks', 'history', 'stats'].includes(s.id)"
                 class="expand"
               >
                 {{ t('sidebar.placeholder') }}
@@ -186,6 +196,16 @@ function colorStyle(s: AppSection) {
             <span>{{ t('history.dialog.button') }}</span>
           </button>
           <button
+            v-if="project.project"
+            type="button"
+            class="band-button"
+            :aria-label="t('search.open')"
+            :title="searchTip"
+            @click="openSearch"
+          >
+            <QIcon name="search" aria-hidden="true" />
+          </button>
+          <button
             type="button"
             class="band-button"
             :aria-pressed="!panelHidden"
@@ -211,6 +231,8 @@ function colorStyle(s: AppSection) {
     <ContextPanel v-if="!panelHidden" v-show="!focusMode" :section-id="active.id" />
     <TrashDialog v-model="trashOpen" />
     <SnapshotDialog v-model="snapshotOpen" />
+    <SearchDialog v-model="searchOpen" />
+    <QuickSwitcher v-model="switcherOpen" />
   </div>
 </template>
 

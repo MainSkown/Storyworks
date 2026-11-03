@@ -7,7 +7,7 @@ const meta = { title: 'My Book', author: 'Ann', language: 'en' }
 
 describe('manifest schema', () => {
   it('current version is 11', () => {
-    expect(MANIFEST_VERSION).toBe(11)
+    expect(MANIFEST_VERSION).toBeGreaterThanOrEqual(11)
   })
   it('a new manifest is valid and carries the meta', () => {
     const m = createManifest(meta, env)

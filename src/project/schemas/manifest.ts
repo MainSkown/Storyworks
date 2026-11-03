@@ -3,7 +3,7 @@ import type { Env } from '../types'
 import { defaultNames } from '../defaultNames'
 import { defaultExportOptions, type ExportOptions } from '../../export/options'
 
-export const MANIFEST_VERSION = 11
+export const MANIFEST_VERSION = 12
 export const BOOK_KIND = 'book'
 
 /** Index entry for one item file (or one singleton file). */
@@ -69,6 +69,15 @@ export const exportSettingsSchema = z.strictObject({
   }),
 }) satisfies z.ZodType<ExportOptions>
 
+export const goalsSchema = z.strictObject({
+  daily: z.number().int().min(0).nullable().default(null),
+  book: z.number().int().min(0).nullable().default(null),
+})
+
+export const dictionariesSchema = z.array(
+  z.strictObject({ name: z.string(), scope: z.enum(['local', 'global']) }),
+)
+
 export const manifestSchema = z.strictObject({
   version: z.literal(MANIFEST_VERSION),
   // Any string parses; callers decide what an unknown kind means (read-only).
@@ -77,13 +86,8 @@ export const manifestSchema = z.strictObject({
   author: z.string(),
   language: z.string(),
   createdAt: z.string(),
-  dictionaries: z.array(z.string()).default([]),
-  goals: z
-    .strictObject({
-      daily: z.number().int().min(0).nullable().default(null),
-      book: z.number().int().min(0).nullable().default(null),
-    })
-    .default({ daily: null, book: null }),
+  dictionaries: dictionariesSchema.default([]),
+  goals: goalsSchema.default({ daily: null, book: null }),
   dirs: z
     .strictObject({
       assets: z.string().default('assets'),
@@ -99,6 +103,7 @@ export const manifestSchema = z.strictObject({
   calendar: itemRefSchema.nullable().default(null),
   inbox: itemRefSchema.nullable().default(null),
   ignoredFindings: itemRefSchema.nullable().default(null),
+  stats: itemRefSchema.nullable().default(null),
   relationLayout: itemRefSchema.nullable().default(null),
   timelines: refs(),
   rules: refs(),

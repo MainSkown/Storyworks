@@ -6,6 +6,7 @@ import { SceneBreak } from './sceneBreak'
 import { Footnote } from './footnote'
 import { CommentMark } from './commentMark'
 import { ProjectImage, type ProjectImageOptions } from './projectImage'
+import { Spellcheck, type SpellcheckOptions } from './spellcheck'
 import { EventLinks, selectedBlockIds, type BlockLinkInfo } from './eventLinks'
 
 export interface ToolbarItem {
@@ -25,6 +26,8 @@ export interface ToolbarItem {
 export interface EditorContext extends Partial<ProjectImageOptions> {
   /** Link count and broken flag of a block of the open scene. */
   eventLinkInfo?: (blockId: string) => BlockLinkInfo | null
+  /** Misspelling checker; absent = no spellcheck. */
+  spellcheck?: SpellcheckOptions['check']
 }
 
 export interface EditorKind {
@@ -41,7 +44,7 @@ const align = (value: string): ToolbarItem => ({
 })
 
 const book: EditorKind = {
-  extensions: ({ eventLinkInfo, ...ctx } = {}) => [
+  extensions: ({ eventLinkInfo, spellcheck, ...ctx } = {}) => [
     // Underline is part of StarterKit. Trailing paragraph stays (cursor target after a break/image).
     StarterKit.configure({
       heading: { levels: [1, 2, 3] },
@@ -58,6 +61,7 @@ const book: EditorKind = {
     CommentMark,
     BlockIds,
     EventLinks.configure({ info: eventLinkInfo ?? (() => null) }),
+    ...(spellcheck ? [Spellcheck.configure({ check: spellcheck })] : []),
   ],
   toolbar: [
     ...[1, 2, 3].map((level) => ({

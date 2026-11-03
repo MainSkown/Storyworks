@@ -9,6 +9,8 @@ import { countWords } from '../editor/wordCount'
 import { commentRanges } from '../editor/comments'
 import { cursorBlockId, linkedBlocks, selectedBlockIds } from '../editor/eventLinks'
 import { imageExt } from '../editor/projectImage'
+import { misspellingAt } from '../editor/spellcheck'
+import { useSpellStore } from '../spell/store'
 import { newId } from '../project/ids'
 import { pickImage } from '../project/pickImage'
 import type { Scene } from '../project/schemas/scene'
@@ -42,6 +44,7 @@ const props = defineProps<{ sceneId: string; path: string; nodeTitle: string }>(
 
 const { t } = useI18n()
 const store = useProjectStore()
+const spell = useSpellStore()
 
 const kind = editorKinds[store.project?.manifest.kind ?? 'book'] ?? editorKinds.book!
 const locked = computed(() => !!store.readOnly)
@@ -64,6 +67,7 @@ const editor = useEditor({
     readAsset: (path) => store.readAsset(path),
     missingLabel: (path) => t('image.missing', { path }),
     eventLinkInfo: (blockId) => linkInfo.value.get(blockId) ?? null,
+    spellcheck: (text) => spell.checkText(text),
   }),
   editable: false,
   editorProps: {
@@ -78,6 +82,14 @@ const editor = useEditor({
       return false
     },
     handleKeyDown: (view, event) => {
+      if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+        const at = misspellingAt(view.state, view.state.selection.head)
+        if (!at) return false
+        event.preventDefault()
+        const c = view.coordsAtPos(at.from)
+        openSpellMenu(at, { clientX: c.left, clientY: c.bottom, type: 'contextmenu' })
+        return true
+      }
       if ((event.ctrlKey || event.metaKey) && event.shiftKey && !event.altKey && event.code === 'KeyK') {
         event.preventDefault()
         startEventLink()
@@ -101,6 +113,12 @@ const editor = useEditor({
 })
 
 const canEdit = computed(() => !locked.value && !loadError.value && !!loaded.value)
+
+onMounted(() => void spell.start())
+watch(
+  () => spell.version,
+  () => editor.value?.commands.recheckSpelling(),
+)
 const refreshEditable = () => editor.value?.setEditable(canEdit.value, false)
 watch(locked, refreshEditable)
 
@@ -323,6 +341,42 @@ const popRows = computed<BlockLink[]>(() =>
   pop.value && loaded.value ? linksForBlock(loaded.value.id, pop.value.blockId) : [],
 )
 const menuOpen = ref(false)
+const menuRef = ref<{ show: (evt?: unknown) => void } | null>(null)
+
+// ---- spelling menu ----
+const SPELL_MENU_KEEP = 5
+const spellTarget = ref<{ from: number; to: number; word: string; suggestions: string[]; ready: boolean } | null>(null)
+
+let spellMenuToken = 0
+function openSpellMenu(at: { from: number; to: number; word: string }, evt?: unknown): void {
+  const token = ++spellMenuToken
+  spellTarget.value = { ...at, suggestions: [], ready: false }
+  void spell.suggest(at.word).then((list) => {
+    if (token !== spellMenuToken) return
+    spellTarget.value = { ...at, suggestions: list.slice(0, SPELL_MENU_KEEP), ready: true }
+  })
+  if (evt) menuRef.value?.show(evt)
+}
+
+function applySuggestion(text: string): void {
+  const ed = editor.value
+  const target = spellTarget.value
+  if (!ed || !target || !canEdit.value) return
+  const { from, to, word } = target
+  if (ed.state.doc.textBetween(from, to) !== word) return
+  ed.view.dispatch(ed.state.tr.insertText(text, from, to))
+  ed.view.focus()
+}
+
+function addToDictionary(): void {
+  const target = spellTarget.value
+  if (!target || !canEdit.value) return
+  spell.addWord(target.word).catch((e) => warn(e instanceof Error ? e.message : String(e)))
+}
+
+function ignoreSpelling(): void {
+  if (spellTarget.value) spell.ignoreWord(spellTarget.value.word)
+}
 const canLinkSelection = computed(
   () => canEdit.value && !!editor.value && selectedBlockIds(editor.value.state).length > 0,
 )
@@ -460,9 +514,20 @@ function relinkFromPopover(linkId: string): void {
   pickerOpen.value = true
 }
 
-// Shift + right-click keeps the browser's own menu (copy, paste, spelling).
-function nativeMenuWithShift(e: MouseEvent): void {
-  if (e.shiftKey) e.stopPropagation()
+// Shift + right-click keeps the browser's own menu (copy, paste).
+function onContentContextMenu(e: MouseEvent): void {
+  if (e.shiftKey) {
+    e.stopPropagation()
+    return
+  }
+  const view = editor.value?.view
+  const hit = view?.posAtCoords({ left: e.clientX, top: e.clientY })
+  const at = view && hit ? misspellingAt(view.state, hit.pos) : null
+  if (at) openSpellMenu(at)
+  else {
+    spellMenuToken++
+    spellTarget.value = null
+  }
 }
 
 watch(
@@ -620,10 +685,32 @@ onBeforeUnmount(() => {
             @change="commitTitle"
             @keydown.enter.prevent="($event.target as HTMLInputElement).blur()"
           />
-          <div class="content-wrap" @contextmenu.capture="nativeMenuWithShift">
+          <div class="content-wrap" @contextmenu.capture="onContentContextMenu">
             <EditorContent :editor="editor" class="content" />
-            <QMenu v-model="menuOpen" context-menu auto-close>
+            <QMenu ref="menuRef" v-model="menuOpen" context-menu auto-close>
               <QList dense>
+                <template v-if="spellTarget">
+                  <template v-if="canEdit">
+                    <QItem
+                      v-for="s in spellTarget.suggestions"
+                      :key="s"
+                      clickable
+                      @click="applySuggestion(s)"
+                    >
+                      <QItemSection>{{ s }}</QItemSection>
+                    </QItem>
+                    <QItem v-if="spellTarget.ready && !spellTarget.suggestions.length" disable>
+                      <QItemSection>{{ t('spell.menu.noSuggestions') }}</QItemSection>
+                    </QItem>
+                    <QItem clickable @click="addToDictionary">
+                      <QItemSection>{{ t('spell.menu.add') }}</QItemSection>
+                    </QItem>
+                  </template>
+                  <QItem clickable @click="ignoreSpelling">
+                    <QItemSection>{{ t('spell.menu.ignore') }}</QItemSection>
+                  </QItem>
+                  <QSeparator />
+                </template>
                 <QItem clickable :disable="!canLinkSelection" @click="startEventLink">
                   <QItemSection>{{ t('editor.toolbar.eventLink') }}</QItemSection>
                   <QItemSection side>Ctrl+Shift+K</QItemSection>

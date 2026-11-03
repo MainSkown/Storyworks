@@ -17,6 +17,7 @@ import {
   type Manifest,
 } from './schemas/manifest'
 import { ignoredSchema } from './schemas/ignored'
+import { statsSchema } from './schemas/stats'
 import { inboxSchema } from './schemas/inbox'
 import { codexEntrySchema } from './schemas/codexEntry'
 import { codexTypeSchema } from './schemas/codexType'
@@ -74,6 +75,7 @@ interface ListedItem {
   scene: boolean
   inbox?: boolean
   ignored?: boolean
+  stats?: boolean
   timeline?: boolean
   rule?: boolean
   ruleCategory?: boolean
@@ -97,7 +99,7 @@ function listedItems(m: Manifest): ListedItem[] {
     }
   }
   walk(m.manuscript)
-  const refs = [m.calendar, m.inbox, m.ignoredFindings, m.relationLayout]
+  const refs = [m.calendar, m.inbox, m.ignoredFindings, m.stats, m.relationLayout]
   const lists = [
     m.timelines,
     m.rules,
@@ -117,6 +119,7 @@ function listedItems(m: Manifest): ListedItem[] {
       scene: false,
       inbox: ref === m.inbox,
       ignored: ref === m.ignoredFindings,
+      stats: ref === m.stats,
       timeline: m.timelines.includes(ref),
       rule: m.rules.includes(ref),
       ruleCategory: m.ruleCategories.includes(ref),
@@ -292,6 +295,7 @@ function withIdCheck<T extends { id: string }>(
 function parseItem(item: ListedItem, text: string): ParseResult<unknown> {
   if (item.inbox) return parseFile(inboxSchema, text, item.path)
   if (item.ignored) return parseFile(ignoredSchema, text, item.path)
+  if (item.stats) return parseFile(statsSchema, text, item.path)
   if (item.timeline) return parseFile(timelineSchema, text, item.path)
   if (item.rule) return withIdCheck(parseFile(ruleSchema, text, item.path), item.path, item.id)
   if (item.ruleCategory)
@@ -317,6 +321,7 @@ const isParsed = (item: ListedItem) =>
   item.scene ||
   item.inbox ||
   item.ignored ||
+  item.stats ||
   item.timeline ||
   item.rule ||
   item.ruleCategory ||

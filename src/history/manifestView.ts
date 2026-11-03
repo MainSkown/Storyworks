@@ -18,7 +18,7 @@ export const SINGLETONS: Record<string, ItemType> = {
   calendar: 'calendar', inbox: 'inbox', ignoredFindings: 'ignoredFindings', relationLayout: 'relationLayout',
 }
 /** Manifest fields that are structure (or bookkeeping), not "book settings". */
-export const STRUCTURAL_FIELDS = new Set(['version', 'manuscript', 'trash', ...Object.keys(LIST_AREAS), ...Object.keys(SINGLETONS)])
+export const STRUCTURAL_FIELDS = new Set(['version', 'manuscript', 'trash', 'stats', ...Object.keys(LIST_AREAS), ...Object.keys(SINGLETONS)])
 
 export interface Entry {
   key: string

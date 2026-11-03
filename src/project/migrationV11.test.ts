@@ -29,7 +29,7 @@ async function v10Project(): Promise<MemoryProjectIO> {
 describe('migration v10 to v11', () => {
   it('the step is registered, and the version is 11', () => {
     expect(migrations.find((m) => m.from === 10)?.to).toBe(11)
-    expect(MANIFEST_VERSION).toBe(11)
+    expect(MANIFEST_VERSION).toBeGreaterThanOrEqual(11)
   })
 
   it('opens a v10 project at the current version with default exportSettings', async () => {

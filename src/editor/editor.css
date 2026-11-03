@@ -15,3 +15,9 @@
 .ProseMirror .comment {
   background: var(--sw-comment-bg, rgba(255, 200, 0, 0.25));
 }
+
+.ProseMirror .sw-misspelled {
+  text-decoration: underline wavy var(--spell-underline);
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
+}

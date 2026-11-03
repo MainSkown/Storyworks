@@ -44,6 +44,7 @@
   --status-revising: #7a4e8c;
   --status-final: #3e7b5a;
 
+  --spell-underline: #a8403a;
   --ui-zoom: 1;
   --editor-font-size: 16.5px;
 }
@@ -65,6 +66,7 @@
   --border-strong: #7a766b;
   --focus-ring: #7fb0e0;
 
+  --spell-underline: #e0746b;
   --section-write: #7fb0e0;
   --section-write-on: #14120f;
   --section-timelines: #e58a3a;
