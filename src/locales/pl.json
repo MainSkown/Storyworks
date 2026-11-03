@@ -63,9 +63,50 @@
     "sampleExists": "W tym folderze jest już książka. Wybierz inny folder."
   },
 "game": {
-    "placeholder": {
-      "title": "Pisanie skryptu gry pojawi się w późniejszej wersji",
-      "body": "Kodeks, osie czasu, zasady, kontrole, statystyki i historia już działają w tym projekcie."
+    "conversation": {
+      "empty": "Edytor grafu rozmowy pojawi się w późniejszej wersji. Rozmowy można już zmieniać, przenosić i usuwać."
+    }
+  },
+  "speaker": {
+    "none": "Bez mówcy (narracja)",
+    "narration": "Narracja, bez mówcy. Kliknij, aby wybrać mówcę.",
+    "pick": "Wybierz mówcę",
+    "search": "Znajdź postać lub wpisz imię",
+    "noMatch": "Brak wyników",
+    "useName": "Użyj „{name}” jako zwykłego imienia",
+    "addToCodex": "Dodaj „{name}” do kodeksu",
+    "of": "Mówca: {name}. Kliknij, aby zmienić.",
+    "notInCodex": "Mówca: {name}, brak w kodeksie. Kliknij, aby zmienić lub dodać.",
+    "deleted": "Usunięta postać",
+    "deletedTitle": "Wpis kodeksu tego mówcy został usunięty. Kliknij, aby go przywrócić lub wybrać innego mówcę.",
+    "restore": "Przywróć usuniętą postać"
+  },
+  "variables": {
+    "title": "Zmienne",
+    "hint": "Wartości całego projektu, które rozmowy będą mogły sprawdzać i zmieniać: flaga (tak lub nie), liczba albo tekst.",
+    "readOnly": "Ten projekt jest tylko do odczytu, więc zmiennych nie można edytować.",
+    "invalid": "Nie udało się odczytać pliku zmiennych, więc został nietknięty i nie można go edytować:",
+    "missing": "Brakuje pliku zmiennych, więc zmiennych nie można edytować.",
+    "name": "Nazwa",
+    "type": "Typ",
+    "default": "Wartość początkowa",
+    "add": "Dodaj zmienną",
+    "empty": "Brak zmiennych.",
+    "actions": "Akcje",
+    "nameOf": "Nazwa: {name}",
+    "typeOf": "Typ: {name}",
+    "defaultOf": "Wartość początkowa: {name}",
+    "delete": "Usuń: {name}",
+    "deleteTitle": "Usunąć tę zmienną?",
+    "deleteBody": "„{name}” zniknie z listy.",
+    "types": { "flag": "Flaga", "number": "Liczba", "text": "Tekst" },
+    "error": {
+      "empty-name": "Nadaj zmiennej nazwę.",
+      "duplicate-name": "Inna zmienna ma już tę nazwę.",
+      "unknown-variable": "Ta zmienna już nie istnieje.",
+      "bad-default": "Ta wartość nie pasuje do typu zmiennej.",
+      "read-only": "Ten projekt jest tylko do odczytu.",
+      "unavailable": "Plik zmiennych nie może teraz być zmieniony."
     }
   },
   "newProject": {
@@ -385,6 +426,7 @@
       "undo": "Cofnij",
       "redo": "Ponów",
       "element": "Typ elementu",
+      "speaker": "Mówca",
       "label": "Formatowanie",
       "paragraphStyle": "Styl akapitu",
       "paragraph": "Akapit",
@@ -446,6 +488,7 @@
     "chapter": "Rozdział",
     "book": "Książka",
     "script": "Scenariusz",
+    "game": "Gra",
     "pagesRuntime": "Strony: {pages} · ok. {min} min",
     "problem": {
       "missing": "Brak pliku",
@@ -465,7 +508,10 @@
       "part": "Część",
       "chapter": "Rozdział",
       "sequence": "Sekwencja",
-      "scene": "Scena"
+      "scene": "Scena",
+      "folder": "Folder",
+      "script": "Skrypt",
+      "conversation": "Rozmowa"
     }
   },
   "corkboard": {
@@ -545,6 +591,12 @@
   "outline": {
     "addSequence": "Dodaj sekwencję",
     "newSequence": "Nowa sekwencja",
+    "addFolder": "Dodaj folder",
+    "newFolder": "Nowy folder",
+    "addScript": "Dodaj skrypt",
+    "newScript": "Nowy skrypt",
+    "addConversation": "Dodaj rozmowę",
+    "newConversation": "Nowa rozmowa",
     "addPart": "Dodaj część",
     "addChapter": "Dodaj rozdział",
     "newPart": "Nowa część",
@@ -1752,7 +1804,10 @@
         "part": "Część",
         "chapter": "Rozdział",
         "sequence": "Sekwencja",
-        "scene": "Scena"
+        "scene": "Scena",
+        "folder": "Folder",
+        "script": "Skrypt",
+        "conversation": "Rozmowa"
       },
       "total": "Cała książka"
     },
@@ -1798,6 +1853,7 @@
       "part": "Część",
       "chapter": "Rozdział",
       "scene": "Scena",
+      "conversation": "Rozmowa",
       "timeline": "Oś czasu",
       "rule": "Zasada",
       "ruleCategory": "Kategoria zasad",
@@ -1812,6 +1868,7 @@
       "inbox": "Skrzynka",
       "ignoredFindings": "Odrzucone uwagi",
       "relationLayout": "Układ relacji",
+      "variables": "Zmienne",
       "settings": "Ustawienia książki",
       "asset": "Obraz",
       "dictionary": "Słownik",

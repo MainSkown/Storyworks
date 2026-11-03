@@ -12,7 +12,7 @@ type Zone = 'before' | 'after'
 
 const { t } = useI18n()
 const store = useProjectStore()
-const { nodeLabel } = useKindProfile()
+const { kind, nodeLabel } = useKindProfile()
 const root = ref<HTMLElement | null>(null)
 const live = ref('')
 
@@ -92,10 +92,10 @@ function onKeydown(e: KeyboardEvent, id: string): void {
   const i = ids.indexOf(id)
   if (e.altKey && !e.ctrlKey && !e.metaKey) {
     const map: Record<string, () => Slot | null> = {
-      ArrowLeft: () => keyboardMove(store.tree, id, 'up'),
-      ArrowRight: () => keyboardMove(store.tree, id, 'down'),
-      ArrowUp: () => crossSlot(store.tree, id, 'prev'),
-      ArrowDown: () => crossSlot(store.tree, id, 'next'),
+      ArrowLeft: () => keyboardMove(store.tree, id, 'up', kind.value),
+      ArrowRight: () => keyboardMove(store.tree, id, 'down', kind.value),
+      ArrowUp: () => crossSlot(store.tree, id, 'prev', kind.value),
+      ArrowDown: () => crossSlot(store.tree, id, 'next', kind.value),
     }
     const slot = map[e.key]
     if (slot) {
@@ -163,7 +163,7 @@ function onCardOver(e: DragEvent, id: string): void {
   e.stopPropagation()
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
   const zone: Zone = e.clientX - rect.left < rect.width / 2 ? 'before' : 'after'
-  const slot = dropSlot(store.tree, drag, id, zone)
+  const slot = dropSlot(store.tree, drag, id, zone, kind.value)
   cardDrop.value = slot ? { id, zone } : null
   sectionDrop.value = null
   accept(e, slot)
@@ -172,7 +172,7 @@ function onCardOver(e: DragEvent, id: string): void {
 function onSectionOver(e: DragEvent, sec: CorkSection): void {
   const drag = dragId.value
   if (!drag) return
-  const slot = sec.parentId ? dropSlot(store.tree, drag, sec.parentId, 'inside') : null
+  const slot = sec.parentId ? dropSlot(store.tree, drag, sec.parentId, 'inside', kind.value) : null
   cardDrop.value = null
   sectionDrop.value = slot ? sec.key : null
   accept(e, slot)

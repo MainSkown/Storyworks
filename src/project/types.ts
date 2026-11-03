@@ -43,7 +43,7 @@ export type Issue =
 
 export interface TrashEntry {
   id: string
-  type: 'part' | 'chapter' | 'scene' | 'note' | 'timeline' | 'node' | 'rule' | 'entry'
+  type: 'part' | 'chapter' | 'scene' | 'conversation' | 'note' | 'timeline' | 'node' | 'rule' | 'entry'
   title: string
   originalPath: string
   trashPath: string

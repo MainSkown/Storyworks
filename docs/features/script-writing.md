@@ -21,7 +21,7 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 ### Project / platform
 - [x] `project.json` gains `kind: "book" | "screenplay" | "game"`, set at creation, immutable in v1. The field exists from the first manifest version (milestone M1), so no migration is needed; a kind this app version does not know opens read-only.
 - [x] New book dialog becomes "New project": choose kind, then title, author, language.
-- [ ] Schemas (Zod) for the new item files: screenplay scene, game linear script, conversation graph, variables file, story map file.
+- [ ] (S3 done: game script lines, conversation stub, variables file; conversation graph and story map file come in S4/S5) Schemas (Zod) for the new item files: screenplay scene, game linear script, conversation graph, variables file, story map file.
 - [ ] Manifest indexes the new items and files with relative paths and order, like other items.
 - [x] The manuscript editor, toolbar, status bar, word count and sidebar adapt to the project kind (S1; export options follow in S2/S6); Book behaviour is unchanged.
 
@@ -37,9 +37,9 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - [x] Stats show pages and estimated runtime (about 1 page per minute) next to words, in the status bar and Stats (S2).
 
 ### Game script: linear scripts
-- [ ] Item type "Script": ordered lines. Each line has a speaker (link to a codex Character, stable ID, shown with its current name) and text.
-- [ ] Each line has a stable line ID, generated once, never reused, shown in the editor margin and exported.
-- [ ] Narration/system lines may have no speaker.
+- [x] Item type "Script": ordered lines. Each line has a speaker (link to a codex Character, stable ID, shown with its current name) and text.
+- [x] Each line has a stable line ID, generated once, never reused, shown in the editor margin and exported.
+- [x] Narration/system lines may have no speaker.
 
 ### Game script: conversations (branching)
 - [ ] Item type "Conversation": a graph on the pan/zoom canvas (same component as timelines).
@@ -130,6 +130,8 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - **S1 defaults:** Tab order scene heading → action → character → dialogue → parenthetical → transition; empty Enter falls back per `src/editor/screenplay/rules.ts`; stored text is as typed and uppercase is display-only; pasted plain text becomes action blocks; Export and Import are hidden for script kinds until S2/S6; manifest v13 adds `titlePage {contact, date}`; saving a manifest with a different kind is rejected.
 
 - **S2 decisions (user-confirmed):** page count and runtime (about 1 page per minute) stay in the status bar and Stats; Fountain text pasted into the editor becomes typed elements (only when it has a scene heading or a cue followed by dialogue); Sequences round-trip as Fountain sections; screenplay export lives on the Export page (PDF, Word, Fountain; options: page size Letter/A4, title page, scene numbers, page numbers, (MORE)/(CONT'D), sequence selection), saved per project in manifest v14 (`scriptExport`).
+- **S3 decisions (user-confirmed):** game folders nest to any depth; the variable list is edited in a "Variables" panel opened from the Write sidebar; a Script's body is TipTap line blocks (speaker chip + text), so comments, search, spellcheck, snapshots and block links work unchanged; a Conversation is a minimal stub file in S3 (S4 adds the graph with a migration).
+- **S3 defaults:** a game folder is a `chapter` node, a Script is a `scene` node, a Conversation is a new `conversation` node (labels per kind); manifest v15 adds `lineCounter` and `variables`. A line carries `lineId` (`L000123`, counter only grows; split gives the new half a new id, merge retires one, paste gets fresh ids; snapshot restore never lowers the counter) and either `speakerId` (codex entry, name resolved live) or `speakerName` (plain text, "Add to codex" turns every line with that name into a codex speaker) or neither (narration). A new line starts without a speaker; Tab at the start of a line, the toolbar button or the chip opens the speaker picker. A deleted speaker shows a broken chip and the picker offers Restore. Variables: names unique (any case), default must match the type, changing the type resets it, delete asks for confirmation and has no trash. Words count line text only. Open limits: Stats card still says "Whole book" for games; delete-impact counts speaker lines in the codex delete dialog only.
 - **S2 defaults:** our own paginator lays out every page (Liberation Mono 12 pt, 55 rows on Letter, 58 on A4; heading never last on a page; a cue keeps 2 speech rows; speeches split at sentence ends with (MORE)/(CONT'D), Polish (DALEJ)/(CD.)); the PDF draws exactly those pages, so the status-bar page count equals the PDF's (title page not counted). Word paginates itself and may differ slightly. Scene numbers are not written to Fountain.
 
 ## Open questions

@@ -21,7 +21,7 @@ export function groupScenes(tree: ManuscriptNode[]): CorkSection[] {
   const walk = (nodes: ManuscriptNode[], parentId: string | null, first: CorkSection | null) => {
     let cur = first
     nodes.forEach((node, index) => {
-      if (node.type === 'scene') {
+      if (node.type === 'scene' || node.type === 'conversation') {
         if (!cur) {
           cur = { key: `${parentId ?? 'root'}:${index}`, parentId, heading: null, scenes: [] }
           out.push(cur)
@@ -44,6 +44,7 @@ export function crossSlot(
   tree: ManuscriptNode[],
   sceneId: string,
   dir: 'prev' | 'next',
+  kind = 'book',
 ): Slot | null {
   const sections = groupScenes(tree)
   const at = sections.findIndex((s) => s.scenes.some((c) => c.node.id === sceneId))
@@ -52,5 +53,5 @@ export function crossSlot(
   const edge = dir === 'prev' ? target.scenes.at(-1) : target.scenes[0]
   const index = edge ? (dir === 'prev' ? edge.index + 1 : edge.index) : 0
   const slot = { parentId: target.parentId, index }
-  return moveTo(tree, sceneId, slot.parentId, slot.index) ? slot : null
+  return moveTo(tree, sceneId, slot.parentId, slot.index, kind) ? slot : null
 }

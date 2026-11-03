@@ -95,8 +95,10 @@ describe('project kinds', () => {
     expect(kindProfile('book').hasParts).toBe(true)
     expect(kindProfile('screenplay').hasParts).toBe(false)
     expect(kindProfile('screenplay').folderLabel).toBe('sequence')
-    expect(kindProfile('game').writeIsPlaceholder).toBe(true)
-    expect(kindProfile('screenplay').writeIsPlaceholder).toBe(false)
+    expect(kindProfile('game').folderLabel).toBe('folder')
+    expect(kindProfile('game').nestedFolders).toBe(true)
+    expect(kindProfile('book').nestedFolders).toBe(false)
+    expect(kindProfile('screenplay').nestedFolders).toBe(false)
   })
 
   it('an unknown kind gets the book profile', () => {
@@ -111,5 +113,12 @@ describe('node kind labels', () => {
     expect(nodeKindLabel('book', 'chapter')).toBe('chapter')
     expect(nodeKindLabel('book', 'part')).toBe('part')
     expect(nodeKindLabel('opera', 'chapter')).toBe('chapter')
+  })
+
+  it('a game calls folders folders and scenes scripts', () => {
+    expect(nodeKindLabel('game', 'chapter')).toBe('folder')
+    expect(nodeKindLabel('game', 'scene')).toBe('script')
+    expect(nodeKindLabel('game', 'conversation')).toBe('conversation')
+    expect(nodeKindLabel('book', 'scene')).toBe('scene')
   })
 })

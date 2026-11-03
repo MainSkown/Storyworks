@@ -172,6 +172,15 @@ describe('restoreProject', () => {
     expect(manifestSchema.safeParse(m).success).toBe(true)
   })
 
+  it('never lowers the line counter, so issued line ids are not reused', async () => {
+    const k = await makeKit()
+    const id = await snap(k)
+    k.manifest.lineCounter = 42
+    await k.save()
+    await restoreProject(k.engine, k.io, id, deps(k).deps)
+    expect(manifestOf(k).lineCounter).toBe(42)
+  })
+
   it('keeps the current trash list, not the snapshot one', async () => {
     const k = await makeKit()
     const id = await snap(k)

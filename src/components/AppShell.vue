@@ -3,7 +3,6 @@ import { computed, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { kindProfile } from '../project/kinds'
 import { sectionByRouteName, sections, sectionsFor, type AppSection } from '../sections'
 import { useSettingsStore } from '../settings/store'
 import { overlayOpen, useCombos, useShortcuts } from '../shortcuts/useShortcuts'
@@ -73,9 +72,6 @@ const statusIcon = computed(
 )
 
 const visibleSections = computed(() => sectionsFor(project.project?.manifest.kind ?? 'book'))
-const writePlaceholder = computed(
-  () => kindProfile(project.project?.manifest.kind ?? 'book').writeIsPlaceholder,
-)
 const mainSections = computed(() => visibleSections.value.filter((s) => s.position === 'main'))
 const bottomSections = computed(() => visibleSections.value.filter((s) => s.position === 'bottom'))
 
@@ -157,7 +153,7 @@ function colorStyle(s: AppSection) {
                 >
               </RouterLink>
               <div
-                v-if="s.id === active.id && s.id === 'write' && project.project && !writePlaceholder"
+                v-if="s.id === active.id && s.id === 'write' && project.project"
                 class="expand tree"
               >
                 <OutlineTree />

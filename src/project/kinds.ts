@@ -11,13 +11,13 @@ export interface KindProfile {
   /** Parts above chapters (book only). */
   hasParts: boolean
   /** i18n suffix (`write.kind.<x>`) for the chapter-level node. */
-  folderLabel: 'chapter' | 'sequence'
+  folderLabel: 'chapter' | 'sequence' | 'folder'
+  /** Folders may hold folders (game only). */
+  nestedFolders: boolean
   /** Sections not shown until their exporter exists. */
   hiddenSections: SectionId[]
   /** Markdown/Word import is book-only until S2/S6. */
   hasImport: boolean
-  /** Write shows a "coming later" empty state instead of the editor. */
-  writeIsPlaceholder: boolean
 }
 
 const PROFILES: Record<KindId, KindProfile> = {
@@ -25,25 +25,25 @@ const PROFILES: Record<KindId, KindProfile> = {
     id: 'book',
     hasParts: true,
     folderLabel: 'chapter',
+    nestedFolders: false,
     hiddenSections: [],
     hasImport: true,
-    writeIsPlaceholder: false,
   },
   screenplay: {
     id: 'screenplay',
     hasParts: false,
     folderLabel: 'sequence',
+    nestedFolders: false,
     hiddenSections: [],
     hasImport: true,
-    writeIsPlaceholder: false,
   },
   game: {
     id: 'game',
     hasParts: false,
-    folderLabel: 'chapter',
+    folderLabel: 'folder',
+    nestedFolders: true,
     hiddenSections: ['export'],
     hasImport: false,
-    writeIsPlaceholder: true,
   },
 }
 
@@ -51,9 +51,13 @@ const PROFILES: Record<KindId, KindProfile> = {
 export const kindProfile = (kind: string): KindProfile =>
   isKindId(kind) ? PROFILES[kind] : PROFILES.book
 
-/** i18n suffix for a tree node: a screenplay's chapter-level folder is a sequence. */
+/** i18n suffix for a tree node: a screenplay's folder is a sequence; a game's are folders and scripts. */
 export const nodeKindLabel = (
   kind: string,
-  type: 'part' | 'chapter' | 'scene',
-): 'part' | 'chapter' | 'scene' | 'sequence' =>
-  type === 'chapter' && kindProfile(kind).folderLabel === 'sequence' ? 'sequence' : type
+  type: 'part' | 'chapter' | 'scene' | 'conversation',
+): 'part' | 'chapter' | 'scene' | 'sequence' | 'folder' | 'script' | 'conversation' => {
+  const profile = kindProfile(kind)
+  if (type === 'chapter') return profile.folderLabel
+  if (type === 'scene' && profile.id === 'game') return 'script'
+  return type
+}

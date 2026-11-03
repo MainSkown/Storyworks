@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { gameContentProblem } from '../../editor/game/validate'
 
 export const SCENE_VERSION = 3
 
@@ -57,6 +58,15 @@ export const sceneSchema = z
   .refine((s) => new Set(blockIds(s.content)).size === blockIds(s.content).length, {
     path: ['content'],
     message: 'Duplicate block id',
+  })
+  .superRefine((s, ctx) => {
+    const problem = gameContentProblem(s.content)
+    if (problem)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['content'],
+        message: `Invalid script lines: ${problem}`,
+      })
   })
 
 export type Scene = z.infer<typeof sceneSchema>

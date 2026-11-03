@@ -9,6 +9,6 @@ export function useKindProfile() {
   return {
     kind,
     profile: computed(() => kindProfile(kind.value)),
-    nodeLabel: (type: 'part' | 'chapter' | 'scene') => nodeKindLabel(kind.value, type),
+    nodeLabel: (type: 'part' | 'chapter' | 'scene' | 'conversation') => nodeKindLabel(kind.value, type),
   }
 }

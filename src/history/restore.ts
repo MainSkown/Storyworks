@@ -48,7 +48,7 @@ export interface RestoreResult {
 }
 
 const TRASH_TYPES: Partial<Record<ItemType, TrashEntry['type']>> = {
-  part: 'part', chapter: 'chapter', scene: 'scene', rule: 'rule', entry: 'entry', timeline: 'timeline',
+  part: 'part', chapter: 'chapter', scene: 'scene', conversation: 'conversation', rule: 'rule', entry: 'entry', timeline: 'timeline',
 }
 
 const dec = new TextDecoder('utf-8', { fatal: true })
@@ -251,6 +251,8 @@ export async function restoreProject(
   }
 
   const next = clone(snap.raw) as Obj
+  // Issued line ids must never be handed out again.
+  next.lineCounter = Math.max(Number(snap.raw.lineCounter) || 0, Number(curView.raw.lineCounter) || 0)
   next.trash = [
     ...arr(curView.raw.trash).filter((t) => !goneIds.has(t.id as string) && !snapIds.has(t.id as string)),
     ...entries,

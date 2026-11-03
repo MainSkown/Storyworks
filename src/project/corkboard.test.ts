@@ -77,3 +77,13 @@ describe('crossSlot', () => {
     expect(crossSlot(book(), 'nope', 'next')).toBeNull()
   })
 })
+
+describe('game trees on the corkboard', () => {
+  it('a conversation is a card like a script, and nested folders keep their own sections', () => {
+    const tree = [n('f1', 'chapter', [n('s1', 'scene'), n('c1', 'conversation'), n('f2', 'chapter', [n('s2', 'scene')])])]
+    expect(groupScenes(tree).map((s) => [s.parentId, s.scenes.map((c) => c.node.id)])).toEqual([
+      ['f1', ['s1', 'c1']],
+      ['f2', ['s2']],
+    ])
+  })
+})

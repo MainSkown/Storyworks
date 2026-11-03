@@ -175,3 +175,75 @@ describe('dropSlot', () => {
     expect(dropSlot(book(), 'b', 'a', 'after')).toBeNull()
   })
 })
+
+describe('game trees (nested folders)', () => {
+  /** folder f1 [script s1, conversation c1, folder f2 [script s2]], folder f3, root script r */
+  const game = () => [
+    n('f1', 'chapter', [
+      n('s1', 'scene'),
+      n('c1', 'conversation'),
+      n('f2', 'chapter', [n('s2', 'scene')]),
+    ]),
+    n('f3', 'chapter'),
+    n('r', 'scene'),
+  ]
+
+  it('moves a folder into another folder', () => {
+    const out = moveTo(game(), 'f3', 'f2', 0, 'game')
+    expect(kids(out!, 'f2')).toEqual(['f3', 's2'])
+  })
+
+  it('refuses a folder inside its own descendant', () => {
+    expect(moveTo(game(), 'f1', 'f2', 0, 'game')).toBeNull()
+    expect(moveTo(game(), 'f1', 'f1', 0, 'game')).toBeNull()
+  })
+
+  it('moves scripts and conversations to the root and into folders', () => {
+    expect(rootIds(moveTo(game(), 'c1', null, 0, 'game')!)).toEqual(['c1', 'f1', 'f3', 'r'])
+    expect(kids(moveTo(game(), 'r', 'f3', 0, 'game')!, 'f3')).toEqual(['r'])
+    expect(kids(moveTo(game(), 's2', 'f1', 0, 'game')!, 'f1')).toEqual(['s2', 's1', 'c1', 'f2'])
+  })
+
+  it('refuses to put anything inside a script or a conversation', () => {
+    expect(moveTo(game(), 'f3', 's1', 0, 'game')).toBeNull()
+    expect(moveTo(game(), 'r', 'c1', 0, 'game')).toBeNull()
+  })
+
+  it('a part never nests and never goes inside a game folder', () => {
+    const tree = [...game(), n('p', 'part')]
+    expect(moveTo(tree, 'p', 'f1', 0, 'game')).toBeNull()
+  })
+
+  it('book and screenplay trees keep their rules: no folder in folder, no conversations', () => {
+    for (const kind of ['book', 'screenplay', 'opera']) {
+      expect(moveTo(game(), 'f3', 'f2', 0, kind)).toBeNull()
+      expect(moveTo(game(), 'c1', 'f3', 0, kind)).toBeNull()
+    }
+    expect(moveTo(book(), 'a', 'ch2', 0)).not.toBeNull()
+  })
+
+  it('the default kind is book', () => {
+    expect(moveTo(game(), 'f3', 'f2', 0)).toBeNull()
+  })
+
+  it('keyboard in/out nests and un-nests folders', () => {
+    expect(keyboardMove(game(), 'f3', 'in', 'game')).toEqual({ parentId: 'f1', index: 3 })
+    expect(keyboardMove(game(), 'f3', 'in')).toBeNull()
+    expect(keyboardMove(game(), 'f2', 'out', 'game')).toEqual({ parentId: null, index: 1 })
+  })
+
+  it('keyboard up/down moves a conversation among its siblings', () => {
+    expect(keyboardMove(game(), 'c1', 'up', 'game')).toEqual({ parentId: 'f1', index: 0 })
+    expect(keyboardMove(game(), 'c1', 'down', 'game')).toEqual({ parentId: 'f1', index: 2 })
+  })
+
+  it('dropping a folder inside another folder works for games only', () => {
+    expect(dropSlot(game(), 'f3', 'f1', 'inside', 'game')).toEqual({ parentId: 'f1', index: 3 })
+    expect(dropSlot(game(), 'f3', 'f1', 'inside')).toBeNull()
+    expect(dropSlot(game(), 'c1', 'f3', 'inside', 'game')).toEqual({ parentId: 'f3', index: 0 })
+  })
+
+  it('dropping next to a nested row keeps the nested parent', () => {
+    expect(dropSlot(game(), 'r', 's2', 'after', 'game')).toEqual({ parentId: 'f2', index: 1 })
+  })
+})

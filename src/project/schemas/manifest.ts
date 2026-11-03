@@ -5,7 +5,7 @@ import { isKindId, type KindId } from '../kinds'
 import { defaultExportOptions, type ExportOptions } from '../../export/options'
 import { defaultScriptExportOptions, type ScriptExportOptions } from '../../export/scriptOptions'
 
-export const MANIFEST_VERSION = 14
+export const MANIFEST_VERSION = 15
 export const BOOK_KIND: KindId = 'book'
 
 /** Index entry for one item file (or one singleton file). */
@@ -17,7 +17,7 @@ export const itemRefSchema = z.strictObject({
 
 export const trashEntrySchema = z.strictObject({
   id: z.string(),
-  type: z.enum(['part', 'chapter', 'scene', 'note', 'timeline', 'node', 'rule', 'entry']),
+  type: z.enum(['part', 'chapter', 'scene', 'conversation', 'note', 'timeline', 'node', 'rule', 'entry']),
   title: z.string(),
   originalPath: z.string(),
   trashPath: z.string(),
@@ -28,7 +28,7 @@ export const trashEntrySchema = z.strictObject({
 
 export interface ManuscriptNode {
   id: string
-  type: 'part' | 'chapter' | 'scene'
+  type: 'part' | 'chapter' | 'scene' | 'conversation'
   title: string
   path?: string
   children: ManuscriptNode[]
@@ -37,7 +37,7 @@ export interface ManuscriptNode {
 export const manuscriptNodeSchema: z.ZodType<ManuscriptNode> = z.lazy(() =>
   z.strictObject({
     id: z.string(),
-    type: z.enum(['part', 'chapter', 'scene']),
+    type: z.enum(['part', 'chapter', 'scene', 'conversation']),
     title: z.string(),
     path: z.string().optional(),
     children: z.array(manuscriptNodeSchema),
@@ -104,6 +104,8 @@ export const manifestSchema = z.strictObject({
   // Screenplay title page; title and author are above.
   titlePage: titlePageSchema.default({ contact: '', date: '' }),
   createdAt: z.string(),
+  // Game scripts: last issued line id number; only grows, so ids are never reused.
+  lineCounter: z.number().int().min(0).default(0),
   dictionaries: dictionariesSchema.default([]),
   goals: goalsSchema.default({ daily: null, book: null }),
   dirs: z
@@ -133,6 +135,8 @@ export const manifestSchema = z.strictObject({
   groups: refs(),
   stateKinds: refs(),
   knowledge: refs(),
+  // Game scripts: the project-wide variable list.
+  variables: itemRefSchema.nullable().default(null),
   trash: z.array(trashEntrySchema).default([]),
   // Per-check on/off; a missing id means enabled.
   checkSettings: z.record(z.string(), z.boolean()).default({}),

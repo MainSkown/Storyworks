@@ -252,7 +252,8 @@ const deleteLinks = computed(() => used.value.length)
 const deletePassages = computed(() => {
   void project.linkRevision
   const index = project.linkIndex()
-  return entry.value && index ? brokenByDeletingEntry(index, entry.value.id) : 0
+  if (!entry.value) return 0
+  return (index ? brokenByDeletingEntry(index, entry.value.id) : 0) + project.speakerLinesOf(entry.value.id)
 })
 const deleteLearnings = computed(() =>
   entry.value ? knowledgeStore.learningsOfEntry(entry.value.id).length : 0,

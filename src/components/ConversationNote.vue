@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
+defineProps<{ title: string }>()
 const { t } = useI18n()
 </script>
 
 <template>
-  <div class="placeholder" data-testid="game-placeholder">
-    <QIcon name="sports_esports" size="2.5rem" aria-hidden="true" />
-    <h2>{{ t('game.placeholder.title') }}</h2>
-    <p>{{ t('game.placeholder.body') }}</p>
+  <div class="note" data-testid="conversation-note">
+    <QIcon name="forum" size="2.5rem" aria-hidden="true" />
+    <h2>{{ title }}</h2>
+    <p>{{ t('game.conversation.empty') }}</p>
   </div>
 </template>
 
 <style scoped>
-.placeholder {
+.note {
   display: flex;
   flex-direction: column;
   align-items: center;

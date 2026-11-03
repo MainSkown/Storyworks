@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import ImportDialog from './ImportDialog.vue'
 import { useProjectStore } from '../project/store'
 import { useKindProfile } from '../composables/kindProfile'
+import { variablesOpen } from '../composables/variablesPanel'
 import type { ManuscriptNode } from '../project/schemas/manifest'
 import {
   isFiltering as filtering,
@@ -30,8 +31,12 @@ const vFocus = {
 
 const { t, locale } = useI18n()
 const store = useProjectStore()
-const { profile, nodeLabel } = useKindProfile()
+const { kind, profile, nodeLabel } = useKindProfile()
 const sequence = computed(() => profile.value.folderLabel === 'sequence')
+const isGame = computed(() => profile.value.id === 'game')
+const isLeaf = (n: ManuscriptNode) => n.type === 'scene' || n.type === 'conversation'
+const iconOf = (n: ManuscriptNode) =>
+  n.type === 'part' ? 'bookmarks' : n.type === 'conversation' ? 'forum' : isGame.value ? 'folder' : 'book'
 const root = ref<HTMLElement | null>(null)
 
 const locked = computed(() => !!store.readOnly)
@@ -53,7 +58,7 @@ const rows = computed<Row[]>(() => {
   const out: Row[] = []
   const walk = (nodes: ManuscriptNode[], depth: number) =>
     nodes.forEach((node, i) => {
-      const container = node.type !== 'scene'
+      const container = !isLeaf(node)
       const open = container ? filtering.value || !collapsed.value.has(node.id) : null
       out.push({ node, depth, size: nodes.length, pos: i + 1, open })
       if (open) walk(node.children, depth + 1)
@@ -96,6 +101,7 @@ async function focusRow(id: string): Promise<void> {
 }
 
 function select(id: string): void {
+  variablesOpen.value = false
   store.selectedId = id
   focusId.value = id
 }
@@ -128,7 +134,7 @@ function ancestorPart(id: string | null): string | null {
 function sceneParent(): string | null {
   const sel = store.selectedId ? parents.value.get(store.selectedId) : undefined
   if (!sel) return null
-  if (sel.node.type === 'scene') return sel.parentId
+  if (isLeaf(sel.node)) return sel.parentId
   if (sel.node.type === 'part') {
     const chapters = sel.node.children.filter((c) => c.type === 'chapter')
     return chapters.at(-1)?.id ?? sel.node.id
@@ -145,6 +151,19 @@ async function added(id: string, parentId: string | null): Promise<void> {
 
 async function addPart(): Promise<void> {
   await added(await store.addPart(t('outline.newPart')), null)
+}
+async function addFolder(): Promise<void> {
+  const sel = store.selectedId ? parents.value.get(store.selectedId) : undefined
+  const parent = sel ? (sel.node.type === 'chapter' ? sel.node.id : sel.parentId) : null
+  await added(await store.addFolder(parent, t('outline.newFolder')), parent)
+}
+async function addScript(): Promise<void> {
+  const parent = sceneParent()
+  await added(await store.addScript(parent, t('outline.newScript')), parent)
+}
+async function addConversation(): Promise<void> {
+  const parent = sceneParent()
+  await added(await store.addConversation(parent, t('outline.newConversation')), parent)
 }
 async function addChapter(): Promise<void> {
   const parent = ancestorPart(store.selectedId)
@@ -233,7 +252,7 @@ function onKeydown(e: KeyboardEvent, row: Row): void {
   }
   if (e.altKey && keys[e.key]) {
     e.preventDefault()
-    if (canReorder.value) void applyMove(id, keyboardMove(store.tree, id, keys[e.key]!))
+    if (canReorder.value) void applyMove(id, keyboardMove(store.tree, id, keys[e.key]!, kind.value))
     return
   }
   if (e.altKey || e.ctrlKey || e.metaKey) return
@@ -312,14 +331,14 @@ function onDragOver(e: DragEvent, row: Row): void {
   const f = (e.clientY - rect.top) / rect.height
   const edge: Zone = f < 0.5 ? 'before' : 'after'
   const zones: Zone[] =
-    row.node.type === 'scene' ? [edge] : [f < 0.25 ? 'before' : f > 0.75 ? 'after' : 'inside', edge]
+    isLeaf(row.node) ? [edge] : [f < 0.25 ? 'before' : f > 0.75 ? 'after' : 'inside', edge]
   const key = `${row.node.id}:${zones[0]}:${edge}`
   if (key !== dropKey) {
     dropKey = key
     dropTarget = null
     drop.value = null
     for (const zone of zones) {
-      const slot = dropSlot(store.tree, drag, row.node.id, zone)
+      const slot = dropSlot(store.tree, drag, row.node.id, zone, kind.value)
       if (slot) {
         dropTarget = slot
         drop.value = { id: row.node.id, zone }
@@ -397,26 +416,60 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
       >
         <QIcon name="bookmark_add" aria-hidden="true" />
       </button>
-      <button
-        type="button"
-        class="tool"
-        :aria-label="t(sequence ? 'outline.addSequence' : 'outline.addChapter')"
-        :title="t(sequence ? 'outline.addSequence' : 'outline.addChapter')"
-        :disabled="locked"
-        @click="addChapter"
-      >
-        <QIcon name="library_add" aria-hidden="true" />
-      </button>
-      <button
-        type="button"
-        class="tool"
-        :aria-label="t('write.addScene')"
-        :title="t('write.addScene')"
-        :disabled="locked"
-        @click="addScene"
-      >
-        <QIcon name="note_add" aria-hidden="true" />
-      </button>
+      <template v-if="isGame">
+        <button
+          type="button"
+          class="tool"
+          :aria-label="t('outline.addFolder')"
+          :title="t('outline.addFolder')"
+          :disabled="locked"
+          @click="addFolder"
+        >
+          <QIcon name="create_new_folder" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="tool"
+          :aria-label="t('outline.addScript')"
+          :title="t('outline.addScript')"
+          :disabled="locked"
+          @click="addScript"
+        >
+          <QIcon name="note_add" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="tool"
+          :aria-label="t('outline.addConversation')"
+          :title="t('outline.addConversation')"
+          :disabled="locked"
+          @click="addConversation"
+        >
+          <QIcon name="forum" aria-hidden="true" />
+        </button>
+      </template>
+      <template v-else>
+        <button
+          type="button"
+          class="tool"
+          :aria-label="t(sequence ? 'outline.addSequence' : 'outline.addChapter')"
+          :title="t(sequence ? 'outline.addSequence' : 'outline.addChapter')"
+          :disabled="locked"
+          @click="addChapter"
+        >
+          <QIcon name="library_add" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="tool"
+          :aria-label="t('write.addScene')"
+          :title="t('write.addScene')"
+          :disabled="locked"
+          @click="addScene"
+        >
+          <QIcon name="note_add" aria-hidden="true" />
+        </button>
+      </template>
       <button
         v-if="profile.hasImport"
         type="button"
@@ -524,7 +577,7 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
           <QIcon
             v-else-if="r.node.type !== 'scene'"
             class="kind-icon"
-            :name="r.node.type === 'part' ? 'bookmarks' : 'book'"
+            :name="iconOf(r.node)"
             size="1rem"
             aria-hidden="true"
           />
@@ -589,6 +642,17 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
         </div>
       </li>
     </ul>
+
+    <button
+      v-if="isGame"
+      type="button"
+      class="vars-link"
+      :aria-pressed="variablesOpen"
+      @click="variablesOpen = !variablesOpen"
+    >
+      <QIcon name="tune" size="1rem" aria-hidden="true" />
+      {{ t('variables.title') }}
+    </button>
 
     <div class="sr-only" role="status" aria-live="polite">{{ live }}</div>
 
@@ -675,6 +739,28 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
 }
 .tool:hover:not(:disabled) {
   background: var(--bg-selected);
+}
+.vars-link {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+.vars-link[aria-pressed='true'],
+.vars-link:hover {
+  background: var(--bg-selected);
+}
+.vars-link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
 }
 .tool.on {
   background: var(--bg-selected);

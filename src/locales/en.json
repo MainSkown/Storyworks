@@ -63,9 +63,50 @@
     "sampleExists": "That folder already holds a book. Pick another folder."
   },
 "game": {
-    "placeholder": {
-      "title": "Game script writing is coming in a later version",
-      "body": "Codex, timelines, rules, checks, stats and history already work for this project."
+    "conversation": {
+      "empty": "The conversation graph editor arrives in a later version. You can already rename, move and delete conversations."
+    }
+  },
+  "speaker": {
+    "none": "No speaker (narration)",
+    "narration": "Narration, no speaker. Click to choose a speaker.",
+    "pick": "Choose speaker",
+    "search": "Find a character or type a name",
+    "noMatch": "No match",
+    "useName": "Use \"{name}\" as a plain name",
+    "addToCodex": "Add \"{name}\" to the codex",
+    "of": "Speaker: {name}. Click to change.",
+    "notInCodex": "Speaker: {name}, not in the codex. Click to change or add it.",
+    "deleted": "Deleted character",
+    "deletedTitle": "The codex entry of this speaker was deleted. Click to restore it or choose another speaker.",
+    "restore": "Restore the deleted character"
+  },
+  "variables": {
+    "title": "Variables",
+    "hint": "Project-wide values that conversations can check and change later: a flag (yes or no), a number or a text.",
+    "readOnly": "This project is read-only, so variables cannot be edited.",
+    "invalid": "The variables file could not be read, so it was left untouched and cannot be edited:",
+    "missing": "The variables file is missing, so variables cannot be edited.",
+    "name": "Name",
+    "type": "Type",
+    "default": "Starting value",
+    "add": "Add variable",
+    "empty": "No variables yet.",
+    "actions": "Actions",
+    "nameOf": "Name of {name}",
+    "typeOf": "Type of {name}",
+    "defaultOf": "Starting value of {name}",
+    "delete": "Delete {name}",
+    "deleteTitle": "Delete this variable?",
+    "deleteBody": "\"{name}\" will be removed from the list.",
+    "types": { "flag": "Flag", "number": "Number", "text": "Text" },
+    "error": {
+      "empty-name": "Give the variable a name.",
+      "duplicate-name": "Another variable already has this name.",
+      "unknown-variable": "That variable no longer exists.",
+      "bad-default": "That value does not fit the variable's type.",
+      "read-only": "This project is read-only.",
+      "unavailable": "The variables file cannot be changed right now."
     }
   },
   "newProject": {
@@ -385,6 +426,7 @@
       "undo": "Undo",
       "redo": "Redo",
       "element": "Element type",
+      "speaker": "Speaker",
       "label": "Formatting",
       "paragraphStyle": "Paragraph style",
       "paragraph": "Paragraph",
@@ -446,6 +488,7 @@
     "chapter": "Chapter",
     "book": "Book",
     "script": "Script",
+    "game": "Game",
     "pagesRuntime": "Pages: {pages} · about {min} min",
     "problem": {
       "missing": "Missing file",
@@ -465,7 +508,10 @@
       "part": "Part",
       "chapter": "Chapter",
       "sequence": "Sequence",
-      "scene": "Scene"
+      "scene": "Scene",
+      "folder": "Folder",
+      "script": "Script",
+      "conversation": "Conversation"
     }
   },
   "corkboard": {
@@ -545,6 +591,12 @@
   "outline": {
     "addSequence": "Add sequence",
     "newSequence": "New sequence",
+    "addFolder": "Add folder",
+    "newFolder": "New folder",
+    "addScript": "Add script",
+    "newScript": "New script",
+    "addConversation": "Add conversation",
+    "newConversation": "New conversation",
     "addPart": "Add part",
     "addChapter": "Add chapter",
     "newPart": "New part",
@@ -1752,7 +1804,10 @@
         "part": "Part",
         "chapter": "Chapter",
         "sequence": "Sequence",
-        "scene": "Scene"
+        "scene": "Scene",
+        "folder": "Folder",
+        "script": "Script",
+        "conversation": "Conversation"
       },
       "total": "Whole book"
     },
@@ -1798,6 +1853,7 @@
       "part": "Part",
       "chapter": "Chapter",
       "scene": "Scene",
+      "conversation": "Conversation",
       "timeline": "Timeline",
       "rule": "Rule",
       "ruleCategory": "Rule category",
@@ -1812,6 +1868,7 @@
       "inbox": "Inbox",
       "ignoredFindings": "Dismissed findings",
       "relationLayout": "Relationship layout",
+      "variables": "Variables",
       "settings": "Book settings",
       "asset": "Image",
       "dictionary": "Dictionary",

@@ -32,7 +32,7 @@ async function v13Project(
 describe('migration v13 to v14', () => {
   it('the step is registered, and the version is 14', () => {
     expect(migrations.find((m) => m.from === 13)?.to).toBe(14)
-    expect(MANIFEST_VERSION).toBe(14)
+    expect(MANIFEST_VERSION).toBeGreaterThanOrEqual(14)
   })
 
   it('adds default script export settings and keeps everything else', async () => {
@@ -41,7 +41,7 @@ describe('migration v13 to v14', () => {
     const r = await openProject(io, makeEnv())
     expect(r.status).toBe('ok')
     const m = json(io, 'project.json')
-    expect(m.version).toBe(14)
+    expect(m.version).toBe(MANIFEST_VERSION)
     expect(m.scriptExport).toEqual(defaultScriptExportOptions())
     expect(m.title).toBe('Old')
     expect(m.manuscript).toEqual(before.manuscript)

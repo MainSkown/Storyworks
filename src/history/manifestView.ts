@@ -1,10 +1,10 @@
 // Tolerant reader for project.json text: works on any format version, never throws.
 
 export type ItemType =
-  | 'part' | 'chapter' | 'scene'
+  | 'part' | 'chapter' | 'scene' | 'conversation'
   | 'timeline' | 'rule' | 'ruleCategory' | 'codexType' | 'entry' | 'relationType'
   | 'relationship' | 'group' | 'stateKind' | 'knowledge'
-  | 'calendar' | 'inbox' | 'ignoredFindings' | 'relationLayout'
+  | 'calendar' | 'inbox' | 'ignoredFindings' | 'relationLayout' | 'variables'
   | 'settings' | 'asset' | 'dictionary' | 'file'
 
 /** Manifest list → item type. */
@@ -15,7 +15,7 @@ export const LIST_AREAS: Record<string, ItemType> = {
 }
 /** Single-file manifest slots. */
 export const SINGLETONS: Record<string, ItemType> = {
-  calendar: 'calendar', inbox: 'inbox', ignoredFindings: 'ignoredFindings', relationLayout: 'relationLayout',
+  calendar: 'calendar', inbox: 'inbox', ignoredFindings: 'ignoredFindings', relationLayout: 'relationLayout', variables: 'variables',
 }
 /** Manifest fields that are structure (or bookkeeping), not "book settings". */
 export const STRUCTURAL_FIELDS = new Set(['version', 'manuscript', 'trash', 'stats', ...Object.keys(LIST_AREAS), ...Object.keys(SINGLETONS)])
@@ -65,7 +65,7 @@ export function viewManifest(text: string): ManifestView | null {
     if (!Array.isArray(nodes)) return
     for (const n of nodes) {
       if (!isObj(n) || typeof n.id !== 'string') continue
-      const type = n.type === 'part' || n.type === 'chapter' || n.type === 'scene' ? n.type : 'scene'
+      const type = n.type === 'part' || n.type === 'chapter' || n.type === 'scene' || n.type === 'conversation' ? n.type : 'scene'
       const title = str(n.title)
       entries.push({ key: `node:${n.id}`, type, id: n.id, title, path: typeof n.path === 'string' ? n.path : undefined, parent, context })
       walk(n.children, `node:${n.id}`, [...context, title])

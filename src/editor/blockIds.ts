@@ -15,6 +15,7 @@ export const BLOCK_ID_TYPES = [
   'sceneBreak',
   'image',
   ...ELEMENTS,
+  'line',
 ]
 
 type Range = [from: number, to: number]
@@ -22,7 +23,7 @@ type Range = [from: number, to: number]
 const isValid = (id: unknown): id is string => typeof id === 'string' && id !== ''
 
 // Ranges of the final doc touched by the given transactions (insertions/replacements).
-function changedRanges(transactions: readonly Transaction[]): Range[] {
+export function changedRanges(transactions: readonly Transaction[]): Range[] {
   const maps = transactions.flatMap((tr) => tr.mapping.maps)
   const out: Range[] = []
   maps.forEach((map, i) => {
@@ -37,11 +38,18 @@ function changedRanges(transactions: readonly Transaction[]): Range[] {
  * Blocks starting inside `ranges` count as new: untouched blocks claim their id first, so a
  * pasted or split-off copy gets the fresh id, never the original. No ranges = all blocks old.
  */
-function fixIds(state: EditorState, types: Set<string>, ranges: Range[] = []): Transaction | null {
+export function fixIds(
+  state: EditorState,
+  types: Set<string>,
+  ranges: Range[] = [],
+  attr = 'id',
+  mint: () => string = newId,
+  isOk: (id: unknown) => boolean = isValid,
+): Transaction | null {
   const oldNodes: number[] = []
   const newNodes: number[] = []
   state.doc.descendants((node: PMNode, pos: number) => {
-    if (!types.has(node.type.name) || node.type.spec.attrs?.id === undefined) return
+    if (!types.has(node.type.name) || node.type.spec.attrs?.[attr] === undefined) return
     const isNew = ranges.some(([from, to]) => pos >= from && pos < to)
     ;(isNew ? newNodes : oldNodes).push(pos)
   })
@@ -49,18 +57,18 @@ function fixIds(state: EditorState, types: Set<string>, ranges: Range[] = []): T
   const claimed = new Set<string>()
   const fix: number[] = []
   for (const pos of [...oldNodes, ...newNodes]) {
-    const id = state.doc.nodeAt(pos)!.attrs.id
-    if (isValid(id) && !claimed.has(id)) claimed.add(id)
+    const id = state.doc.nodeAt(pos)!.attrs[attr]
+    if (isOk(id) && !claimed.has(id as string)) claimed.add(id as string)
     else fix.push(pos)
   }
   if (!fix.length) return null
 
   const tr = state.tr
   for (const pos of fix) {
-    let id = newId()
-    while (claimed.has(id)) id = newId()
+    let id = mint()
+    while (claimed.has(id)) id = mint()
     claimed.add(id)
-    tr.setNodeAttribute(pos, 'id', id)
+    tr.setNodeAttribute(pos, attr, id)
   }
   return tr
 }

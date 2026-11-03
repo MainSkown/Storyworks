@@ -73,3 +73,68 @@
   font-weight: 400;
   text-align: end;
 }
+
+/* Game script: one line per row, speaker chip in front, line id in the left margin. */
+.sheet .content .ProseMirror.game {
+  max-width: 62ch;
+  margin-inline: auto;
+}
+.ProseMirror.game .game-line {
+  position: relative;
+  margin: 0 0 0.5em;
+  line-height: 1.5;
+}
+.ProseMirror.game .game-line[data-line-id]::before {
+  content: attr(data-line-id);
+  position: absolute;
+  inset-inline-start: -9ch;
+  width: 8ch;
+  color: var(--text-secondary);
+  font-family: ui-monospace, monospace;
+  font-size: 0.75em;
+  line-height: 2;
+  text-align: end;
+  user-select: none;
+}
+.ProseMirror button.speaker-chip {
+  display: inline-block;
+  box-sizing: border-box;
+  white-space: nowrap;
+  text-wrap: nowrap;
+  line-height: 1.4;
+  min-width: 6ch;
+  max-width: 20ch;
+  margin-inline-end: 0.75ch;
+  vertical-align: baseline;
+  overflow: hidden;
+  padding: 0 0.5ch;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.8125em;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.speaker-chip[data-state='none'] {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.speaker-chip[data-state='name'] {
+  border-style: dashed;
+}
+.speaker-chip[data-state='broken'] {
+  border-style: dotted;
+  text-decoration: line-through;
+  font-style: italic;
+}
+.speaker-chip:hover {
+  background: var(--bg-selected);
+}
+.speaker-chip:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}

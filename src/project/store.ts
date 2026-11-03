@@ -20,7 +20,11 @@ import { createProjectIO } from './io'
 import { countWords, rollUp } from '../editor/wordCount'
 import { elementsOfDoc } from '../editor/screenplay/elements'
 import type { ScriptElement } from '../editor/screenplay/layout'
+import { kindProfile } from './kinds'
 import { scriptPageStats } from './pageStats'
+import { conversationSchema, CONVERSATION_VERSION, type Conversation } from './schemas/conversation'
+import { formatLineId, maxLineNumber } from '../editor/game/lineIds'
+import { speakerIdsOf } from '../editor/game/lines'
 import { sceneHeadingIds, sceneNumbers } from './sceneNumbers'
 import { appendNoteToScene, noteToSceneContent } from './inbox'
 import { commentIdsIn } from '../editor/comments'
@@ -63,6 +67,7 @@ import { useRelationsStore } from '../relations/store'
 import { useRulesStore } from '../rules/store'
 import { useStatesStore } from '../states/store'
 import { useKnowledgeStore } from '../knowledge/store'
+import { useVariablesStore } from '../variables/store'
 import { useStatsStore } from '../stats/store'
 import { useTimelinesStore } from '../timeline/store'
 import { seedCodexTypes } from './codex'
@@ -98,6 +103,8 @@ export interface SceneMeta {
   elements: ScriptElement[]
   /** cheap change test for `elements` */
   elementsKey: string
+  /** game: codex speaker of each line (repeats kept) */
+  speakerIds: string[]
 }
 
 function elementsMeta(sc: Scene): Pick<SceneMeta, 'elements' | 'elementsKey'> {
@@ -113,6 +120,7 @@ const metaOfScene = (sc: Scene): SceneMeta => ({
   wordCount: sc.wordCount,
   openTodoIds: sc.todos.filter((t) => !t.done).map((t) => t.id),
   headingIds: sceneHeadingIds(sc.content),
+  speakerIds: speakerIdsOf(sc.content),
 })
 
 let ioFactory: (root: string) => ProjectIO = createProjectIO
@@ -219,7 +227,15 @@ function liveIds(m: Manifest): Set<string> {
     m.stateKinds,
     m.knowledge,
   ]
-  for (const ref of [m.calendar, m.inbox, m.ignoredFindings, m.stats, m.relationLayout, ...lists.flat()]) {
+  for (const ref of [
+    m.calendar,
+    m.inbox,
+    m.ignoredFindings,
+    m.stats,
+    m.relationLayout,
+    m.variables,
+    ...lists.flat(),
+  ]) {
     if (ref) ids.add(ref.id)
   }
   return ids
@@ -347,8 +363,7 @@ export const useProjectStore = defineStore('project', () => {
     if (s.autosaver.status === 'error') {
       if (saveStatus.value !== 'error') log.error('save.failed')
       saveStatus.value = 'error'
-    }
-    else if (s.autosaver.status === 'saving' || s.touched.size > 0) saveStatus.value = 'saving'
+    } else if (s.autosaver.status === 'saving' || s.touched.size > 0) saveStatus.value = 'saving'
     else saveStatus.value = 'saved'
   }
 
@@ -409,10 +424,30 @@ export const useProjectStore = defineStore('project', () => {
     return text === null ? null : parseFile(sceneSchema, text, path)
   }
 
+  /** The line counter never lags behind the ids found in a script. */
+  function raiseLineCounter(scene: Scene): void {
+    const p = project.value
+    if (!p || p.readOnly) return
+    const max = maxLineNumber(scene.content)
+    if (max > p.manifest.lineCounter) {
+      p.manifest.lineCounter = max
+      mark(MANIFEST_FILE)
+    }
+  }
+
+  /** Next game line id; the counter only grows, so an id is never issued twice. */
+  function reserveLineId(): string {
+    const p = assertWritable()
+    p.manifest.lineCounter += 1
+    mark(MANIFEST_FILE)
+    return formatLineId(p.manifest.lineCounter)
+  }
+
   /** Sets or drops one index entry; true when something changed. Callers trigger. */
   function putMeta(id: string, scene: Scene | null): boolean {
     const map = sceneMeta.value
     if (!scene) return map.delete(id)
+    raiseLineCounter(scene)
     const next = metaOfScene(scene)
     const cur = map.get(id)
     if (
@@ -423,6 +458,7 @@ export const useProjectStore = defineStore('project', () => {
       cur.wordCount === next.wordCount &&
       cur.openTodoIds.join('\n') === next.openTodoIds.join('\n') &&
       cur.headingIds.join('\n') === next.headingIds.join('\n') &&
+      cur.speakerIds.join('\n') === next.speakerIds.join('\n') &&
       cur.elementsKey === next.elementsKey
     )
       return false
@@ -512,6 +548,13 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   /** Links that would show as broken if this scene, chapter or part were deleted. */
+  /** Game lines spoken by this codex entry (they show broken while it is deleted). */
+  function speakerLinesOf(entryId: string): number {
+    let n = 0
+    for (const m of sceneMeta.value.values()) for (const id of m.speakerIds) if (id === entryId) n++
+    return n
+  }
+
   function linksBrokenByDeletingItem(id: string): number {
     const ix = trackLinks()
     return ix ? brokenByDeletingScenes(ix, sceneIdsUnder(tree.value, id)) : 0
@@ -639,7 +682,12 @@ export const useProjectStore = defineStore('project', () => {
     })
     if (!opened.project.readOnly) {
       const settings = useSettingsStore()
-      s.backup = startBackupScheduler({ io, env: defaultEnv, getSettings: () => settings.settings.backups, onError: (e) => log.error('backup.failed', e) })
+      s.backup = startBackupScheduler({
+        io,
+        env: defaultEnv,
+        getSettings: () => settings.settings.backups,
+        onError: (e) => log.error('backup.failed', e),
+      })
     }
     try {
       await s.watcher.start()
@@ -689,6 +737,7 @@ export const useProjectStore = defineStore('project', () => {
     await useRelationsStore().load()
     await useStatesStore().load()
     await useKnowledgeStore().load()
+    await useVariablesStore().load()
   }
 
   function notifyOpened(title: string, path: string): void {
@@ -842,6 +891,7 @@ export const useProjectStore = defineStore('project', () => {
     useRelationsStore().reset()
     useStatesStore().reset()
     useKnowledgeStore().reset()
+    useVariablesStore().reset()
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -932,7 +982,7 @@ export const useProjectStore = defineStore('project', () => {
     const manuscript = p.manifest.manuscript
     if (parentId !== null) {
       const parent = findNode(manuscript, parentId)
-      if (!parent || parent.type === 'scene')
+      if (!parent || parent.type === 'scene' || parent.type === 'conversation')
         throw new Error(`Cannot add a scene under ${parentId}`)
     }
     const id = newId()
@@ -960,7 +1010,10 @@ export const useProjectStore = defineStore('project', () => {
     const manuscript = p.manifest.manuscript
     const parent = parentId === null ? null : findNode(manuscript, parentId)
     if (parentId !== null && !parent) throw new Error(`Unknown parent ${parentId}`)
-    if (type === 'part' ? parent : parent && parent.type !== 'part')
+    // Game folders nest inside folders; elsewhere a chapter only goes inside a part.
+    const parentType =
+      kindProfile(p.manifest.kind).nestedFolders && type === 'chapter' ? 'chapter' : 'part'
+    if (type === 'part' ? parent : parent && parent.type !== parentType)
       throw new Error(`Cannot add a ${type} under ${parentId}`)
     const node: ManuscriptNode = { id: newId(), type, title, children: [] }
     setManuscript(
@@ -983,10 +1036,54 @@ export const useProjectStore = defineStore('project', () => {
     return addContainer('chapter', parentId, title)
   }
 
+  /** Game: a folder at the root or inside another folder. */
+  async function addFolder(parentId: string | null = null, title = 'New folder'): Promise<string> {
+    return addContainer('chapter', parentId, title)
+  }
+
+  /** Game: a script with one empty line (so the editor never opens on an empty doc). */
+  async function addScript(parentId: string | null = null, title = 'New script'): Promise<string> {
+    const content = {
+      type: 'doc',
+      content: [
+        {
+          type: 'line',
+          attrs: { id: newId(), lineId: reserveLineId(), speakerId: null, speakerName: null },
+        },
+      ],
+    }
+    return addScene(parentId, title, { content, wordCount: 0 })
+  }
+
+  /** Game: an empty conversation (its graph arrives later). */
+  async function addConversation(
+    parentId: string | null = null,
+    title = 'New conversation',
+  ): Promise<string> {
+    const p = assertWritable()
+    const manuscript = p.manifest.manuscript
+    if (parentId !== null) {
+      const parent = findNode(manuscript, parentId)
+      if (!parent || parent.type !== 'chapter')
+        throw new Error(`Cannot add a conversation under ${parentId}`)
+    }
+    const id = newId()
+    const path = `manuscript/${id}.json`
+    const conv = conversationSchema.parse({ version: CONVERSATION_VERSION, id, title })
+    await p.saveItem(path, conversationSchema, conv)
+    const node: ManuscriptNode = { id, type: 'conversation', title, path, children: [] }
+    setManuscript(
+      parentId === null
+        ? [...manuscript, node]
+        : mapNode(manuscript, parentId, (n) => ({ ...n, children: [...n.children, node] })),
+    )
+    return id
+  }
+
   /** Re-nests or reorders. `index` is the final position among the new parent's children. false = invalid move. */
   async function moveItem(id: string, parentId: string | null, index: number): Promise<boolean> {
     const p = assertWritable()
-    const next = moveTo(p.manifest.manuscript, id, parentId, index)
+    const next = moveTo(p.manifest.manuscript, id, parentId, index, p.manifest.kind)
     if (!next) return false
     setManuscript(next)
     return true
@@ -1004,6 +1101,31 @@ export const useProjectStore = defineStore('project', () => {
       const cur = await loadScene(node.path)
       if (!cur.ok) return false
       return updateItem(node.path, sceneSchema, change({ ...cur.value }))
+    }
+    const result = patchQueue.then(run)
+    patchQueue = result.catch(() => undefined)
+    return result
+  }
+
+  /** Applies a change to one conversation file (autosaved). false = not a usable conversation or refused. */
+  function patchConversation(
+    id: string,
+    change: (c: Conversation) => Conversation,
+  ): Promise<boolean> {
+    const p = assertWritable()
+    const run = async (): Promise<boolean> => {
+      const node = findNode(p.manifest.manuscript, id)
+      if (!node || node.type !== 'conversation' || !node.path || p.isInvalid(node.path))
+        return false
+      const unsaved = session?.pending.get(node.path)?.value as Conversation | undefined
+      let cur = unsaved
+      if (!cur) {
+        const text = await session?.io.readText(node.path)
+        const r = text == null ? null : parseFile(conversationSchema, text, node.path)
+        if (!r?.ok) return false
+        cur = r.value
+      }
+      return updateItem(node.path, conversationSchema, change({ ...cur }))
     }
     const result = patchQueue.then(run)
     patchQueue = result.catch(() => undefined)
@@ -1182,6 +1304,7 @@ export const useProjectStore = defineStore('project', () => {
     if (!node || name === '' || name === node.title) return
     setManuscript(mapNode(p.manifest.manuscript, id, (n) => ({ ...n, title: name })))
     if (node.type === 'scene') await patchScene(id, (sc) => ({ ...sc, title: name }))
+    if (node.type === 'conversation') await patchConversation(id, (c) => ({ ...c, title: name }))
   }
 
   /** Swaps the item with its neighbour under the same parent. false = already at the edge. */
@@ -1240,8 +1363,9 @@ export const useProjectStore = defineStore('project', () => {
     revision.value++
     const node = findNode(p.manifest.manuscript, id)
     if (node?.path) {
-      if (await s.io.exists(node.path)) await indexScene(s, id, node.path)
-      else setItemIssue(node.path, { status: 'missing' })
+      if (await s.io.exists(node.path)) {
+        if (node.type === 'scene') await indexScene(s, id, node.path)
+      } else setItemIssue(node.path, { status: 'missing' })
       triggerRef(sceneMeta)
     }
     linkRevision.value++
@@ -1276,7 +1400,12 @@ export const useProjectStore = defineStore('project', () => {
   })
 
   /** false (nothing changed) when the title is blank or the project is read-only. */
-  function setBookInfo(next: { title: string; author: string; contact: string; date: string }): boolean {
+  function setBookInfo(next: {
+    title: string
+    author: string
+    contact: string
+    date: string
+  }): boolean {
     const p = project.value
     const title = next.title.trim()
     if (!p || !session || p.readOnly || !title) return false
@@ -1386,7 +1515,10 @@ export const useProjectStore = defineStore('project', () => {
   // ---- rules (the rules store holds the content) ----
 
   /** Replaces the manifest's rule and/or category lists (create, rename, delete category). */
-  function setRuleRefs(next: { rules?: Manifest['rules']; ruleCategories?: Manifest['ruleCategories'] }): void {
+  function setRuleRefs(next: {
+    rules?: Manifest['rules']
+    ruleCategories?: Manifest['ruleCategories']
+  }): void {
     const p = assertWritable()
     if (next.rules) p.manifest.rules = next.rules
     if (next.ruleCategories) p.manifest.ruleCategories = next.ruleCategories
@@ -1415,7 +1547,10 @@ export const useProjectStore = defineStore('project', () => {
   // ---- codex (the codex store holds the content) ----
 
   /** Replaces the manifest's codex entry and/or type lists (create, rename, delete type). */
-  function setCodexRefs(next: { codexEntries?: Manifest['codexEntries']; codexTypes?: Manifest['codexTypes'] }): void {
+  function setCodexRefs(next: {
+    codexEntries?: Manifest['codexEntries']
+    codexTypes?: Manifest['codexTypes']
+  }): void {
     const p = assertWritable()
     if (next.codexEntries) p.manifest.codexEntries = next.codexEntries
     if (next.codexTypes) p.manifest.codexTypes = next.codexTypes
@@ -1443,6 +1578,14 @@ export const useProjectStore = defineStore('project', () => {
   function setStateKindRefs(next: { stateKinds: Manifest['stateKinds'] }): void {
     const p = assertWritable()
     p.manifest.stateKinds = next.stateKinds
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
+  /** Sets the manifest's variable list file (game scripts). */
+  function setVariablesRef(ref: NonNullable<Manifest['variables']>): void {
+    const p = assertWritable()
+    p.manifest.variables = ref
     revision.value++
     mark(MANIFEST_FILE)
   }
@@ -1856,6 +1999,13 @@ export const useProjectStore = defineStore('project', () => {
     wordCounts,
     sceneNumbering,
     pageStats,
+    reserveLineId,
+    setVariablesRef,
+    speakerLinesOf,
+    addFolder,
+    addScript,
+    addConversation,
+    patchConversation,
     selectedId,
     openNoteId,
     inboxNotes,

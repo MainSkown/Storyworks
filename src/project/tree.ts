@@ -1,13 +1,27 @@
 import type { ManuscriptNode } from './schemas/manifest'
 import type { Scene } from './schemas/scene'
+import { kindProfile } from './kinds'
 
 type NodeType = ManuscriptNode['type']
 
-const ALLOWED_PARENT: Record<NodeType, (NodeType | null)[]> = {
+type Parents = Record<NodeType, (NodeType | null)[]>
+
+const ALLOWED_PARENT: Parents = {
   part: [null],
   chapter: [null, 'part'],
   scene: [null, 'part', 'chapter'],
+  conversation: [],
 }
+
+// Game: folders (chapter nodes) nest; scripts and conversations sit in a folder or at the root.
+const GAME_PARENT: Parents = {
+  part: [null],
+  chapter: [null, 'chapter'],
+  scene: [null, 'chapter'],
+  conversation: [null, 'chapter'],
+}
+
+const parentsOf = (kind: string): Parents => (kindProfile(kind).nestedFolders ? GAME_PARENT : ALLOWED_PARENT)
 
 function find(nodes: ManuscriptNode[], id: string): ManuscriptNode | null {
   for (const n of nodes) {
@@ -29,6 +43,7 @@ export function moveTo(
   id: string,
   parentId: string | null,
   index: number,
+  kind = 'book',
 ): ManuscriptNode[] | null {
   const next = structuredClone(tree)
   const node = find(next, id)
@@ -36,7 +51,7 @@ export function moveTo(
   const parent = parentId === null ? null : find(next, parentId)
   if (parentId !== null && !parent) return null
   if (parent && (parent.id === id || find(node.children, parent.id))) return null
-  if (!ALLOWED_PARENT[node.type].includes(parent?.type ?? null)) return null
+  if (!parentsOf(kind)[node.type].includes(parent?.type ?? null)) return null
 
   const detach = (list: ManuscriptNode[]): boolean => {
     const i = list.findIndex((n) => n.id === id)
@@ -90,11 +105,11 @@ function locate(
 }
 
 /** The slot for `moveTo` if it is valid and actually changes something. */
-function validSlot(tree: ManuscriptNode[], id: string, slot: Slot): Slot | null {
+function validSlot(tree: ManuscriptNode[], id: string, slot: Slot, kind: string): Slot | null {
   const here = locate(tree, id)
   if (!here) return null
   if ((here.parent?.id ?? null) === slot.parentId && here.index === slot.index) return null
-  return moveTo(tree, id, slot.parentId, slot.index) ? slot : null
+  return moveTo(tree, id, slot.parentId, slot.index, kind) ? slot : null
 }
 
 /** Target for Alt+arrow keys: up/down swap, in = indent, out = outdent. */
@@ -102,6 +117,7 @@ export function keyboardMove(
   tree: ManuscriptNode[],
   id: string,
   dir: 'up' | 'down' | 'in' | 'out',
+  kind = 'book',
 ): Slot | null {
   const here = locate(tree, id)
   if (!here) return null
@@ -117,7 +133,7 @@ export function keyboardMove(
     const up = locate(tree, here.parent.id)
     slot = up ? { parentId: up.parent?.id ?? null, index: up.index + 1 } : null
   }
-  return slot && validSlot(tree, id, slot)
+  return slot && validSlot(tree, id, slot, kind)
 }
 
 /** Target for dropping `dragId` before, after or inside the row `overId`. */
@@ -126,6 +142,7 @@ export function dropSlot(
   dragId: string,
   overId: string,
   zone: 'before' | 'after' | 'inside',
+  kind = 'book',
 ): Slot | null {
   if (dragId === overId) return null
   const over = locate(tree, overId)
@@ -133,10 +150,10 @@ export function dropSlot(
   if (!over || !drag) return null
   if (zone === 'inside') {
     const target = over.siblings[over.index]!
-    return validSlot(tree, dragId, { parentId: overId, index: target.children.length })
+    return validSlot(tree, dragId, { parentId: overId, index: target.children.length }, kind)
   }
   const parentId = over.parent?.id ?? null
   let index = zone === 'before' ? over.index : over.index + 1
   if (drag.parent === over.parent && drag.index < index) index--
-  return validSlot(tree, dragId, { parentId, index })
+  return validSlot(tree, dragId, { parentId, index }, kind)
 }

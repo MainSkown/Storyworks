@@ -13,6 +13,8 @@ import { UndoRedo } from '@tiptap/extensions'
 import { ScreenplayNodes, ScreenplayElements } from './screenplay/extension'
 import { SceneNumberMargin } from './screenplay/sceneNumberMargin'
 import { ScreenplaySuggest, type SuggestOptions } from './screenplay/suggestPlugin'
+import { GameLine, LineIds } from './game/extension'
+import { Speakers, type SpeakerOptions } from './game/speakerPlugin'
 import { EventLinks, selectedBlockIds, type BlockLinkInfo } from './eventLinks'
 
 export interface ToolbarItem {
@@ -22,7 +24,7 @@ export interface ToolbarItem {
   icon: string
   run: (editor: Editor) => void
   /** Needs UI of its own (popover, picker, prompt): the toolbar emits this instead of calling run. */
-  action?: 'footnote' | 'image' | 'comment' | 'eventLink' | 'element'
+  action?: 'footnote' | 'image' | 'comment' | 'eventLink' | 'element' | 'speaker'
   canRun?: (editor: Editor) => boolean
   isActive?: (editor: Editor) => boolean
   /** Accent button: shows its label next to the icon. */
@@ -38,6 +40,12 @@ export interface EditorContext extends Partial<ProjectImageOptions> {
   sceneNumbers?: () => ReadonlyMap<string, number>
   /** Screenplay: cue and heading autocomplete; absent = none. */
   suggest?: SuggestOptions
+  /** Game script: issues the next line id from the project counter. */
+  allocateLineId?: () => string
+  /** Game script: false while the editor still holds a placeholder doc (no ids are issued). */
+  lineIdsReady?: () => boolean
+  /** Game script: speaker chips and the picker hooks. */
+  speakers?: SpeakerOptions
 }
 
 export interface EditorKind {
@@ -229,4 +237,30 @@ const screenplay: EditorKind = {
   ],
 }
 
-export const editorKinds: Record<string, EditorKind> = { book, screenplay }
+const game: EditorKind = {
+  extensions: ({ eventLinkInfo, spellcheck, allocateLineId, lineIdsReady, speakers } = {}) => [
+    Document,
+    Text,
+    GameLine,
+    UndoRedo,
+    CommentMark,
+    BlockIds,
+    LineIds.configure({ allocate: allocateLineId ?? (() => ''), ready: lineIdsReady ?? (() => true) }),
+    ...(speakers ? [Speakers.configure(speakers)] : []),
+    EventLinks.configure({ info: eventLinkInfo ?? (() => null) }),
+    ...(spellcheck ? [Spellcheck.configure({ check: spellcheck })] : []),
+  ],
+  toolbar: [
+    {
+      id: 'speaker',
+      labelKey: 'editor.toolbar.speaker',
+      icon: 'record_voice_over',
+      run: () => undefined,
+      action: 'speaker',
+      accent: true,
+    },
+    ...screenplay.toolbar.filter((i) => i.id !== 'element'),
+  ],
+}
+
+export const editorKinds: Record<string, EditorKind> = { book, screenplay, game }

@@ -254,6 +254,23 @@ const v13to14: Migration = {
   },
 }
 
+/** v14 -> v15: manifest only (`lineCounter`, `variables`: game scripts). */
+const v14to15: Migration = {
+  from: 14,
+  to: 15,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, {
+      ...manifest,
+      version: 15,
+      lineCounter: manifest.lineCounter ?? 0,
+      variables: manifest.variables ?? null,
+    })
+    return out
+  },
+}
+
 export const migrations: Migration[] = [
   v1to2,
   v2to3,
@@ -268,6 +285,7 @@ export const migrations: Migration[] = [
   v11to12,
   v12to13,
   v13to14,
+  v14to15,
 ]
 
 export const MANIFEST_FILE = 'project.json'

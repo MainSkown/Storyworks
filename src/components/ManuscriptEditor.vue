@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch 
 import { useI18n } from 'vue-i18n'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
 import type { JSONContent } from '@tiptap/core'
-import { editorKinds } from '../editor/kinds'
+import { editorKinds, type ToolbarItem } from '../editor/kinds'
 import { NodeSelection } from '@tiptap/pm/state'
 import { countWords } from '../editor/wordCount'
 import { commentRanges } from '../editor/comments'
@@ -40,6 +40,9 @@ import EventLinkPopover from './EventLinkPopover.vue'
 import SuggestPopup from './SuggestPopup.vue'
 import { useCodexStore } from '../codex/store'
 import { sourceFromCodex } from '../editor/screenplay/suggest'
+import SpeakerPicker from './SpeakerPicker.vue'
+import { characterSpeakers, recentSpeakers, resolveSpeaker, type SpeakerEntry } from '../editor/game/speakers'
+import type { SpeakerValue } from '../editor/game/speakerPlugin'
 import type { SuggestInfo } from '../editor/screenplay/suggestPlugin'
 import { openKnowledgeItem } from '../knowledge/openItem'
 import '../editor/editor.css'
@@ -77,6 +80,65 @@ async function addCueToCodex(name: string): Promise<void> {
   editor.value?.commands.focus()
 }
 
+// ---- game speakers ----
+const isGame = store.project?.manifest.kind === 'game'
+const speakerChoices = computed(() => characterSpeakers(codex.types, codex.entries))
+const speakerById = computed(
+  () => new Map<string, SpeakerEntry>(codex.entries.map((e) => [e.id, { id: e.id, name: e.name, aliases: e.aliases }])),
+)
+const speakerPick = ref<{ pos: number; x: number; y: number } | null>(null)
+const pickedLine = computed(() => {
+  const at = speakerPick.value
+  const node = at ? editor.value?.state.doc.nodeAt(at.pos) : null
+  return node?.type.name === 'line' ? node : null
+})
+const pickedView = computed(() =>
+  resolveSpeaker(
+    { speakerId: pickedLine.value?.attrs.speakerId ?? null, speakerName: pickedLine.value?.attrs.speakerName ?? null },
+    (id) => speakerById.value.get(id),
+  ),
+)
+const pickedRestorable = computed(
+  () => pickedView.value.state === 'broken' && store.trash.some((e) => e.id === (pickedView.value as { id: string }).id && e.type === 'entry'),
+)
+const pickedRecent = computed(() => (editor.value && speakerPick.value ? recentSpeakers(editor.value.getJSON()) : []))
+function openSpeakerPicker(pos: number): void {
+  const ed = editor.value
+  if (!ed || !canEdit.value) return
+  const c = ed.view.coordsAtPos(pos + 1)
+  speakerPick.value = { pos, x: c.left, y: c.bottom + 4 }
+}
+function closeSpeakerPicker(): void {
+  speakerPick.value = null
+  editor.value?.commands.focus()
+}
+function pickSpeaker(value: SpeakerValue): void {
+  const at = speakerPick.value
+  if (at) editor.value?.commands.setSpeaker(at.pos, value)
+  closeSpeakerPicker()
+}
+async function addSpeakerToCodex(name: string): Promise<void> {
+  const at = speakerPick.value
+  const ed = editor.value
+  if (!at || !ed) return
+  ed.commands.setSpeaker(at.pos, { speakerName: name })
+  const id = await codex.createEntry({ name, typeId: speakerChoices.value.characterTypeId })
+  if (id) ed.commands.linkSpeakerName(name, id)
+  closeSpeakerPicker()
+}
+async function restoreSpeaker(id: string): Promise<void> {
+  await store.restoreItem(id)
+  closeSpeakerPicker()
+}
+// Chips show codex names; redraw them when the codex changes.
+watch(
+  () => [codex.entries, store.trash],
+  () => {
+    const ed = editor.value
+    if (isGame && ed && !ed.isDestroyed) ed.view.dispatch(ed.state.tr.setMeta('speakers', true))
+  },
+)
+
 const actionError = ref('')
 const editor = useEditor({
   extensions: kind.extensions({
@@ -85,6 +147,19 @@ const editor = useEditor({
     eventLinkInfo: (blockId) => linkInfo.value.get(blockId) ?? null,
     spellcheck: (text) => spell.checkText(text),
     sceneNumbers: () => store.sceneNumbering.byBlock,
+    allocateLineId: () => store.reserveLineId(),
+    lineIdsReady: () => !!loaded.value,
+    speakers: {
+      label: (a) => {
+        const v = resolveSpeaker(a, (id) => speakerById.value.get(id))
+        if (v.state === 'entry') return { text: v.name, state: 'entry', title: t('speaker.of', { name: v.name }) }
+        if (v.state === 'name') return { text: v.name, state: 'name', title: t('speaker.notInCodex', { name: v.name }) }
+        if (v.state === 'broken') return { text: t('speaker.deleted'), state: 'broken', title: t('speaker.deletedTitle') }
+        return { text: '—', state: 'none', title: t('speaker.narration') }
+      },
+      onPick: openSpeakerPicker,
+      onChip: openSpeakerPicker,
+    },
     suggest: {
       source: suggestSource,
       onChange: (info) => (suggestInfo.value = info),
@@ -98,6 +173,7 @@ const editor = useEditor({
       'aria-multiline': 'true',
       'aria-label': t('editor.body'),
       ...(store.project?.manifest.kind === 'screenplay' ? { class: 'screenplay' } : {}),
+      ...(isGame ? { class: 'game' } : {}),
     },
     handleClickOn: (_view, _pos, node, nodePos) => {
       if (node.type.name !== 'footnote') return false
@@ -358,11 +434,15 @@ function jumpToComment(id: string): void {
   if (r) editor.value?.chain().focus().setTextSelection(r).scrollIntoView().run()
 }
 
-function onToolbarAction(action: 'footnote' | 'image' | 'comment' | 'eventLink' | 'element'): void {
+function onToolbarAction(action: NonNullable<ToolbarItem['action']>): void {
   if (action === 'footnote') addFootnote()
   else if (action === 'image') void addImageFile()
   else if (action === 'eventLink') startEventLink()
   else if (action === 'comment') startComment()
+  else if (action === 'speaker') {
+    const ed = editor.value
+    if (ed) openSpeakerPicker(ed.state.selection.$from.before())
+  }
 }
 
 // ---- event links ----
@@ -797,6 +877,20 @@ onBeforeUnmount(() => {
       @pick="onPick"
       @pick-entry="onPickEntry"
       @pick-knowledge="onPickKnowledge"
+    />
+    <SpeakerPicker
+      v-if="speakerPick && pickedLine"
+      :x="speakerPick.x"
+      :y="speakerPick.y"
+      :entries="speakerChoices.list"
+      :recent="pickedRecent"
+      :current="pickedView"
+      :restorable="pickedRestorable"
+      :readonly="!canEdit"
+      @pick="pickSpeaker"
+      @add="addSpeakerToCodex"
+      @restore="restoreSpeaker"
+      @close="closeSpeakerPicker"
     />
     <SuggestPopup
       v-if="suggestInfo"

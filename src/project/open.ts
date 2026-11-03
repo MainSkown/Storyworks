@@ -30,6 +30,8 @@ import { ruleCategorySchema } from './schemas/ruleCategory'
 import { stateKindSchema } from './schemas/stateKind'
 import { knowledgeItemSchema } from './schemas/knowledge'
 import { sceneSchema, SCENE_VERSION } from './schemas/scene'
+import { conversationSchema } from './schemas/conversation'
+import { variablesSchema } from './schemas/variables'
 import { timelineSchema } from '../timeline/schema'
 import { parseFile, serialize } from './serialize'
 import {
@@ -73,6 +75,8 @@ export interface ListedItem {
   id: string
   path: string
   scene: boolean
+  conversation?: boolean
+  variables?: boolean
   inbox?: boolean
   ignored?: boolean
   stats?: boolean
@@ -94,12 +98,18 @@ export function listedItems(m: Manifest): ListedItem[] {
   const out: ListedItem[] = []
   const walk = (nodes: Manifest['manuscript']) => {
     for (const n of nodes) {
-      if (n.path) out.push({ id: n.id, path: n.path, scene: n.type === 'scene' })
+      if (n.path)
+        out.push({
+          id: n.id,
+          path: n.path,
+          scene: n.type === 'scene',
+          conversation: n.type === 'conversation',
+        })
       walk(n.children)
     }
   }
   walk(m.manuscript)
-  const refs = [m.calendar, m.inbox, m.ignoredFindings, m.stats, m.relationLayout]
+  const refs = [m.calendar, m.inbox, m.ignoredFindings, m.stats, m.relationLayout, m.variables]
   const lists = [
     m.timelines,
     m.rules,
@@ -130,6 +140,7 @@ export function listedItems(m: Manifest): ListedItem[] {
         relationship: m.relationships.includes(ref),
         group: m.groups.includes(ref),
         relationLayout: ref === m.relationLayout,
+        variables: ref === m.variables,
         stateKind: m.stateKinds.includes(ref),
         knowledge: m.knowledge.includes(ref),
       })
@@ -320,6 +331,9 @@ export function parseItem(item: ListedItem, text: string): ParseResult<unknown> 
   if (item.knowledge)
     return withIdCheck(parseFile(knowledgeItemSchema, text, item.path), item.path, item.id)
   if (item.relationLayout) return parseFile(relationLayoutSchema, text, item.path)
+  if (item.variables) return parseFile(variablesSchema, text, item.path)
+  if (item.conversation)
+    return withIdCheck(parseFile(conversationSchema, text, item.path), item.path, item.id)
   return withIdCheck(parseFile(sceneSchema, text, item.path), item.path, item.id)
 }
 
@@ -338,7 +352,9 @@ export const isParsed = (item: ListedItem) =>
   item.group ||
   item.stateKind ||
   item.knowledge ||
-  item.relationLayout
+  item.relationLayout ||
+  item.variables ||
+  item.conversation
 
 async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Promise<Issue[]> {
   const results = await Promise.all(
