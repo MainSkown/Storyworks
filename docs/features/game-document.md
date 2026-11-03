@@ -51,9 +51,9 @@ Game projects get a **Game document** section: a place to write down the game's 
 - [x] Milestones: add S6 here; old S6 becomes S7 and gains the items under "Handed to S7".
 
 ## Handed to S7 (old S6)
-- [ ] Checks: broken mechanic links; mechanic with status Implemented and no links; variable used by no mechanic and no line (info level). Same finding shape, stable IDs, per-check on/off.
-- [ ] Game JSON export includes Overview, glossary, categories and mechanics (parameters and links).
-- [ ] Readable export of the whole game document (Overview, Mechanics grouped by category, Glossary) to PDF, DOCX and Markdown.
+- [x] Checks: broken mechanic links; mechanic with status Implemented and no links; variable used by no mechanic and no line (info level). Same finding shape, stable IDs, per-check on/off.
+- [x] Game JSON export includes Overview, glossary, categories and mechanics (parameters and links).
+- [x] Readable export of the whole game document (Overview, Mechanics grouped by category, Glossary) to PDF, DOCX and Markdown.
 
 ## Behavior details
 - Files: one file per mechanic (like Rules), one file for Overview, one for Glossary, one for categories; `project.json` lists them and holds the order.

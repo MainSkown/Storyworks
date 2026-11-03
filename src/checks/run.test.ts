@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { gregorianCalendar } from '../calendar'
 import { EVENT_KIND, type Link } from '../project/links'
 import { runChecks, type CheckData, type CheckTimeline } from './run'
-import { CHECK_IDS, type CheckId } from './types'
+import { CHECK_IDS, CHECK_KINDS, checksForKind, type CheckId } from './types'
 
 const calendar = gregorianCalendar('cal')
 const all = () => true
@@ -79,18 +79,18 @@ function badData(): CheckData {
 
 describe('runChecks', () => {
   it('gives no findings for an empty book', () => {
-    expect(runChecks(emptyData(), all)).toEqual([])
+    expect(runChecks(emptyData(), 'book', all)).toEqual([])
   })
 
   it('runs only enabled checks', () => {
     const d = badData()
-    expect(runChecks(d, () => false)).toEqual([])
-    const only = runChecks(d, (id) => id === 'invalid-file')
+    expect(runChecks(d, 'book', () => false)).toEqual([])
+    const only = runChecks(d, 'book', (id) => id === 'invalid-file')
     expect(only.map((f) => f.checkId)).toEqual(['invalid-file'])
   })
 
   it('finds a bad case in each checker group', () => {
-    const ids = new Set(runChecks(badData(), all).map((f) => f.checkId))
+    const ids = new Set(runChecks(badData(), 'book', all).map((f) => f.checkId))
     const expected: CheckId[] = [
       'broken-link',
       'invalid-file',
@@ -108,7 +108,7 @@ describe('runChecks', () => {
   it('finds an invalid date', () => {
     const d = emptyData()
     d.timelines = [timeline('t1', [node('a', { year: 2000, month: 20, day: 1 })])]
-    expect(runChecks(d, all).map((f) => f.checkId)).toContain('invalid-date')
+    expect(runChecks(d, 'book', all).map((f) => f.checkId)).toContain('invalid-date')
   })
 
   it('finds state and knowledge problems', () => {
@@ -125,35 +125,69 @@ describe('runChecks', () => {
     d.uses = [{ blockId: 'b1', sceneId: 's1', entryId: 'e1', positions: [at('c')], label: 'Text' }]
     d.knowledgeItems = [{ id: 'k1', name: 'Secret', learnings: [{ id: 'l', entryId: 'e1', at: at('c'), forgottenAt: null }] }]
     d.knowledgeUses = [{ blockId: 'b2', sceneId: 's1', entryId: 'e1', itemId: 'k1', positions: [at('a')], label: 'Text' }]
-    const ids = runChecks(d, all).map((f) => f.checkId)
+    const ids = runChecks(d, 'book', all).map((f) => f.checkId)
     expect(ids).toContain('state-overlap')
     expect(ids).toContain('appearance-after-final')
     expect(ids).toContain('knowledge-timing')
   })
 
   it('sorts errors before warnings before info', () => {
-    const order = runChecks(badData(), all).map((f) => f.severity)
+    const order = runChecks(badData(), 'book', all).map((f) => f.severity)
     const rank = { error: 0, warning: 1, info: 2 }
     expect(order).toEqual([...order].sort((a, b) => rank[a] - rank[b]))
     expect(new Set(order)).toEqual(new Set(['error', 'warning', 'info']))
   })
 
   it('gives the same ids for the same data and no duplicates', () => {
-    const a = runChecks(badData(), all).map((f) => f.id)
-    const b = runChecks(badData(), all).map((f) => f.id)
+    const a = runChecks(badData(), 'book', all).map((f) => f.id)
+    const b = runChecks(badData(), 'book', all).map((f) => f.id)
     expect(a).toEqual(b)
     expect(new Set(a).size).toBe(a.length)
   })
 
   it('gives a changed problem a new id', () => {
     const d = badData()
-    const before = runChecks(d, all).find((f) => f.checkId === 'open-todo')!.id
+    const before = runChecks(d, 'book', all).find((f) => f.checkId === 'open-todo')!.id
     d.scenes[0]!.todos.push({ id: 'td2', done: false })
-    const after = runChecks(d, all).find((f) => f.checkId === 'open-todo')!.id
+    const after = runChecks(d, 'book', all).find((f) => f.checkId === 'open-todo')!.id
     expect(after).not.toBe(before)
   })
 
   it('has a checker for every check id', () => {
-    for (const id of CHECK_IDS) expect(() => runChecks(emptyData(), (x) => x === id)).not.toThrow()
+    for (const id of CHECK_IDS) expect(() => runChecks(emptyData(), 'book', (x) => x === id)).not.toThrow()
+  })
+
+  it('asks only about checks that apply to the kind', () => {
+    const asked = (kind: 'book' | 'screenplay' | 'game') => {
+      const ids: CheckId[] = []
+      runChecks(emptyData(), kind, (id) => (ids.push(id), true))
+      return ids
+    }
+    const gameOnly = CHECK_IDS.filter((id) => !CHECK_KINDS[id].includes('book'))
+    expect(gameOnly.length).toBeGreaterThan(0)
+    for (const kind of ['book', 'screenplay'] as const) {
+      for (const id of gameOnly) expect(asked(kind), id).not.toContain(id)
+      expect(asked(kind)).toEqual(checksForKind(kind))
+    }
+    expect(asked('game')).toEqual([...CHECK_IDS])
+  })
+
+  it('does not run a disabled check in a game project', () => {
+    const d = badData()
+    expect(runChecks(d, 'game', () => false)).toEqual([])
+    const only = runChecks(d, 'game', (id) => id === 'invalid-file')
+    expect(only.map((f) => f.checkId)).toEqual(['invalid-file'])
+  })
+
+  it('keeps book findings the same in any kind', () => {
+    const book = runChecks(badData(), 'book', all)
+    expect(book.length).toBeGreaterThan(0)
+    expect(runChecks(badData(), 'game', all)).toEqual(book)
+    expect(runChecks(badData(), 'screenplay', all)).toEqual(book)
+  })
+
+  it('lists the same 14 checks for book and screenplay as before', () => {
+    expect(checksForKind('book')).toEqual(CHECK_IDS.slice(0, 14))
+    expect(checksForKind('screenplay')).toEqual(CHECK_IDS.slice(0, 14))
   })
 })

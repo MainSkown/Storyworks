@@ -17,6 +17,9 @@ const KIND_ICON: Record<LocationKind, string> = {
   rule: 'checklist',
   entry: 'menu_book',
   file: 'description',
+  item: 'forum',
+  mechanic: 'build',
+  variable: 'data_object',
 }
 
 const text = computed(() => findingText(i18n, props.finding))

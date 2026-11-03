@@ -1,3 +1,5 @@
+import { isKindId, type KindId } from '../project/kinds'
+
 export type Severity = 'error' | 'warning' | 'info'
 
 export const CHECK_IDS = [
@@ -15,6 +17,16 @@ export const CHECK_IDS = [
   'unlinked-rule',
   'entry-no-connections',
   'open-todo',
+  'dead-end',
+  'unreachable-node',
+  'unreachable-item',
+  'choice-no-target',
+  'undefined-variable',
+  'route-unreachable',
+  'broken-speaker',
+  'mechanic-broken-link',
+  'mechanic-no-links',
+  'variable-unused',
 ] as const
 
 export type CheckId = (typeof CHECK_IDS)[number]
@@ -34,15 +46,60 @@ export const CHECK_SEVERITY: Record<CheckId, Severity> = {
   'unlinked-rule': 'info',
   'entry-no-connections': 'info',
   'open-todo': 'info',
+  'dead-end': 'warning',
+  'unreachable-node': 'warning',
+  'unreachable-item': 'warning',
+  'choice-no-target': 'error',
+  'undefined-variable': 'error',
+  'route-unreachable': 'warning',
+  'broken-speaker': 'error',
+  'mechanic-broken-link': 'error',
+  'mechanic-no-links': 'info',
+  'variable-unused': 'info',
 }
 
-export type LocationKind = 'scene' | 'node' | 'rule' | 'entry' | 'file'
+const ALL_KINDS: KindId[] = ['book', 'screenplay', 'game']
+const GAME_ONLY: KindId[] = ['game']
 
-/** Where a finding points; `blockId` only for a passage inside a scene, `timelineId` only for a node. */
+/** Project kinds a check applies to; the runner and the settings list skip the others. */
+export const CHECK_KINDS: Record<CheckId, KindId[]> = {
+  'broken-link': ALL_KINDS,
+  'invalid-file': ALL_KINDS,
+  'invalid-date': ALL_KINDS,
+  'date-order': ALL_KINDS,
+  'duplicate-name': ALL_KINDS,
+  'state-overlap': ALL_KINDS,
+  'appearance-after-final': ALL_KINDS,
+  'knowledge-timing': ALL_KINDS,
+  'node-no-passage': ALL_KINDS,
+  'scene-no-links': ALL_KINDS,
+  'isolated-node': ALL_KINDS,
+  'unlinked-rule': ALL_KINDS,
+  'entry-no-connections': ALL_KINDS,
+  'open-todo': ALL_KINDS,
+  'dead-end': GAME_ONLY,
+  'unreachable-node': GAME_ONLY,
+  'unreachable-item': GAME_ONLY,
+  'choice-no-target': GAME_ONLY,
+  'undefined-variable': GAME_ONLY,
+  'route-unreachable': GAME_ONLY,
+  'broken-speaker': GAME_ONLY,
+  'mechanic-broken-link': GAME_ONLY,
+  'mechanic-no-links': GAME_ONLY,
+  'variable-unused': GAME_ONLY,
+}
+
+export const checksForKind = (kind: KindId): CheckId[] =>
+  CHECK_IDS.filter((id) => CHECK_KINDS[id].includes(kind))
+
+export type LocationKind = 'scene' | 'node' | 'rule' | 'entry' | 'file' | 'item' | 'mechanic' | 'variable'
+
+/** Where a finding points; `blockId` only for a passage inside a scene, `timelineId` only for a node, `nodeId` only for a conversation node of an `item`. */
 export interface FindingLocation {
   kind: LocationKind
   id: string
   blockId?: string
+  nodeId?: string
   timelineId?: string
   /** Human label (title, name or snippet), already resolved by the checker. */
   label: string
@@ -84,3 +141,6 @@ export function makeFinding(
     ...extra,
   }
 }
+
+/** The manifest's kind as a known kind (anything unknown counts as a book). */
+export const checkKind = (kind: string | undefined): KindId => (kind && isKindId(kind) ? kind : 'book')

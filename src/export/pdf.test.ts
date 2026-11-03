@@ -296,7 +296,7 @@ describe('pdf export', () => {
       id: 'pdf',
       extension: 'pdf',
       mime: 'application/pdf',
-      kinds: ['book'],
+      kinds: ['book', 'game'],
     })
   })
 

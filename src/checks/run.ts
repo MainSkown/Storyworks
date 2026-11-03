@@ -1,6 +1,19 @@
 import type { Calendar } from '../calendar'
+import type { KindId } from '../project/kinds'
 import type { Link } from '../project/links'
 import type { OrderContext } from '../timeline/order'
+import {
+  brokenSpeakers,
+  choiceNoTarget,
+  deadEnds,
+  routeUnreachable,
+  undefinedVariables,
+  unreachableItems,
+  unreachableNodes,
+  type GraphCheckInput,
+  type SpeakerCheckInput,
+} from './game'
+import { mechanicBrokenLinks, mechanicsNoLinks, variablesUnused, type GameDocInput } from './gameDoc'
 import { dateOrder, invalidNodeDates, type DateOrderTimeline } from './dates'
 import {
   appearancesAfterFinal,
@@ -24,7 +37,7 @@ import {
   type BrokenRef,
   type FileProblem,
 } from './structural'
-import { CHECK_IDS, type CheckId, type Finding, type Severity } from './types'
+import { CHECK_IDS, CHECK_KINDS, type CheckId, type Finding, type Severity } from './types'
 
 export interface CheckTimeline extends DateOrderTimeline {
   name: string
@@ -32,6 +45,13 @@ export interface CheckTimeline extends DateOrderTimeline {
     ruleIds: readonly string[]
     codexIds: readonly string[]
   })[]
+}
+
+/** Game projects only; built by `gatherGameData`. */
+export interface GameCheckData {
+  graph: GraphCheckInput
+  speakers: SpeakerCheckInput
+  doc: GameDocInput
 }
 
 /** Plain inputs for every checker; the stores are adapted into this by `gatherCheckData`. */
@@ -76,6 +96,8 @@ export interface CheckData {
   otherRuleLinkedIds: string[]
   /** Missing or invalid item files. */
   problems: FileProblem[]
+  /** Game projects only. */
+  game?: GameCheckData
 }
 
 const SEVERITY_RANK: Record<Severity, number> = { error: 0, warning: 1, info: 2 }
@@ -154,6 +176,17 @@ const CHECKERS: Record<CheckId, Checker> = {
       otherLinkedIds: d.otherLinkedIds,
     }),
   'open-todo': (d) => openTodos(d.scenes),
+  // Game checks; a missing slice (not a game project) finds nothing.
+  'dead-end': (d) => (d.game ? deadEnds(d.game.graph) : []),
+  'unreachable-node': (d) => (d.game ? unreachableNodes(d.game.graph) : []),
+  'unreachable-item': (d) => (d.game ? unreachableItems(d.game.graph) : []),
+  'choice-no-target': (d) => (d.game ? choiceNoTarget(d.game.graph) : []),
+  'undefined-variable': (d) => (d.game ? undefinedVariables(d.game.graph) : []),
+  'route-unreachable': (d) => (d.game ? routeUnreachable(d.game.graph) : []),
+  'broken-speaker': (d) => (d.game ? brokenSpeakers(d.game.speakers) : []),
+  'mechanic-broken-link': (d) => (d.game ? mechanicBrokenLinks(d.game.doc) : []),
+  'mechanic-no-links': (d) => (d.game ? mechanicsNoLinks(d.game.doc) : []),
+  'variable-unused': (d) => (d.game ? variablesUnused(d.game.doc) : []),
 }
 
 function coverage(d: CheckData): Finding[] {
@@ -167,12 +200,16 @@ function coverage(d: CheckData): Finding[] {
   })
 }
 
-/** Runs the enabled checks; findings are deduped by id and sorted by severity, then label and message. */
-export function runChecks(data: CheckData, enabled: (id: CheckId) => boolean): Finding[] {
+/** Runs the enabled checks that apply to the project kind; findings are deduped by id and sorted by severity, then label and message. */
+export function runChecks(
+  data: CheckData,
+  kind: KindId,
+  enabled: (id: CheckId) => boolean,
+): Finding[] {
   const seen = new Set<string>()
   const all: Finding[] = []
   for (const id of CHECK_IDS) {
-    if (!enabled(id)) continue
+    if (!CHECK_KINDS[id].includes(kind) || !enabled(id)) continue
     for (const f of CHECKERS[id](data)) {
       if (seen.has(f.id)) continue
       seen.add(f.id)

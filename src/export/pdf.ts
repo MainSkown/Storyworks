@@ -359,7 +359,7 @@ export function createPdfExporter(config: PdfExporterConfig = {}): BookExporter 
     labelKey: 'export.formats.pdf',
     extension: 'pdf',
     mime: 'application/pdf',
-    kinds: ['book'],
+    kinds: ['book', 'game'],
     async export(doc) {
       const o = doc.options
       const fonts = await loadFonts(o.font)

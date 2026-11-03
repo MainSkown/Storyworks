@@ -157,6 +157,17 @@ function sceneBlocks(content: Scene['content'], ctx: Ctx): ExportBlock[] {
   return blocks
 }
 
+/** Converts one rich-text document (not a scene) to blocks; footnotes are appended to `footnotes`. */
+export function richTextBlocks(
+  content: Record<string, unknown>,
+  warnings: ExportWarning[],
+  footnotes: ExportFootnote[],
+): ExportBlock[] {
+  const ctx = new Ctx(warnings, () => null)
+  ctx.footnotes = footnotes
+  return sceneBlocks(content as Scene['content'], ctx)
+}
+
 /** Selected chapters in manifest order, each with the title of its part. */
 function collectChapters(
   nodes: ManuscriptNode[],

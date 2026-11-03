@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   bookExportersFor,
+  gameExportersFor,
   scriptExportersFor,
   exportersFor,
   getExporter,
@@ -54,6 +55,18 @@ describe('exporter models', () => {
     expect(scriptExportersFor('screenplay').map((e) => e.id)).toEqual(['s'])
     expect(bookExportersFor('screenplay')).toEqual([])
     expect(scriptExportersFor('book')).toEqual([])
+    resetExporters()
+  })
+
+  it('keeps game exporters out of the book and script lists', () => {
+    resetExporters()
+    const base = { labelKey: 'x', extension: 'x', mime: 'x' }
+    registerExporter({ ...base, id: 'g', model: 'game', kinds: ['game'], export: async () => new Uint8Array() })
+    registerExporter({ ...base, id: 'b', kinds: ['game'], export: async () => new Uint8Array() })
+    expect(gameExportersFor('game').map((e) => e.id)).toEqual(['g'])
+    expect(bookExportersFor('game').map((e) => e.id)).toEqual(['b'])
+    expect(scriptExportersFor('game')).toEqual([])
+    expect(gameExportersFor('book')).toEqual([])
     resetExporters()
   })
 })

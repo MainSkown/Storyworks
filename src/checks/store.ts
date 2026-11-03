@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { useProjectStore } from '../project/store'
 import { gatherCheckData } from './gather'
 import { runChecks } from './run'
-import type { Finding, Severity } from './types'
+import { checkKind, type Finding, type Severity } from './types'
 
 export const useChecksStore = defineStore('checks', () => {
   const project = useProjectStore()
@@ -49,7 +49,7 @@ export const useChecksStore = defineStore('checks', () => {
     try {
       const data = await gatherCheckData()
       if (mine !== token) return
-      findings.value = data ? runChecks(data, project.isCheckEnabled) : []
+      findings.value = data ? runChecks(data, checkKind(project.project.manifest.kind), project.isCheckEnabled) : []
       ranAt.value = Date.now()
     } catch (e) {
       console.error('Could not run the checks', e)

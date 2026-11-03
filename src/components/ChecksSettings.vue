@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { CHECK_IDS, CHECK_SEVERITY, type CheckId, type Severity } from '../checks/types'
+import { CHECK_SEVERITY, checkKind, checksForKind, type CheckId, type Severity } from '../checks/types'
 import { useChecksStore } from '../checks/store'
 import { useProjectStore } from '../project/store'
 
@@ -12,12 +12,13 @@ const checks = useChecksStore()
 const SEVERITIES: Severity[] = ['error', 'warning', 'info']
 
 const readOnly = computed(() => !!projectStore.readOnly)
-const groups = computed(() =>
-  SEVERITIES.map((severity) => ({
+const groups = computed(() => {
+  const ids = checksForKind(checkKind(projectStore.project?.manifest.kind))
+  return SEVERITIES.map((severity) => ({
     severity,
-    ids: CHECK_IDS.filter((id) => CHECK_SEVERITY[id] === severity),
-  })),
-)
+    ids: ids.filter((id) => CHECK_SEVERITY[id] === severity),
+  })).filter((g) => g.ids.length)
+})
 
 function toggle(id: CheckId, enabled: boolean): void {
   projectStore.setCheckEnabled(id, enabled)

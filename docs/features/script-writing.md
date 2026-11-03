@@ -55,25 +55,25 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 ### Game script: non-linear structure
 - [x] Cross-links: a Jump node or a choice target can point to another conversation or script (and optionally a node in it) by stable ID. Deleted targets follow the broken-link rule.
 - [x] Story map: one top-level graph per game project. Boxes are conversations, scripts and optional free "beat" notes; arrows mean "leads to"; an arrow can carry an unlock condition (variables). Boxes open their item.
-- [x] Routes: named routes (e.g. "Route A") defined on the timeline branches; items can be tagged with one or more routes. (Tagging done in S5; the check that flags an unreachable tagged item is S6.)
+- [x] Routes: named routes (e.g. "Route A") defined on the timeline branches; items can be tagged with one or more routes. (Tagging done in S5; the check that flags an unreachable tagged item is S7.)
 - [x] Play-through preview (one conversation is done in S4; from a story-map start is S5): step through a conversation or from a chosen start item on the story map as a player: read lines, pick options (options whose condition fails are hidden or shown disabled), watch variables change, reset. Nothing is written to the project.
 
 ### Consistency checks (script projects)
-- [ ] Dead end: a node (other than End) with no way out.
-- [ ] Unreachable node or item (not reachable from a start node / story-map start).
-- [ ] Choice option with no target.
-- [ ] Undefined or deleted variable used in a condition or set.
-- [ ] Item tagged with a route that cannot reach it.
-- [ ] Speaker link to a deleted codex entry follows the broken-link rule.
-- [ ] Each check can be switched on or off in project settings and produces findings with stable IDs (same finding format as existing checks).
+- [x] Dead end: a node (other than End) with no way out.
+- [x] Unreachable node or item (not reachable from a start node / story-map start).
+- [x] Choice option with no target.
+- [x] Undefined or deleted variable used in a condition or set.
+- [x] Item tagged with a route that cannot reach it.
+- [x] Speaker link to a deleted codex entry follows the broken-link rule.
+- [x] Each check can be switched on or off in project settings and produces findings with stable IDs (same finding format as existing checks).
 
 ### Export / import
 - [x] Screenplay PDF in standard layout: Courier 12, standard margins and element indents, scene numbers, page numbers, optional title page.
 - [x] DOCX with script styles, via the existing DOCX exporter.
 - [x] Fountain (.fountain) export and import for screenplays (import also by paste).
-- [ ] Game JSON: lines with IDs, speakers, text; conversations as nodes and edges with conditions and sets; variable list; story map; routes.
-- [ ] Game CSV: one row per line (item, node, line ID, speaker, text) for localisation sheets.
-- [ ] Appendices, comments and private notes are excluded as in book export. Export options that do not apply to a kind (e.g. chapter selection for CSV) are hidden.
+- [x] Game JSON: lines with IDs, speakers, text; conversations as nodes and edges with conditions and sets; variable list; story map; routes.
+- [x] Game CSV: one row per line (item, node, line ID, speaker, text) for localisation sheets.
+- [x] Appendices, comments and private notes are excluded as in book export. Export options that do not apply to a kind (e.g. chapter selection for CSV) are hidden.
 
 ### UI / navigation
 - [x] Sidebar for screenplay: Write (scene tree), Timelines, Rules, Codex, Checks, then Stats/History/Settings.
@@ -139,6 +139,9 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - **S5 decisions (user-confirmed):** the Story map is a separate sidebar section for game projects (own teal colour token, own context-panel sections); story-map arrows are both derived (read-only, from cross-item links in conversations) and manual (drawn between boxes, optional unlock condition); routes come from timeline branches only; cross-item play-through follows manual arrows when an item ends (offered as "Continue to…", none open = stops with a message).
 - **S5 defaults:** a cross-link is an optional `link {itemId, nodeId?}` on a Jump node or an option (exclusive with the in-conversation target; it targets a Conversation or a Script by tree id, so trashing the target shows it broken and restoring repairs it); the story map is `story-map.json` (boxes of items and free beats, manual arrows, a Start flag per box; items get a box automatically, a trashed item's box stays); a route tag is `{timelineId, branchId}` on the manifest tree node (kept through trash and restore, a deleted branch shows as a broken chip); play-through carries variable values across items, caps at 1000 steps overall, never writes. Manifest v17 (conversation files v2 to v3, `storyMap`). Open limits: derived arrows are not drawn with a condition shown when several links share a pair of boxes; a play-through in a read-only project with no story-map file has no boxes to start from.
 - **S2 defaults:** our own paginator lays out every page (Liberation Mono 12 pt, 55 rows on Letter, 58 on A4; heading never last on a page; a cue keeps 2 speech rows; speeches split at sentence ends with (MORE)/(CONT'D), Polish (DALEJ)/(CD.)); the PDF draws exactly those pages, so the status-bar page count equals the PDF's (title page not counted). Word paginates itself and may differ slightly. Scene numbers are not written to Fountain.
+
+- **S7 decisions (user-confirmed):** "route cannot reach it" = no story-map path from a Start box reaches the item through items that are untagged or share the route (conditions ignored); game JSON has a reader for tests only, no import UI.
+- **S7 defaults:** ten game-only checks (dead-end, unreachable-node, unreachable-item, choice-no-target, undefined-variable, route-unreachable, broken-speaker, mechanic-broken-link, mechanic-no-links, variable-unused); dangling cross-link and node targets report under the existing broken-link check; Export page for games has a Game data card (JSON, CSV: `item,node,line_id,speaker,text`, UTF-8 BOM) and a Game document card (PDF, Word, Markdown; sections Overview, Mechanics, Glossary). Open limit: book checks node-no-passage and scene-no-links also run on games and can be noisy.
 
 ## Open questions
 - Is the story map a separate sidebar section (assumed) or a view inside Write? Needs a section colour token if separate.

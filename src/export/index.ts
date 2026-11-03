@@ -2,6 +2,8 @@ import { registerExporter } from './registry'
 import { docxExporter } from './docx'
 import { docxScriptExporter } from './docxScript'
 import { fountainExporter } from './fountain'
+import { gameCsvExporter, gameJsonExporter } from './gameExporters'
+import { markdownExporter } from './markdown'
 import { pdfExporter } from './pdf'
 import { pdfScriptExporter } from './pdfScript'
 
@@ -9,7 +11,10 @@ import { pdfScriptExporter } from './pdfScript'
 export function registerBuiltInExporters(): void {
   registerExporter(pdfExporter)
   registerExporter(docxExporter)
+  registerExporter(markdownExporter)
   registerExporter(pdfScriptExporter)
   registerExporter(docxScriptExporter)
   registerExporter(fountainExporter)
+  registerExporter(gameJsonExporter)
+  registerExporter(gameCsvExporter)
 }

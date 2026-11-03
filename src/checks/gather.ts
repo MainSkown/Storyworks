@@ -1,4 +1,6 @@
 import { useCodexStore } from '../codex/store'
+import { extractLines } from '../game/playthrough'
+import { useMechanicsStore } from '../gamedoc/mechanicsStore'
 import { positionsByBlock } from '../knowledge/uses'
 import { useKnowledgeStore } from '../knowledge/store'
 import { blockSnippet, linkTargetMissing } from '../project/linkProblems'
@@ -9,7 +11,10 @@ import { findNode } from '../project/tree'
 import { useRelationsStore } from '../relations/store'
 import { useRulesStore } from '../rules/store'
 import { useStatesStore } from '../states/store'
+import { useStoryMapStore } from '../storymap/store'
 import { useTimelinesStore } from '../timeline/store'
+import { useVariablesStore } from '../variables/store'
+import { gatherGameData } from './gatherGame'
 import type { CheckData } from './run'
 import type { CheckState, KnowledgeUse, PassageUse } from './stateKnowledge'
 import type { BrokenRef, FileProblem } from './structural'
@@ -163,6 +168,29 @@ export async function gatherCheckData(): Promise<CheckData | null> {
     })
   }
 
+  // Game projects only: conversations and scripts are loaded once here (none for other kinds).
+  let game: CheckData['game']
+  if (m.kind === 'game') {
+    const mechanics = useMechanicsStore()
+    const data = await gatherGameData({
+      manifest: m,
+      loadConversation: project.loadConversation,
+      loadScriptLines: async (id) => {
+        const path = findNode(project.tree, id)?.path
+        const r = path ? await project.loadScene(path) : null
+        return r?.ok ? extractLines(r.value.content) : null
+      },
+      variables: useVariablesStore().variables,
+      codexIds: entries.map((e) => e.id),
+      map: useStoryMapStore().map,
+      timelines,
+      mechanics: mechanics.mechanics,
+      mechanicIds: mechanics.mechanicEntries.map((e) => e.id),
+    })
+    game = data.game
+    brokenRefs.push(...data.refs)
+  }
+
   const states: CheckState[] = entries.flatMap((e) =>
     e.states.map((s) => ({ ...s, entryId: e.id })),
   )
@@ -237,5 +265,6 @@ export async function gatherCheckData(): Promise<CheckData | null> {
     otherLinkedIds,
     otherRuleLinkedIds,
     problems,
+    ...(game ? { game } : {}),
   }
 }

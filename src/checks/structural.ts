@@ -13,11 +13,15 @@ const BROKEN_MESSAGE: Record<LinkProblem['reason'], string> = {
 }
 
 export interface BrokenRef {
-  ownerKind: 'node' | 'rule' | 'entry'
-  /** Timeline id for a node, else the rule or entry id. */
+  ownerKind: 'node' | 'rule' | 'entry' | 'item'
+  /** Timeline id for a node, item id for an item (conversation), else the rule or entry id. */
   ownerId: string
-  /** Node id when the owner is a node. */
+  /** Node id when the owner is a timeline node or a conversation (item) node. */
   ownerBlockId?: string
+  /** Conversation option holding the reference (items only). */
+  ownerOptionId?: string
+  /** Message variant; 'ref' when absent. */
+  variant?: 'ref' | 'node-target'
   ownerLabel: string
   /** The missing rule or entry id. */
   targetId: string
@@ -62,22 +66,33 @@ export function brokenLinks(input: BrokenLinksInput): Finding[] {
     )
   }
   for (const r of input.refs ?? []) {
-    const ids =
-      r.ownerBlockId === undefined
-        ? [r.ownerId, r.targetId]
-        : [r.ownerId, r.ownerBlockId, r.targetId]
+    const ids = [
+      r.ownerId,
+      ...(r.ownerBlockId === undefined ? [] : [r.ownerBlockId]),
+      ...(r.ownerOptionId === undefined ? [] : [r.ownerOptionId]),
+      r.targetId,
+    ]
+    const here: FindingLocation =
+      r.ownerKind === 'node'
+        ? { kind: 'node', id: r.ownerBlockId ?? '', timelineId: r.ownerId, label: r.ownerLabel }
+        : r.ownerKind === 'item'
+          ? {
+              kind: 'item',
+              id: r.ownerId,
+              ...(r.ownerBlockId === undefined ? {} : { nodeId: r.ownerBlockId }),
+              label: r.ownerLabel,
+            }
+          : { kind: r.ownerKind, id: r.ownerId, blockId: r.ownerBlockId, label: r.ownerLabel }
     out.push(
       makeFinding(
         'broken-link',
         ids,
-        `"${r.ownerLabel}" links to an item that is missing or deleted.`,
-        [
-          r.ownerKind === 'node'
-            ? { kind: 'node', id: r.ownerBlockId ?? '', timelineId: r.ownerId, label: r.ownerLabel }
-            : { kind: r.ownerKind, id: r.ownerId, blockId: r.ownerBlockId, label: r.ownerLabel },
-        ],
+        r.variant === 'node-target'
+          ? `"${r.ownerLabel}" points to a node that no longer exists.`
+          : `"${r.ownerLabel}" links to an item that is missing or deleted.`,
+        [here],
         false,
-        { variant: 'ref', params: { owner: r.ownerLabel } },
+        { variant: r.variant ?? 'ref', params: { owner: r.ownerLabel } },
       ),
     )
   }

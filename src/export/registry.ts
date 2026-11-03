@@ -1,4 +1,5 @@
 import type { ExportDoc } from './model'
+import type { GameDoc } from './gameModel'
 import type { ScriptDoc } from './scriptModel'
 
 interface ExporterBase {
@@ -23,7 +24,13 @@ export interface ScriptExporter extends ExporterBase {
   export(doc: ScriptDoc): Promise<Uint8Array>
 }
 
-export type Exporter = BookExporter | ScriptExporter
+/** Game exporters take the game data model (JSON, CSV). */
+export interface GameExporter extends ExporterBase {
+  model: 'game'
+  export(doc: GameDoc): Promise<Uint8Array>
+}
+
+export type Exporter = BookExporter | ScriptExporter | GameExporter
 
 const exporters = new Map<string, Exporter>()
 
@@ -35,10 +42,13 @@ export const exportersFor = (kind: string): Exporter[] =>
   [...exporters.values()].filter((e) => e.kinds.includes(kind))
 
 export const bookExportersFor = (kind: string): BookExporter[] =>
-  exportersFor(kind).filter((e): e is BookExporter => e.model !== 'script')
+  exportersFor(kind).filter((e): e is BookExporter => e.model !== 'script' && e.model !== 'game')
 
 export const scriptExportersFor = (kind: string): ScriptExporter[] =>
   exportersFor(kind).filter((e): e is ScriptExporter => e.model === 'script')
+
+export const gameExportersFor = (kind: string): GameExporter[] =>
+  exportersFor(kind).filter((e): e is GameExporter => e.model === 'game')
 
 export const getExporter = (id: string): Exporter | undefined => exporters.get(id)
 

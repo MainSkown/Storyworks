@@ -7,12 +7,20 @@ import { useChecksStore } from '../checks/store'
 import { groupBySeverity } from '../checks/group'
 import type { Finding, FindingLocation } from '../checks/types'
 import { openRule } from '../rules/openRule'
+import { variablesOpen } from '../composables/variablesPanel'
+import { openMechanic } from '../gamedoc/openMechanic'
+import { useMechanicsStore } from '../gamedoc/mechanicsStore'
+import { useProjectStore } from '../project/store'
+import { findNode } from '../project/tree'
+import { openTarget } from '../search/open'
 import { useRulesStore } from '../rules/store'
 import { jumpToBlock, jumpToEntry, jumpToNode, jumpToScene } from '../composables/useJump'
 
 const { t, locale } = useI18n()
 const checks = useChecksStore()
 const rules = useRulesStore()
+const project = useProjectStore()
+const mechanics = useMechanicsStore()
 const uid = useId()
 
 const groups = computed(() => groupBySeverity(checks.visible))
@@ -47,6 +55,18 @@ async function open(l: FindingLocation): Promise<void> {
   } else if (l.kind === 'rule') {
     ok = rules.rules.some((r) => r.id === l.id)
     if (ok) await openRule(l.id)
+  } else if (l.kind === 'item') {
+    const type = findNode(project.tree, l.id)?.type
+    ok = type === 'conversation' || type === 'scene'
+    if (type === 'conversation') await openTarget({ id: l.id, kind: 'conversation', nodeId: l.nodeId })
+    else if (type === 'scene') ok = await jumpToScene(l.id)
+  } else if (l.kind === 'mechanic') {
+    ok = mechanics.mechanics.some((m) => m.id === l.id)
+    if (ok) await openMechanic(l.id)
+  } else if (l.kind === 'variable') {
+    variablesOpen.value = true
+    const { router } = await import('../router')
+    await router.push({ name: 'write' })
   }
   if (!ok) notify('warning', t('checks.jumpFailed'))
 }

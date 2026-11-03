@@ -424,7 +424,7 @@
     "showIgnored": "Pokaż zignorowane",
     "group": { "error": "Błędy", "warning": "Ostrzeżenia", "info": "Informacje" },
     "severity": { "error": "Błąd", "warning": "Ostrzeżenie", "info": "Informacja" },
-    "kind": { "scene": "Scena", "node": "Wydarzenie", "rule": "Zasada", "entry": "Hasło kodeksu", "file": "Plik" },
+    "kind": { "scene": "Scena", "node": "Wydarzenie", "rule": "Zasada", "entry": "Hasło kodeksu", "file": "Plik", "item": "Element", "mechanic": "Mechanika", "variable": "Zmienna" },
     "openLocation": "Otwórz: {kind}, {label}",
     "ignore": "Ignoruj",
     "ignoreLabel": "Ignoruj to zgłoszenie: {message}",
@@ -452,7 +452,17 @@
       "isolated-node": "Niepołączone wydarzenia",
       "unlinked-rule": "Niepowiązane zasady",
       "entry-no-connections": "Niepołączone hasła kodeksu",
-      "open-todo": "Otwarte zadania redakcyjne"
+      "open-todo": "Otwarte zadania redakcyjne",
+      "dead-end": "Ślepe zaułki",
+      "unreachable-node": "Nieosiągalne węzły",
+      "unreachable-item": "Nieosiągalne elementy",
+      "choice-no-target": "Opcje bez celu",
+      "undefined-variable": "Niezdefiniowane zmienne",
+      "route-unreachable": "Nieosiągalne ścieżki",
+      "broken-speaker": "Usunięci mówcy",
+      "mechanic-broken-link": "Zerwane powiązania mechanik",
+      "mechanic-no-links": "Zaimplementowane mechaniki bez powiązań",
+      "variable-unused": "Nieużywane zmienne"
     },
     "desc": {
       "broken-link": "Powiązanie wskazuje coś, czego brakuje lub co usunięto.",
@@ -468,7 +478,17 @@
       "isolated-node": "Wydarzenie nie ma połączeń na osi czasu z kilkoma wydarzeniami.",
       "unlinked-rule": "Zasada nie jest powiązana z żadnym wydarzeniem ani hasłem kodeksu.",
       "entry-no-connections": "Hasło kodeksu nie ma relacji, grup, zasad ani powiązań.",
-      "open-todo": "Scena ma jeszcze otwarte zadania redakcyjne."
+      "open-todo": "Scena ma jeszcze otwarte zadania redakcyjne.",
+      "dead-end": "Węzeł rozmowy inny niż Koniec nie prowadzi dalej.",
+      "unreachable-node": "Do węzła rozmowy nie można dojść od jej początku.",
+      "unreachable-item": "Do rozmowy lub scenariusza nie można dojść z żadnego pola Start na mapie fabuły.",
+      "choice-no-target": "Opcja wyboru nie ma ani węzła docelowego, ani powiązania.",
+      "undefined-variable": "Warunek lub ustawienie używa zmiennej, która nie istnieje.",
+      "route-unreachable": "Do żadnego elementu ścieżki nie można dojść z pola Start na mapie fabuły.",
+      "broken-speaker": "Kwestię w scenariuszu wypowiada hasło kodeksu, które zostało usunięte.",
+      "mechanic-broken-link": "Mechanika wskazuje coś, czego brakuje lub co zostało usunięte.",
+      "mechanic-no-links": "Mechanika oznaczona jako Zaimplementowana nie ma powiązań z grą.",
+      "variable-unused": "Zmienna nie jest używana przez żadną mechanikę, warunek ani ustawienie."
     },
     "msg": {
       "broken-link": {
@@ -476,7 +496,8 @@
         "node-missing": "Powiązanie wskazuje wydarzenie na osi czasu, którego brakuje lub które usunięto.",
         "entry-missing": "Powiązanie wskazuje hasło kodeksu, którego brakuje lub które usunięto.",
         "knowledge-missing": "Powiązanie wiedzy wskazuje element lub hasło, którego brakuje lub które usunięto.",
-        "ref": "„{owner}” odwołuje się do elementu, którego brakuje lub który usunięto."
+        "ref": "„{owner}” odwołuje się do elementu, którego brakuje lub który usunięto.",
+        "node-target": "„{owner}” wskazuje węzeł, który już nie istnieje."
       },
       "invalid-file": {
         "missing": "Plik {path} jest na liście książki, ale go brakuje.",
@@ -502,7 +523,23 @@
       "isolated-node": "„{title}” nie ma połączeń na osi czasu „{timeline}”.",
       "unlinked-rule": "Zasada „{title}” nie jest z niczym powiązana.",
       "entry-no-connections": "„{name}” nie ma relacji, grup ani powiązań.",
-      "open-todo": "Scena „{title}” nie ma otwartych zadań redakcyjnych | Scena „{title}” ma {n} otwarte zadanie redakcyjne | Scena „{title}” ma {n} otwarte zadania redakcyjne | Scena „{title}” ma {n} otwartych zadań redakcyjnych"
+      "open-todo": "Scena „{title}” nie ma otwartych zadań redakcyjnych | Scena „{title}” ma {n} otwarte zadanie redakcyjne | Scena „{title}” ma {n} otwarte zadania redakcyjne | Scena „{title}” ma {n} otwartych zadań redakcyjnych",
+      "dead-end": "Węzeł „{node}” w „{item}” nie prowadzi dalej.",
+      "unreachable-node": "Do węzła „{node}” w „{item}” nie można dojść od początku.",
+      "unreachable-item": "Do „{item}” nie można dojść z żadnego pola Start na mapie fabuły.",
+      "choice-no-target": "Opcja węzła „{node}” w „{item}” nie ma ani celu, ani powiązania.",
+      "undefined-variable": "„{item}” używa zmiennej, która została usunięta.",
+      "route-unreachable": "Do ścieżki „{route}” nie można dojść z żadnego pola Start na mapie fabuły.",
+      "broken-speaker": "Kwestię w „{item}” wypowiada hasło kodeksu, które zostało usunięte.",
+      "mechanic-broken-link": {
+        "variable": "Mechanika „{mechanic}” wskazuje zmienną, która została usunięta.",
+        "item": "Mechanika „{mechanic}” wskazuje rozmowę lub skrypt, którego brakuje lub który został usunięty.",
+        "beat": "Mechanika „{mechanic}” wskazuje punkt mapy fabuły, którego brakuje lub który został usunięty.",
+        "entry": "Mechanika „{mechanic}” wskazuje wpis kodeksu, którego brakuje lub który został usunięty.",
+        "mechanic": "Mechanika „{mechanic}” wskazuje inną mechanikę, której brakuje lub która została usunięta."
+      },
+      "mechanic-no-links": "Mechanika „{mechanic}” jest oznaczona jako Zaimplementowana, ale nie ma powiązań.",
+      "variable-unused": "Zmienna „{variable}” nie jest używana przez żadną mechanikę, warunek ani ustawienie."
     }
   },
   "settings": {
@@ -2005,6 +2042,7 @@
       "unknownNode": "Pominięto nieobsługiwaną zawartość: {detail}"
     },
     "error": {
+      "empty": "W wybranych częściach nie ma jeszcze nic do eksportu.",
       "nothingSelected": "Zaznacz co najmniej jeden rozdział.",
       "sceneMissing": "Brakuje sceny wybranego rozdziału ({detail}).",
       "sceneUnreadable": "Nie można odczytać sceny „{detail}”. Napraw ją lub przywróć i spróbuj ponownie.",
@@ -2013,7 +2051,21 @@
     "formats": {
       "pdf": "PDF",
       "docx": "Word (DOCX)",
-      "fountain": "Fountain (.fountain)"
+      "fountain": "Fountain (.fountain)",
+      "gameJson": "Dane gry (JSON)",
+      "gameCsv": "Arkusz do tłumaczeń (CSV)",
+      "markdown": "Markdown (.md)"
+    },
+    "gameDoc": {
+      "overview": "Przegląd",
+      "glossary": "Słowniczek",
+      "uncategorized": "Bez kategorii",
+      "untitled": "Bez tytułu",
+      "missing": "Usunięte powiązanie",
+      "status": { "idea": "Pomysł", "designed": "Zaprojektowane", "implemented": "Zaimplementowane", "cut": "Wycięte" },
+      "tags": "Tagi",
+      "parameters": "Parametry",
+      "links": "Powiązania"
     },
     "contents": "Spis treści",
     "notes": "Przypisy",
@@ -2031,6 +2083,21 @@
         "nothingSelected": "Wybierz co najmniej jedną sekwencję do eksportu.",
         "sceneMissing": "Brakuje sceny wybranej sekwencji ({detail}).",
         "sceneUnreadable": "Nie można odczytać sceny „{detail}”. Napraw ją lub przywróć, a potem wyeksportuj ponownie."
+      }
+    },
+    "game": {
+      "dataTitle": "Dane gry",
+      "dataHint": "Wszystko, czego potrzebuje silnik gry: skrypty, rozmowy, zmienne, mapa fabuły i ścieżki. Plik CSV to arkusz wszystkich kwestii dla tłumaczy.",
+      "docTitle": "Dokument gry",
+      "docHint": "Czytelny dokument projektu gry, który można wydrukować lub udostępnić.",
+      "sections": "Uwzględnij",
+      "overview": "Przegląd",
+      "mechanics": "Mechaniki",
+      "glossary": "Słownik",
+      "nothingSelected": "Wybierz co najmniej jedną część do eksportu.",
+      "error": {
+        "nothingSelected": "Wybierz co najmniej jedną część do eksportu.",
+        "sceneUnreadable": "Nie można odczytać skryptu lub rozmowy „{detail}”. Napraw ją lub przywróć, a potem wyeksportuj ponownie."
       }
     }
   },

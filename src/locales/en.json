@@ -424,7 +424,7 @@
     "showIgnored": "Show ignored",
     "group": { "error": "Errors", "warning": "Warnings", "info": "Info" },
     "severity": { "error": "Error", "warning": "Warning", "info": "Info" },
-    "kind": { "scene": "Scene", "node": "Event", "rule": "Rule", "entry": "Codex entry", "file": "File" },
+    "kind": { "scene": "Scene", "node": "Event", "rule": "Rule", "entry": "Codex entry", "file": "File", "item": "Item", "mechanic": "Mechanic", "variable": "Variable" },
     "openLocation": "Open {kind}: {label}",
     "ignore": "Ignore",
     "ignoreLabel": "Ignore this finding: {message}",
@@ -452,7 +452,17 @@
       "isolated-node": "Unconnected events",
       "unlinked-rule": "Unlinked rules",
       "entry-no-connections": "Unconnected codex entries",
-      "open-todo": "Open revision to-dos"
+      "open-todo": "Open revision to-dos",
+      "dead-end": "Dead ends",
+      "unreachable-node": "Unreachable nodes",
+      "unreachable-item": "Unreachable items",
+      "choice-no-target": "Options without a target",
+      "undefined-variable": "Undefined variables",
+      "route-unreachable": "Unreachable routes",
+      "broken-speaker": "Deleted speakers",
+      "mechanic-broken-link": "Broken mechanic links",
+      "mechanic-no-links": "Implemented mechanics without links",
+      "variable-unused": "Unused variables"
     },
     "desc": {
       "broken-link": "A link points to something that is missing or deleted.",
@@ -468,7 +478,17 @@
       "isolated-node": "An event has no connections in a timeline with several events.",
       "unlinked-rule": "A rule is not linked to any event or codex entry.",
       "entry-no-connections": "A codex entry has no relationships, groups, rules or links.",
-      "open-todo": "A scene still has open revision to-dos."
+      "open-todo": "A scene still has open revision to-dos.",
+      "dead-end": "A conversation node other than End has no way forward.",
+      "unreachable-node": "A conversation node cannot be reached from the conversation's start.",
+      "unreachable-item": "A conversation or script cannot be reached from any Start box on the story map.",
+      "choice-no-target": "A choice option has neither a target node nor a link.",
+      "undefined-variable": "A condition or set uses a variable that does not exist.",
+      "route-unreachable": "No item of a route can be reached from a Start box on the story map.",
+      "broken-speaker": "A script line is spoken by a codex entry that was deleted.",
+      "mechanic-broken-link": "A mechanic links to something that is missing or deleted.",
+      "mechanic-no-links": "A mechanic marked Implemented has no links to the game.",
+      "variable-unused": "A variable is used by no mechanic, condition or set."
     },
     "msg": {
       "broken-link": {
@@ -476,7 +496,8 @@
         "node-missing": "A link points to a timeline event that is missing or deleted.",
         "entry-missing": "A link points to a codex entry that is missing or deleted.",
         "knowledge-missing": "A knowledge link points to an item or entry that is missing or deleted.",
-        "ref": "\"{owner}\" links to an item that is missing or deleted."
+        "ref": "\"{owner}\" links to an item that is missing or deleted.",
+        "node-target": "\"{owner}\" points to a node that no longer exists."
       },
       "invalid-file": {
         "missing": "File {path} is listed in the book but missing.",
@@ -502,7 +523,23 @@
       "isolated-node": "\"{title}\" has no connections in timeline \"{timeline}\".",
       "unlinked-rule": "Rule \"{title}\" is not linked to anything.",
       "entry-no-connections": "\"{name}\" has no relationships, groups or links.",
-      "open-todo": "Scene \"{title}\" has {n} open revision to-do | Scene \"{title}\" has {n} open revision to-dos"
+      "open-todo": "Scene \"{title}\" has {n} open revision to-do | Scene \"{title}\" has {n} open revision to-dos",
+      "dead-end": "Node \"{node}\" in \"{item}\" has no way forward.",
+      "unreachable-node": "Node \"{node}\" in \"{item}\" cannot be reached from the start.",
+      "unreachable-item": "\"{item}\" cannot be reached from any Start box on the story map.",
+      "choice-no-target": "An option of \"{node}\" in \"{item}\" has neither a target nor a link.",
+      "undefined-variable": "\"{item}\" uses a variable that was deleted.",
+      "route-unreachable": "Route \"{route}\" cannot be reached from any Start box on the story map.",
+      "broken-speaker": "A line in \"{item}\" is spoken by a codex entry that was deleted.",
+      "mechanic-broken-link": {
+        "variable": "Mechanic \"{mechanic}\" links to a variable that was deleted.",
+        "item": "Mechanic \"{mechanic}\" links to a conversation or script that is missing or deleted.",
+        "beat": "Mechanic \"{mechanic}\" links to a story-map beat that is missing or deleted.",
+        "entry": "Mechanic \"{mechanic}\" links to a codex entry that is missing or deleted.",
+        "mechanic": "Mechanic \"{mechanic}\" links to another mechanic that is missing or deleted."
+      },
+      "mechanic-no-links": "Mechanic \"{mechanic}\" is marked Implemented but has no links.",
+      "variable-unused": "Variable \"{variable}\" is not used by any mechanic, condition or set."
     }
   },
   "settings": {
@@ -2005,6 +2042,7 @@
       "unknownNode": "Unsupported content skipped: {detail}"
     },
     "error": {
+      "empty": "Nothing to export in the chosen sections yet.",
       "nothingSelected": "Select at least one chapter to export.",
       "sceneMissing": "A scene of a selected chapter is missing ({detail}).",
       "sceneUnreadable": "The scene “{detail}” could not be read. Fix or restore it, then export again.",
@@ -2013,7 +2051,21 @@
     "formats": {
       "pdf": "PDF",
       "docx": "Word (DOCX)",
-      "fountain": "Fountain (.fountain)"
+      "fountain": "Fountain (.fountain)",
+      "gameJson": "Game data (JSON)",
+      "gameCsv": "Localisation sheet (CSV)",
+      "markdown": "Markdown (.md)"
+    },
+    "gameDoc": {
+      "overview": "Overview",
+      "glossary": "Glossary",
+      "uncategorized": "No category",
+      "untitled": "Untitled",
+      "missing": "Deleted link",
+      "status": { "idea": "Idea", "designed": "Designed", "implemented": "Implemented", "cut": "Cut" },
+      "tags": "Tags",
+      "parameters": "Parameters",
+      "links": "Links"
     },
     "contents": "Contents",
     "notes": "Notes",
@@ -2031,6 +2083,21 @@
         "nothingSelected": "Select at least one sequence to export.",
         "sceneMissing": "A scene of a selected sequence is missing ({detail}).",
         "sceneUnreadable": "The scene “{detail}” could not be read. Fix or restore it, then export again."
+      }
+    },
+    "game": {
+      "dataTitle": "Game data",
+      "dataHint": "Everything a game engine needs: scripts, conversations, variables, story map and routes. The CSV is a sheet of all lines for translators.",
+      "docTitle": "Game document",
+      "docHint": "A readable document of the game design, as a file you can print or share.",
+      "sections": "Include",
+      "overview": "Overview",
+      "mechanics": "Mechanics",
+      "glossary": "Glossary",
+      "nothingSelected": "Select at least one section to export.",
+      "error": {
+        "nothingSelected": "Select at least one section to export.",
+        "sceneUnreadable": "The script or conversation “{detail}” could not be read. Fix or restore it, then export again."
       }
     }
   },

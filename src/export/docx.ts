@@ -191,7 +191,7 @@ export const docxExporter: BookExporter = {
   labelKey: 'export.formats.docx',
   extension: 'docx',
   mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  kinds: ['book'],
+  kinds: ['book', 'game'],
   async export(doc: ExportDoc): Promise<Uint8Array> {
     const o = doc.options
     const ctx = new Ctx(o)

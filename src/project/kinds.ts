@@ -42,7 +42,7 @@ const PROFILES: Record<KindId, KindProfile> = {
     hasParts: false,
     folderLabel: 'folder',
     nestedFolders: true,
-    hiddenSections: ['export'],
+    hiddenSections: [],
     hasImport: false,
   },
 }

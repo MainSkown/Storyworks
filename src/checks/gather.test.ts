@@ -6,6 +6,7 @@ import { createMemoryFileIO } from '../io/fileIO'
 import { createMemoryProjectIO } from '../project/io/memory'
 import { resetFileIOFactory, setFileIOFactory } from '../settings/store'
 import { resetProjectIOFactory, setProjectIOFactory, useProjectStore } from '../project/store'
+import { gatherCheckData } from './gather'
 import { useRelationsStore } from '../relations/store'
 import { useChecksStore } from './store'
 
@@ -76,5 +77,41 @@ describe('gatherCheckData through the checks store', () => {
     await codex.createEntry({ name: 'anna' })
     await checks.run()
     expect(checks.findings.map((f) => f.checkId)).toContain('duplicate-name')
+  })
+})
+
+describe('game project data', () => {
+  async function gameSetup() {
+    setActivePinia(createPinia())
+    const project = useProjectStore()
+    await project.create('game', { title: 'G', author: 'A', language: 'en', kind: 'game' })
+    return project
+  }
+
+  it('a book project gets no game slice', async () => {
+    await setup()
+    expect((await gatherCheckData())!.game).toBeUndefined()
+  })
+
+  it('a game project reports a dangling option target from its conversation file', async () => {
+    const project = await gameSetup()
+    const id = await project.addConversation()
+    const node = (await project.addConversationNode(id, 'choice')) as string
+    await project.patchConversation(id, (c) => ({
+      ...c,
+      startNodeId: node,
+      nodes: c.nodes.map((n) =>
+        n.id === node && n.type === 'choice'
+          ? { ...n, options: [{ id: 'o1', text: 'a', target: 'gone', sets: [] }] }
+          : n,
+      ),
+    }))
+    const checks = useChecksStore()
+    await checks.run()
+    const ids = checks.findings.map((f) => f.checkId)
+    expect(ids).toContain('broken-link')
+    const f = checks.findings.find((x) => x.checkId === 'broken-link')!
+    expect(f.id).toBe(`broken-link:${id}:${node}:o1:gone`)
+    expect(f.locations[0]).toMatchObject({ kind: 'item', id, nodeId: node })
   })
 })
