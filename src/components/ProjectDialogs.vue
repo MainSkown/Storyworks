@@ -241,6 +241,10 @@ onBeforeUnmount(() => clearTimeout(noteTimer))
   color: var(--text-primary);
   border: 1px solid var(--border);
 }
+.dialog p,
+.dialog dd {
+  overflow-wrap: anywhere;
+}
 .dlg-title {
   margin: 0 0 0.5rem;
   font-size: 1.125rem;

@@ -9,6 +9,8 @@ import { isTauri, pickFolder } from '../project/pickFolder'
 import { useProjectStore } from '../project/store'
 import { useSettingsStore } from '../settings/store'
 import { installSample, SampleExistsError } from '../samples/install'
+import { newSampleRoot } from '../samples/location'
+import { MANIFEST_FILE } from '../project/migrations'
 import { startTour } from '../tour/state'
 import { defaultLang } from '../project/defaultNames'
 
@@ -45,19 +47,14 @@ async function openProject(): Promise<void> {
   browserOpen.value = true
 }
 
-/** Copies the bundled sample (UI language) into a picked folder, then opens the copy. */
+/** Copies the bundled sample (UI language) into a new folder (app data in the app), then opens the copy. */
 async function openSample(): Promise<void> {
   sampleError.value = ''
-  let root: string | null
-  if (isTauri()) {
-    root = await pickFolder()
-  } else {
-    const taken = new Set(listBrowserProjects())
-    let n = 1
-    while (taken.has(n === 1 ? 'sample-book' : `sample-book-${n}`)) n++
-    root = n === 1 ? 'sample-book' : `sample-book-${n}`
-  }
-  if (!root) return
+  const root = await newSampleRoot(
+    isTauri(),
+    listBrowserProjects,
+    (r) => createProjectIO(r).exists(MANIFEST_FILE),
+  )
   try {
     await installSample(createProjectIO(root), defaultLang(locale.value))
     await store.open(root)
@@ -214,6 +211,7 @@ h2 {
 }
 
 .error {
+  overflow-wrap: anywhere;
   margin: 0.75rem 0 0;
   color: var(--section-checks);
   font-size: 0.875rem;
