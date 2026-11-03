@@ -92,20 +92,20 @@ describe('addNode and placeNew', () => {
 
   it('places right of the focused node when that spot is free', () => {
     const c = addNode(build(), 'end', { id: 'low', ...at(0, 300) })
-    expect(placeNew(c, 'e')).toEqual({ x: 760, y: 0 })
-    expect(placeNew(c, 'low')).toEqual({ x: 320, y: 300 })
+    expect(placeNew(c, 'e')).toEqual({ x: 840, y: 0 })
+    expect(placeNew(c, 'low')).toEqual({ x: 400, y: 300 })
   })
 
   it('steps down when the spot right of the focused node is taken', () => {
     let c = build()
-    expect(placeNew(c, 'a')).toEqual({ x: 320, y: 120 })
-    c = addNode(c, 'end', { id: 'n1', ...at(320, 120) })
-    expect(placeNew(c, 'a')).toEqual({ x: 320, y: 240 })
+    expect(placeNew(c, 'a')).toEqual({ x: 400, y: 120 })
+    c = addNode(c, 'end', { id: 'n1', ...at(400, 120) })
+    expect(placeNew(c, 'a')).toEqual({ x: 400, y: 240 })
   })
 
   it('counts a node that only partly overlaps the spot as taking it', () => {
     const c = addNode(build(), 'end', { id: 'n1', ...at(300, 100) })
-    expect(placeNew(c, 'a')).toEqual({ x: 320, y: 240 })
+    expect(placeNew(c, 'a')).toEqual({ x: 400, y: 240 })
   })
 
   it('with no focus uses the first free spot below the lowest node', () => {

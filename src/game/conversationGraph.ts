@@ -13,7 +13,7 @@ type Choice = Extract<ConversationNode, { type: 'choice' }>
 /** Card size on the canvas (ConversationView draws nodes this big). */
 export const NODE_W = 200
 export const NODE_H = 72
-const X_STEP = 320
+const X_STEP = 400
 const Y_STEP = 120
 
 const withoutLink = <T extends object>(x: T): T => omitKey(x, 'link') as T

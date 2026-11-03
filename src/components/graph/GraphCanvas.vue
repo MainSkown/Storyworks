@@ -19,6 +19,7 @@ import {
 } from '@vue-flow/core'
 import '@vue-flow/core/dist/style.css'
 import { backEdgePath, isBackEdge } from './edgePath'
+import { fitLabel } from './labelFit'
 import {
   connectReduce,
   keyToAction,
@@ -162,7 +163,6 @@ const flowEdges = computed<Edge[]>(() =>
 )
 
 // Edge drawing (opt-in): forward edges stay Bezier curves, back edges go round the nodes.
-const MAX_LABEL = 24
 const labelScale = computed(() => Math.min(2.5, Math.max(1, 1 / viewport.value.zoom)))
 const backLanes = computed(() => {
   const lanes = new Map<string, number>()
@@ -202,9 +202,12 @@ function edgeGeometry(e: EdgeSlot) {
   })
   return { path, x, y }
 }
-function labelText(label: unknown): string {
-  const s = String(label ?? '')
-  return s.length > MAX_LABEL ? `${s.slice(0, MAX_LABEL - 1)}…` : s
+/** Label cut to the space between the two nodes (back edges have the lane below the nodes). */
+function labelText(e: EdgeSlot): string {
+  const s = String(e.label ?? '')
+  const back = isBackEdge({ x: e.sourceX, y: e.sourceY }, { x: e.targetX, y: e.targetY })
+  const gap = back ? Infinity : (e.targetX - e.sourceX) / labelScale.value
+  return fitLabel(s, gap)
 }
 
 function nodeLabel(id: string): string {
@@ -533,9 +536,10 @@ defineExpose({
             :style="{
               transform: `translate(-50%, -50%) translate(${edgeGeometry(e).x}px, ${edgeGeometry(e).y}px) scale(${labelScale})`,
             }"
+            :title="String(e.label)"
             @click.stop="selectEdge(e.id)"
           >
-            {{ labelText(e.label) }}
+            {{ labelText(e) }}
           </div>
         </EdgeLabelRenderer>
       </template>

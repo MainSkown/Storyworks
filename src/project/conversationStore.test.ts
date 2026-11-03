@@ -82,7 +82,7 @@ describe('addConversationNode', () => {
     const a = (await s.addConversationNode(id, 'lines'))!
     const b = (await s.addConversationNode(id, 'end', { afterId: a }))!
     const c = await okValue(s, id)
-    expect(c.nodes.find((n) => n.id === b)).toMatchObject({ type: 'end', x: 320, y: 0 })
+    expect(c.nodes.find((n) => n.id === b)).toMatchObject({ type: 'end', x: 400, y: 0 })
     expect(c.nodes[0]).toMatchObject({ next: b })
   })
 
