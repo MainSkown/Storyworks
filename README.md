@@ -56,7 +56,7 @@ The sample books in `public/samples/` are generated: run `yarn samples` after ch
 
 ## Release
 
-1. Bump `version` in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`; commit.
+1. Write `.github/release-notes/vX.Y.Z.md` (becomes the GitHub release text). Bump `version` in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`; commit.
 2. `git tag vX.Y.Z && git push origin vX.Y.Z` (same version as above).
 3. The `Release` workflow (also runnable from the Actions tab) builds on Ubuntu 22.04 and Windows and attaches the installers to a **draft** release. Check them, then publish.
 
