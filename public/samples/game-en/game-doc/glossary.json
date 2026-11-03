@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "g1",
+      "term": "Beat",
+      "definition": "A short note on the story map, such as a moment or a goal, that is not a script or a conversation."
+    },
+    {
+      "id": "g2",
+      "term": "Route",
+      "definition": "One timeline branch. Items tagged with a route belong only to that path through the story."
+    },
+    {
+      "id": "g3",
+      "term": "Unlock",
+      "definition": "A condition on a story-map arrow. The way on opens only when the variables fit."
+    },
+    {
+      "id": "g4",
+      "term": "Variable",
+      "definition": "A named value the story remembers: a flag, a number or text."
+    },
+    {
+      "id": "g5",
+      "term": "Trust",
+      "definition": "How much the gatekeeper believes Wren; a number that grows with every favour."
+    },
+    {
+      "id": "g6",
+      "term": "Brindle",
+      "definition": "The village where the story takes place."
+    }
+  ]
+}

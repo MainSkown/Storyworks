@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "alley",
+  "title": "Back alley",
+  "status": "draft",
+  "synopsis": "Without the key, Wren finds another way in.",
+  "wordCount": 40,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b6",
+          "lineId": "L000006",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "A narrow alley runs along the wall of the tower. A rusty grate hangs loose near the ground."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b7",
+          "lineId": "L000007",
+          "speakerId": "e-wren",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Not a door, but it will do."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b8",
+          "lineId": "L000008",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Wren squeezes through and comes out at the foot of the stairs, without the key."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "alley-ev",
+      "from": {
+        "item": "alley",
+        "block": "b6"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n3"
+      },
+      "kind": "event"
+    }
+  ]
+}

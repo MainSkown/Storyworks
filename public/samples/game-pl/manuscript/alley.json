@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "alley",
+  "title": "Zaułek",
+  "status": "draft",
+  "synopsis": "Bez klucza Wren szuka innej drogi do środka.",
+  "wordCount": 29,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b6",
+          "lineId": "L000006",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Wąski zaułek biegnie wzdłuż muru wieży. Przy ziemi wisi obluzowana, zardzewiała krata."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b7",
+          "lineId": "L000007",
+          "speakerId": "e-wren",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "To nie drzwi, ale wystarczy."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b8",
+          "lineId": "L000008",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Wren przeciska się przez otwór i wychodzi u stóp schodów, bez klucza."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "alley-ev",
+      "from": {
+        "item": "alley",
+        "block": "b6"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n3"
+      },
+      "kind": "event"
+    }
+  ]
+}

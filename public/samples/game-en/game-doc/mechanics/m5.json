@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "m5",
+  "title": "Night timer",
+  "summary": "A countdown on screen until midnight.",
+  "categoryId": "d14",
+  "status": "cut",
+  "tags": [
+    "ui"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Cut: a visible clock made the short story feel rushed."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m5-p1",
+      "name": "Duration",
+      "value": "10 min"
+    }
+  ],
+  "links": []
+}

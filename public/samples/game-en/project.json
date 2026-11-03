@@ -1,0 +1,366 @@
+{
+  "version": 18,
+  "kind": "game",
+  "title": "The Clocktower Key",
+  "author": "Storyworks sample",
+  "language": "en",
+  "titlePage": {
+    "contact": "",
+    "date": ""
+  },
+  "createdAt": "2026-11-01T00:00:00.000Z",
+  "lineCounter": 20,
+  "dictionaries": [],
+  "goals": {
+    "daily": null,
+    "book": null
+  },
+  "dirs": {
+    "assets": "assets",
+    "snapshots": ".storyworks/history.git",
+    "dictionaries": "dictionaries"
+  },
+  "manuscript": [
+    {
+      "id": "act1",
+      "type": "chapter",
+      "title": "Act 1: The gate",
+      "children": [
+        {
+          "id": "arrival",
+          "type": "scene",
+          "title": "Arrival",
+          "path": "manuscript/arrival.json",
+          "children": []
+        },
+        {
+          "id": "gate-talk",
+          "type": "conversation",
+          "title": "Talk at the gate",
+          "path": "manuscript/gate-talk.json",
+          "children": []
+        },
+        {
+          "id": "alley",
+          "type": "scene",
+          "title": "Back alley",
+          "path": "manuscript/alley.json",
+          "routes": [
+            {
+              "timelineId": "tl-main",
+              "branchId": "br-sneak"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "act2",
+      "type": "chapter",
+      "title": "Act 2: The tower",
+      "children": [
+        {
+          "id": "tower",
+          "type": "scene",
+          "title": "The clocktower",
+          "path": "manuscript/tower.json",
+          "children": []
+        }
+      ]
+    }
+  ],
+  "calendar": {
+    "id": "d2",
+    "path": "calendar.json"
+  },
+  "inbox": null,
+  "ignoredFindings": null,
+  "stats": null,
+  "relationLayout": null,
+  "timelines": [
+    {
+      "id": "tl-main",
+      "path": "timelines/tl-main.json",
+      "title": "Main timeline"
+    }
+  ],
+  "rules": [],
+  "ruleCategories": [
+    {
+      "id": "d4",
+      "path": "rules/categories/d4.json",
+      "title": "Magic"
+    },
+    {
+      "id": "d5",
+      "path": "rules/categories/d5.json",
+      "title": "Physics"
+    },
+    {
+      "id": "d6",
+      "path": "rules/categories/d6.json",
+      "title": "Society"
+    },
+    {
+      "id": "d7",
+      "path": "rules/categories/d7.json",
+      "title": "Technology"
+    },
+    {
+      "id": "d8",
+      "path": "rules/categories/d8.json",
+      "title": "Religion"
+    }
+  ],
+  "codexTypes": [
+    {
+      "id": "d16",
+      "path": "codex/types/d16.json",
+      "title": "Character"
+    },
+    {
+      "id": "d17",
+      "path": "codex/types/d17.json",
+      "title": "Item"
+    },
+    {
+      "id": "d18",
+      "path": "codex/types/d18.json",
+      "title": "Place"
+    },
+    {
+      "id": "d19",
+      "path": "codex/types/d19.json",
+      "title": "Country"
+    },
+    {
+      "id": "d20",
+      "path": "codex/types/d20.json",
+      "title": "Town"
+    },
+    {
+      "id": "d21",
+      "path": "codex/types/d21.json",
+      "title": "Building"
+    }
+  ],
+  "codexEntries": [
+    {
+      "id": "e-wren",
+      "path": "codex/e-wren.json",
+      "title": "Wren"
+    },
+    {
+      "id": "e-ida",
+      "path": "codex/e-ida.json",
+      "title": "Ida"
+    },
+    {
+      "id": "e-bram",
+      "path": "codex/e-bram.json",
+      "title": "Bram"
+    },
+    {
+      "id": "e-tower",
+      "path": "codex/e-tower.json",
+      "title": "Clocktower"
+    },
+    {
+      "id": "e-key",
+      "path": "codex/e-key.json",
+      "title": "Brass key"
+    }
+  ],
+  "relationTypes": [
+    {
+      "id": "d22",
+      "path": "relation-types/d22.json",
+      "title": "Friend"
+    },
+    {
+      "id": "d23",
+      "path": "relation-types/d23.json",
+      "title": "Enemy"
+    },
+    {
+      "id": "d24",
+      "path": "relation-types/d24.json",
+      "title": "Parent"
+    },
+    {
+      "id": "d25",
+      "path": "relation-types/d25.json",
+      "title": "Sibling"
+    },
+    {
+      "id": "d26",
+      "path": "relation-types/d26.json",
+      "title": "Lover"
+    },
+    {
+      "id": "d27",
+      "path": "relation-types/d27.json",
+      "title": "Located in"
+    },
+    {
+      "id": "d28",
+      "path": "relation-types/d28.json",
+      "title": "Owns"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel-friends",
+      "path": "relationships/rel-friends.json"
+    },
+    {
+      "id": "rel-ida-tower",
+      "path": "relationships/rel-ida-tower.json"
+    },
+    {
+      "id": "rel-bram-key",
+      "path": "relationships/rel-bram-key.json"
+    }
+  ],
+  "groups": [],
+  "stateKinds": [
+    {
+      "id": "d29",
+      "path": "state-kinds/d29.json",
+      "title": "Location"
+    },
+    {
+      "id": "d30",
+      "path": "state-kinds/d30.json",
+      "title": "Owner"
+    },
+    {
+      "id": "d31",
+      "path": "state-kinds/d31.json",
+      "title": "Status"
+    },
+    {
+      "id": "d32",
+      "path": "state-kinds/d32.json",
+      "title": "Title"
+    }
+  ],
+  "knowledge": [],
+  "variables": {
+    "id": "variables",
+    "path": "variables.json"
+  },
+  "storyMap": {
+    "id": "story-map",
+    "path": "story-map.json"
+  },
+  "gameOverview": {
+    "id": "d15",
+    "path": "game-doc/overview.json",
+    "title": "Overview"
+  },
+  "glossary": {
+    "id": "glossary",
+    "path": "game-doc/glossary.json",
+    "title": "Glossary"
+  },
+  "mechanics": [
+    {
+      "id": "m1",
+      "path": "game-doc/mechanics/m1.json",
+      "title": "Talk your way in"
+    },
+    {
+      "id": "m2",
+      "path": "game-doc/mechanics/m2.json",
+      "title": "Coins and trust"
+    },
+    {
+      "id": "m3",
+      "path": "game-doc/mechanics/m3.json",
+      "title": "Quiet route"
+    },
+    {
+      "id": "m4",
+      "path": "game-doc/mechanics/m4.json",
+      "title": "Silence the bell"
+    },
+    {
+      "id": "m5",
+      "path": "game-doc/mechanics/m5.json",
+      "title": "Night timer"
+    }
+  ],
+  "mechanicCategories": [
+    {
+      "id": "d9",
+      "path": "game-doc/categories/d9.json",
+      "title": "Core loop"
+    },
+    {
+      "id": "d10",
+      "path": "game-doc/categories/d10.json",
+      "title": "Combat"
+    },
+    {
+      "id": "d11",
+      "path": "game-doc/categories/d11.json",
+      "title": "Economy"
+    },
+    {
+      "id": "d12",
+      "path": "game-doc/categories/d12.json",
+      "title": "Progression"
+    },
+    {
+      "id": "d13",
+      "path": "game-doc/categories/d13.json",
+      "title": "Exploration"
+    },
+    {
+      "id": "d14",
+      "path": "game-doc/categories/d14.json",
+      "title": "Interface"
+    }
+  ],
+  "trash": [],
+  "checkSettings": {},
+  "exportSettings": {
+    "titlePage": true,
+    "toc": true,
+    "pageSize": "A4",
+    "marginMm": {
+      "top": 25,
+      "bottom": 25,
+      "left": 25,
+      "right": 25
+    },
+    "font": "serif",
+    "fontSizePt": 11,
+    "lineSpacing": 1.4,
+    "pageNumbers": true,
+    "runningHeader": "none",
+    "appendices": {
+      "personae": {
+        "on": false,
+        "typeIds": []
+      },
+      "glossary": {
+        "on": false,
+        "typeIds": []
+      },
+      "chronology": {
+        "on": false,
+        "timelineId": null
+      }
+    }
+  },
+  "scriptExport": {
+    "pageSize": "Letter",
+    "titlePage": true,
+    "sceneNumbers": true,
+    "pageNumbers": true,
+    "moreContd": true
+  }
+}

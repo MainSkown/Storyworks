@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "rel-bram-key",
+  "fromId": "e-bram",
+  "toId": "e-key",
+  "typeId": "d28",
+  "note": {
+    "type": "doc",
+    "content": []
+  },
+  "nodeRef": null
+}

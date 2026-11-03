@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "id": "m1",
+  "title": "Wejście dzięki rozmowie",
+  "summary": "Wybory przy bramie decydują, czy Wren dostanie klucz.",
+  "categoryId": "d9",
+  "status": "implemented",
+  "tags": [
+    "dialog",
+    "rdzeń"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Przy bramie gracz wybiera jedno z trzech podejść. Zapłata wymaga co najmniej jednej monety; prośby niczego nie zmieniają, ale można je powtarzać."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m1-p1",
+      "name": "Opcje",
+      "value": "3"
+    },
+    {
+      "id": "m1-p2",
+      "name": "Limit próśb",
+      "value": "brak"
+    }
+  ],
+  "links": [
+    {
+      "kind": "item",
+      "id": "gate-talk"
+    },
+    {
+      "kind": "variable",
+      "id": "v-key"
+    },
+    {
+      "kind": "entry",
+      "id": "e-bram"
+    }
+  ]
+}

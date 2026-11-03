@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "id": "e-tower",
+  "typeId": "d18",
+  "name": "Wieża zegarowa",
+  "aliases": [
+    "Wieża"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Najwyższy budynek w Brindle. Jej dzwon się zaciął."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "",
+  "includeInAppendices": false,
+  "states": []
+}

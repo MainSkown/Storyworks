@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "id": "m4",
+  "title": "Uciszyć dzwon",
+  "summary": "Cel przygody: dojść do wieży i zatrzymać dzwon.",
+  "categoryId": "d12",
+  "status": "implemented",
+  "tags": [
+    "cel"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Na szczycie wieży gracz pociąga dźwignię na komendę. Pociągnięcie kończy historię."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m4-p1",
+      "name": "Moment pociągnięcia",
+      "value": "na komendę"
+    },
+    {
+      "id": "m4-p2",
+      "name": "Próby",
+      "value": "1"
+    }
+  ],
+  "links": [
+    {
+      "kind": "beat",
+      "id": "bx-bell"
+    },
+    {
+      "kind": "entry",
+      "id": "e-key"
+    },
+    {
+      "kind": "item",
+      "id": "tower"
+    }
+  ]
+}

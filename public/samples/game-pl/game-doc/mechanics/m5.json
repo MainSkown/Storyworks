@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "m5",
+  "title": "Zegar nocy",
+  "summary": "Odliczanie na ekranie do północy.",
+  "categoryId": "d14",
+  "status": "cut",
+  "tags": [
+    "interfejs"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Wycięte: widoczny zegar sprawiał, że krótka historia wydawała się pospieszna."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m5-p1",
+      "name": "Czas",
+      "value": "10 min"
+    }
+  ],
+  "links": []
+}

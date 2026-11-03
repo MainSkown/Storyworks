@@ -1,0 +1,109 @@
+{
+  "version": 3,
+  "id": "arrival",
+  "title": "Przybycie",
+  "status": "draft",
+  "synopsis": "Wren dociera do Brindle i słyszy dzwon.",
+  "wordCount": 45,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b1",
+          "lineId": "L000001",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Wieczór w Brindle. Dzwon na wieży zegarowej bije już trzecią godzinę i nikt nie wie, jak go zatrzymać."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b2",
+          "lineId": "L000002",
+          "speakerId": "e-wren",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Akurat dziś musiałam dostarczać list."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b3",
+          "lineId": "L000003",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Z góry wieży ktoś woła."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b4",
+          "lineId": "L000004",
+          "speakerId": "e-ida",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Kurierko! To list dla mnie? Weź klucz od Brama i wchodź na górę!"
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b5",
+          "lineId": "L000005",
+          "speakerId": "e-wren",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Bram. Oczywiście, że Bram."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "arrival-ev",
+      "from": {
+        "item": "arrival",
+        "block": "b1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    }
+  ]
+}

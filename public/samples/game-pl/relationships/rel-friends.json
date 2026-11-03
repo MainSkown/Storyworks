@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "rel-friends",
+  "fromId": "e-wren",
+  "toId": "e-ida",
+  "typeId": "d22",
+  "note": {
+    "type": "doc",
+    "content": []
+  },
+  "nodeRef": null
+}

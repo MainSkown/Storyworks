@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "id": "e-wren",
+  "typeId": "d16",
+  "name": "Wren",
+  "aliases": [],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Młoda kurierka z torbą za ciężką na jej plecy. Postać gracza."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "",
+  "includeInAppendices": false,
+  "states": []
+}

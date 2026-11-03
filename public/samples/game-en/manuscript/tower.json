@@ -1,0 +1,125 @@
+{
+  "version": 3,
+  "id": "tower",
+  "title": "The clocktower",
+  "status": "draft",
+  "synopsis": "Wren and Ida stop the bell.",
+  "wordCount": 74,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b9",
+          "lineId": "L000009",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "At the top of the tower a woman in an oil-stained apron is wrestling with a great brass wheel."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b10",
+          "lineId": "L000010",
+          "speakerId": "e-ida",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Wren! At last. Did Bram let you through?"
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b11",
+          "lineId": "L000011",
+          "speakerId": "e-wren",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "One way or another. What do I do?"
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b12",
+          "lineId": "L000012",
+          "speakerId": "e-ida",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Hold this lever. When I say now, pull. Now!"
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b13",
+          "lineId": "L000013",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Wren pulls. The gears groan, the hammer lifts away from the bell, and all of Brindle falls silent."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b14",
+          "lineId": "L000014",
+          "speakerId": "e-ida",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Hear that? That is the sound of a quiet evening. Thank you."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "tower-ev",
+      "from": {
+        "item": "tower",
+        "block": "b9"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    }
+  ]
+}

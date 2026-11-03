@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "variables": [
+    {
+      "id": "v-key",
+      "name": "has_key",
+      "type": "flag",
+      "default": false
+    },
+    {
+      "id": "v-coins",
+      "name": "coins",
+      "type": "number",
+      "default": 5
+    },
+    {
+      "id": "v-trust",
+      "name": "bram_trust",
+      "type": "number",
+      "default": 0
+    }
+  ]
+}

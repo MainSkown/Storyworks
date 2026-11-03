@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "id": "m2",
+  "title": "Monety i zaufanie",
+  "summary": "Monety kupują przysługi, a każda przysługa podnosi zaufanie.",
+  "categoryId": "d11",
+  "status": "designed",
+  "tags": [
+    "ekonomia"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Gracz zaczyna z pięcioma monetami. Łapówka kosztuje jedną monetę i podnosi zaufanie strażnika o jeden."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m2-p1",
+      "name": "Monety na start",
+      "value": "5"
+    },
+    {
+      "id": "m2-p2",
+      "name": "Koszt łapówki",
+      "value": "1 moneta"
+    },
+    {
+      "id": "m2-p3",
+      "name": "Zaufanie za łapówkę",
+      "value": "+1"
+    }
+  ],
+  "links": [
+    {
+      "kind": "variable",
+      "id": "v-coins"
+    },
+    {
+      "kind": "variable",
+      "id": "v-trust"
+    },
+    {
+      "kind": "mechanic",
+      "id": "m1"
+    }
+  ]
+}

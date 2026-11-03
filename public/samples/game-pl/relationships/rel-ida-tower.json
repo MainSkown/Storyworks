@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "rel-ida-tower",
+  "fromId": "e-ida",
+  "toId": "e-tower",
+  "typeId": "d27",
+  "note": {
+    "type": "doc",
+    "content": []
+  },
+  "nodeRef": null
+}

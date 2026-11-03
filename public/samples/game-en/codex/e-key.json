@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "id": "e-key",
+  "typeId": "d17",
+  "name": "Brass key",
+  "aliases": [],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Opens the tower door. Bram wears it on a cord around his neck."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "",
+  "includeInAppendices": false,
+  "states": []
+}

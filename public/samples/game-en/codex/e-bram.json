@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "id": "e-bram",
+  "typeId": "d16",
+  "name": "Bram",
+  "aliases": [
+    "The gatekeeper"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Guards the tower gate and its only key. Can be bribed, but pretends he cannot."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "",
+  "includeInAppendices": false,
+  "states": []
+}

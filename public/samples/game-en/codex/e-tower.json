@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "id": "e-tower",
+  "typeId": "d18",
+  "name": "Clocktower",
+  "aliases": [
+    "The tower"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "The tallest building in Brindle. Its bell has jammed."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "",
+  "includeInAppendices": false,
+  "states": []
+}

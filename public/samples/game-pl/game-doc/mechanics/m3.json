@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "id": "m3",
+  "title": "Cicha droga",
+  "summary": "Drugie wejście, obok bramy, dla graczy bez klucza.",
+  "categoryId": "d13",
+  "status": "idea",
+  "tags": [
+    "ścieżka",
+    "skradanie"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Bez klucza gracz trafia do zaułka, który prowadzi do wieży. Ta ścieżka jest pomijana, gdy klucz został kupiony."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m3-p1",
+      "name": "Zasięg hałasu",
+      "value": "3 m"
+    }
+  ],
+  "links": [
+    {
+      "kind": "item",
+      "id": "alley"
+    },
+    {
+      "kind": "entry",
+      "id": "e-tower"
+    }
+  ]
+}

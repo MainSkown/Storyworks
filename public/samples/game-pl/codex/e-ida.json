@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "id": "e-ida",
+  "typeId": "d16",
+  "name": "Ida",
+  "aliases": [],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Zegarmistrzyni. Uparta, praktyczna, zwykle cała w smarze."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "",
+  "includeInAppendices": false,
+  "states": []
+}

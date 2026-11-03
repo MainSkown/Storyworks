@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "id": "tl-main",
+  "name": "Główna oś czasu",
+  "view": "flow",
+  "branches": [
+    {
+      "id": "br-sneak",
+      "name": "Ścieżka skradania",
+      "color": "#b3562f",
+      "dashed": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "title": "Przybycie do Brindle",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Wren dociera do wioski."
+              }
+            ]
+          }
+        ]
+      },
+      "date": null,
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 0,
+        "y": 120
+      },
+      "codexIds": [
+        "e-wren"
+      ],
+      "ruleIds": []
+    },
+    {
+      "id": "n2",
+      "title": "Dzwon cichnie",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Wieża zdobyta, dzwon zatrzymany."
+              }
+            ]
+          }
+        ]
+      },
+      "date": null,
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 520,
+        "y": 120
+      },
+      "codexIds": [
+        "e-ida",
+        "e-tower"
+      ],
+      "ruleIds": []
+    },
+    {
+      "id": "n3",
+      "title": "Przez zaułek",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Obejście bramy."
+              }
+            ]
+          }
+        ]
+      },
+      "date": null,
+      "color": null,
+      "tag": null,
+      "branchId": "br-sneak",
+      "pos": {
+        "x": 260,
+        "y": 260
+      },
+      "codexIds": [
+        "e-wren"
+      ],
+      "ruleIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "n1",
+      "to": "n2"
+    },
+    {
+      "id": "e2",
+      "from": "n1",
+      "to": "n3"
+    },
+    {
+      "id": "e3",
+      "from": "n3",
+      "to": "n2"
+    }
+  ]
+}

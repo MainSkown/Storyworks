@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "id": "m4",
+  "title": "Silence the bell",
+  "summary": "The goal of the adventure: reach the tower and stop the bell.",
+  "categoryId": "d12",
+  "status": "implemented",
+  "tags": [
+    "goal"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "At the top of the tower the player pulls the lever on cue. Pulling it ends the story."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m4-p1",
+      "name": "Lever timing",
+      "value": "on cue"
+    },
+    {
+      "id": "m4-p2",
+      "name": "Attempts",
+      "value": "1"
+    }
+  ],
+  "links": [
+    {
+      "kind": "beat",
+      "id": "bx-bell"
+    },
+    {
+      "kind": "entry",
+      "id": "e-key"
+    },
+    {
+      "kind": "item",
+      "id": "tower"
+    }
+  ]
+}

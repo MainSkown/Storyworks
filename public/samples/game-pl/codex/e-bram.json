@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "id": "e-bram",
+  "typeId": "d16",
+  "name": "Bram",
+  "aliases": [
+    "Strażnik bramy"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Pilnuje bramy wieży i jedynego klucza. Da się przekupić, ale udaje, że nie."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "",
+  "includeInAppendices": false,
+  "states": []
+}

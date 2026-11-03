@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "id": "m1",
+  "title": "Talk your way in",
+  "summary": "Choices at the gate decide whether Wren gets the key.",
+  "categoryId": "d9",
+  "status": "implemented",
+  "tags": [
+    "dialogue",
+    "core"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "At the gate the player picks one of three approaches. Paying needs at least one coin; pleading changes nothing but can be repeated."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m1-p1",
+      "name": "Options",
+      "value": "3"
+    },
+    {
+      "id": "m1-p2",
+      "name": "Plead limit",
+      "value": "none"
+    }
+  ],
+  "links": [
+    {
+      "kind": "item",
+      "id": "gate-talk"
+    },
+    {
+      "kind": "variable",
+      "id": "v-key"
+    },
+    {
+      "kind": "entry",
+      "id": "e-bram"
+    }
+  ]
+}

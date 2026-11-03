@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "g1",
+      "term": "Punkt fabuły",
+      "definition": "Krótka notatka na mapie fabuły, na przykład chwila lub cel, która nie jest skryptem ani rozmową."
+    },
+    {
+      "id": "g2",
+      "term": "Ścieżka",
+      "definition": "Jedna gałąź osi czasu. Elementy oznaczone ścieżką należą tylko do tej drogi przez historię."
+    },
+    {
+      "id": "g3",
+      "term": "Odblokowanie",
+      "definition": "Warunek na strzałce mapy fabuły. Droga dalej otwiera się tylko wtedy, gdy zmienne pasują."
+    },
+    {
+      "id": "g4",
+      "term": "Zmienna",
+      "definition": "Nazwana wartość, którą pamięta historia: flaga, liczba albo tekst."
+    },
+    {
+      "id": "g5",
+      "term": "Zaufanie",
+      "definition": "Jak bardzo strażnik wierzy Wren; liczba rosnąca z każdą przysługą."
+    },
+    {
+      "id": "g6",
+      "term": "Brindle",
+      "definition": "Wioska, w której toczy się historia."
+    }
+  ]
+}

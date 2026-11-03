@@ -1,0 +1,109 @@
+{
+  "version": 3,
+  "id": "arrival",
+  "title": "Arrival",
+  "status": "draft",
+  "synopsis": "Wren reaches Brindle and hears the bell.",
+  "wordCount": 61,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b1",
+          "lineId": "L000001",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Evening in Brindle. The bell in the clocktower has been ringing for three hours, and nobody knows how to stop it."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b2",
+          "lineId": "L000002",
+          "speakerId": "e-wren",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Of all the nights to deliver a letter."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b3",
+          "lineId": "L000003",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "A voice calls down from the top of the tower."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b4",
+          "lineId": "L000004",
+          "speakerId": "e-ida",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Courier! Is that a letter for me? Then get the key from Bram and come up!"
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b5",
+          "lineId": "L000005",
+          "speakerId": "e-wren",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Bram. Of course it is Bram."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "arrival-ev",
+      "from": {
+        "item": "arrival",
+        "block": "b1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "boxes": [
+    {
+      "id": "bx-arrival",
+      "x": 0,
+      "y": 120,
+      "start": true,
+      "kind": "item",
+      "itemId": "arrival"
+    },
+    {
+      "id": "bx-gate",
+      "x": 320,
+      "y": 120,
+      "start": false,
+      "kind": "item",
+      "itemId": "gate-talk"
+    },
+    {
+      "id": "bx-tower",
+      "x": 680,
+      "y": 0,
+      "start": false,
+      "kind": "item",
+      "itemId": "tower"
+    },
+    {
+      "id": "bx-alley",
+      "x": 680,
+      "y": 240,
+      "start": false,
+      "kind": "item",
+      "itemId": "alley"
+    },
+    {
+      "id": "bx-bell",
+      "x": 1000,
+      "y": 0,
+      "start": false,
+      "kind": "beat",
+      "text": "Dzwon milknie. Brindle może spać."
+    }
+  ],
+  "arrows": [
+    {
+      "id": "a-1",
+      "from": "bx-arrival",
+      "to": "bx-gate"
+    },
+    {
+      "id": "a-2",
+      "from": "bx-gate",
+      "to": "bx-tower",
+      "condition": {
+        "mode": "all",
+        "terms": [
+          {
+            "variableId": "v-key",
+            "op": "isTrue"
+          }
+        ]
+      }
+    },
+    {
+      "id": "a-3",
+      "from": "bx-gate",
+      "to": "bx-alley",
+      "condition": {
+        "mode": "all",
+        "terms": [
+          {
+            "variableId": "v-key",
+            "op": "isFalse"
+          }
+        ]
+      }
+    },
+    {
+      "id": "a-4",
+      "from": "bx-alley",
+      "to": "bx-tower"
+    },
+    {
+      "id": "a-5",
+      "from": "bx-tower",
+      "to": "bx-bell"
+    }
+  ]
+}

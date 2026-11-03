@@ -1,0 +1,232 @@
+{
+  "version": 3,
+  "id": "gate-talk",
+  "title": "Talk at the gate",
+  "status": "draft",
+  "synopsis": "Bram guards the key. Wren has to talk, pay or walk away.",
+  "startNodeId": "n-greet",
+  "nodes": [
+    {
+      "id": "n-greet",
+      "x": 0,
+      "y": 120,
+      "sets": [],
+      "type": "lines",
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "line",
+            "attrs": {
+              "id": "b15",
+              "lineId": "L000015",
+              "speakerId": "e-bram",
+              "speakerName": null,
+              "kind": "speech"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Halt. The tower is shut once the bell starts."
+              }
+            ]
+          },
+          {
+            "type": "line",
+            "attrs": {
+              "id": "b16",
+              "lineId": "L000016",
+              "speakerId": "e-wren",
+              "speakerName": null,
+              "kind": "speech"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "I have a letter for Ida. She asked me to fetch the key."
+              }
+            ]
+          }
+        ]
+      },
+      "next": "n-ask"
+    },
+    {
+      "id": "n-ask",
+      "x": 340,
+      "y": 120,
+      "sets": [],
+      "type": "choice",
+      "options": [
+        {
+          "id": "o-pay",
+          "text": "Slip him a coin.",
+          "target": "n-pay",
+          "condition": {
+            "mode": "all",
+            "terms": [
+              {
+                "variableId": "v-coins",
+                "op": "gte",
+                "value": 1
+              }
+            ]
+          },
+          "sets": [
+            {
+              "variableId": "v-coins",
+              "op": "add",
+              "value": -1
+            },
+            {
+              "variableId": "v-trust",
+              "op": "add",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "id": "o-plead",
+          "text": "Plead with him.",
+          "target": "n-plead",
+          "sets": []
+        },
+        {
+          "id": "o-leave",
+          "text": "Walk away.",
+          "target": "n-leave",
+          "sets": []
+        }
+      ]
+    },
+    {
+      "id": "n-pay",
+      "x": 760,
+      "y": 0,
+      "sets": [
+        {
+          "variableId": "v-key",
+          "op": "set",
+          "value": true
+        }
+      ],
+      "type": "lines",
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "line",
+            "attrs": {
+              "id": "b17",
+              "lineId": "L000017",
+              "speakerId": "e-bram",
+              "speakerName": null,
+              "kind": "speech"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hm. A fair price. Here is the brass key. Mind the stairs."
+              }
+            ]
+          }
+        ]
+      },
+      "next": "n-end"
+    },
+    {
+      "id": "n-plead",
+      "x": 760,
+      "y": 200,
+      "sets": [],
+      "type": "lines",
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "line",
+            "attrs": {
+              "id": "b18",
+              "lineId": "L000018",
+              "speakerId": "e-bram",
+              "speakerName": null,
+              "kind": "speech"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Pleading is free, and worth about what it costs."
+              }
+            ]
+          }
+        ]
+      },
+      "next": "n-ask"
+    },
+    {
+      "id": "n-leave",
+      "x": 760,
+      "y": 400,
+      "sets": [],
+      "type": "lines",
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "line",
+            "attrs": {
+              "id": "b19",
+              "lineId": "L000019",
+              "speakerId": "e-bram",
+              "speakerName": null,
+              "kind": "speech"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Suit yourself. The bell will ring all night."
+              }
+            ]
+          }
+        ]
+      },
+      "next": "n-end"
+    },
+    {
+      "id": "n-end",
+      "x": 1180,
+      "y": 200,
+      "sets": [],
+      "type": "end"
+    },
+    {
+      "id": "n-old",
+      "x": 340,
+      "y": 460,
+      "sets": [],
+      "type": "lines",
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "line",
+            "attrs": {
+              "id": "b20",
+              "lineId": "L000020",
+              "speakerId": "e-bram",
+              "speakerName": null,
+              "kind": "speech"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Key? There is no key. Lost it years ago."
+              }
+            ]
+          }
+        ]
+      },
+      "next": "n-end"
+    }
+  ]
+}

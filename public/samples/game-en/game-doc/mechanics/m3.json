@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "id": "m3",
+  "title": "Quiet route",
+  "summary": "A second way in, past the gate, for players with no key.",
+  "categoryId": "d13",
+  "status": "idea",
+  "tags": [
+    "route",
+    "stealth"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Without the key the player is sent to the back alley, which leads to the tower. The route is skipped when the key was bought."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m3-p1",
+      "name": "Noise radius",
+      "value": "3 m"
+    }
+  ],
+  "links": [
+    {
+      "kind": "item",
+      "id": "alley"
+    },
+    {
+      "kind": "entry",
+      "id": "e-tower"
+    }
+  ]
+}

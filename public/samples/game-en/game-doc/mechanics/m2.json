@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "id": "m2",
+  "title": "Coins and trust",
+  "summary": "Coins buy favours, and every favour raises trust.",
+  "categoryId": "d11",
+  "status": "designed",
+  "tags": [
+    "economy"
+  ],
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "The player starts with five coins. A bribe costs one coin and raises the gatekeeper's trust by one."
+          }
+        ]
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "id": "m2-p1",
+      "name": "Start coins",
+      "value": "5"
+    },
+    {
+      "id": "m2-p2",
+      "name": "Bribe cost",
+      "value": "1 coin"
+    },
+    {
+      "id": "m2-p3",
+      "name": "Trust per bribe",
+      "value": "+1"
+    }
+  ],
+  "links": [
+    {
+      "kind": "variable",
+      "id": "v-coins"
+    },
+    {
+      "kind": "variable",
+      "id": "v-trust"
+    },
+    {
+      "kind": "mechanic",
+      "id": "m1"
+    }
+  ]
+}

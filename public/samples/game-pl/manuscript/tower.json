@@ -1,0 +1,125 @@
+{
+  "version": 3,
+  "id": "tower",
+  "title": "Wieża zegarowa",
+  "status": "draft",
+  "synopsis": "Wren i Ida zatrzymują dzwon.",
+  "wordCount": 52,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b9",
+          "lineId": "L000009",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Na szczycie wieży kobieta w poplamionym smarem fartuchu szarpie się z wielkim mosiężnym kołem."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b10",
+          "lineId": "L000010",
+          "speakerId": "e-ida",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Wren! Wreszcie. Bram cię wpuścił?"
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b11",
+          "lineId": "L000011",
+          "speakerId": "e-wren",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Tak czy inaczej. Co mam robić?"
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b12",
+          "lineId": "L000012",
+          "speakerId": "e-ida",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Trzymaj tę dźwignię. Kiedy powiem teraz, pociągnij. Teraz!"
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b13",
+          "lineId": "L000013",
+          "speakerId": null,
+          "speakerName": null,
+          "kind": "text"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Wren ciągnie. Trybiki jęczą, młot odsuwa się od dzwonu i całe Brindle cichnie."
+          }
+        ]
+      },
+      {
+        "type": "line",
+        "attrs": {
+          "id": "b14",
+          "lineId": "L000014",
+          "speakerId": "e-ida",
+          "speakerName": null,
+          "kind": "speech"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Słyszysz? Tak brzmi spokojny wieczór. Dziękuję."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "tower-ev",
+      "from": {
+        "item": "tower",
+        "block": "b9"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    }
+  ]
+}
