@@ -383,7 +383,7 @@ const runExport = async (card, formatLabel) => {
 const json = await runExport(L.export.game.dataTitle, L.export.formats.gameJson)
 const jtxt = readFileSync(json.path, 'utf8')
 let jdoc = null
-try { jdoc = JSON.parse(jtxt) } catch (e) { check(false, 'JSON parses') }
+try { jdoc = JSON.parse(jtxt) } catch { check(false, 'JSON parses') }
 if (jdoc) {
   check(jdoc.format === 'storyworks-game', 'JSON format tag')
   for (const id of ['L000001', 'L000002']) check(jtxt.includes(`"${id}"`), `JSON contains line id ${id}`)
@@ -392,7 +392,7 @@ if (jdoc) {
 }
 await shot('08-export-game-data-saved')
 const csv = await runExport(L.export.game.dataTitle, L.export.formats.gameCsv)
-const ctxt = readFileSync(csv.path, 'utf8').replace(/^﻿/, '')
+const ctxt = readFileSync(csv.path, 'utf8').replace(/^\uFEFF/, '')
 console.log(ctxt.split('\n').slice(0, 5).join('\n'))
 check(ctxt.startsWith('item,node,line_id,speaker,text'), 'CSV header')
 check(/L000002/.test(ctxt) && /Hold the gate until dawn/.test(ctxt), 'CSV has a line row')
