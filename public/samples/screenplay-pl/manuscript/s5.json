@@ -1,0 +1,76 @@
+{
+  "version": 3,
+  "id": "s5",
+  "title": "Pusty przystanek",
+  "status": "draft",
+  "synopsis": "Marek zostaje i znajduje jej kartkę.",
+  "wordCount": 31,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "sceneHeading",
+        "attrs": {
+          "id": "s5-e0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "EXT. PRZYSTANEK MŁYŃSKA - NOC"
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s5-e1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Czerwone światła autobusu znikają we mgle. Marek stoi sam, z rękami w kieszeniach."
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s5-e2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Siada tam, gdzie siedziała Anna. Pod ławką leży złożona kartka: „Wracam w niedzielę.\""
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s5-cx-0",
+      "from": {
+        "item": "s5",
+        "block": "s5-e0"
+      },
+      "to": {
+        "item": "stop"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s5-ev",
+      "from": {
+        "item": "s5",
+        "block": "s5-e1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    }
+  ]
+}

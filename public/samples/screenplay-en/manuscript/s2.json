@@ -1,0 +1,181 @@
+{
+  "version": 3,
+  "id": "s2",
+  "title": "A Familiar Car",
+  "status": "draft",
+  "synopsis": "Her brother finds her before the bus comes.",
+  "wordCount": 45,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "sceneHeading",
+        "attrs": {
+          "id": "s2-e0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "EXT. MILL ROAD STOP - LATER"
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s2-e1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Headlights. A battered hatchback stops at the kerb. MAREK (30s) gets out without an umbrella."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s2-e2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "MAREK"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s2-e3"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "You said you would leave without telling anyone."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s2-e4"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "ANNA"
+          }
+        ]
+      },
+      {
+        "type": "parenthetical",
+        "attrs": {
+          "id": "s2-e5"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "(not looking up)"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s2-e6"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "I left a note."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s2-e7"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "MAREK"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s2-e8"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "On the fridge. Under a magnet."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s2-cx-0",
+      "from": {
+        "item": "s2",
+        "block": "s2-e0"
+      },
+      "to": {
+        "item": "stop"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s2-ev",
+      "from": {
+        "item": "s2",
+        "block": "s2-e1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s2-cx-2",
+      "from": {
+        "item": "s2",
+        "block": "s2-e2"
+      },
+      "to": {
+        "item": "marek"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s2-cx-4",
+      "from": {
+        "item": "s2",
+        "block": "s2-e4"
+      },
+      "to": {
+        "item": "anna"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s2-cx-7",
+      "from": {
+        "item": "s2",
+        "block": "s2-e7"
+      },
+      "to": {
+        "item": "marek"
+      },
+      "kind": "codex"
+    }
+  ]
+}

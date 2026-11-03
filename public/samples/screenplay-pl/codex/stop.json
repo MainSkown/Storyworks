@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "id": "stop",
+  "typeId": "d12",
+  "name": "Przystanek Młyńska",
+  "aliases": [],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Wiata na skraju miasta. Jedna ławka, jedna latarnia."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "Przystanek autobusowy.",
+  "includeInAppendices": true,
+  "states": []
+}

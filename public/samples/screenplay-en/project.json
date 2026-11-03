@@ -1,0 +1,294 @@
+{
+  "version": 18,
+  "kind": "screenplay",
+  "title": "The Last Bus",
+  "author": "Storyworks sample",
+  "language": "en",
+  "titlePage": {
+    "contact": "hello@example.com",
+    "date": "1 November 2026"
+  },
+  "createdAt": "2026-11-01T00:00:00.000Z",
+  "lineCounter": 0,
+  "dictionaries": [],
+  "goals": {
+    "daily": null,
+    "book": null
+  },
+  "dirs": {
+    "assets": "assets",
+    "snapshots": ".storyworks/history.git",
+    "dictionaries": "dictionaries"
+  },
+  "manuscript": [
+    {
+      "id": "q1",
+      "type": "chapter",
+      "title": "Waiting",
+      "children": [
+        {
+          "id": "s1",
+          "type": "scene",
+          "title": "The Timetable",
+          "path": "manuscript/s1.json",
+          "children": []
+        },
+        {
+          "id": "s2",
+          "type": "scene",
+          "title": "A Familiar Car",
+          "path": "manuscript/s2.json",
+          "children": []
+        },
+        {
+          "id": "s3",
+          "type": "scene",
+          "title": "The Key",
+          "path": "manuscript/s3.json",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "chapter",
+      "title": "On the Road",
+      "children": [
+        {
+          "id": "s4",
+          "type": "scene",
+          "title": "Last Stop",
+          "path": "manuscript/s4.json",
+          "children": []
+        },
+        {
+          "id": "s5",
+          "type": "scene",
+          "title": "The Empty Stop",
+          "path": "manuscript/s5.json",
+          "children": []
+        },
+        {
+          "id": "s6",
+          "type": "scene",
+          "title": "End of the Line",
+          "path": "manuscript/s6.json",
+          "children": []
+        }
+      ]
+    }
+  ],
+  "calendar": {
+    "id": "d3",
+    "path": "calendar.json"
+  },
+  "inbox": null,
+  "ignoredFindings": null,
+  "stats": null,
+  "relationLayout": null,
+  "timelines": [
+    {
+      "id": "tl-main",
+      "path": "timelines/tl-main.json",
+      "title": "Main timeline"
+    }
+  ],
+  "rules": [],
+  "ruleCategories": [
+    {
+      "id": "d5",
+      "path": "rules/categories/d5.json",
+      "title": "Magic"
+    },
+    {
+      "id": "d6",
+      "path": "rules/categories/d6.json",
+      "title": "Physics"
+    },
+    {
+      "id": "d7",
+      "path": "rules/categories/d7.json",
+      "title": "Society"
+    },
+    {
+      "id": "d8",
+      "path": "rules/categories/d8.json",
+      "title": "Technology"
+    },
+    {
+      "id": "d9",
+      "path": "rules/categories/d9.json",
+      "title": "Religion"
+    }
+  ],
+  "codexTypes": [
+    {
+      "id": "d10",
+      "path": "codex/types/d10.json",
+      "title": "Character"
+    },
+    {
+      "id": "d11",
+      "path": "codex/types/d11.json",
+      "title": "Item"
+    },
+    {
+      "id": "d12",
+      "path": "codex/types/d12.json",
+      "title": "Place"
+    },
+    {
+      "id": "d13",
+      "path": "codex/types/d13.json",
+      "title": "Country"
+    },
+    {
+      "id": "d14",
+      "path": "codex/types/d14.json",
+      "title": "Town"
+    },
+    {
+      "id": "d15",
+      "path": "codex/types/d15.json",
+      "title": "Building"
+    }
+  ],
+  "codexEntries": [
+    {
+      "id": "anna",
+      "path": "codex/anna.json",
+      "title": "Anna"
+    },
+    {
+      "id": "marek",
+      "path": "codex/marek.json",
+      "title": "Marek"
+    },
+    {
+      "id": "driver",
+      "path": "codex/driver.json",
+      "title": "Driver"
+    },
+    {
+      "id": "stop",
+      "path": "codex/stop.json",
+      "title": "Mill Road Stop"
+    }
+  ],
+  "relationTypes": [
+    {
+      "id": "d16",
+      "path": "relation-types/d16.json",
+      "title": "Friend"
+    },
+    {
+      "id": "d17",
+      "path": "relation-types/d17.json",
+      "title": "Enemy"
+    },
+    {
+      "id": "d18",
+      "path": "relation-types/d18.json",
+      "title": "Parent"
+    },
+    {
+      "id": "d19",
+      "path": "relation-types/d19.json",
+      "title": "Sibling"
+    },
+    {
+      "id": "d20",
+      "path": "relation-types/d20.json",
+      "title": "Lover"
+    },
+    {
+      "id": "d21",
+      "path": "relation-types/d21.json",
+      "title": "Located in"
+    },
+    {
+      "id": "d22",
+      "path": "relation-types/d22.json",
+      "title": "Owns"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel-siblings",
+      "path": "relationships/rel-siblings.json"
+    },
+    {
+      "id": "rel-located",
+      "path": "relationships/rel-located.json"
+    }
+  ],
+  "groups": [],
+  "stateKinds": [
+    {
+      "id": "d23",
+      "path": "state-kinds/d23.json",
+      "title": "Location"
+    },
+    {
+      "id": "d24",
+      "path": "state-kinds/d24.json",
+      "title": "Owner"
+    },
+    {
+      "id": "d25",
+      "path": "state-kinds/d25.json",
+      "title": "Status"
+    },
+    {
+      "id": "d26",
+      "path": "state-kinds/d26.json",
+      "title": "Title"
+    }
+  ],
+  "knowledge": [],
+  "variables": null,
+  "storyMap": null,
+  "gameOverview": null,
+  "glossary": null,
+  "mechanics": [],
+  "mechanicCategories": [],
+  "trash": [],
+  "checkSettings": {},
+  "exportSettings": {
+    "titlePage": true,
+    "toc": true,
+    "pageSize": "A4",
+    "marginMm": {
+      "top": 25,
+      "bottom": 25,
+      "left": 25,
+      "right": 25
+    },
+    "font": "serif",
+    "fontSizePt": 11,
+    "lineSpacing": 1.4,
+    "pageNumbers": true,
+    "runningHeader": "none",
+    "appendices": {
+      "personae": {
+        "on": false,
+        "typeIds": []
+      },
+      "glossary": {
+        "on": false,
+        "typeIds": []
+      },
+      "chronology": {
+        "on": false,
+        "timelineId": null
+      }
+    }
+  },
+  "scriptExport": {
+    "pageSize": "Letter",
+    "titlePage": true,
+    "sceneNumbers": true,
+    "pageNumbers": true,
+    "moreContd": true
+  }
+}

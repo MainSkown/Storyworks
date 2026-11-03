@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "id": "stop",
+  "typeId": "d12",
+  "name": "Mill Road Stop",
+  "aliases": [],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A bus shelter at the edge of town. One bench, one streetlight."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "The bus stop.",
+  "includeInAppendices": true,
+  "states": []
+}

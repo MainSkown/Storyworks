@@ -1,0 +1,135 @@
+{
+  "version": 3,
+  "id": "s6",
+  "title": "End of the Line",
+  "status": "draft",
+  "synopsis": "Dawn. Anna wakes with the key in her hand.",
+  "wordCount": 27,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "sceneHeading",
+        "attrs": {
+          "id": "s6-e0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "INT. NIGHT BUS - DAWN"
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s6-e1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Anna sleeps against the window, the key in her fist. The bus slows."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s6-e2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "DRIVER"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s6-e3"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "End of the line."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s6-e4"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "ANNA"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s6-e5"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Already?"
+          }
+        ]
+      },
+      {
+        "type": "transition",
+        "attrs": {
+          "id": "s6-e6"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "FADE OUT."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s6-ev",
+      "from": {
+        "item": "s6",
+        "block": "s6-e1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s6-cx-2",
+      "from": {
+        "item": "s6",
+        "block": "s6-e2"
+      },
+      "to": {
+        "item": "driver"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s6-cx-4",
+      "from": {
+        "item": "s6",
+        "block": "s6-e4"
+      },
+      "to": {
+        "item": "anna"
+      },
+      "kind": "codex"
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+{
+  "version": 3,
+  "id": "s3",
+  "title": "The Key",
+  "status": "draft",
+  "synopsis": "Marek offers the key to their mother's house.",
+  "wordCount": 53,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "sceneHeading",
+        "attrs": {
+          "id": "s3-e0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "EXT. MILL ROAD STOP - LATER"
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s3-e1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Marek holds out a small brass key."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s3-e2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "MAREK"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s3-e3"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mum's house. It is yours as much as mine.",
+            "marks": [
+              {
+                "type": "comment",
+                "attrs": {
+                  "commentId": "c1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s3-e4"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "ANNA"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s3-e5"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "I do not want it."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s3-e6"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "MAREK"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s3-e7"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Then keep it for someone who does."
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s3-e8"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Anna takes the key without a word. A bus swings out of the dark."
+          }
+        ]
+      },
+      {
+        "type": "transition",
+        "attrs": {
+          "id": "s3-e9"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "CUT TO:"
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [
+    {
+      "id": "c1",
+      "text": "Too blunt? Maybe he should only hold the key out and say nothing.",
+      "createdAt": "2026-11-01T00:00:00.000Z",
+      "resolved": false
+    }
+  ],
+  "links": [
+    {
+      "id": "s3-cx-0",
+      "from": {
+        "item": "s3",
+        "block": "s3-e0"
+      },
+      "to": {
+        "item": "stop"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s3-ev",
+      "from": {
+        "item": "s3",
+        "block": "s3-e1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s3-cx-2",
+      "from": {
+        "item": "s3",
+        "block": "s3-e2"
+      },
+      "to": {
+        "item": "marek"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s3-cx-4",
+      "from": {
+        "item": "s3",
+        "block": "s3-e4"
+      },
+      "to": {
+        "item": "anna"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s3-cx-6",
+      "from": {
+        "item": "s3",
+        "block": "s3-e6"
+      },
+      "to": {
+        "item": "marek"
+      },
+      "kind": "codex"
+    }
+  ]
+}

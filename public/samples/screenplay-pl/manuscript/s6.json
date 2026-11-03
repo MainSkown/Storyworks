@@ -1,0 +1,135 @@
+{
+  "version": 3,
+  "id": "s6",
+  "title": "Ostatni przystanek",
+  "status": "draft",
+  "synopsis": "Świt. Anna budzi się z kluczem w dłoni.",
+  "wordCount": 22,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "sceneHeading",
+        "attrs": {
+          "id": "s6-e0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "INT. AUTOBUS NOCNY - ŚWIT"
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s6-e1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Anna śpi oparta o szybę, z kluczem w pięści. Autobus zwalnia."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s6-e2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "KIEROWCA"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s6-e3"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Koniec trasy."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s6-e4"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "ANNA"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s6-e5"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Już?"
+          }
+        ]
+      },
+      {
+        "type": "transition",
+        "attrs": {
+          "id": "s6-e6"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "ŚCIEMNIENIE."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s6-ev",
+      "from": {
+        "item": "s6",
+        "block": "s6-e1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s6-cx-2",
+      "from": {
+        "item": "s6",
+        "block": "s6-e2"
+      },
+      "to": {
+        "item": "driver"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s6-cx-4",
+      "from": {
+        "item": "s6",
+        "block": "s6-e4"
+      },
+      "to": {
+        "item": "anna"
+      },
+      "kind": "codex"
+    }
+  ]
+}

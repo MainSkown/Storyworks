@@ -1,0 +1,181 @@
+{
+  "version": 3,
+  "id": "s2",
+  "title": "Znajomy samochód",
+  "status": "draft",
+  "synopsis": "Brat odnajduje ją, zanim przyjedzie autobus.",
+  "wordCount": 35,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "sceneHeading",
+        "attrs": {
+          "id": "s2-e0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "EXT. PRZYSTANEK MŁYŃSKA - PÓŹNIEJ"
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s2-e1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Światła reflektorów. Sfatygowany hatchback staje przy krawężniku. MAREK (około trzydziestki) wysiada bez parasola."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s2-e2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "MAREK"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s2-e3"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mówiłaś, że wyjedziesz bez słowa."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s2-e4"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "ANNA"
+          }
+        ]
+      },
+      {
+        "type": "parenthetical",
+        "attrs": {
+          "id": "s2-e5"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "(nie podnosząc wzroku)"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s2-e6"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Zostawiłam kartkę."
+          }
+        ]
+      },
+      {
+        "type": "character",
+        "attrs": {
+          "id": "s2-e7"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "MAREK"
+          }
+        ]
+      },
+      {
+        "type": "dialogue",
+        "attrs": {
+          "id": "s2-e8"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Na lodówce. Pod magnesem."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s2-cx-0",
+      "from": {
+        "item": "s2",
+        "block": "s2-e0"
+      },
+      "to": {
+        "item": "stop"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s2-ev",
+      "from": {
+        "item": "s2",
+        "block": "s2-e1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s2-cx-2",
+      "from": {
+        "item": "s2",
+        "block": "s2-e2"
+      },
+      "to": {
+        "item": "marek"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s2-cx-4",
+      "from": {
+        "item": "s2",
+        "block": "s2-e4"
+      },
+      "to": {
+        "item": "anna"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s2-cx-7",
+      "from": {
+        "item": "s2",
+        "block": "s2-e7"
+      },
+      "to": {
+        "item": "marek"
+      },
+      "kind": "codex"
+    }
+  ]
+}

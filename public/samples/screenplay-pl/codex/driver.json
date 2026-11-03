@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "id": "driver",
+  "typeId": "d10",
+  "name": "Kierowca",
+  "aliases": [
+    "Kierowca autobusu"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Od lat jeździ nocnym autobusem tą samą trasą."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "Kierowca nocnego autobusu.",
+  "includeInAppendices": true,
+  "states": []
+}

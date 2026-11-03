@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "id": "driver",
+  "typeId": "d10",
+  "name": "Driver",
+  "aliases": [
+    "Bus driver"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Drives the night bus on the same route for years."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "The night bus driver.",
+  "includeInAppendices": true,
+  "states": []
+}

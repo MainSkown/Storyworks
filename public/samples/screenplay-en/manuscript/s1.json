@@ -1,0 +1,76 @@
+{
+  "version": 3,
+  "id": "s1",
+  "title": "The Timetable",
+  "status": "draft",
+  "synopsis": "Anna waits alone at the stop.",
+  "wordCount": 35,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "sceneHeading",
+        "attrs": {
+          "id": "s1-e0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "EXT. MILL ROAD STOP - NIGHT"
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s1-e1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Rain drums on the bus shelter. ANNA (30s) sits on her suitcase and reads the timetable for the third time."
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s1-e2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "A streetlight flickers. Somewhere a dog barks, then stops."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s1-cx-0",
+      "from": {
+        "item": "s1",
+        "block": "s1-e0"
+      },
+      "to": {
+        "item": "stop"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s1-ev",
+      "from": {
+        "item": "s1",
+        "block": "s1-e1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    }
+  ]
+}

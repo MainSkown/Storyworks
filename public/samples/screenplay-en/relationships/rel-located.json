@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "rel-located",
+  "fromId": "anna",
+  "toId": "stop",
+  "typeId": "d21",
+  "note": {
+    "type": "doc",
+    "content": []
+  },
+  "nodeRef": null
+}

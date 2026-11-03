@@ -1,0 +1,76 @@
+{
+  "version": 3,
+  "id": "s5",
+  "title": "The Empty Stop",
+  "status": "draft",
+  "synopsis": "Marek stays behind and finds her note.",
+  "wordCount": 38,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "sceneHeading",
+        "attrs": {
+          "id": "s5-e0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "EXT. MILL ROAD STOP - NIGHT"
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s5-e1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "The red lights of the bus fade into the fog. Marek stands alone, hands in his pockets."
+          }
+        ]
+      },
+      {
+        "type": "action",
+        "attrs": {
+          "id": "s5-e2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "He sits where Anna sat. Under the bench lies a folded note: \"Back on Sunday.\""
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s5-cx-0",
+      "from": {
+        "item": "s5",
+        "block": "s5-e0"
+      },
+      "to": {
+        "item": "stop"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s5-ev",
+      "from": {
+        "item": "s5",
+        "block": "s5-e1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    }
+  ]
+}

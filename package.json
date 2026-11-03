@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "vue-tsc --noEmit",
-    "samples": "SAMPLES_WRITE=1 vitest run src/samples/write.test.ts",
+    "samples": "SAMPLES_WRITE=1 vitest run src/samples/write",
     "test": "vitest run"
   },
   "dependencies": {

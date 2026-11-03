@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "id": "tl-main",
+  "name": "Main timeline",
+  "view": "flow",
+  "branches": [],
+  "nodes": [
+    {
+      "id": "n1",
+      "title": "Anna and Marek at the stop",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "The evening before she leaves."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 2026,
+        "month": 10,
+        "day": 14
+      },
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 0,
+        "y": 120
+      },
+      "codexIds": [
+        "anna",
+        "marek",
+        "stop"
+      ],
+      "ruleIds": []
+    },
+    {
+      "id": "n2",
+      "title": "The last bus leaves",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Deliberate mistake: this event is dated before the one it follows, so the Checks page shows one warning. Change the date to clear it."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 2026,
+        "month": 10,
+        "day": 13
+      },
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 260,
+        "y": 120
+      },
+      "codexIds": [
+        "anna",
+        "driver"
+      ],
+      "ruleIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "n1",
+      "to": "n2"
+    }
+  ]
+}

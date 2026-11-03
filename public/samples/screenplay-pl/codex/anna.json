@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "id": "anna",
+  "typeId": "d10",
+  "name": "Anna",
+  "aliases": [
+    "Ania"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Trzydzieści lat, małomówna, podróżuje lekko. Opuszcza miasto, w którym dorastała."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "Podróżna.",
+  "includeInAppendices": true,
+  "states": []
+}

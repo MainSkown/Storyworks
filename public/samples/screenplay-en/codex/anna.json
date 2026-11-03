@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "id": "anna",
+  "typeId": "d10",
+  "name": "Anna",
+  "aliases": [
+    "Ann"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Thirty, quiet, travels light. Leaving a town she grew up in."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "The traveller.",
+  "includeInAppendices": true,
+  "states": []
+}
