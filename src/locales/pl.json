@@ -64,7 +64,148 @@
   },
 "game": {
     "conversation": {
-      "empty": "Edytor grafu rozmowy pojawi się w późniejszej wersji. Rozmowy można już zmieniać, przenosić i usuwać."
+      "lines": {
+        "label": "Linie tego węzła"
+      },
+      "title": "Rozmowa",
+      "toolbar": "Narzędzia rozmowy",
+      "addGroup": "Dodaj węzeł",
+      "addOf": "Dodaj węzeł: {type}",
+      "addFirst": "Dodaj pierwszy węzeł",
+      "play": "Zagraj",
+      "playthrough": {
+        "title": "Przejście próbne",
+        "close": "Zamknij przejście próbne",
+        "restart": "Zacznij od nowa",
+        "log": "Dotychczasowa rozmowa",
+        "continue": "Dalej",
+        "options": "Wybierz odpowiedź",
+        "ended": "Rozmowa się zakończyła.",
+        "loop": "Pętla: ten węzeł był już odwiedzony.",
+        "stale": "Rozmowa zmieniła się od początku tego przejścia.",
+        "staleRestart": "Zacznij od nowa z nową wersją",
+        "stoppedTitle": "Przejście próbne zatrzymane",
+        "note": "Nic nie jest zapisywane w projekcie.",
+        "variables": "Zmienne",
+        "variable": "Zmienna",
+        "value": "Wartość",
+        "changed": "zmieniona",
+        "default": "domyślnie {value}",
+        "true": "prawda",
+        "false": "fałsz",
+        "noVariables": "Brak zmiennych.",
+        "deletedVariable": "usunięta zmienna",
+        "and": "i",
+        "or": "lub",
+        "stop": {
+          "noStart": "Ta rozmowa nie ma węzła początkowego. Oznacz węzeł jako początek i zacznij od nowa.",
+          "emptyConversation": "Ta rozmowa nie ma jeszcze węzłów.",
+          "stepLimit": "Zatrzymano po {max} krokach. Rozmowa prawdopodobnie zapętla się, nigdy nie czekając na wybór.",
+          "nodeBlocked": "Zatrzymano w węźle „{node}”: nie spełniono jego warunku wejścia ({condition}).",
+          "undefinedVariable": "Zatrzymano w węźle „{node}”: używa zmiennej {variable}, która już nie istnieje.",
+          "typeMismatch": "Zatrzymano w węźle „{node}”: zmienna {variable} zmieniła typ i nie pasuje do użycia w tym węźle.",
+          "missingTarget": "Zatrzymano w węźle „{node}”: prowadzi do węzła, który nie istnieje.",
+          "missingOptionTarget": "Zatrzymano w węźle „{node}”: wybrana opcja prowadzi do węzła, który nie istnieje.",
+          "noVisibleOptions": "Zatrzymano w węźle „{node}”: przy obecnych zmiennych żadna opcja nie jest dostępna."
+        }
+      },
+      "emptyTitle": "Ta rozmowa nie ma jeszcze węzłów",
+      "emptyBody": "Rozmowa to graf węzłów: kwestii, wyborów, skoków i zakończeń. Dodaj pierwszy węzeł, aby zacząć.",
+      "loadFailed": "Nie udało się odczytać tej rozmowy, więc została nietknięta.",
+      "readOnly": "Ten projekt jest tylko do odczytu, więc rozmowy nie można edytować.",
+      "inspector": "Ustawienia węzła",
+      "type": {
+        "lines": "Kwestie",
+        "choice": "Wybór",
+        "jump": "Skok",
+        "end": "Koniec"
+      },
+      "typeHint": {
+        "lines": "Wypowiadane kwestie, potem przejście do jednego węzła.",
+        "choice": "Gracz wybiera jedną z opcji.",
+        "jump": "Przejście od razu do innego węzła.",
+        "end": "Rozmowa kończy się tutaj."
+      },
+      "summary": {
+        "emptyLines": "Pusty",
+        "options": "Brak opcji | {n} opcja | {n} opcje | {n} opcji"
+      },
+      "start": "Start",
+      "startHere": "Zacznij tutaj",
+      "startIs": "Rozmowa zaczyna się w tym węźle.",
+      "badge": {
+        "condition": "Ma warunek wejścia",
+        "sets": "Zmienia zmienne",
+        "start": "Węzeł startowy",
+        "brokenTarget": "Zerwane połączenie",
+        "brokenTargetTitle": "Połączenie wskazuje węzeł, którego już nie ma.",
+        "review": "Do sprawdzenia",
+        "reviewTitle": "Warunek lub zmiana używa usuniętej zmiennej albo takiej, której typ się zmienił."
+      },
+      "deletedVariable": "Usunięta zmienna",
+      "needsReview": "Do sprawdzenia",
+      "rejected": {
+        "end-no-outgoing": "Węzeł Koniec nie może prowadzić do innego węzła.",
+        "unknown-node": "Ten węzeł już nie istnieje.",
+        "failed": "Ta zmiana nie została przyjęta."
+      },
+      "delete": {
+        "title": "Usunąć ten węzeł?",
+        "body": "„{label}” nie ma połączeń. | „{label}” ma {n} połączenie. Węzeł i jego połączenia zostaną usunięte. | „{label}” ma {n} połączenia. Węzeł i jego połączenia zostaną usunięte. | „{label}” ma {n} połączeń. Węzeł i jego połączenia zostaną usunięte.",
+        "cancel": "Anuluj",
+        "confirm": "Usuń węzeł"
+      },
+      "entryCondition": "Wchodź do tego węzła tylko, gdy",
+      "sets": "Po wejściu do tego węzła ustaw",
+      "optionSets": "Po wybraniu tej opcji ustaw",
+      "optionCondition": "Pokazuj tę opcję tylko, gdy",
+      "condition": {
+        "add": "Dodaj warunek",
+        "mode": "Dopasuj",
+        "all": "Wszystkie są spełnione",
+        "any": "Dowolny jest spełniony",
+        "addTerm": "Dodaj człon",
+        "remove": "Usuń człon",
+        "variable": "Zmienna",
+        "operator": "Operator",
+        "value": "Wartość",
+        "noVariables": "Najpierw dodaj zmienne na liście Zmienne."
+      },
+      "setOps": {
+        "add": "Dodaj zmianę",
+        "remove": "Usuń zmianę"
+      },
+      "flag": { "true": "Prawda", "false": "Fałsz" },
+      "op": {
+        "isTrue": "jest prawdą",
+        "isFalse": "jest fałszem",
+        "eq": "równa się",
+        "neq": "nie równa się",
+        "gt": "jest większa niż",
+        "lt": "jest mniejsza niż",
+        "gte": "wynosi co najmniej",
+        "lte": "wynosi co najwyżej",
+        "set": "ustaw na",
+        "add": "dodaj",
+        "toggle": "odwróć"
+      },
+      "target": {
+        "label": "Przejdź do",
+        "none": "Jeszcze nigdzie",
+        "missing": "Usunięty węzeł"
+      },
+      "options": {
+        "title": "Opcje",
+        "add": "Dodaj opcję",
+        "empty": "Brak opcji.",
+        "text": "Tekst opcji {n}",
+        "target": "Opcja {n} prowadzi do",
+        "up": "Przesuń opcję {n} w górę",
+        "down": "Przesuń opcję {n} w dół",
+        "remove": "Usuń opcję {n}",
+        "label": "Opcja {n}"
+      },
+      "endNote": "Rozmowa kończy się w tym węźle. Nie ma on własnych ustawień."
     }
   },
   "speaker": {
@@ -100,6 +241,7 @@
     "delete": "Usuń: {name}",
     "deleteTitle": "Usunąć tę zmienną?",
     "deleteBody": "„{name}” zniknie z listy.",
+    "deleteUses": "Nieużywana w rozmowach | Użyta {n} raz w rozmowach; będzie tam widoczna jako usunięta zmienna. | Użyta {n} razy w rozmowach; będą tam widoczne jako usunięta zmienna. | Użyta {n} razy w rozmowach; będą tam widoczne jako usunięta zmienna.",
     "types": { "flag": "Flaga", "number": "Liczba", "text": "Tekst" },
     "error": {
       "empty-name": "Nadaj zmiennej nazwę.",
@@ -403,6 +545,7 @@
     },
     "kind": {
       "scene": "Scena",
+      "conversation": "Rozmowa",
       "chapter": "Rozdział",
       "rule": "Zasada",
       "entry": "Hasło kodeksu",

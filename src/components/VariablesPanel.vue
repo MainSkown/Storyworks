@@ -12,6 +12,7 @@ const newName = ref('')
 const newType = ref<VariableType>('flag')
 const error = ref('')
 const confirmId = ref<string | null>(null)
+const confirmUses = ref(0)
 const confirmName = computed(() => vars.variables.find((v) => v.id === confirmId.value)?.name ?? '')
 
 function report(r: VariableOutcome): boolean {
@@ -32,6 +33,10 @@ function setDefault(v: Variable, e: Event): void {
   const el = e.target as HTMLInputElement
   const value = v.type === 'flag' ? el.checked : v.type === 'number' ? Number(el.value) : el.value
   if (!report(vars.setDefault(v.id, value)) && v.type !== 'flag') el.value = String(v.default)
+}
+async function askDelete(id: string): Promise<void> {
+  confirmUses.value = await vars.countVariableUses(id)
+  confirmId.value = id
 }
 function remove(): void {
   if (confirmId.value) report(vars.remove(confirmId.value))
@@ -123,7 +128,7 @@ function remove(): void {
               :disabled="locked"
               :aria-label="t('variables.delete', { name: v.name })"
               :title="t('variables.delete', { name: v.name })"
-              @click="confirmId = v.id"
+              @click="askDelete(v.id)"
             >
               <QIcon name="delete" size="1rem" aria-hidden="true" />
             </button>
@@ -137,6 +142,7 @@ function remove(): void {
         <QCardSection>
           <h2 id="vars-del-title" class="confirm-title">{{ t('variables.deleteTitle') }}</h2>
           <p>{{ t('variables.deleteBody', { name: confirmName }) }}</p>
+          <p v-if="confirmUses > 0">{{ t('variables.deleteUses', confirmUses) }}</p>
         </QCardSection>
         <QCardActions align="right">
           <QBtn flat no-caps autofocus :label="t('write.cancel')" @click="confirmId = null" />

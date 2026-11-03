@@ -3,7 +3,7 @@ import { fold } from './normalize'
 export type Area = 'manuscript' | 'rules' | 'timelines' | 'codex' | 'knowledge'
 export const AREAS: Area[] = ['manuscript', 'codex', 'rules', 'timelines', 'knowledge']
 
-export type ItemKind = 'scene' | 'chapter' | 'rule' | 'entry' | 'knowledge' | 'timeline' | 'node'
+export type ItemKind = 'scene' | 'conversation' | 'chapter' | 'rule' | 'entry' | 'knowledge' | 'timeline' | 'node'
 
 export interface IndexPart {
   text: string
@@ -54,7 +54,7 @@ export interface SearchIndex {
   get(id: string): IndexedItem | undefined
   /** Items of an area in document order. */
   items(area: Area): IndexedItem[]
-  /** Items whose body has not been loaded (manuscript scenes still waiting). */
+  /** Items whose body has not been loaded (manuscript scenes and conversations still waiting). */
   pendingBodies(): string[]
 }
 
@@ -134,7 +134,8 @@ export function createIndex(): SearchIndex {
     items: (area) => [...areas.get(area)!.values()],
     pendingBodies() {
       const out: string[] = []
-      for (const it of areas.get('manuscript')!.values()) if (it.kind === 'scene' && it.parts === null) out.push(it.id)
+      for (const it of areas.get('manuscript')!.values())
+        if ((it.kind === 'scene' || it.kind === 'conversation') && it.parts === null) out.push(it.id)
       return out
     },
   }

@@ -7,7 +7,8 @@ import { useProjectStore } from '../project/store'
 import { findNode } from '../project/tree'
 import { useRulesStore } from '../rules/store'
 import { useTimelinesStore } from '../timeline/store'
-import { loadBodies, sceneParts } from './build'
+import { conversationParts, loadBodies, sceneParts } from './build'
+import type { IndexPart } from './index'
 import { AREAS, createIndex, type Area, type SearchIndex } from './index'
 import { openTarget, type OpenTarget } from './open'
 import { search, type SearchResults } from './query'
@@ -67,12 +68,17 @@ export const useSearchStore = defineStore('search', () => {
     void fillBodies()
   }
 
-  async function readBody(id: string): Promise<unknown | null> {
-    const path = findNode(project.tree, id)?.path
-    if (!path) return null
+  /** Indexable text of a scene or conversation body, or null when it cannot be read. */
+  async function readBody(id: string): Promise<IndexPart[] | null> {
+    const node = findNode(project.tree, id)
+    if (!node?.path) return null
     try {
-      const r = await project.loadScene(path)
-      return r.ok ? r.value.content : null
+      if (node.type === 'conversation') {
+        const r = await project.loadConversation(id)
+        return r.ok ? conversationParts(r.value) : null
+      }
+      const r = await project.loadScene(node.path)
+      return r.ok ? sceneParts(r.value.content) : null
     } catch {
       return null
     }
@@ -129,12 +135,21 @@ export const useSearchStore = defineStore('search', () => {
 
   async function reloadBody(id: string): Promise<void> {
     const mine = generation
-    const content = await readBody(id)
-    if (mine === generation && content !== null && index.has(id) && !edits.has(id)) {
-      index.setParts(id, sceneParts(content))
+    const parts = await readBody(id)
+    if (mine === generation && parts !== null && index.has(id) && !edits.has(id)) {
+      index.setParts(id, parts)
       version.value++
     }
   }
+
+  // A conversation changed (edit, undo, restore): read it again; pending edits are served from memory.
+  project.$onAction(({ name, args, after }) => {
+    if (name !== 'patchConversation' || !active) return
+    const id = args[0] as string
+    after((ok) => {
+      if (ok) void reloadBody(id)
+    })
+  })
 
   // A scene file changed outside the editor (reloaded after a disk change): its word count moves.
   watch(
@@ -142,7 +157,7 @@ export const useSearchStore = defineStore('search', () => {
     (counts) => {
       if (!active) return
       for (const item of index.items('manuscript')) {
-        if (item.kind !== 'scene' || item.parts === null) continue
+        if ((item.kind !== 'scene' && item.kind !== 'conversation') || item.parts === null) continue
         const now = counts.get(item.id) ?? 0
         const was = seenWords.get(item.id)
         seenWords.set(item.id, now)

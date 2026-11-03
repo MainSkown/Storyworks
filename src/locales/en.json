@@ -64,7 +64,148 @@
   },
 "game": {
     "conversation": {
-      "empty": "The conversation graph editor arrives in a later version. You can already rename, move and delete conversations."
+      "lines": {
+        "label": "Lines of this node"
+      },
+      "title": "Conversation",
+      "toolbar": "Conversation tools",
+      "addGroup": "Add node",
+      "addOf": "Add {type} node",
+      "addFirst": "Add first node",
+      "play": "Play",
+      "playthrough": {
+        "title": "Play-through",
+        "close": "Close play-through",
+        "restart": "Restart",
+        "log": "Conversation so far",
+        "continue": "Continue",
+        "options": "Choose an answer",
+        "ended": "The conversation ended.",
+        "loop": "Loop: this node was already visited.",
+        "stale": "The conversation changed since this run started.",
+        "staleRestart": "Restart with the new version",
+        "stoppedTitle": "Play-through stopped",
+        "note": "Nothing is saved to the project.",
+        "variables": "Variables",
+        "variable": "Variable",
+        "value": "Value",
+        "changed": "changed",
+        "default": "default {value}",
+        "true": "true",
+        "false": "false",
+        "noVariables": "No variables.",
+        "deletedVariable": "a deleted variable",
+        "and": "and",
+        "or": "or",
+        "stop": {
+          "noStart": "This conversation has no start node. Mark a node as the start and restart.",
+          "emptyConversation": "This conversation has no nodes yet.",
+          "stepLimit": "Stopped after {max} steps. The conversation probably loops without ever waiting for a choice.",
+          "nodeBlocked": "Stopped at \"{node}\": its entry condition failed ({condition}).",
+          "undefinedVariable": "Stopped at \"{node}\": it uses {variable}, which no longer exists.",
+          "typeMismatch": "Stopped at \"{node}\": {variable} changed type and no longer fits how this node uses it.",
+          "missingTarget": "Stopped at \"{node}\": it leads to a node that does not exist.",
+          "missingOptionTarget": "Stopped at \"{node}\": the chosen option leads to a node that does not exist.",
+          "noVisibleOptions": "Stopped at \"{node}\": no option is available with the current variables."
+        }
+      },
+      "emptyTitle": "This conversation has no nodes yet",
+      "emptyBody": "A conversation is a graph of nodes: lines, choices, jumps and ends. Add a first node to begin.",
+      "loadFailed": "This conversation could not be read, so it was left untouched.",
+      "readOnly": "This project is read-only, so the conversation cannot be edited.",
+      "inspector": "Node settings",
+      "type": {
+        "lines": "Lines",
+        "choice": "Choice",
+        "jump": "Jump",
+        "end": "End"
+      },
+      "typeHint": {
+        "lines": "Spoken lines, then continue to one node.",
+        "choice": "The player picks one of the options.",
+        "jump": "Go straight to another node.",
+        "end": "The conversation stops here."
+      },
+      "summary": {
+        "emptyLines": "Empty",
+        "options": "No options | {n} option | {n} options"
+      },
+      "start": "Start",
+      "startHere": "Start here",
+      "startIs": "The conversation starts at this node.",
+      "badge": {
+        "condition": "Has an entry condition",
+        "sets": "Changes variables",
+        "start": "Start node",
+        "brokenTarget": "Broken link",
+        "brokenTargetTitle": "A link points to a node that no longer exists.",
+        "review": "Needs review",
+        "reviewTitle": "A condition or change uses a deleted variable or one whose type changed."
+      },
+      "deletedVariable": "Deleted variable",
+      "needsReview": "Needs review",
+      "rejected": {
+        "end-no-outgoing": "An End node cannot lead to another node.",
+        "unknown-node": "That node no longer exists.",
+        "failed": "That change was not accepted."
+      },
+      "delete": {
+        "title": "Delete this node?",
+        "body": "\"{label}\" has no connections. | \"{label}\" has {n} connection. The node and its connections will be removed. | \"{label}\" has {n} connections. The node and its connections will be removed.",
+        "cancel": "Cancel",
+        "confirm": "Delete node"
+      },
+      "entryCondition": "Only enter this node when",
+      "sets": "When this node is entered, set",
+      "optionSets": "When this option is picked, set",
+      "optionCondition": "Show this option only when",
+      "condition": {
+        "add": "Add condition",
+        "mode": "Match",
+        "all": "All of these are true",
+        "any": "Any of these is true",
+        "addTerm": "Add term",
+        "remove": "Remove term",
+        "variable": "Variable",
+        "operator": "Operator",
+        "value": "Value",
+        "noVariables": "Add variables in the Variables list first."
+      },
+      "setOps": {
+        "add": "Add change",
+        "remove": "Remove change"
+      },
+      "flag": { "true": "True", "false": "False" },
+      "op": {
+        "isTrue": "is true",
+        "isFalse": "is false",
+        "eq": "equals",
+        "neq": "does not equal",
+        "gt": "is greater than",
+        "lt": "is less than",
+        "gte": "is at least",
+        "lte": "is at most",
+        "set": "set to",
+        "add": "add",
+        "toggle": "flip"
+      },
+      "target": {
+        "label": "Continue to",
+        "none": "Nowhere yet",
+        "missing": "Deleted node"
+      },
+      "options": {
+        "title": "Options",
+        "add": "Add option",
+        "empty": "No options yet.",
+        "text": "Option {n} text",
+        "target": "Option {n} goes to",
+        "up": "Move option {n} up",
+        "down": "Move option {n} down",
+        "remove": "Remove option {n}",
+        "label": "Option {n}"
+      },
+      "endNote": "The conversation stops at this node. It has no settings of its own."
     }
   },
   "speaker": {
@@ -100,6 +241,7 @@
     "delete": "Delete {name}",
     "deleteTitle": "Delete this variable?",
     "deleteBody": "\"{name}\" will be removed from the list.",
+    "deleteUses": "Not used in conversations | Used {n} time in conversations; it will show as a deleted variable there. | Used {n} times in conversations; they will show as a deleted variable there.",
     "types": { "flag": "Flag", "number": "Number", "text": "Text" },
     "error": {
       "empty-name": "Give the variable a name.",
@@ -403,6 +545,7 @@
     },
     "kind": {
       "scene": "Scene",
+      "conversation": "Conversation",
       "chapter": "Chapter",
       "rule": "Rule",
       "entry": "Codex entry",

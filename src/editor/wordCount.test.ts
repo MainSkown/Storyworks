@@ -77,6 +77,13 @@ describe('rollUp', () => {
     expect(rollUp(tree, counts).get('b')).toBe(20)
   })
 
+  it('counts a conversation like a scene', () => {
+    const t = [n('f', 'chapter', [n('c', 'conversation'), n('s', 'scene')])]
+    const out = rollUp(t, new Map([['c', 7], ['s', 3]]))
+    expect(out.get('c')).toBe(7)
+    expect(out.get('f')).toBe(10)
+  })
+
   it("puts the book total under ''", () => {
     expect(rollUp(tree, counts).get('')).toBe(136)
   })

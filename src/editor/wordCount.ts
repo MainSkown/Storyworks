@@ -33,7 +33,7 @@ export function countWords(doc: unknown): number {
   return doc && typeof doc === 'object' ? walk(doc as DocNode) : 0
 }
 
-/** Words per node id (scenes own count, containers sum); book total under ''. */
+/** Words per node id (scenes and conversations own count, containers sum); book total under ''. */
 export function rollUp(
   tree: ManuscriptNode[],
   sceneCounts: Map<string, number>,
@@ -41,7 +41,7 @@ export function rollUp(
   const out = new Map<string, number>()
   const walk = (node: ManuscriptNode): number => {
     const total =
-      node.type === 'scene'
+      node.type === 'scene' || node.type === 'conversation'
         ? (sceneCounts.get(node.id) ?? 0)
         : node.children.reduce((sum, c) => sum + walk(c), 0)
     out.set(node.id, total)

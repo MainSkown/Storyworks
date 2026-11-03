@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import CorkboardView from '../components/CorkboardView.vue'
-import ConversationNote from '../components/ConversationNote.vue'
+import ConversationView from '../components/conversation/ConversationView.vue'
 import VariablesPanel from '../components/VariablesPanel.vue'
 import { variablesOpen } from '../composables/variablesPanel'
 import ManuscriptEditor from '../components/ManuscriptEditor.vue'
@@ -64,6 +64,9 @@ function setStatus(status: Scene['status']): void {
 
 // ---- status bar ----
 const sceneWords = computed(() => (scene.value ? (store.wordCounts.get(scene.value.id) ?? 0) : 0))
+const conversationWords = computed(() =>
+  conversation.value ? (store.wordCounts.get(conversation.value.id) ?? 0) : 0,
+)
 const chapter = computed(() => found.value?.parent ?? null)
 const chapterWords = computed(() =>
   chapter.value ? (store.wordCounts.get(chapter.value.id) ?? 0) : 0,
@@ -178,7 +181,7 @@ watch(corkboard, (v) => {
           <code>{{ problem.path }}</code>
         </p>
       </div>
-      <ConversationNote v-else-if="conversation" :title="conversation.title" />
+      <ConversationView v-else-if="conversation" :key="conversation.id" :conversation-id="conversation.id" />
       <ManuscriptEditor
         v-else-if="scene?.path"
         :key="isGame && meta?.form === 'text' ? 'text' : 'default'"
@@ -199,6 +202,7 @@ watch(corkboard, (v) => {
           {{ t(`write.kind.${nodeKindLabel(store.project?.manifest.kind ?? 'book', chapter.type)}`) }}: {{ chapterWords }} {{ t('sidebar.words') }}
         </span>
       </template>
+      <span v-if="conversation">{{ t('write.kind.conversation') }}: {{ conversationWords }} {{ t('sidebar.words') }}</span>
       <span>{{ t(isGame ? 'write.game' : store.project?.manifest.kind === 'book' ? 'write.book' : 'write.script') }}: {{ bookWords }} {{ t('sidebar.words') }}</span>
       <span v-if="isScreenplay">{{ t('write.pagesRuntime', { pages: store.pageStats.pages, min: store.pageStats.minutes }) }}</span>
       <span class="today" :class="{ met: stats.goalProgress?.met }">{{ todayText }}</span>

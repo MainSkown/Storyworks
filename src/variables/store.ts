@@ -1,5 +1,6 @@
 import { computed, ref, shallowRef, watch } from 'vue'
 import { defineStore } from 'pinia'
+import { usesOfVariable } from '../game/variableUses'
 import { newId } from '../project/ids'
 import { parseFile } from '../project/serialize'
 import { useProjectStore } from '../project/store'
@@ -119,6 +120,11 @@ export const useVariablesStore = defineStore('variables', () => {
     commitSync((f) => setVariableDefault(f, id, value))
   const remove = (id: string) => commitSync((f) => removeVariable(f, id))
 
+  /** Conditions and sets in listed conversations that use the variable (read from the files). */
+  async function countVariableUses(id: string): Promise<number> {
+    return usesOfVariable(await projectStore.loadAllConversations(), id).length
+  }
+
   return {
     variables,
     status,
@@ -131,5 +137,6 @@ export const useVariablesStore = defineStore('variables', () => {
     retype,
     setDefault,
     remove,
+    countVariableUses,
   }
 })

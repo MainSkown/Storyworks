@@ -5,7 +5,7 @@ import { isKindId, type KindId } from '../kinds'
 import { defaultExportOptions, type ExportOptions } from '../../export/options'
 import { defaultScriptExportOptions, type ScriptExportOptions } from '../../export/scriptOptions'
 
-export const MANIFEST_VERSION = 15
+export const MANIFEST_VERSION = 16
 export const BOOK_KIND: KindId = 'book'
 
 /** Index entry for one item file (or one singleton file). */

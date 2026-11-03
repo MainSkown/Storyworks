@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { buildIndex, loadBodies, type SearchSources } from './build'
+import { buildIndex, conversationParts, loadBodies, sceneParts, type SearchSources } from './build'
+import { conversationSchema } from '../project/schemas/conversation'
 import { search } from './query'
+import { createAreaSync } from './sync'
+import { manuscriptUnits } from './units'
 
 const p = (id: string, text: string) => ({
   type: 'paragraph',
@@ -102,7 +105,7 @@ describe('buildIndex', () => {
 describe('loadBodies', () => {
   it('fills pending scene bodies and makes them searchable', async () => {
     const ix = buildIndex(sources({ sceneContent: new Map() }))
-    const n = await loadBodies(ix, async () => doc(p('b1', 'late arrival of text')), { chunk: 1 })
+    const n = await loadBodies(ix, async () => sceneParts(doc(p('b1', 'late arrival of text'))), { chunk: 1 })
     expect(n).toBe(1)
     expect(search(ix, 'late arrival').groups[0].hits[0].id).toBe('s1')
   })
@@ -111,7 +114,7 @@ describe('loadBodies', () => {
     const ix = buildIndex(sources({ sceneContent: new Map() }))
     const n = await loadBodies(ix, async (id) => {
       ix.setParts(id, [{ text: 'fresh edit' }])
-      return doc(p('b1', 'stale text'))
+      return sceneParts(doc(p('b1', 'stale text')))
     })
     expect(n).toBe(0)
     expect(search(ix, 'stale').groups).toEqual([])
@@ -122,5 +125,91 @@ describe('loadBodies', () => {
     const ix = buildIndex(sources({ sceneContent: new Map() }))
     await loadBodies(ix, async () => null)
     expect(ix.pendingBodies()).toEqual(['s1'])
+  })
+})
+
+describe('conversationParts', () => {
+  it('lists line text with block ids, then option texts, skipping empty lines', () => {
+    const line = (id: string, text: string) => ({
+      type: 'line',
+      attrs: { id, lineId: `L${id}`.padEnd(7, '0'), speakerId: null, speakerName: null },
+      content: text ? [{ type: 'text', text }] : [],
+    })
+    const c = conversationSchema.parse({
+      version: 2,
+      id: 'c',
+      title: 'T',
+      nodes: [
+        { id: 'a', x: 0, y: 0, type: 'lines', next: null, content: doc(line('1', 'Hello there'), line('2', '')) },
+        { id: 'b', x: 0, y: 0, type: 'choice', options: [{ id: 'o', text: 'Goodbye', target: null }, { id: 'p', text: ' ', target: null }] },
+      ],
+    })
+    expect(conversationParts(c)).toEqual([{ text: 'Hello there', blockId: '1' }, { text: 'Goodbye' }])
+  })
+})
+
+describe('conversations in the index', () => {
+  const line = (id: string, text: string) => ({
+    type: 'line',
+    attrs: { id, lineId: `L${id}`.padEnd(7, '0'), speakerId: null, speakerName: null },
+    content: [{ type: 'text', text }],
+  })
+  const conv = (lineText: string, option: string) =>
+    conversationSchema.parse({
+      version: 2,
+      id: 'c1',
+      title: 'Tavern talk',
+      nodes: [
+        { id: 'a', x: 0, y: 0, type: 'lines', next: null, content: doc(line('1', lineText)) },
+        { id: 'b', x: 0, y: 0, type: 'choice', options: [{ id: 'o', text: option, target: null }] },
+      ],
+    })
+  const tree = (withConv: boolean) => [
+    ...(withConv
+      ? [{ id: 'c1', type: 'conversation' as const, title: 'Tavern talk', path: 'conversations/c1.json', children: [] }]
+      : []),
+    { id: 's1', type: 'scene' as const, title: 'Docks', path: 'manuscript/s1.json', children: [] },
+  ]
+  const found = (ix: ReturnType<typeof buildIndex>, q: string) =>
+    search(ix, q).groups.flatMap((g) => g.hits.map((h) => `${h.kind}:${h.id}`))
+
+  it('finds a line text and an option text, and the title', () => {
+    const ix = buildIndex(
+      sources({
+        tree: tree(true),
+        conversationContent: new Map([['c1', conv('Welcome, traveller', 'Buy a drink')]]),
+      }),
+    )
+    expect(found(ix, 'traveller')).toEqual(['conversation:c1'])
+    expect(search(ix, 'traveller').groups[0].hits[0].blockId).toBe('1')
+    expect(found(ix, 'buy a drink')).toEqual(['conversation:c1'])
+    expect(found(ix, 'tavern')).toEqual(['conversation:c1'])
+    expect(found(ix, 'ship')).toEqual(['scene:s1'])
+  })
+
+  it('stays pending until its body is loaded, then reflects the edited text', async () => {
+    const ix = buildIndex(sources({ tree: tree(true), sceneContent: new Map() }))
+    expect(ix.pendingBodies()).toContain('c1')
+    const fill = (text: string) => async (id: string) =>
+      id === 'c1' ? conversationParts(conv(text, 'x')) : null
+    await loadBodies(ix, fill('old words'))
+    expect(found(ix, 'old words')).toEqual(['conversation:c1'])
+    ix.setParts('c1', conversationParts(conv('new words', 'x')))
+    expect(found(ix, 'old words')).toEqual([])
+    expect(found(ix, 'new words')).toEqual(['conversation:c1'])
+  })
+
+  it('drops out when trashed and returns with its text when restored', async () => {
+    const ix = buildIndex(
+      sources({ tree: tree(true), conversationContent: new Map([['c1', conv('Welcome', 'x')]]) }),
+    )
+    const sync = createAreaSync(ix, 'manuscript')
+    sync.sync(manuscriptUnits(tree(true)))
+    sync.sync(manuscriptUnits(tree(false)))
+    expect(found(ix, 'welcome')).toEqual([])
+    sync.sync(manuscriptUnits(tree(true)))
+    expect(found(ix, 'tavern')).toEqual(['conversation:c1'])
+    await loadBodies(ix, async () => conversationParts(conv('Welcome', 'x')))
+    expect(found(ix, 'welcome')).toEqual(['conversation:c1'])
   })
 })

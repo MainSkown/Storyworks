@@ -25,6 +25,8 @@ import { scriptPageStats } from './pageStats'
 import { conversationSchema, CONVERSATION_VERSION, type Conversation } from './schemas/conversation'
 import { formatLineId, maxLineNumber } from '../editor/game/lineIds'
 import { speakerIdsOf } from '../editor/game/lines'
+import { addNode, placeNew, type NodeType } from '../game/conversationGraph'
+import { conversationWords } from '../game/conversationWords'
 import { formOfContent, type SceneForm } from '../editor/game/form'
 import { sceneHeadingIds, sceneNumbers } from './sceneNumbers'
 import { appendNoteToScene, noteToSceneContent } from './inbox'
@@ -286,6 +288,8 @@ export const useProjectStore = defineStore('project', () => {
   const itemVersions = ref<Record<string, number>>({})
   /** scene id -> metadata; mutated in place, then triggerRef (cheap for hundreds of scenes) */
   const sceneMeta = shallowRef(new Map<string, SceneMeta>())
+  /** conversation id -> game words of its lines; replaced entries, then triggerRef */
+  const conversationWordMap = shallowRef(new Map<string, number>())
   const selectedId = ref<string | null>(null)
   /** inbox note shown in the centre pane (instead of a scene) */
   const openNoteId = ref<string | null>(null)
@@ -326,6 +330,7 @@ export const useProjectStore = defineStore('project', () => {
   const wordCounts = computed(() => {
     const counts = new Map<string, number>()
     for (const [id, m] of sceneMeta.value) counts.set(id, m.wordCount)
+    for (const [id, n] of conversationWordMap.value) counts.set(id, n)
     return rollUp(tree.value, counts)
   })
   /** Screenplay scene numbers: heading block id and item id to number (empty when no headings). */
@@ -439,6 +444,26 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /** Same for the lines of a conversation; also refreshes its word count. */
+  function noteConversation(conv: Conversation): void {
+    const p = project.value
+    if (p && !p.readOnly) {
+      const max = Math.max(
+        0,
+        ...conv.nodes.map((n) => (n.type === 'lines' ? maxLineNumber(n.content) : 0)),
+      )
+      if (max > p.manifest.lineCounter) {
+        p.manifest.lineCounter = max
+        mark(MANIFEST_FILE)
+      }
+    }
+    const words = conversationWords(conv)
+    if (conversationWordMap.value.get(conv.id) !== words) {
+      conversationWordMap.value.set(conv.id, words)
+      triggerRef(conversationWordMap)
+    }
+  }
+
   /** Next game line id; the counter only grows, so an id is never issued twice. */
   function reserveLineId(): string {
     const p = assertWritable()
@@ -483,6 +508,13 @@ export const useProjectStore = defineStore('project', () => {
     putMeta(id, r?.ok ? r.value : null)
   }
 
+  async function indexConversation(s: Session, id: string, path: string): Promise<void> {
+    const text = await s.io.readText(path)
+    const r = text === null ? null : parseFile(conversationSchema, text, path)
+    if (r?.ok) noteConversation(r.value)
+    else if (conversationWordMap.value.delete(id)) triggerRef(conversationWordMap)
+  }
+
   async function loadInbox(s: Session, p: OpenProject): Promise<void> {
     const ref = p.manifest.inbox
     inbox.value = null
@@ -519,19 +551,29 @@ export const useProjectStore = defineStore('project', () => {
     if (p?.manifest.inbox?.path === path) await loadInbox(s, p)
     else if (p?.manifest.ignoredFindings?.path === path) await loadIgnored(s, p)
     else if (p?.manifest.stats?.path === path) await loadStats(s, p)
-    else await indexScene(s, nodeIdOfPath(path), path)
+    else {
+      const id = nodeIdOfPath(path)
+      const node = p ? findNode(p.manifest.manuscript, id) : undefined
+      if (node?.type === 'conversation') await indexConversation(s, id, path)
+      else await indexScene(s, id, path)
+    }
   }
 
   async function rebuildLinks(s: Session, p: OpenProject): Promise<void> {
     const scenes: ManuscriptNode[] = []
+    const convs: ManuscriptNode[] = []
     const walk = (nodes: ManuscriptNode[]) => {
       for (const n of nodes) {
         if (n.type === 'scene' && n.path) scenes.push(n)
+        else if (n.type === 'conversation' && n.path) convs.push(n)
         walk(n.children)
       }
     }
     walk(p.manifest.manuscript)
-    await Promise.all(scenes.map((n) => indexScene(s, n.id, n.path as string)))
+    await Promise.all([
+      ...scenes.map((n) => indexScene(s, n.id, n.path as string)),
+      ...convs.map((n) => indexConversation(s, n.id, n.path as string)),
+    ])
     triggerRef(sceneMeta)
     linkRevision.value++
   }
@@ -664,6 +706,7 @@ export const useProjectStore = defineStore('project', () => {
     manifestChanged.value = false
     itemVersions.value = {}
     sceneMeta.value = new Map()
+    conversationWordMap.value = new Map()
     selectedId.value = null
     openNoteId.value = null
     revision.value++
@@ -884,6 +927,7 @@ export const useProjectStore = defineStore('project', () => {
     manifestChanged.value = false
     itemVersions.value = {}
     sceneMeta.value = new Map()
+    conversationWordMap.value = new Map()
     selectedId.value = null
     openNoteId.value = null
     inbox.value = null
@@ -933,7 +977,7 @@ export const useProjectStore = defineStore('project', () => {
       s.index.setLinks(scene.id, scene.links)
       linkRevision.value++
       if (putMeta(scene.id, scene)) triggerRef(sceneMeta)
-    }
+    } else if ((schema as unknown) === conversationSchema) noteConversation(value as Conversation)
     mark(path)
     return true
   }
@@ -1118,6 +1162,21 @@ export const useProjectStore = defineStore('project', () => {
     return result
   }
 
+  /** The conversation file as parsed, or its unsaved value; not ok for any other id or an unusable file. */
+  async function loadConversation(id: string): Promise<ParseResult<Conversation>> {
+    const p = project.value
+    const node = p ? findNode(p.manifest.manuscript, id) : undefined
+    const path = node?.path ?? id
+    if (!session || !node || node.type !== 'conversation' || !node.path)
+      return { ok: false, error: { file: path, message: `${id} is not a conversation` } }
+    const unsaved = session.pending.get(node.path)
+    if (unsaved) return { ok: true, value: unsaved.value as Conversation }
+    const text = await session.io.readText(node.path)
+    return text === null
+      ? { ok: false, error: { file: node.path, message: `${node.path} not found` } }
+      : parseFile(conversationSchema, text, node.path)
+  }
+
   /** Applies a change to one conversation file (autosaved). false = not a usable conversation or refused. */
   function patchConversation(
     id: string,
@@ -1128,19 +1187,58 @@ export const useProjectStore = defineStore('project', () => {
       const node = findNode(p.manifest.manuscript, id)
       if (!node || node.type !== 'conversation' || !node.path || p.isInvalid(node.path))
         return false
-      const unsaved = session?.pending.get(node.path)?.value as Conversation | undefined
-      let cur = unsaved
-      if (!cur) {
-        const text = await session?.io.readText(node.path)
-        const r = text == null ? null : parseFile(conversationSchema, text, node.path)
-        if (!r?.ok) return false
-        cur = r.value
-      }
-      return updateItem(node.path, conversationSchema, change({ ...cur }))
+      const cur = await loadConversation(id)
+      if (!cur.ok) return false
+      return updateItem(node.path, conversationSchema, change({ ...cur.value }))
     }
     const result = patchQueue.then(run)
     patchQueue = result.catch(() => undefined)
     return result
+  }
+
+  /** Adds a node (right of `afterId` unless x/y are given); a Lines node starts with one empty line. Returns its id, or null when refused. */
+  async function addConversationNode(
+    convId: string,
+    type: NodeType,
+    o: { afterId?: string | null; x?: number; y?: number } = {},
+  ): Promise<string | null> {
+    assertWritable()
+    const nodeId = newId()
+    const line = {
+      type: 'line',
+      attrs: { id: newId(), lineId: '', speakerId: null, speakerName: null },
+    }
+    if (type === 'lines') line.attrs.lineId = reserveLineId()
+    const ok = await patchConversation(convId, (c) => {
+      const pos = placeNew(c, o.afterId ?? null)
+      const next = addNode(c, type, {
+        id: nodeId,
+        x: o.x ?? pos.x,
+        y: o.y ?? pos.y,
+        afterId: o.afterId,
+      })
+      if (type !== 'lines') return next
+      const content = { type: 'doc', content: [line] }
+      return {
+        ...next,
+        nodes: next.nodes.map((n) => (n.id === nodeId && n.type === 'lines' ? { ...n, content } : n)),
+      }
+    })
+    return ok ? nodeId : null
+  }
+
+  /** Every listed (not trashed) conversation that loads, in tree order; unusable files are skipped. */
+  async function loadAllConversations(): Promise<Conversation[]> {
+    const ids: string[] = []
+    const walk = (nodes: ManuscriptNode[]) => {
+      for (const n of nodes) {
+        if (n.type === 'conversation') ids.push(n.id)
+        walk(n.children)
+      }
+    }
+    walk(project.value?.manifest.manuscript ?? [])
+    const all = await Promise.all(ids.map(loadConversation))
+    return all.flatMap((r) => (r.ok ? [r.value] : []))
   }
 
   /** Replaces the scene's links with `change(links)` (autosaved). false = refused or not a usable scene. */
@@ -1336,10 +1434,12 @@ export const useProjectStore = defineStore('project', () => {
     for (const t of gone) {
       s.index.removeOwner(t.id)
       putMeta(t.id, null)
+      conversationWordMap.value.delete(t.id)
       s.pending.delete(t.originalPath)
     }
     const goneIds = new Set(gone.map((t) => t.id))
     triggerRef(sceneMeta)
+    triggerRef(conversationWordMap)
     if (selectedId.value && goneIds.has(selectedId.value)) selectedId.value = null
     issues.value = issues.value.filter(
       (i) => !((i.kind === 'missing' || i.kind === 'invalid') && goneIds.has(i.itemId)),
@@ -1376,6 +1476,7 @@ export const useProjectStore = defineStore('project', () => {
     if (node?.path) {
       if (await s.io.exists(node.path)) {
         if (node.type === 'scene') await indexScene(s, id, node.path)
+        else if (node.type === 'conversation') await indexConversation(s, id, node.path)
       } else setItemIssue(node.path, { status: 'missing' })
       triggerRef(sceneMeta)
     }
@@ -1909,6 +2010,7 @@ export const useProjectStore = defineStore('project', () => {
     epoch.value++
     itemVersions.value = {}
     sceneMeta.value = new Map()
+    conversationWordMap.value = new Map()
     revision.value++
     saveStatus.value = 'saved'
     await s.watcher.start().catch((e) => console.error(e))
@@ -2017,7 +2119,10 @@ export const useProjectStore = defineStore('project', () => {
     addScript,
     addText,
     addConversation,
+    loadConversation,
     patchConversation,
+    addConversationNode,
+    loadAllConversations,
     selectedId,
     openNoteId,
     inboxNotes,

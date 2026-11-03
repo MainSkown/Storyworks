@@ -23,6 +23,7 @@ export async function openTarget(t: OpenTarget): Promise<void> {
       if (t.blockId && (await jumpToBlock(t.id, t.blockId)).ok) return
       await jumpToScene(t.id)
       return
+    case 'conversation':
     case 'chapter': {
       const p = useProjectStore()
       writeView.value = 'editor'

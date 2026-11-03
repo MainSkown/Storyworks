@@ -6,6 +6,7 @@ import { resetFileIOFactory, setFileIOFactory } from '../settings/store'
 import { resetProjectIOFactory, setProjectIOFactory, useProjectStore } from '../project/store'
 import { LOCK_PATH } from '../project/lock'
 import { VARIABLES_FILE } from '../project/schemas/variables'
+import type { Conversation } from '../project/schemas/conversation'
 import { useVariablesStore } from './store'
 
 let io: MemoryProjectIO
@@ -125,5 +126,54 @@ describe('variables store', () => {
     expect(v.variables).toHaveLength(1)
     expect(await v.add('b', 'flag')).toEqual({ ok: false, reason: 'read-only' })
     expect(v.rename(v.variables[0].id, 'c')).toEqual({ ok: false, reason: 'read-only' })
+  })
+
+  it('counts conversation uses, and deleting a variable leaves them in the files', async () => {
+    const { p, v } = await opened()
+    await v.add('gold', 'number')
+    await v.add('met', 'flag')
+    const [gold, met] = v.variables
+    const a = await p.addConversation(null, 'A')
+    const b = await p.addConversation(null, 'B')
+    const lone = await p.addConversationNode(a, 'end')
+    await p.addConversationNode(b, 'end')
+    const withUses = (nodeId: string | null) => (c: Conversation) => ({
+      ...c,
+      nodes: c.nodes.map((n) =>
+        n.id === nodeId || c.id === b
+          ? {
+              ...n,
+              condition: { mode: 'all' as const, terms: [{ variableId: gold.id, op: 'gt' as const, value: 1 }] },
+              sets: [{ variableId: gold.id, op: 'add' as const, value: 1 }],
+            }
+          : n,
+      ),
+    })
+    await p.patchConversation(a, withUses(lone))
+    await p.patchConversation(b, withUses(null))
+    expect(await v.countVariableUses(gold.id)).toBe(4)
+    expect(await v.countVariableUses(met.id)).toBe(0)
+    const pathA = p.tree.find((n) => n.id === a)!.path as string
+    await p.flush()
+    const before = io.files.get(pathA)
+    expect(v.remove(gold.id)).toEqual({ ok: true })
+    await p.flush()
+    expect(io.files.get(pathA)).toBe(before)
+    expect(await v.countVariableUses(gold.id)).toBe(4)
+  })
+
+  it('does not count uses in a deleted conversation', async () => {
+    const { p, v } = await opened()
+    await v.add('gold', 'number')
+    const id = v.variables[0].id
+    const a = await p.addConversation(null, 'A')
+    const n = await p.addConversationNode(a, 'end')
+    await p.patchConversation(a, (c) => ({
+      ...c,
+      nodes: c.nodes.map((x) => (x.id === n ? { ...x, sets: [{ variableId: id, op: 'add' as const, value: 1 }] } : x)),
+    }))
+    expect(await v.countVariableUses(id)).toBe(1)
+    await p.deleteItem(a)
+    expect(await v.countVariableUses(id)).toBe(0)
   })
 })

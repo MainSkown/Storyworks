@@ -32,6 +32,24 @@ function rawScenePaths(manifest: unknown): Set<string> {
   return out
 }
 
+/** Conversation file paths named by a raw manifest (live tree and trash). */
+function rawConversationPaths(manifest: unknown): Set<string> {
+  const out = new Set<string>()
+  const walk = (nodes: unknown) => {
+    if (!Array.isArray(nodes)) return
+    for (const n of nodes as Record<string, unknown>[]) {
+      if (n?.type === 'conversation' && typeof n.path === 'string') out.add(n.path)
+      walk(n?.children)
+    }
+  }
+  const m = manifest as { manuscript?: unknown; trash?: unknown }
+  walk(m?.manuscript)
+  if (Array.isArray(m?.trash))
+    for (const t of m.trash as Record<string, unknown>[])
+      if (t?.type === 'conversation' && typeof t.trashPath === 'string') out.add(t.trashPath)
+  return out
+}
+
 /** Codex entry file paths named by a raw manifest (listed and trashed). */
 function rawEntryPaths(manifest: unknown): Set<string> {
   const out = new Set<string>()
@@ -271,6 +289,29 @@ const v14to15: Migration = {
   },
 }
 
+/**
+ * v15 -> v16: conversation files v1 -> v2 (`startNodeId`). Only well-formed v1 stubs (no nodes)
+ * are rewritten; anything else is left as it is and shows as invalid after opening.
+ */
+const v15to16: Migration = {
+  from: 15,
+  to: 16,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, { ...manifest, version: 16 })
+    for (const path of rawConversationPaths(manifest)) {
+      const conv = files.get(path) as Record<string, unknown> | undefined
+      const stub =
+        conv?.version === 1 &&
+        !('startNodeId' in conv) &&
+        (conv.nodes === undefined || (Array.isArray(conv.nodes) && conv.nodes.length === 0))
+      if (stub) out.set(path, { ...conv, version: 2, startNodeId: null })
+    }
+    return out
+  },
+}
+
 export const migrations: Migration[] = [
   v1to2,
   v2to3,
@@ -286,6 +327,7 @@ export const migrations: Migration[] = [
   v12to13,
   v13to14,
   v14to15,
+  v15to16,
 ]
 
 export const MANIFEST_FILE = 'project.json'

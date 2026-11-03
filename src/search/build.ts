@@ -1,6 +1,7 @@
 import { blockTexts } from '../codex/mentions'
 import { docToText } from '../project/plainText'
 import type { ManuscriptNode } from '../project/schemas/manifest'
+import type { Conversation } from '../project/schemas/conversation'
 import type { CodexEntry } from '../project/schemas/codexEntry'
 import type { KnowledgeItem } from '../project/schemas/knowledge'
 import type { Rule } from '../project/schemas/rule'
@@ -28,6 +29,17 @@ export function sceneParts(content: unknown): IndexPart[] {
   return docParts(content)
 }
 
+/** Conversation text in node order: each line block (with its id), then each choice option's text. */
+export function conversationParts(c: Conversation): IndexPart[] {
+  return c.nodes.flatMap((n): IndexPart[] => {
+    if (n.type === 'lines')
+      return blockTexts(n.content)
+        .filter((b) => b.text.trim() !== '')
+        .map((b) => ({ text: b.text, blockId: b.blockId }))
+    return n.type === 'choice' ? textParts(...n.options.map((o) => o.text)) : []
+  })
+}
+
 export interface ItemEntry {
   area: Area
   item: IndexInput
@@ -37,6 +49,7 @@ export interface ItemEntry {
 export function manuscriptItems(
   tree: ManuscriptNode[],
   content?: ReadonlyMap<string, unknown>,
+  conversations?: ReadonlyMap<string, Conversation>,
 ): ItemEntry[] {
   const out: ItemEntry[] = []
   const walk = (nodes: ManuscriptNode[], parentId?: string) => {
@@ -51,6 +64,18 @@ export function manuscriptItems(
             title: n.title,
             parentId,
             ...(c !== undefined ? { parts: sceneParts(c) } : {}),
+          },
+        })
+      } else if (n.type === 'conversation') {
+        const c = conversations?.get(n.id)
+        out.push({
+          area: 'manuscript',
+          item: {
+            id: n.id,
+            kind: 'conversation',
+            title: n.title,
+            parentId,
+            ...(c ? { parts: conversationParts(c) } : {}),
           },
         })
       } else if (n.type === 'chapter') {
@@ -123,6 +148,8 @@ export interface SearchSources {
   tree: ManuscriptNode[]
   /** Scene id -> ProseMirror body, for scenes already loaded; the rest are indexed by title until `loadBodies`. */
   sceneContent?: ReadonlyMap<string, unknown>
+  /** Same for conversations (game projects). */
+  conversationContent?: ReadonlyMap<string, Conversation>
   rules: Pick<Rule, 'id' | 'title' | 'description' | 'exceptions'>[]
   timelines: TimelineLike[]
   entries: Pick<CodexEntry, 'id' | 'name' | 'aliases' | 'notes' | 'appendixText'>[]
@@ -133,7 +160,7 @@ export interface SearchSources {
 export function buildIndex(src: SearchSources): SearchIndex {
   const ix = createIndex()
   const all = [
-    ...manuscriptItems(src.tree, src.sceneContent),
+    ...manuscriptItems(src.tree, src.sceneContent, src.conversationContent),
     ...src.rules.map(ruleItem),
     ...src.timelines.flatMap(timelineItems),
     ...src.entries.map(entryItem),
@@ -144,7 +171,7 @@ export function buildIndex(src: SearchSources): SearchIndex {
 }
 
 export interface LoadBodiesOptions {
-  /** Scenes loaded between pauses. Default 20. */
+  /** Items loaded between pauses. Default 20. */
   chunk?: number
   /** Called between chunks so the UI stays responsive. Default: a macrotask. */
   pause?: () => Promise<void>
@@ -154,12 +181,12 @@ export interface LoadBodiesOptions {
 const macrotask = () => new Promise<void>((r) => setTimeout(r, 0))
 
 /**
- * Background pass: loads the body of every scene that has none yet. A body that was set
- * meanwhile (an edit) is not overwritten. Returns how many scenes were filled.
+ * Background pass: loads the body (scene or conversation) of every item that has none yet. A body that was set
+ * meanwhile (an edit) is not overwritten. Returns how many items were filled.
  */
 export async function loadBodies(
   index: SearchIndex,
-  load: (sceneId: string) => Promise<unknown | null>,
+  load: (id: string) => Promise<IndexPart[] | null>,
   opts: LoadBodiesOptions = {},
 ): Promise<number> {
   const chunk = opts.chunk ?? 20
@@ -168,9 +195,9 @@ export async function loadBodies(
   let n = 0
   for (const id of index.pendingBodies()) {
     if (opts.isCancelled?.()) break
-    const content = await load(id)
-    if (content !== null && index.get(id)?.parts === null) {
-      index.setParts(id, sceneParts(content))
+    const parts = await load(id)
+    if (parts !== null && index.get(id)?.parts === null) {
+      index.setParts(id, parts)
       filled++
     }
     if (++n % chunk === 0) await pause()
