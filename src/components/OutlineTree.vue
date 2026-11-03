@@ -35,8 +35,16 @@ const { kind, profile, nodeLabel } = useKindProfile()
 const sequence = computed(() => profile.value.folderLabel === 'sequence')
 const isGame = computed(() => profile.value.id === 'game')
 const isLeaf = (n: ManuscriptNode) => n.type === 'scene' || n.type === 'conversation'
+const isTextItem = (n: ManuscriptNode) =>
+  isGame.value && n.type === 'scene' && store.sceneMeta.get(n.id)?.form === 'text'
 const iconOf = (n: ManuscriptNode) =>
-  n.type === 'part' ? 'bookmarks' : n.type === 'conversation' ? 'forum' : isGame.value ? 'folder' : 'book'
+  n.type === 'part'
+    ? 'bookmarks'
+    : n.type === 'conversation'
+      ? 'forum'
+      : isGame.value
+        ? 'folder'
+        : 'book'
 const root = ref<HTMLElement | null>(null)
 
 const locked = computed(() => !!store.readOnly)
@@ -160,6 +168,10 @@ async function addFolder(): Promise<void> {
 async function addScript(): Promise<void> {
   const parent = sceneParent()
   await added(await store.addScript(parent, t('outline.newScript')), parent)
+}
+async function addText(): Promise<void> {
+  const parent = sceneParent()
+  await added(await store.addText(parent, t('outline.newText')), parent)
 }
 async function addConversation(): Promise<void> {
   const parent = sceneParent()
@@ -330,8 +342,9 @@ function onDragOver(e: DragEvent, row: Row): void {
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
   const f = (e.clientY - rect.top) / rect.height
   const edge: Zone = f < 0.5 ? 'before' : 'after'
-  const zones: Zone[] =
-    isLeaf(row.node) ? [edge] : [f < 0.25 ? 'before' : f > 0.75 ? 'after' : 'inside', edge]
+  const zones: Zone[] = isLeaf(row.node)
+    ? [edge]
+    : [f < 0.25 ? 'before' : f > 0.75 ? 'after' : 'inside', edge]
   const key = `${row.node.id}:${zones[0]}:${edge}`
   if (key !== dropKey) {
     dropKey = key
@@ -393,6 +406,7 @@ function memoDeps(r: Row): unknown[] {
     renamingId.value === id,
     locale.value,
     store.sceneNumbering.byItem.get(id),
+    isTextItem(r.node),
   ]
 }
 
@@ -436,6 +450,16 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
           @click="addScript"
         >
           <QIcon name="note_add" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="tool"
+          :aria-label="t('outline.addText')"
+          :title="t('outline.addText')"
+          :disabled="locked"
+          @click="addText"
+        >
+          <QIcon name="notes" aria-hidden="true" />
         </button>
         <button
           type="button"
@@ -596,7 +620,16 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
             @blur="commitRename"
           />
           <span v-else class="name" :class="r.node.type">
-            <span class="sr-only">{{ t(`write.kind.${nodeLabel(r.node.type)}`) }}: </span>
+            <span class="sr-only"
+              >{{ t(`write.kind.${isTextItem(r.node) ? 'text' : nodeLabel(r.node.type)}`) }}:
+            </span>
+            <QIcon
+              v-if="isTextItem(r.node)"
+              name="notes"
+              size="0.875rem"
+              class="kind-icon"
+              aria-hidden="true"
+            />
             <span v-if="sceneNo(r.node.id)" class="num">{{ sceneNo(r.node.id) }}</span>
             {{ r.node.title }}
           </span>

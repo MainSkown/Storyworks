@@ -40,6 +40,8 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - [x] Item type "Script": ordered lines. Each line has a speaker (link to a codex Character, stable ID, shown with its current name) and text.
 - [x] Each line has a stable line ID, generated once, never reused, shown in the editor margin and exported.
 - [x] Narration/system lines may have no speaker.
+- [x] Line kinds (added after S3 review): a line is Speech (speaker chip) or Text (a description with no speaker, no chip, styled as prose; still has a line ID). The speaker picker has a "Text" option; Enter at the end of a Text line starts another Text line.
+- [x] Item type "Text": free prose for descriptions of locations and events (bold, italic, lists, quotes, margin comments, event links). It is a scene file whose body is paragraphs, so counts, status, links, search, snapshots and trash work unchanged; the editor is chosen from the body (lines = script, anything else = text). Text items have no line IDs.
 
 ### Game script: conversations (branching)
 - [ ] Item type "Conversation": a graph on the pan/zoom canvas (same component as timelines).

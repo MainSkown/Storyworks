@@ -181,6 +181,8 @@ watch(corkboard, (v) => {
       <ConversationNote v-else-if="conversation" :title="conversation.title" />
       <ManuscriptEditor
         v-else-if="scene?.path"
+        :key="isGame && meta?.form === 'text' ? 'text' : 'default'"
+        :form="isGame ? meta?.form : undefined"
         :scene-id="scene.id"
         :path="scene.path"
         :node-title="scene.title"
@@ -192,7 +194,7 @@ watch(corkboard, (v) => {
 
     <div class="statusbar" role="status" :aria-label="t('write.statusBar')">
       <template v-if="scene">
-        <span>{{ t(`write.kind.${nodeKindLabel(store.project?.manifest.kind ?? 'book', 'scene')}`) }}: {{ sceneWords }} {{ t('sidebar.words') }}</span>
+        <span>{{ t(`write.kind.${isGame && meta?.form === 'text' ? 'text' : nodeKindLabel(store.project?.manifest.kind ?? 'book', 'scene')}`) }}: {{ sceneWords }} {{ t('sidebar.words') }}</span>
         <span v-if="chapter">
           {{ t(`write.kind.${nodeKindLabel(store.project?.manifest.kind ?? 'book', chapter.type)}`) }}: {{ chapterWords }} {{ t('sidebar.words') }}
         </span>

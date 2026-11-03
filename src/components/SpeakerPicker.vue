@@ -15,6 +15,8 @@ const props = defineProps<{
   entries: SpeakerEntry[]
   recent: string[]
   current: SpeakerView
+  /** The line is a text (description) line. */
+  isText: boolean
   /** The current speaker is a deleted codex entry that is still in the trash. */
   restorable: boolean
   readonly: boolean
@@ -24,6 +26,8 @@ const emit = defineEmits<{
   /** Create a codex character with this name and use it for every line with that name. */
   add: [name: string]
   restore: [id: string]
+  /** Make the line a text (description) line. */
+  text: []
   close: []
 }>()
 const { t } = useI18n()
@@ -37,6 +41,7 @@ type Option = {
     | { kind: 'set'; speaker: SpeakerValue }
     | { kind: 'add'; name: string }
     | { kind: 'restore'; id: string }
+    | { kind: 'text' }
 }
 
 const query = ref('')
@@ -54,6 +59,8 @@ const options = computed<Option[]>(() => {
       icon: 'restore_from_trash',
       value: { kind: 'restore', id: props.current.id },
     })
+  if (q === '' && !props.isText)
+    out.push({ key: 'text', label: t('speaker.text'), icon: 'notes', value: { kind: 'text' } })
   if (q === '')
     out.push({ key: 'none', label: t('speaker.none'), icon: 'record_voice_over', value: { kind: 'set', speaker: null } })
   for (const r of rankSpeakers(q, props.entries, props.recent))
@@ -92,6 +99,7 @@ function accept(i: number): void {
   if (!o || props.readonly) return
   if (o.value.kind === 'add') emit('add', o.value.name)
   else if (o.value.kind === 'restore') emit('restore', o.value.id)
+  else if (o.value.kind === 'text') emit('text')
   else emit('pick', o.value.speaker)
 }
 function onKey(e: KeyboardEvent): void {

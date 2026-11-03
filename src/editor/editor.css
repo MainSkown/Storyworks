@@ -138,3 +138,10 @@
   outline: 2px solid var(--focus-ring);
   outline-offset: 1px;
 }
+/* Text line: a description, no speaker; set apart from speech. */
+.ProseMirror.game .game-line[data-kind='text'] {
+  padding-inline-start: 1ch;
+  border-inline-start: 3px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-style: italic;
+}

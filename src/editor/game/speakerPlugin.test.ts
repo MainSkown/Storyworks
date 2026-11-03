@@ -190,3 +190,51 @@ describe('keys', () => {
     expect(key(e, 'Tab', true)).toBe(false)
   })
 })
+
+describe('line kinds in the editor', () => {
+  it('a text line draws no chip', () => {
+    const e = makeEditor(doc(line('a', 1), line('Dusk falls.', 2, { kind: 'text' })))
+    expect(e.view.dom.querySelectorAll('.speaker-chip')).toHaveLength(1)
+    expect((e.view.dom.querySelectorAll('.game-line')[1] as HTMLElement).dataset.kind).toBe('text')
+  })
+
+  it('setLineKind text clears the speaker; speech keeps the line as it is', () => {
+    const e = makeEditor(doc(line('a', 1, { speakerId: 'e1' })))
+    e.commands.setLineKind(0, 'text')
+    expect(attrsOf(e)[0]).toMatchObject({
+      kind: 'text',
+      speakerId: null,
+      speakerName: null,
+      lineId: 'L000001',
+    })
+    e.commands.setLineKind(0, 'speech')
+    expect(attrsOf(e)[0]).toMatchObject({ kind: 'speech', speakerId: null })
+  })
+
+  it('choosing a speaker on a text line makes it a speech line', () => {
+    const e = makeEditor(doc(line('a', 1, { kind: 'text' })))
+    e.commands.setSpeaker(0, { speakerId: 'e1' })
+    expect(attrsOf(e)[0]).toMatchObject({ kind: 'speech', speakerId: 'e1' })
+  })
+
+  it('Enter at the end of a text line starts another text line', () => {
+    const e = makeEditor(doc(line('Dusk falls.', 1, { kind: 'text' })))
+    cursorIn(e, 0, 11)
+    expect(key(e, 'Enter')).toBe(true)
+    expect(attrsOf(e).map((a) => a.kind)).toEqual(['text', 'text'])
+  })
+
+  it('Tab at the start of a text line still opens the picker', () => {
+    const e = makeEditor(doc(line('Dusk', 1, { kind: 'text' })))
+    cursorIn(e, 0, 0)
+    expect(key(e, 'Tab')).toBe(true)
+    expect(picks).toHaveLength(1)
+  })
+
+  it('splitting a text line keeps the kind on both halves', () => {
+    const e = makeEditor(doc(line('Dusk falls', 1, { kind: 'text' })))
+    cursorIn(e, 0, 4)
+    e.commands.splitBlock()
+    expect(attrsOf(e).map((a) => a.kind)).toEqual(['text', 'text'])
+  })
+})

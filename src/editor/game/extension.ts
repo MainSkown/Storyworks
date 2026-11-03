@@ -18,6 +18,12 @@ export const GameLine = Node.create({
         parseHTML: (el) => el.getAttribute('data-line-id') || null,
         renderHTML: (a) => (a.lineId ? { 'data-line-id': a.lineId as string } : {}),
       },
+      // speech: spoken or narrated line; text: a description with no speaker.
+      kind: {
+        default: 'speech',
+        parseHTML: (el) => (el.getAttribute('data-kind') === 'text' ? 'text' : 'speech'),
+        renderHTML: (a) => ({ 'data-kind': a.kind as string }),
+      },
       speakerId: {
         default: null,
         parseHTML: (el) => el.getAttribute('data-speaker-id') || null,

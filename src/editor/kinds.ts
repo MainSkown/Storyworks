@@ -245,7 +245,10 @@ const game: EditorKind = {
     UndoRedo,
     CommentMark,
     BlockIds,
-    LineIds.configure({ allocate: allocateLineId ?? (() => ''), ready: lineIdsReady ?? (() => true) }),
+    LineIds.configure({
+      allocate: allocateLineId ?? (() => ''),
+      ready: lineIdsReady ?? (() => true),
+    }),
     ...(speakers ? [Speakers.configure(speakers)] : []),
     EventLinks.configure({ info: eventLinkInfo ?? (() => null) }),
     ...(spellcheck ? [Spellcheck.configure({ check: spellcheck })] : []),
@@ -263,4 +266,36 @@ const game: EditorKind = {
   ],
 }
 
-export const editorKinds: Record<string, EditorKind> = { book, screenplay, game }
+// A free-prose item in a game project (location or event descriptions, lore).
+const GAME_TEXT_TOOLBAR = [
+  'bold',
+  'italic',
+  'underline',
+  'bulletList',
+  'orderedList',
+  'blockquote',
+  'comment',
+  'eventLink',
+]
+const gameText: EditorKind = {
+  extensions: ({ eventLinkInfo, spellcheck } = {}) => [
+    StarterKit.configure({
+      heading: false,
+      codeBlock: false,
+      code: false,
+      link: false,
+      horizontalRule: false,
+      trailingNode: false,
+    }),
+    CommentMark,
+    BlockIds,
+    EventLinks.configure({ info: eventLinkInfo ?? (() => null) }),
+    ...(spellcheck ? [Spellcheck.configure({ check: spellcheck })] : []),
+  ],
+  toolbar: [
+    ...screenplay.toolbar.filter((i) => i.id === 'undo' || i.id === 'redo'),
+    ...book.toolbar.filter((i) => GAME_TEXT_TOOLBAR.includes(i.id)),
+  ],
+}
+
+export const editorKinds: Record<string, EditorKind> = { book, screenplay, game, gameText }

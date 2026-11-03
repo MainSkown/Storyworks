@@ -25,6 +25,8 @@ declare module '@tiptap/core' {
     gameSpeakers: {
       /** Sets the speaker of the line that starts at `pos` (null = narration). */
       setSpeaker: (pos: number, speaker: SpeakerValue) => ReturnType
+      /** Makes the line at `pos` a spoken line or a text (description) line; text lines lose their speaker. */
+      setLineKind: (pos: number, kind: 'speech' | 'text') => ReturnType
       /** Turns every line speaking as the plain `name` into a codex speaker. */
       linkSpeakerName: (name: string, entryId: string) => ReturnType
     }
@@ -57,8 +59,22 @@ export const Speakers = Extension.create<SpeakerOptions>({
           if (dispatch)
             tr.setNodeMarkup(pos, undefined, {
               ...node.attrs,
+              kind: 'speech',
               speakerId: speaker && 'speakerId' in speaker ? speaker.speakerId : null,
               speakerName: speaker && 'speakerName' in speaker ? speaker.speakerName : null,
+            })
+          return true
+        },
+      setLineKind:
+        (pos, kind) =>
+        ({ tr, state, dispatch }) => {
+          const node = state.doc.nodeAt(pos)
+          if (node?.type.name !== 'line') return false
+          if (dispatch)
+            tr.setNodeMarkup(pos, undefined, {
+              ...node.attrs,
+              kind,
+              ...(kind === 'text' ? { speakerId: null, speakerName: null } : {}),
             })
           return true
         },
@@ -93,7 +109,12 @@ export const Speakers = Extension.create<SpeakerOptions>({
           if ($from.parentOffset !== $from.parent.content.size) return false
           if (dispatch) {
             const at = $from.after()
-            tr.insert(at, state.schema.nodes.line!.create())
+            tr.insert(
+              at,
+              state.schema.nodes.line!.create(
+                $from.parent.attrs.kind === 'text' ? { kind: 'text' } : undefined,
+              ),
+            )
             tr.setSelection(TextSelection.create(tr.doc, at + 1)).scrollIntoView()
           }
           return true
@@ -114,7 +135,7 @@ export const Speakers = Extension.create<SpeakerOptions>({
     const build = (doc: Parameters<typeof DecorationSet.create>[0]) => {
       const decos: Decoration[] = []
       doc.forEach((node, pos) => {
-        if (node.type.name !== 'line') return
+        if (node.type.name !== 'line' || node.attrs.kind === 'text') return
         const l = label({
           speakerId: (node.attrs.speakerId as string | null) ?? null,
           speakerName: (node.attrs.speakerName as string | null) ?? null,

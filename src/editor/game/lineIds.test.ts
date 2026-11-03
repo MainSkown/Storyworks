@@ -103,7 +103,10 @@ describe('line ids in the editor', () => {
     counter = 0
     let ready = false
     const e = new Editor({
-      extensions: editorKinds.game!.extensions({ allocateLineId: allocate, lineIdsReady: () => ready }),
+      extensions: editorKinds.game!.extensions({
+        allocateLineId: allocate,
+        lineIdsReady: () => ready,
+      }),
       content: doc(line('a', null)),
     })
     editors.push(e)
@@ -184,5 +187,21 @@ describe('line ids in the editor', () => {
     e.commands.splitBlock()
     const ids = lines(e).map((l) => l.id)
     expect(new Set(ids).size).toBe(ids.length)
+  })
+})
+
+describe('text item editor', () => {
+  it('holds paragraphs with block ids and never issues line ids', () => {
+    counter = 0
+    const e = new Editor({
+      extensions: editorKinds.gameText!.extensions({ allocateLineId: allocate }),
+      content: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Fog.' }] }] },
+    })
+    editors.push(e)
+    e.commands.splitBlock()
+    const blocks = e.getJSON().content ?? []
+    expect(blocks.map((b) => b.type)).toEqual(['paragraph', 'paragraph'])
+    expect(new Set(blocks.map((b) => b.attrs?.id)).size).toBe(2)
+    expect(counter).toBe(0)
   })
 })

@@ -419,6 +419,7 @@ describe('project store', () => {
         elements: [],
         elementsKey: '',
         speakerIds: [],
+        form: 'script',
       })
     })
 

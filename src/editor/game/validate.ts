@@ -23,6 +23,11 @@ export function gameContentProblem(content: Record<string, unknown>): string | n
     if (!optString(attrs.speakerId) || !optString(attrs.speakerName))
       return `bad speaker on ${attrs.lineId}`
     if (attrs.speakerId && attrs.speakerName) return `two speakers on ${attrs.lineId}`
+    const kind = attrs.kind
+    if (kind !== undefined && kind !== null && kind !== 'speech' && kind !== 'text')
+      return `bad kind on ${attrs.lineId}`
+    if (kind === 'text' && (attrs.speakerId || attrs.speakerName))
+      return `text line with speaker ${attrs.lineId}`
   }
   return null
 }

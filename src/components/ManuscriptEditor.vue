@@ -47,14 +47,16 @@ import type { SuggestInfo } from '../editor/screenplay/suggestPlugin'
 import { openKnowledgeItem } from '../knowledge/openItem'
 import '../editor/editor.css'
 
-const props = defineProps<{ sceneId: string; path: string; nodeTitle: string }>()
+const props = defineProps<{ sceneId: string; path: string; nodeTitle: string; form?: 'script' | 'text' }>()
 
 const { t, locale } = useI18n()
 const store = useProjectStore()
 const codex = useCodexStore()
 const spell = useSpellStore()
 
-const kind = editorKinds[store.project?.manifest.kind ?? 'book'] ?? editorKinds.book!
+// A game text item is free prose; the parent keys this component by form, so it is fixed here.
+const isText = props.form === 'text'
+const kind = isText ? editorKinds.gameText! : (editorKinds[store.project?.manifest.kind ?? 'book'] ?? editorKinds.book!)
 const locked = computed(() => !!store.readOnly)
 const loadError = ref('')
 const title = ref(props.nodeTitle)
@@ -81,7 +83,7 @@ async function addCueToCodex(name: string): Promise<void> {
 }
 
 // ---- game speakers ----
-const isGame = store.project?.manifest.kind === 'game'
+const isGame = store.project?.manifest.kind === 'game' && !isText
 const speakerChoices = computed(() => characterSpeakers(codex.types, codex.entries))
 const speakerById = computed(
   () => new Map<string, SpeakerEntry>(codex.entries.map((e) => [e.id, { id: e.id, name: e.name, aliases: e.aliases }])),
@@ -111,6 +113,11 @@ function openSpeakerPicker(pos: number): void {
 function closeSpeakerPicker(): void {
   speakerPick.value = null
   editor.value?.commands.focus()
+}
+function pickText(): void {
+  const at = speakerPick.value
+  if (at) editor.value?.commands.setLineKind(at.pos, 'text')
+  closeSpeakerPicker()
 }
 function pickSpeaker(value: SpeakerValue): void {
   const at = speakerPick.value
@@ -885,9 +892,11 @@ onBeforeUnmount(() => {
       :entries="speakerChoices.list"
       :recent="pickedRecent"
       :current="pickedView"
+      :is-text="pickedLine?.attrs.kind === 'text'"
       :restorable="pickedRestorable"
       :readonly="!canEdit"
       @pick="pickSpeaker"
+      @text="pickText"
       @add="addSpeakerToCodex"
       @restore="restoreSpeaker"
       @close="closeSpeakerPicker"

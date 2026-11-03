@@ -79,7 +79,8 @@
     "notInCodex": "Speaker: {name}, not in the codex. Click to change or add it.",
     "deleted": "Deleted character",
     "deletedTitle": "The codex entry of this speaker was deleted. Click to restore it or choose another speaker.",
-    "restore": "Restore the deleted character"
+    "restore": "Restore the deleted character",
+    "text": "Text (description, no speaker)"
   },
   "variables": {
     "title": "Variables",
@@ -511,6 +512,7 @@
       "scene": "Scene",
       "folder": "Folder",
       "script": "Script",
+      "text": "Text",
       "conversation": "Conversation"
     }
   },
@@ -595,6 +597,8 @@
     "newFolder": "New folder",
     "addScript": "Add script",
     "newScript": "New script",
+    "addText": "Add text",
+    "newText": "New text",
     "addConversation": "Add conversation",
     "newConversation": "New conversation",
     "addPart": "Add part",

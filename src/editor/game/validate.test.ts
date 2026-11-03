@@ -74,3 +74,24 @@ describe('scene schema with game lines', () => {
     expect(sceneSchema.safeParse(scene(doc(line('a', 'x')))).success).toBe(false)
   })
 })
+
+describe('line kinds', () => {
+  const kindLine = (kind: unknown, extra: Record<string, unknown> = {}) =>
+    line('a', 'L000001', { kind, ...extra })
+
+  it('accepts speech, text and a missing kind (old files)', () => {
+    expect(gameContentProblem(doc(kindLine('speech')))).toBeNull()
+    expect(gameContentProblem(doc(kindLine('text')))).toBeNull()
+    expect(gameContentProblem(doc(kindLine(undefined)))).toBeNull()
+    expect(gameContentProblem(doc(kindLine(null)))).toBeNull()
+  })
+
+  it('rejects an unknown kind', () => {
+    expect(gameContentProblem(doc(kindLine('shout')))).not.toBeNull()
+  })
+
+  it('rejects a text line that has a speaker', () => {
+    expect(gameContentProblem(doc(kindLine('text', { speakerId: 'e1' })))).not.toBeNull()
+    expect(gameContentProblem(doc(kindLine('text', { speakerName: 'Bob' })))).not.toBeNull()
+  })
+})

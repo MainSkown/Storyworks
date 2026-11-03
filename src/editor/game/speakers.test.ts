@@ -104,10 +104,20 @@ describe('characterSpeakers', () => {
     { id: 't2', name: 'Place' },
     { id: 't3', name: 'Postać' },
   ]
-  const e = (id: string, typeId: string, name: string, aliases: string[] = []) => ({ id, typeId, name, aliases })
+  const e = (id: string, typeId: string, name: string, aliases: string[] = []) => ({
+    id,
+    typeId,
+    name,
+    aliases,
+  })
 
   it('keeps only characters, in either language, with their ids', () => {
-    const r = characterSpeakers(types, [e('a', 't1', 'Anna', ['Ania', ' ']), e('b', 't2', 'Inn'), e('c', 't3', 'Ewa'), e('d', 't1', '  ')])
+    const r = characterSpeakers(types, [
+      e('a', 't1', 'Anna', ['Ania', ' ']),
+      e('b', 't2', 'Inn'),
+      e('c', 't3', 'Ewa'),
+      e('d', 't1', '  '),
+    ])
     expect(r.list).toEqual([
       { id: 'a', name: 'Anna', aliases: ['Ania'] },
       { id: 'c', name: 'Ewa', aliases: [] },

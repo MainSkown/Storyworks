@@ -85,11 +85,17 @@ export function characterSpeakers(
   types: readonly { id: string; name: string }[],
   entries: readonly { id: string; typeId: string; name: string; aliases: string[] }[],
 ): { list: SpeakerEntry[]; characterTypeId: string | undefined } {
-  const ids = new Set(types.filter((t) => CHARACTER_TYPES.includes(fold(t.name.trim()))).map((t) => t.id))
+  const ids = new Set(
+    types.filter((t) => CHARACTER_TYPES.includes(fold(t.name.trim()))).map((t) => t.id),
+  )
   return {
     list: entries
       .filter((e) => ids.has(e.typeId) && e.name.trim() !== '')
-      .map((e) => ({ id: e.id, name: e.name.trim(), aliases: e.aliases.filter((a) => a.trim() !== '') })),
+      .map((e) => ({
+        id: e.id,
+        name: e.name.trim(),
+        aliases: e.aliases.filter((a) => a.trim() !== ''),
+      })),
     characterTypeId: [...ids][0],
   }
 }

@@ -156,3 +156,57 @@ describe('speaker references', () => {
     expect(s.speakerLinesOf('none')).toBe(0)
   })
 })
+
+describe('text items', () => {
+  it('a new text item is a scene file with one empty paragraph, flagged as text', async () => {
+    const s = await gameStore()
+    const folder = await s.addFolder(null, 'F')
+    const id = await s.addText(folder, 'Harbour')
+    await s.flush()
+    const node = s.tree[0].children.find((n) => n.id === id)!
+    expect(node.type).toBe('scene')
+    const file = json(node.path as string)
+    expect(file.content.content).toHaveLength(1)
+    expect(file.content.content[0]).toMatchObject({ type: 'paragraph' })
+    expect(typeof file.content.content[0].attrs.id).toBe('string')
+    expect(s.sceneMeta.get(id)?.form).toBe('text')
+  })
+
+  it('a script is flagged as script, and text items never use line ids', async () => {
+    const s = await gameStore()
+    const sc = await s.addScript(null, 'S')
+    await s.addText(null, 'T')
+    expect(s.sceneMeta.get(sc)?.form).toBe('script')
+    expect(s.reserveLineId()).toBe('L000002')
+  })
+
+  it('survives close and reopen, and edits keep it a text item', async () => {
+    const s = await gameStore()
+    const id = await s.addText(null, 'T')
+    await s.setSceneContent(
+      id,
+      { type: 'doc', content: [{ type: 'paragraph', attrs: { id: 'p1' }, content: [{ type: 'text', text: 'Gulls wheel over the quay.' }] }] },
+      5,
+    )
+    await s.close()
+    await s.open('game/project.json')
+    expect(s.sceneMeta.get(id)?.form).toBe('text')
+    expect(s.wordCounts.get(id)).toBe(5)
+    expect(s.issues).toEqual([])
+  })
+
+  it('can be deleted and restored like a script', async () => {
+    const s = await gameStore()
+    const id = await s.addText(null, 'T')
+    await s.deleteItem(id)
+    expect(s.tree).toEqual([])
+    await s.restoreItem(id)
+    expect(s.sceneMeta.get(id)?.form).toBe('text')
+  })
+
+  it('cannot be added under a script', async () => {
+    const s = await gameStore()
+    const sc = await s.addScript(null, 'S')
+    await expect(s.addText(sc, 'T')).rejects.toThrow()
+  })
+})

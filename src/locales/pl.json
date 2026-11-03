@@ -79,7 +79,8 @@
     "notInCodex": "Mówca: {name}, brak w kodeksie. Kliknij, aby zmienić lub dodać.",
     "deleted": "Usunięta postać",
     "deletedTitle": "Wpis kodeksu tego mówcy został usunięty. Kliknij, aby go przywrócić lub wybrać innego mówcę.",
-    "restore": "Przywróć usuniętą postać"
+    "restore": "Przywróć usuniętą postać",
+    "text": "Tekst (opis, bez mówcy)"
   },
   "variables": {
     "title": "Zmienne",
@@ -511,6 +512,7 @@
       "scene": "Scena",
       "folder": "Folder",
       "script": "Skrypt",
+      "text": "Tekst",
       "conversation": "Rozmowa"
     }
   },
@@ -595,6 +597,8 @@
     "newFolder": "Nowy folder",
     "addScript": "Dodaj skrypt",
     "newScript": "Nowy skrypt",
+    "addText": "Dodaj tekst",
+    "newText": "Nowy tekst",
     "addConversation": "Dodaj rozmowę",
     "newConversation": "Nowa rozmowa",
     "addPart": "Dodaj część",

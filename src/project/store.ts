@@ -25,6 +25,7 @@ import { scriptPageStats } from './pageStats'
 import { conversationSchema, CONVERSATION_VERSION, type Conversation } from './schemas/conversation'
 import { formatLineId, maxLineNumber } from '../editor/game/lineIds'
 import { speakerIdsOf } from '../editor/game/lines'
+import { formOfContent, type SceneForm } from '../editor/game/form'
 import { sceneHeadingIds, sceneNumbers } from './sceneNumbers'
 import { appendNoteToScene, noteToSceneContent } from './inbox'
 import { commentIdsIn } from '../editor/comments'
@@ -105,6 +106,8 @@ export interface SceneMeta {
   elementsKey: string
   /** game: codex speaker of each line (repeats kept) */
   speakerIds: string[]
+  /** game: a script (lines) or a text item (prose) */
+  form: SceneForm
 }
 
 function elementsMeta(sc: Scene): Pick<SceneMeta, 'elements' | 'elementsKey'> {
@@ -121,6 +124,7 @@ const metaOfScene = (sc: Scene): SceneMeta => ({
   openTodoIds: sc.todos.filter((t) => !t.done).map((t) => t.id),
   headingIds: sceneHeadingIds(sc.content),
   speakerIds: speakerIdsOf(sc.content),
+  form: formOfContent(sc.content),
 })
 
 let ioFactory: (root: string) => ProjectIO = createProjectIO
@@ -459,6 +463,7 @@ export const useProjectStore = defineStore('project', () => {
       cur.openTodoIds.join('\n') === next.openTodoIds.join('\n') &&
       cur.headingIds.join('\n') === next.headingIds.join('\n') &&
       cur.speakerIds.join('\n') === next.speakerIds.join('\n') &&
+      cur.form === next.form &&
       cur.elementsKey === next.elementsKey
     )
       return false
@@ -1052,6 +1057,12 @@ export const useProjectStore = defineStore('project', () => {
         },
       ],
     }
+    return addScene(parentId, title, { content, wordCount: 0 })
+  }
+
+  /** Game: a free-prose item for descriptions (a scene file whose body is paragraphs). */
+  async function addText(parentId: string | null = null, title = 'New text'): Promise<string> {
+    const content = { type: 'doc', content: [{ type: 'paragraph', attrs: { id: newId() } }] }
     return addScene(parentId, title, { content, wordCount: 0 })
   }
 
@@ -2004,6 +2015,7 @@ export const useProjectStore = defineStore('project', () => {
     speakerLinesOf,
     addFolder,
     addScript,
+    addText,
     addConversation,
     patchConversation,
     selectedId,
