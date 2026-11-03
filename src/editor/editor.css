@@ -21,3 +21,55 @@
   text-decoration-skip-ink: none;
   text-underline-offset: 3px;
 }
+
+/* Screenplay sheet: monospace, element indents in characters (about the 10 cpi standard). */
+.sheet .content .ProseMirror.screenplay {
+  max-width: 62ch;
+  margin-inline: auto;
+  font-family: 'Courier Prime', 'Courier New', Courier, ui-monospace, monospace;
+  font-size: var(--editor-font-size);
+  line-height: 1.5;
+}
+.ProseMirror.screenplay > * + * {
+  margin-top: 1em;
+}
+.ProseMirror.screenplay .sp-sceneHeading,
+.ProseMirror.screenplay .sp-character,
+.ProseMirror.screenplay .sp-transition {
+  text-transform: uppercase;
+}
+.ProseMirror.screenplay .sp-sceneHeading {
+  font-weight: 700;
+}
+.ProseMirror.screenplay .sp-character {
+  margin-top: 1em;
+  margin-inline-start: 22ch;
+  margin-bottom: 0;
+}
+.ProseMirror.screenplay .sp-character + .sp-dialogue,
+.ProseMirror.screenplay .sp-character + .sp-parenthetical,
+.ProseMirror.screenplay .sp-parenthetical + .sp-dialogue {
+  margin-top: 0;
+}
+.ProseMirror.screenplay .sp-dialogue {
+  margin-inline: 10ch 12ch;
+}
+.ProseMirror.screenplay .sp-parenthetical {
+  margin-inline: 16ch 18ch;
+}
+.ProseMirror.screenplay .sp-transition {
+  text-align: end;
+}
+/* Scene number in the left margin. */
+.screenplay [data-scene-number] {
+  position: relative;
+}
+.screenplay [data-scene-number]::before {
+  content: attr(data-scene-number);
+  position: absolute;
+  inset-inline-start: -5ch;
+  width: 4ch;
+  color: var(--text-secondary);
+  font-weight: 400;
+  text-align: end;
+}

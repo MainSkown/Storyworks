@@ -7,6 +7,12 @@ import { Footnote } from './footnote'
 import { CommentMark } from './commentMark'
 import { ProjectImage, type ProjectImageOptions } from './projectImage'
 import { Spellcheck, type SpellcheckOptions } from './spellcheck'
+import { Document } from '@tiptap/extension-document'
+import { Text } from '@tiptap/extension-text'
+import { UndoRedo } from '@tiptap/extensions'
+import { ScreenplayNodes, ScreenplayElements } from './screenplay/extension'
+import { SceneNumberMargin } from './screenplay/sceneNumberMargin'
+import { ScreenplaySuggest, type SuggestOptions } from './screenplay/suggestPlugin'
 import { EventLinks, selectedBlockIds, type BlockLinkInfo } from './eventLinks'
 
 export interface ToolbarItem {
@@ -16,7 +22,7 @@ export interface ToolbarItem {
   icon: string
   run: (editor: Editor) => void
   /** Needs UI of its own (popover, picker, prompt): the toolbar emits this instead of calling run. */
-  action?: 'footnote' | 'image' | 'comment' | 'eventLink'
+  action?: 'footnote' | 'image' | 'comment' | 'eventLink' | 'element'
   canRun?: (editor: Editor) => boolean
   isActive?: (editor: Editor) => boolean
   /** Accent button: shows its label next to the icon. */
@@ -28,6 +34,10 @@ export interface EditorContext extends Partial<ProjectImageOptions> {
   eventLinkInfo?: (blockId: string) => BlockLinkInfo | null
   /** Misspelling checker; absent = no spellcheck. */
   spellcheck?: SpellcheckOptions['check']
+  /** Screenplay: heading block id -> scene number. */
+  sceneNumbers?: () => ReadonlyMap<string, number>
+  /** Screenplay: cue and heading autocomplete; absent = none. */
+  suggest?: SuggestOptions
 }
 
 export interface EditorKind {
@@ -162,4 +172,61 @@ const book: EditorKind = {
   ],
 }
 
-export const editorKinds: Record<string, EditorKind> = { book }
+const screenplay: EditorKind = {
+  extensions: ({ eventLinkInfo, spellcheck, sceneNumbers, suggest } = {}) => [
+    Document,
+    Text,
+    ...ScreenplayNodes,
+    ScreenplayElements,
+    UndoRedo,
+    CommentMark,
+    BlockIds,
+    EventLinks.configure({ info: eventLinkInfo ?? (() => null) }),
+    ...(spellcheck ? [Spellcheck.configure({ check: spellcheck })] : []),
+    ...(sceneNumbers ? [SceneNumberMargin.configure({ numbers: sceneNumbers })] : []),
+    ...(suggest ? [ScreenplaySuggest.configure(suggest)] : []),
+  ],
+  toolbar: [
+    // The element dropdown is drawn by the toolbar component.
+    {
+      id: 'element',
+      labelKey: 'editor.toolbar.element',
+      icon: 'subject',
+      run: () => undefined,
+      action: 'element',
+    },
+    {
+      id: 'undo',
+      labelKey: 'editor.toolbar.undo',
+      icon: 'undo',
+      run: (e) => void e.chain().focus().undo().run(),
+      canRun: (e) => e.can().undo(),
+    },
+    {
+      id: 'redo',
+      labelKey: 'editor.toolbar.redo',
+      icon: 'redo',
+      run: (e) => void e.chain().focus().redo().run(),
+      canRun: (e) => e.can().redo(),
+    },
+    {
+      id: 'comment',
+      labelKey: 'editor.toolbar.comment',
+      icon: 'add_comment',
+      run: () => undefined,
+      action: 'comment',
+      canRun: (e) => !e.state.selection.empty,
+    },
+    {
+      id: 'eventLink',
+      labelKey: 'editor.toolbar.eventLink',
+      icon: 'event',
+      run: () => undefined,
+      action: 'eventLink',
+      accent: true,
+      canRun: (e) => selectedBlockIds(e.state).length > 0,
+    },
+  ],
+}
+
+export const editorKinds: Record<string, EditorKind> = { book, screenplay }

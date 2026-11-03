@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Editor } from '@tiptap/core'
 import type { ToolbarItem } from '../editor/kinds'
+import { ELEMENTS, type ElementType } from '../editor/screenplay/rules'
+import { currentElement } from '../editor/screenplay/extension'
 
 const props = defineProps<{
   editor: Editor | undefined
@@ -31,12 +33,25 @@ const SHORTCUTS: Record<string, string> = {
   eventLink: 'Ctrl+Shift+K',
 }
 
+// Screenplay: the element dropdown (the item only marks where it sits).
+const hasElement = computed(() => props.items.some((i) => i.action === 'element'))
+const activeElement = computed(() =>
+  props.editor ? (currentElement(props.editor.state) ?? '') : '',
+)
+function setElement(type: string): void {
+  props.editor
+    ?.chain()
+    .focus()
+    .setElement(type as ElementType)
+    .run()
+}
+
 const styleItems = computed(() => props.items.filter((i) => GROUPS[0]!.includes(i.id)))
 const groups = computed(() => {
   const listed = new Set(GROUPS.flat())
   return [
     ...GROUPS.slice(1).map((ids) => props.items.filter((i) => ids.includes(i.id))),
-    props.items.filter((i) => !listed.has(i.id)),
+    props.items.filter((i) => !listed.has(i.id) && i.action !== 'element'),
   ].filter((g) => g.length)
 })
 
@@ -79,6 +94,20 @@ const tip = (i: ToolbarItem): string =>
       >
         <option value="">{{ t('editor.toolbar.paragraph') }}</option>
         <option v-for="i in styleItems" :key="i.id" :value="i.id">{{ t(i.labelKey) }}</option>
+      </select>
+      <select
+        v-if="hasElement"
+        class="style-select"
+        :aria-label="t('editor.toolbar.element')"
+        :title="t('editor.toolbar.element')"
+        :value="activeElement"
+        :disabled="disabled || !editor"
+        @change="setElement(($event.target as HTMLSelectElement).value)"
+      >
+        <option v-if="!activeElement" value="" disabled>{{ t('editor.toolbar.element') }}</option>
+        <option v-for="el in ELEMENTS" :key="el" :value="el">
+          {{ t(`editor.element.${el}`) }}
+        </option>
       </select>
       <div v-for="(g, n) in groups" :key="n" class="group" role="group">
         <button

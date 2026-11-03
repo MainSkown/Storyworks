@@ -26,9 +26,9 @@ async function v11Project(dictionaries: unknown = ['en_GB', 'my-terms']): Promis
 }
 
 describe('migration v11 to v12', () => {
-  it('the step is registered, and the version is 12', () => {
+  it('the step is registered', () => {
     expect(migrations.find((m) => m.from === 11)?.to).toBe(12)
-    expect(MANIFEST_VERSION).toBe(12)
+    expect(MANIFEST_VERSION).toBeGreaterThanOrEqual(12)
   })
 
   it('turns dictionary names into global references and adds an empty stats slot', async () => {
@@ -36,7 +36,7 @@ describe('migration v11 to v12', () => {
     const r = await openProject(io, makeEnv())
     expect(r.status).toBe('ok')
     const m = json(io, 'project.json')
-    expect(m.version).toBe(12)
+    expect(m.version).toBe(MANIFEST_VERSION)
     expect(m.dictionaries).toEqual([
       { name: 'en_GB', scope: 'global' },
       { name: 'my-terms', scope: 'global' },

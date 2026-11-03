@@ -1,4 +1,5 @@
 import { groupPickerEntries } from '../codex/pick'
+import { ELEMENTS } from '../editor/screenplay/rules'
 
 export type Direction = 'out' | 'in'
 
@@ -13,7 +14,9 @@ export const endpoints = (
 /** i18n key of the inline message for a store refusal. */
 export const rejectionKey = (reason: string): string =>
   `relations.reject.${
-    ['self', 'duplicate', 'unknown-type', 'unknown-entry', 'unknown-node', 'read-only'].includes(reason)
+    ['self', 'duplicate', 'unknown-type', 'unknown-entry', 'unknown-node', 'read-only'].includes(
+      reason,
+    )
       ? reason
       : 'other'
   }`
@@ -61,6 +64,8 @@ export function entryOptions(
   )
 }
 
+const BLOCK_TYPES = new Set<string>(['paragraph', 'heading', ...ELEMENTS])
+
 /** Plain text of a rich-text document, shortened to `max` characters. */
 export function docText(doc: unknown, max = 120): string {
   const parts: string[] = []
@@ -70,7 +75,7 @@ export function docText(doc: unknown, max = 120): string {
     if (typeof node.text === 'string') parts.push(node.text)
     if (Array.isArray(node.content)) {
       node.content.forEach(walk)
-      if (node.type === 'paragraph' || node.type === 'heading') parts.push(' ')
+      if (BLOCK_TYPES.has(String(node.type))) parts.push(' ')
     }
   }
   walk(doc)

@@ -7,6 +7,7 @@ export const defaultLang = (language: string): DefaultLang =>
 const NAMES = {
   en: {
     chapter: 'Chapter 1',
+    sequence: 'Sequence 1',
     scene: 'Scene 1',
     timeline: 'Main timeline',
     // Same order as DEFAULT_RULE_CATEGORIES / DEFAULT_CODEX_TYPES.
@@ -27,6 +28,7 @@ const NAMES = {
   },
   pl: {
     chapter: 'Rozdział 1',
+    sequence: 'Sekwencja 1',
     scene: 'Scena 1',
     timeline: 'Główna oś czasu',
     ruleCategories: ['Magia', 'Fizyka', 'Społeczeństwo', 'Technologia', 'Religia'],

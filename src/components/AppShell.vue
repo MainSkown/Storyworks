@@ -3,7 +3,8 @@ import { computed, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { sectionByRouteName, sections, type AppSection } from '../sections'
+import { kindProfile } from '../project/kinds'
+import { sectionByRouteName, sections, sectionsFor, type AppSection } from '../sections'
 import { useSettingsStore } from '../settings/store'
 import { overlayOpen, useCombos, useShortcuts } from '../shortcuts/useShortcuts'
 import { openSearch, openSwitcher, searchOpen, switcherOpen } from '../search/ui'
@@ -71,8 +72,12 @@ const statusIcon = computed(
   () => ({ saved: 'check_circle', saving: 'sync', error: 'error_outline' })[project.saveStatus],
 )
 
-const mainSections = sections.filter((s) => s.position === 'main')
-const bottomSections = sections.filter((s) => s.position === 'bottom')
+const visibleSections = computed(() => sectionsFor(project.project?.manifest.kind ?? 'book'))
+const writePlaceholder = computed(
+  () => kindProfile(project.project?.manifest.kind ?? 'book').writeIsPlaceholder,
+)
+const mainSections = computed(() => visibleSections.value.filter((s) => s.position === 'main'))
+const bottomSections = computed(() => visibleSections.value.filter((s) => s.position === 'bottom'))
 
 function togglePanel(): void {
   store.setContextPanelHidden(!panelHidden.value)
@@ -132,8 +137,8 @@ function colorStyle(s: AppSection) {
         />
       </div>
       <nav class="nav" :aria-label="t('a11y.mainNavigation')">
-        <template v-for="group in [mainSections, bottomSections]" :key="group[0]!.position">
-          <ul class="nav-list" :class="{ bottom: group[0]!.position === 'bottom' }">
+        <template v-for="group in [mainSections, bottomSections]" :key="group[0]?.position">
+          <ul class="nav-list" :class="{ bottom: group[0]?.position === 'bottom' }">
             <li v-for="s in group" :key="s.id" :style="colorStyle(s)">
               <RouterLink
                 :to="{ name: s.routeName }"
@@ -152,7 +157,7 @@ function colorStyle(s: AppSection) {
                 >
               </RouterLink>
               <div
-                v-if="s.id === active.id && s.id === 'write' && project.project"
+                v-if="s.id === active.id && s.id === 'write' && project.project && !writePlaceholder"
                 class="expand tree"
               >
                 <OutlineTree />

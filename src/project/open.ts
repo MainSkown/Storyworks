@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { sha256Hex } from './hash'
+import { isKindId } from './kinds'
 import { newId } from './ids'
 import {
   MANIFEST_FILE,
@@ -8,7 +9,6 @@ import {
   type Migration,
 } from './migrations'
 import {
-  BOOK_KIND,
   createManifest,
   manifestSchema,
   MANIFEST_VERSION,
@@ -113,25 +113,26 @@ export function listedItems(m: Manifest): ListedItem[] {
     m.knowledge,
   ]
   for (const ref of [...refs, ...lists.flat()]) {
-    if (ref) out.push({
-      id: ref.id,
-      path: ref.path,
-      scene: false,
-      inbox: ref === m.inbox,
-      ignored: ref === m.ignoredFindings,
-      stats: ref === m.stats,
-      timeline: m.timelines.includes(ref),
-      rule: m.rules.includes(ref),
-      ruleCategory: m.ruleCategories.includes(ref),
-      codexEntry: m.codexEntries.includes(ref),
-      codexType: m.codexTypes.includes(ref),
-      relationType: m.relationTypes.includes(ref),
-      relationship: m.relationships.includes(ref),
-      group: m.groups.includes(ref),
-      relationLayout: ref === m.relationLayout,
-      stateKind: m.stateKinds.includes(ref),
-      knowledge: m.knowledge.includes(ref),
-    })
+    if (ref)
+      out.push({
+        id: ref.id,
+        path: ref.path,
+        scene: false,
+        inbox: ref === m.inbox,
+        ignored: ref === m.ignoredFindings,
+        stats: ref === m.stats,
+        timeline: m.timelines.includes(ref),
+        rule: m.rules.includes(ref),
+        ruleCategory: m.ruleCategories.includes(ref),
+        codexEntry: m.codexEntries.includes(ref),
+        codexType: m.codexTypes.includes(ref),
+        relationType: m.relationTypes.includes(ref),
+        relationship: m.relationships.includes(ref),
+        group: m.groups.includes(ref),
+        relationLayout: ref === m.relationLayout,
+        stateKind: m.stateKinds.includes(ref),
+        knowledge: m.knowledge.includes(ref),
+      })
   }
   return out
 }
@@ -150,7 +151,7 @@ function parseManifest(text: string, readOnly: boolean): ParseResult<Manifest> {
 export function readOnlyReasonOf(header: { version: number | null; kind: string | null } | null) {
   if (!header) return null
   if (header.version !== null && header.version > MANIFEST_VERSION) return 'newer-version' as const
-  if (header.kind !== null && header.kind !== BOOK_KIND) return 'unknown-kind' as const
+  if (header.kind !== null && !isKindId(header.kind)) return 'unknown-kind' as const
   return null
 }
 
@@ -183,6 +184,8 @@ function buildProject(
   readOnly: { reason: ReadOnlyReason } | null,
   { hashes, invalid }: Tracking,
 ): OpenProject {
+  const openedKind = manifest.kind
+
   async function write(path: string, text: string): Promise<void> {
     if (readOnly) throw new Error(`Project is read-only (${readOnly.reason}); not writing ${path}`)
     if (invalid.has(path)) throw new Error(`${path} is invalid on disk; refusing to overwrite it`)
@@ -216,6 +219,7 @@ function buildProject(
       await write(path, serialize(schema, value))
     },
     async saveManifest() {
+      if (manifest.kind !== openedKind) throw new Error('The project kind cannot be changed')
       await write(MANIFEST_FILE, serialize(manifestSchema, manifest))
     },
     knownHash: (path) => hashes.get(path),
@@ -252,7 +256,7 @@ function buildProject(
   return project
 }
 
-/** Creates a new book: Chapter 1 with one scene. Refuses to touch an existing project. */
+/** Creates a new project (book, screenplay or game). Refuses to touch an existing project. */
 export async function createProject(
   io: ProjectIO,
   meta: BookMeta,
@@ -261,14 +265,16 @@ export async function createProject(
   if (await io.exists(MANIFEST_FILE)) throw new Error(`${MANIFEST_FILE} already exists`)
   const manifest = createManifest(meta, env)
   const project = buildProject(io, env, manifest, null, { hashes: new Map(), invalid: new Set() })
-  const node = manifest.manuscript[0].children[0]
-  const scene = sceneSchema.parse({
-    version: SCENE_VERSION,
-    id: node.id,
-    title: node.title,
-    content: { type: 'doc', content: [] },
-  })
-  await project.saveItem(node.path as string, sceneSchema, scene)
+  const node = manifest.manuscript[0]?.children[0]
+  if (node) {
+    const scene = sceneSchema.parse({
+      version: SCENE_VERSION,
+      id: node.id,
+      title: node.title,
+      content: { type: 'doc', content: [] },
+    })
+    await project.saveItem(node.path as string, sceneSchema, scene)
+  }
   await project.saveManifest()
   return project
 }

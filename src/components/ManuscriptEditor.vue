@@ -37,13 +37,18 @@ import CommentRail from './CommentRail.vue'
 import NodePickerDialog from './NodePickerDialog.vue'
 import EventLinkGutter, { type GutterMarker } from './EventLinkGutter.vue'
 import EventLinkPopover from './EventLinkPopover.vue'
+import SuggestPopup from './SuggestPopup.vue'
+import { useCodexStore } from '../codex/store'
+import { sourceFromCodex } from '../editor/screenplay/suggest'
+import type { SuggestInfo } from '../editor/screenplay/suggestPlugin'
 import { openKnowledgeItem } from '../knowledge/openItem'
 import '../editor/editor.css'
 
 const props = defineProps<{ sceneId: string; path: string; nodeTitle: string }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const store = useProjectStore()
+const codex = useCodexStore()
 const spell = useSpellStore()
 
 const kind = editorKinds[store.project?.manifest.kind ?? 'book'] ?? editorKinds.book!
@@ -61,6 +66,17 @@ let lastTitle = props.nodeTitle
 // Link count / broken flag per block of the open scene; changes only on link actions and saves.
 const linkInfo = computed(() => (loaded.value ? blockLinkInfoMap(loaded.value.id) : new Map()))
 
+// ---- screenplay autocomplete ----
+const suggestInfo = ref<SuggestInfo | null>(null)
+const suggestListId = 'script-suggest'
+const suggestSource = () =>
+  sourceFromCodex(codex.types, codex.entries, locale.value.startsWith('pl') ? 'pl' : 'en')
+async function addCueToCodex(name: string): Promise<void> {
+  if (locked.value) return
+  await codex.createEntry({ name, typeId: suggestSource().characterTypeId })
+  editor.value?.commands.focus()
+}
+
 const actionError = ref('')
 const editor = useEditor({
   extensions: kind.extensions({
@@ -68,10 +84,21 @@ const editor = useEditor({
     missingLabel: (path) => t('image.missing', { path }),
     eventLinkInfo: (blockId) => linkInfo.value.get(blockId) ?? null,
     spellcheck: (text) => spell.checkText(text),
+    sceneNumbers: () => store.sceneNumbering.byBlock,
+    suggest: {
+      source: suggestSource,
+      onChange: (info) => (suggestInfo.value = info),
+      onAddToCodex: (name) => void addCueToCodex(name),
+    },
   }),
   editable: false,
   editorProps: {
-    attributes: { role: 'textbox', 'aria-multiline': 'true', 'aria-label': t('editor.body') },
+    attributes: {
+      role: 'textbox',
+      'aria-multiline': 'true',
+      'aria-label': t('editor.body'),
+      ...(store.project?.manifest.kind === 'screenplay' ? { class: 'screenplay' } : {}),
+    },
     handleClickOn: (_view, _pos, node, nodePos) => {
       if (node.type.name !== 'footnote') return false
       openFootnote(nodePos)
@@ -121,6 +148,27 @@ watch(
 )
 const refreshEditable = () => editor.value?.setEditable(canEdit.value, false)
 watch(locked, refreshEditable)
+// Scene numbers come from the store index, which lags a keystroke: redraw when they change.
+watch(
+  () => store.sceneNumbering,
+  () => {
+    const ed = editor.value
+    if (ed && !ed.isDestroyed) ed.view.dispatch(ed.state.tr.setMeta('sceneNumbers', true))
+  },
+)
+
+// Tell assistive tech which suggestion is chosen while the list is open.
+watch(suggestInfo, (info) => {
+  const dom = editor.value?.view.dom
+  if (!dom) return
+  dom.setAttribute('aria-expanded', String(!!info))
+  if (info && info.index >= 0) {
+    dom.setAttribute('aria-controls', suggestListId)
+    dom.setAttribute('aria-activedescendant', `${suggestListId}-${info.index}`)
+  } else {
+    dom.removeAttribute('aria-activedescendant')
+  }
+})
 
 // ---- footnote popover ----
 const footnote = ref<{ pos: number; text: string; x: number; y: number } | null>(null)
@@ -310,11 +358,11 @@ function jumpToComment(id: string): void {
   if (r) editor.value?.chain().focus().setTextSelection(r).scrollIntoView().run()
 }
 
-function onToolbarAction(action: 'footnote' | 'image' | 'comment' | 'eventLink'): void {
+function onToolbarAction(action: 'footnote' | 'image' | 'comment' | 'eventLink' | 'element'): void {
   if (action === 'footnote') addFootnote()
   else if (action === 'image') void addImageFile()
   else if (action === 'eventLink') startEventLink()
-  else startComment()
+  else if (action === 'comment') startComment()
 }
 
 // ---- event links ----
@@ -667,7 +715,7 @@ onBeforeUnmount(() => {
         </button>
       </template>
     </EditorToolbar>
-    <div class="scroll" @scroll.passive="closeFootnote(false); closePopover(false)">
+    <div class="scroll" @scroll.passive="closeFootnote(false); closePopover(false); editor?.storage.screenplaySuggest?.refresh()">
       <div ref="layoutEl" class="layout" :class="{ collapsed: !showRail || (!visibleComments.length && !draft) }">
         <div ref="sheetEl" class="sheet">
           <p v-if="locked" class="notice" role="note">{{ t('write.readOnlyNotice') }}</p>
@@ -749,6 +797,12 @@ onBeforeUnmount(() => {
       @pick="onPick"
       @pick-entry="onPickEntry"
       @pick-knowledge="onPickKnowledge"
+    />
+    <SuggestPopup
+      v-if="suggestInfo"
+      :info="suggestInfo"
+      :list-id="suggestListId"
+      @pick="editor?.commands.acceptSuggestion($event)"
     />
     <EventLinkPopover
       v-if="pop && popRows.length"

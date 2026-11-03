@@ -62,9 +62,26 @@
     "sampleFailed": "Nie udało się otworzyć przykładowej książki: {message}",
     "sampleExists": "W tym folderze jest już książka. Wybierz inny folder."
   },
+"game": {
+    "placeholder": {
+      "title": "Pisanie skryptu gry pojawi się w późniejszej wersji",
+      "body": "Kodeks, osie czasu, zasady, kontrole, statystyki i historia już działają w tym projekcie."
+    }
+  },
   "newProject": {
     "title": "Nowy projekt",
     "bookTitle": "Tytuł książki",
+    "projectTitle": "Tytuł",
+    "kind": {
+      "label": "Rodzaj projektu",
+      "book": "Książka",
+      "bookDesc": "Rozdziały i sceny prozy",
+      "screenplay": "Scenariusz",
+      "screenplayDesc": "Nagłówki scen, akcja i dialogi",
+      "game": "Skrypt gry",
+      "gameDesc": "Kwestie i rozmowy",
+      "fixed": "Rodzaju nie można zmienić po utworzeniu projektu."
+    },
     "author": "Autor",
     "language": "Język książki",
     "folder": "Folder projektu",
@@ -169,6 +186,15 @@
     }
   },
   "settings": {
+    "info": {
+      "title": "Dane projektu",
+      "titlePage": "Strona tytułowa",
+      "bookTitle": "Tytuł",
+      "author": "Autor",
+      "contact": "Kontakt",
+      "date": "Data",
+      "readOnly": "Ten projekt jest tylko do odczytu, więc tych danych nie można zmienić."
+    },
     "title": "Ustawienia",
     "theme": "Motyw",
     "themeLight": "Jasny",
@@ -356,6 +382,7 @@
   },
   "editor": {
     "toolbar": {
+      "element": "Typ elementu",
       "label": "Formatowanie",
       "paragraphStyle": "Styl akapitu",
       "paragraph": "Akapit",
@@ -378,6 +405,7 @@
       "comment": "Dodaj komentarz",
       "eventLink": "Powiąż z…"
     },
+    "element": { "sceneHeading": "Nagłówek sceny", "action": "Opis akcji", "character": "Postać", "dialogue": "Dialog", "parenthetical": "Didaskalia", "transition": "Przejście" },
     "body": "Tekst sceny"
   },
   "sceneProps": {
@@ -415,6 +443,7 @@
     "scene": "Scena",
     "chapter": "Rozdział",
     "book": "Książka",
+    "script": "Scenariusz",
     "problem": {
       "missing": "Brak pliku",
       "invalid": "Nieprawidłowy plik",
@@ -432,6 +461,7 @@
     "kind": {
       "part": "Część",
       "chapter": "Rozdział",
+      "sequence": "Sekwencja",
       "scene": "Scena"
     }
   },
@@ -491,6 +521,8 @@
     "backupExisting": "Najnowsza automatyczna kopia zapasowa była już aktualna."
   },
   "outline": {
+    "addSequence": "Dodaj sekwencję",
+    "newSequence": "Nowa sekwencja",
     "addPart": "Dodaj część",
     "addChapter": "Dodaj rozdział",
     "newPart": "Nowa część",
@@ -1674,6 +1706,7 @@
       "kind": {
         "part": "Część",
         "chapter": "Rozdział",
+        "sequence": "Sekwencja",
         "scene": "Scena"
       },
       "total": "Cała książka"
@@ -1848,6 +1881,10 @@
       "changes": "Brak zmian od ostatniej migawki | {n} zmiana od ostatniej migawki | {n} zmiany od ostatniej migawki | {n} zmian od ostatniej migawki",
       "open": "Otwórz Historię"
     }
+  },
+  "suggest": {
+    "label": "Podpowiedzi",
+    "add": "Dodaj „{name}” do kodeksu (Ctrl+Enter)"
   },
   "spell": {
     "menu": {

@@ -62,9 +62,26 @@
     "sampleFailed": "Could not open the sample book: {message}",
     "sampleExists": "That folder already holds a book. Pick another folder."
   },
+"game": {
+    "placeholder": {
+      "title": "Game script writing is coming in a later version",
+      "body": "Codex, timelines, rules, checks, stats and history already work for this project."
+    }
+  },
   "newProject": {
     "title": "New project",
     "bookTitle": "Book title",
+    "projectTitle": "Title",
+    "kind": {
+      "label": "Project type",
+      "book": "Book",
+      "bookDesc": "Chapters and scenes of prose",
+      "screenplay": "Screenplay",
+      "screenplayDesc": "Scene headings, action and dialogue",
+      "game": "Game script",
+      "gameDesc": "Lines and conversations",
+      "fixed": "The type cannot be changed after the project is created."
+    },
     "author": "Author",
     "language": "Book language",
     "folder": "Project folder",
@@ -169,6 +186,15 @@
     }
   },
   "settings": {
+    "info": {
+      "title": "Project details",
+      "titlePage": "Title page",
+      "bookTitle": "Title",
+      "author": "Author",
+      "contact": "Contact",
+      "date": "Date",
+      "readOnly": "This project is read-only, so these details cannot be changed."
+    },
     "title": "Settings",
     "theme": "Theme",
     "themeLight": "Light",
@@ -356,6 +382,7 @@
   },
   "editor": {
     "toolbar": {
+      "element": "Element type",
       "label": "Formatting",
       "paragraphStyle": "Paragraph style",
       "paragraph": "Paragraph",
@@ -378,6 +405,7 @@
       "comment": "Add comment",
       "eventLink": "Link to…"
     },
+    "element": { "sceneHeading": "Scene heading", "action": "Action", "character": "Character", "dialogue": "Dialogue", "parenthetical": "Parenthetical", "transition": "Transition" },
     "body": "Scene text"
   },
   "sceneProps": {
@@ -415,6 +443,7 @@
     "scene": "Scene",
     "chapter": "Chapter",
     "book": "Book",
+    "script": "Script",
     "problem": {
       "missing": "Missing file",
       "invalid": "Invalid file",
@@ -432,6 +461,7 @@
     "kind": {
       "part": "Part",
       "chapter": "Chapter",
+      "sequence": "Sequence",
       "scene": "Scene"
     }
   },
@@ -491,6 +521,8 @@
     "backupExisting": "The latest automatic backup was already up to date."
   },
   "outline": {
+    "addSequence": "Add sequence",
+    "newSequence": "New sequence",
     "addPart": "Add part",
     "addChapter": "Add chapter",
     "newPart": "New part",
@@ -1674,6 +1706,7 @@
       "kind": {
         "part": "Part",
         "chapter": "Chapter",
+        "sequence": "Sequence",
         "scene": "Scene"
       },
       "total": "Whole book"
@@ -1848,6 +1881,10 @@
       "changes": "No changes since the last snapshot | {n} change since the last snapshot | {n} changes since the last snapshot",
       "open": "Open History"
     }
+  },
+  "suggest": {
+    "label": "Suggestions",
+    "add": "Add “{name}” to the codex (Ctrl+Enter)"
   },
   "spell": {
     "menu": {

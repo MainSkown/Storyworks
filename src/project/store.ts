@@ -18,6 +18,7 @@ import { MANIFEST_FILE } from './migrations'
 import { createProject, defaultEnv, openProject, readOnlyReasonOf } from './open'
 import { createProjectIO } from './io'
 import { countWords, rollUp } from '../editor/wordCount'
+import { sceneHeadingIds, sceneNumbers } from './sceneNumbers'
 import { appendNoteToScene, noteToSceneContent } from './inbox'
 import { commentIdsIn } from '../editor/comments'
 import { addImage } from './assets'
@@ -86,6 +87,8 @@ export interface SceneMeta {
   wordCount: number
   /** ids of the revision to-dos not done yet (for the open-to-do check) */
   openTodoIds: string[]
+  /** scene heading block ids in document order (screenplay scene numbers) */
+  headingIds: string[]
 }
 
 const metaOfScene = (sc: Scene): SceneMeta => ({
@@ -94,6 +97,7 @@ const metaOfScene = (sc: Scene): SceneMeta => ({
   povId: sc.povId,
   wordCount: sc.wordCount,
   openTodoIds: sc.todos.filter((t) => !t.done).map((t) => t.id),
+  headingIds: sceneHeadingIds(sc.content),
 })
 
 let ioFactory: (root: string) => ProjectIO = createProjectIO
@@ -289,6 +293,12 @@ export const useProjectStore = defineStore('project', () => {
     for (const [id, m] of sceneMeta.value) counts.set(id, m.wordCount)
     return rollUp(tree.value, counts)
   })
+  /** Screenplay scene numbers: heading block id and item id to number (empty when no headings). */
+  const sceneNumbering = computed(() => {
+    const ids = new Map<string, string[]>()
+    for (const [id, m] of sceneMeta.value) if (m.headingIds.length) ids.set(id, m.headingIds)
+    return sceneNumbers(tree.value, ids)
+  })
   const brokenLinkCount = computed(() => {
     void revision.value
     void linkRevision.value
@@ -385,7 +395,8 @@ export const useProjectStore = defineStore('project', () => {
       cur.synopsis === next.synopsis &&
       cur.povId === next.povId &&
       cur.wordCount === next.wordCount &&
-      cur.openTodoIds.join('\n') === next.openTodoIds.join('\n')
+      cur.openTodoIds.join('\n') === next.openTodoIds.join('\n') &&
+      cur.headingIds.join('\n') === next.headingIds.join('\n')
     )
       return false
     map.set(id, next)
@@ -1224,6 +1235,32 @@ export const useProjectStore = defineStore('project', () => {
     mark(MANIFEST_FILE)
   }
 
+  // ---- title, author, title page ----
+
+  const bookInfo = computed(() => {
+    void revision.value // the manifest object is not reactive
+    const m = project.value?.manifest
+    return {
+      title: m?.title ?? '',
+      author: m?.author ?? '',
+      contact: m?.titlePage.contact ?? '',
+      date: m?.titlePage.date ?? '',
+    }
+  })
+
+  /** false (nothing changed) when the title is blank or the project is read-only. */
+  function setBookInfo(next: { title: string; author: string; contact: string; date: string }): boolean {
+    const p = project.value
+    const title = next.title.trim()
+    if (!p || !session || p.readOnly || !title) return false
+    p.manifest.title = title
+    p.manifest.author = next.author.trim()
+    p.manifest.titlePage = { contact: next.contact.trim(), date: next.date.trim() }
+    revision.value++
+    mark(MANIFEST_FILE)
+    return true
+  }
+
   // ---- writing goals ----
 
   const goals = computed(() => {
@@ -1745,6 +1782,8 @@ export const useProjectStore = defineStore('project', () => {
   return {
     isCheckEnabled,
     setCheckEnabled,
+    bookInfo,
+    setBookInfo,
     goals,
     setGoals,
     dictionaries,
@@ -1770,6 +1809,7 @@ export const useProjectStore = defineStore('project', () => {
     tree,
     sceneMeta,
     wordCounts,
+    sceneNumbering,
     selectedId,
     openNoteId,
     inboxNotes,

@@ -7,6 +7,7 @@ import CalendarEditor from '../components/CalendarEditor.vue'
 import ChecksSettings from '../components/ChecksSettings.vue'
 import GoalsSettings from '../components/stats/GoalsSettings.vue'
 import DictionarySettings from '../components/spell/DictionarySettings.vue'
+import ProjectInfoSettings from '../components/ProjectInfoSettings.vue'
 import NumberField from '../components/NumberField.vue'
 import ShortcutSettings from '../components/ShortcutSettings.vue'
 import { useSettingsStore } from '../settings/store'
@@ -223,6 +224,7 @@ function step(current: number, delta: number, r: { min: number; max: number }): 
       />
     </div>
 
+    <ProjectInfoSettings />
     <ShortcutSettings />
     <GoalsSettings />
     <DictionarySettings />

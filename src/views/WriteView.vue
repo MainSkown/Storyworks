@@ -3,11 +3,13 @@ import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import CorkboardView from '../components/CorkboardView.vue'
+import GameWritePlaceholder from '../components/GameWritePlaceholder.vue'
 import ManuscriptEditor from '../components/ManuscriptEditor.vue'
 import { focusMode } from '../composables/focusMode'
 import { useCombos, useShortcuts } from '../shortcuts/useShortcuts'
 import { writeView } from '../composables/writeView'
 import { useHistoryStore } from '../history/store'
+import { kindProfile, nodeKindLabel } from '../project/kinds'
 import { useProjectStore } from '../project/store'
 import { formatClock } from '../stats/timer'
 import { useSessionTimer } from '../stats/sessionTimer'
@@ -93,7 +95,10 @@ onBeforeUnmount(() => {
 watch(editable, (v) => {
   if (!v) focusMode.value = false
 })
-const corkboard = computed(() => writeView.value === 'corkboard')
+const placeholder = computed(
+  () => kindProfile(store.project?.manifest.kind ?? 'book').writeIsPlaceholder,
+)
+const corkboard = computed(() => !placeholder.value && writeView.value === 'corkboard')
 watch(corkboard, (v) => {
   if (v) focusMode.value = false
 })
@@ -101,7 +106,7 @@ watch(corkboard, (v) => {
 
 <template>
   <section class="write" :class="{ focus: focusMode }" :aria-label="t('sections.write')">
-    <Teleport defer to="#band-actions-target">
+    <Teleport v-if="!placeholder" defer to="#band-actions-target">
       <div class="band-view" role="group" :aria-label="t('corkboard.view')">
         <button
           v-for="mode in ['editor', 'corkboard'] as const"
@@ -140,7 +145,8 @@ watch(corkboard, (v) => {
     </Teleport>
 
     <div class="stage">
-      <CorkboardView v-if="corkboard" />
+      <GameWritePlaceholder v-if="placeholder" />
+      <CorkboardView v-else-if="corkboard" />
       <div v-else-if="problem" class="empty" role="alert" data-testid="item-problem">
         <p class="problem">
           <QIcon
@@ -177,10 +183,10 @@ watch(corkboard, (v) => {
       <template v-if="scene">
         <span>{{ t('write.scene') }}: {{ sceneWords }} {{ t('sidebar.words') }}</span>
         <span v-if="chapter">
-          {{ t(`write.kind.${chapter.type}`) }}: {{ chapterWords }} {{ t('sidebar.words') }}
+          {{ t(`write.kind.${nodeKindLabel(store.project?.manifest.kind ?? 'book', chapter.type)}`) }}: {{ chapterWords }} {{ t('sidebar.words') }}
         </span>
       </template>
-      <span>{{ t('write.book') }}: {{ bookWords }} {{ t('sidebar.words') }}</span>
+      <span>{{ t(store.project?.manifest.kind === 'book' ? 'write.book' : 'write.script') }}: {{ bookWords }} {{ t('sidebar.words') }}</span>
       <span class="today" :class="{ met: stats.goalProgress?.met }">{{ todayText }}</span>
       <span class="timer">
         <button

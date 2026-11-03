@@ -134,6 +134,25 @@ describe('project store', () => {
     expect(JSON.parse(io.files.get('project.json') as string).goals).toEqual({ daily: null, book: 0 })
   })
 
+  it('book info and title page are saved in the manifest; blank title is refused', async () => {
+    const { s } = await openedStore()
+    expect(s.bookInfo).toEqual({ title: 'My Book', author: 'Ann', contact: '', date: '' })
+    expect(s.setBookInfo({ title: ' New ', author: 'Bo', contact: 'a@b.c', date: '2026' })).toBe(true)
+    expect(s.bookInfo).toEqual({ title: 'New', author: 'Bo', contact: 'a@b.c', date: '2026' })
+    expect(s.setBookInfo({ ...s.bookInfo, title: '  ' })).toBe(false)
+    await s.flush()
+    const m = JSON.parse(io.files.get('project.json') as string)
+    expect(m).toMatchObject({ title: 'New', author: 'Bo', titlePage: { contact: 'a@b.c', date: '2026' } })
+  })
+
+  it('a game project opens with an empty tree and nothing selected', async () => {
+    const s = freshStore()
+    expect(await s.create('g', { ...META, kind: 'game' })).toBe('opened')
+    expect(s.tree).toEqual([])
+    expect(s.selectedId).toBeNull()
+    expect(s.wordCounts.get('') ?? 0).toBe(0)
+  })
+
   it('setGoals is refused when the project is read-only', async () => {
     const { s } = await openedStore()
     await s.close()
@@ -396,7 +415,20 @@ describe('project store', () => {
         povId: undefined,
         wordCount: 7,
         openTodoIds: [],
+        headingIds: [],
       })
+    })
+
+    it('scene numbers follow heading blocks as scenes are edited', async () => {
+      const { s, scene, path } = await openedStore()
+      const second = await s.addScene(s.tree[0].id, 'Second')
+      const r = await s.loadScene(path)
+      if (!r.ok) throw new Error('scene invalid')
+      const doc = { type: 'doc', content: [{ type: 'sceneHeading', attrs: { id: 'h1' } }] }
+      s.updateItem(path, sceneSchema, { ...r.value, content: doc })
+      expect(s.sceneNumbering.byBlock.get('h1')).toBe(1)
+      expect(s.sceneNumbering.byItem.get(scene.id)).toBe(1)
+      expect(s.sceneNumbering.byItem.has(second)).toBe(false)
     })
 
     it('editing a scene updates the index and the roll-up at once', async () => {

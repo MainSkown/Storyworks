@@ -4,6 +4,116 @@
   "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
   "milestones": [
     {
+      "id": "s1",
+      "title": "S1 · Project kinds and screenplay editor",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "New project: choose a kind",
+          "intro": "The dialog starts with three kind cards and says the kind cannot be changed later.",
+          "figures": [
+            {
+              "img": "shots/s1/dialog-book.png",
+              "alt": "New project dialog, Book selected",
+              "bold": "Book (default).",
+              "muted": "Chapters and scenes of prose."
+            },
+            {
+              "img": "shots/s1/dialog-screenplay.png",
+              "alt": "New project dialog, Screenplay selected",
+              "bold": "Screenplay.",
+              "muted": "Title label changes from Book title to Title."
+            },
+            {
+              "img": "shots/s1/dialog-screenplay-pl.png",
+              "alt": "New project dialog in Polish",
+              "bold": "Polish."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Writing a screenplay",
+          "intro": "Enter and Tab move between elements; the toolbar dropdown shows the current one. Scene headings, cues and transitions display uppercase. Scene numbers run through the whole script and show in the margin and the tree.",
+          "figures": [
+            {
+              "img": "shots/s1/sp-new-light.png",
+              "alt": "New screenplay project",
+              "bold": "New screenplay.",
+              "muted": "One Sequence with one scene; no Parts."
+            },
+            {
+              "img": "shots/s1/sp-light-typed.png",
+              "alt": "Screenplay scene with all six element types",
+              "bold": "All six elements.",
+              "muted": "Heading, action, character, parenthetical, dialogue, transition; margin numbers 1 and 2."
+            },
+            {
+              "img": "shots/s1/sp-numbers-light.png",
+              "alt": "Second scene heading numbered 3",
+              "bold": "Numbers continue.",
+              "muted": "The second scene's heading is 3; the tree shows each scene's first number."
+            },
+            {
+              "img": "shots/s1/sp-corkboard-light.png",
+              "alt": "Corkboard for a screenplay",
+              "bold": "Corkboard.",
+              "muted": "Sequence 1 holds both scenes."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Autocomplete",
+          "intro": "Scene headings suggest time of day (and INT./EXT. and codex Places). Character cues suggest codex Characters and aliases; an unknown name offers Add to the codex.",
+          "figures": [
+            {
+              "img": "shots/s1/sp-light-cue-suggest.png",
+              "alt": "Cue suggestion popup, light",
+              "bold": "Cue, light.",
+              "muted": "Anna from the codex, plus the Add to codex line."
+            },
+            {
+              "img": "shots/s1/sp-dark-cue-suggest.png",
+              "alt": "Cue suggestion popup, dark",
+              "bold": "Cue, dark."
+            },
+            {
+              "img": "shots/s1/sp-pl-typed.png",
+              "alt": "Screenplay in the Polish UI",
+              "bold": "Polish UI.",
+              "muted": "Element dropdown, labels and status bar in Polish."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Title page, stats and Game script",
+          "intro": "Title page fields live in Settings. Game projects open to a placeholder; Export is hidden for script kinds.",
+          "figures": [
+            {
+              "img": "shots/s1/sp-settings-titlepage.png",
+              "alt": "Settings with Title page fields",
+              "bold": "Title page.",
+              "muted": "Title, author, contact and date."
+            },
+            {
+              "img": "shots/s1/sp-stats-light.png",
+              "alt": "Stats for a screenplay",
+              "bold": "Stats.",
+              "muted": "Words only; pages come with export (S2)."
+            },
+            {
+              "img": "shots/s1/game-write.png",
+              "alt": "Game script Write placeholder",
+              "bold": "Game script.",
+              "muted": "Coming in a later version; Codex, Timelines, Rules, Checks, Stats and History work."
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "m11",
       "title": "M11a · Samples, tour, import, shortcuts, safety",
       "sections": [

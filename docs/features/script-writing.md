@@ -19,21 +19,21 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 ## Changes
 
 ### Project / platform
-- [ ] `project.json` gains `kind: "book" | "screenplay" | "game"`, set at creation, immutable in v1. The field exists from the first manifest version (milestone M1), so no migration is needed; a kind this app version does not know opens read-only.
-- [ ] New book dialog becomes "New project": choose kind, then title, author, language.
+- [x] `project.json` gains `kind: "book" | "screenplay" | "game"`, set at creation, immutable in v1. The field exists from the first manifest version (milestone M1), so no migration is needed; a kind this app version does not know opens read-only.
+- [x] New book dialog becomes "New project": choose kind, then title, author, language.
 - [ ] Schemas (Zod) for the new item files: screenplay scene, game linear script, conversation graph, variables file, story map file.
 - [ ] Manifest indexes the new items and files with relative paths and order, like other items.
-- [ ] The manuscript editor, toolbar, status bar, word count, export options and sidebar adapt to the project kind (see below); Book behaviour is unchanged.
+- [x] The manuscript editor, toolbar, status bar, word count and sidebar adapt to the project kind (S1; export options follow in S2/S6); Book behaviour is unchanged.
 
 ### Screenplay: editor
-- [ ] Scene content is a list of typed element blocks: scene heading, action, character, dialogue, parenthetical, transition. Each block keeps a stable block ID (same mechanism as prose blocks, so timeline/rule links work).
-- [ ] Enter creates the logical next element (character → dialogue → action...). Tab/Shift+Tab cycles the element type; a toolbar dropdown also sets it.
-- [ ] Standard screenplay layout in the editor sheet (monospace, element indents and margins).
-- [ ] Character cue autocomplete from codex characters and their aliases.
-- [ ] Scene heading autocomplete: INT./EXT. prefix, location from codex Places, time of day. Free text is always allowed.
-- [ ] Automatic scene numbers, shown in the tree, the editor margin and the PDF.
-- [ ] Title page (title, author, contact, date), edited in project settings.
-- [ ] Book-only features are hidden in screenplay projects: footnotes, headings H1-H3, TOC and chapter styles. Margin comments, scene status/synopsis, corkboard, inbox and focus mode stay.
+- [x] Scene content is a list of typed element blocks: scene heading, action, character, dialogue, parenthetical, transition. Each block keeps a stable block ID (same mechanism as prose blocks, so timeline/rule links work).
+- [x] Enter creates the logical next element (character → dialogue → action...). Tab/Shift+Tab cycles the element type; a toolbar dropdown also sets it.
+- [x] Standard screenplay layout in the editor sheet (monospace, element indents and margins).
+- [x] Character cue autocomplete from codex characters and their aliases.
+- [x] Scene heading autocomplete: INT./EXT. prefix, location from codex Places, time of day. Free text is always allowed.
+- [x] Automatic scene numbers, shown in the tree and the editor margin (S1); the PDF follows in S2.
+- [x] Title page (title, author, contact, date), edited in project settings.
+- [x] Book-only features are hidden in screenplay projects: footnotes, headings H1-H3, TOC and chapter styles. Margin comments, scene status/synopsis, corkboard, inbox and focus mode stay.
 - [ ] Stats show pages and estimated runtime (about 1 page per minute) next to words, in the status bar and Stats.
 
 ### Game script: linear scripts
@@ -74,7 +74,7 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - [ ] Appendices, comments and private notes are excluded as in book export. Export options that do not apply to a kind (e.g. chapter selection for CSV) are hidden.
 
 ### UI / navigation
-- [ ] Sidebar for screenplay: Write (scene tree), Timelines, Rules, Codex, Checks, then Stats/History/Settings.
+- [x] Sidebar for screenplay: Write (scene tree), Timelines, Rules, Codex, Checks, then Stats/History/Settings.
 - [ ] Sidebar for game: Write (tree of folders holding Scripts and Conversations), Story map (new section), Timelines, Rules, Codex, Checks, then Stats/History/Settings.
 - [ ] Story map section has its own colour token for both themes (AA contrast), and its own context-panel sections.
 - [ ] All new strings in English and Polish via vue-i18n.
@@ -125,6 +125,9 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - **Non-linear storytelling** (user decision): cross-links between items, story map, routes via timeline branches, and play-through preview are all in v1.
 - **Export formats** (user decision): screenplay PDF, DOCX, Fountain, game JSON/CSV.
 - **Kind immutable after creation** and **project-wide variables without a scripting language** are my assumptions, kept simple to bound scope.
+
+- **S1 decisions (user-confirmed):** a screenplay tree is Sequence > Scene, no parts. Every scene-heading line gets a number running through the whole script in tree order; the tree shows an item's first number; numbers are derived, never stored. Game projects can be created in S1; Write shows a "coming in a later version" placeholder while Codex, Timelines, Rules, Checks, Stats and History work.
+- **S1 defaults:** Tab order scene heading → action → character → dialogue → parenthetical → transition; empty Enter falls back per `src/editor/screenplay/rules.ts`; stored text is as typed and uppercase is display-only; pasted plain text becomes action blocks; Export and Import are hidden for script kinds until S2/S6; manifest v13 adds `titlePage {contact, date}`; saving a manifest with a different kind is rejected.
 
 ## Open questions
 - Page count and runtime estimate were not selected in the screenplay extras. Keep the Stats page count (assumed) or drop it?

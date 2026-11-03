@@ -1,3 +1,5 @@
+import { kindProfile } from './project/kinds'
+
 export type SectionId =
   'write' | 'timelines' | 'rules' | 'codex' | 'checks' | 'stats' | 'history' | 'export' | 'settings'
 
@@ -51,9 +53,25 @@ export const sections: readonly AppSection[] = [
 ]
 
 /** Routes that live inside a section but have their own name. */
-const SUB_ROUTES: Record<string, SectionId> = { relationships: 'codex', knowledge: 'codex', 'knowledge-matrix': 'codex' }
+const SUB_ROUTES: Record<string, SectionId> = {
+  relationships: 'codex',
+  knowledge: 'codex',
+  'knowledge-matrix': 'codex',
+}
 
 export function sectionByRouteName(name: unknown): AppSection | undefined {
   const key = typeof name === 'string' ? (SUB_ROUTES[name] ?? name) : name
   return sections.find((s) => s.routeName === key)
+}
+
+/** Sections shown for a project kind. */
+export const sectionsFor = (kind: string): AppSection[] => {
+  const hidden = kindProfile(kind).hiddenSections
+  return sections.filter((s) => !hidden.includes(s.id))
+}
+
+/** Where to send a route whose section is hidden for this kind; null = leave it. */
+export function hiddenSectionRedirect(kind: string, routeName: unknown): { name: 'write' } | null {
+  const section = sectionByRouteName(routeName)
+  return section && kindProfile(kind).hiddenSections.includes(section.id) ? { name: 'write' } : null
 }

@@ -3,8 +3,13 @@ import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ImportDialog from './ImportDialog.vue'
 import { useProjectStore } from '../project/store'
+import { useKindProfile } from '../composables/kindProfile'
 import type { ManuscriptNode } from '../project/schemas/manifest'
-import { isFiltering as filtering, STATUSES, statusFilter as filter } from '../composables/statusFilter'
+import {
+  isFiltering as filtering,
+  STATUSES,
+  statusFilter as filter,
+} from '../composables/statusFilter'
 import { dropSlot, filterByStatus, keyboardMove, type Slot } from '../project/tree'
 
 type Zone = 'before' | 'after' | 'inside'
@@ -25,6 +30,8 @@ const vFocus = {
 
 const { t, locale } = useI18n()
 const store = useProjectStore()
+const { profile, nodeLabel } = useKindProfile()
+const sequence = computed(() => profile.value.folderLabel === 'sequence')
 const root = ref<HTMLElement | null>(null)
 
 const locked = computed(() => !!store.readOnly)
@@ -35,7 +42,8 @@ const statusOptions = computed(() =>
   STATUSES.map((value) => ({ value, label: t(`outline.status.${value}`) })),
 )
 
-const statusOf = (id: string): (typeof STATUSES)[number] => store.sceneMeta.get(id)?.status ?? 'draft'
+const statusOf = (id: string): (typeof STATUSES)[number] =>
+  store.sceneMeta.get(id)?.status ?? 'draft'
 
 const shown = computed(() =>
   filtering.value ? filterByStatus(store.tree, statusOf, new Set(filter.value)) : store.tree,
@@ -140,7 +148,13 @@ async function addPart(): Promise<void> {
 }
 async function addChapter(): Promise<void> {
   const parent = ancestorPart(store.selectedId)
-  await added(await store.addChapter(parent, t('outline.newChapter')), parent)
+  await added(
+    await store.addChapter(
+      parent,
+      t(sequence.value ? 'outline.newSequence' : 'outline.newChapter'),
+    ),
+    parent,
+  )
 }
 async function addScene(): Promise<void> {
   const parent = sceneParent()
@@ -359,8 +373,12 @@ function memoDeps(r: Row): unknown[] {
     renamingId.value === id ? renameText.value : null,
     renamingId.value === id,
     locale.value,
+    store.sceneNumbering.byItem.get(id),
   ]
 }
+
+/** Number of the scene's first heading (screenplay); empty otherwise. */
+const sceneNo = (id: string): number | undefined => store.sceneNumbering.byItem.get(id)
 
 const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
 </script>
@@ -369,6 +387,7 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
   <div ref="root" class="outline">
     <div class="actions" role="toolbar" :aria-label="t('write.actions')">
       <button
+        v-if="profile.hasParts"
         type="button"
         class="tool"
         :aria-label="t('outline.addPart')"
@@ -381,8 +400,8 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
       <button
         type="button"
         class="tool"
-        :aria-label="t('outline.addChapter')"
-        :title="t('outline.addChapter')"
+        :aria-label="t(sequence ? 'outline.addSequence' : 'outline.addChapter')"
+        :title="t(sequence ? 'outline.addSequence' : 'outline.addChapter')"
         :disabled="locked"
         @click="addChapter"
       >
@@ -399,6 +418,7 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
         <QIcon name="note_add" aria-hidden="true" />
       </button>
       <button
+        v-if="profile.hasImport"
         type="button"
         class="tool"
         aria-haspopup="dialog"
@@ -414,7 +434,9 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
         class="tool"
         :class="{ on: filtering }"
         aria-haspopup="dialog"
-        :aria-label="filtering ? t('outline.filterActive', { n: filter.length }) : t('outline.filter')"
+        :aria-label="
+          filtering ? t('outline.filterActive', { n: filter.length }) : t('outline.filter')
+        "
         :title="t('outline.filter')"
         @click="filterOpen = true"
       >
@@ -521,7 +543,9 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
             @blur="commitRename"
           />
           <span v-else class="name" :class="r.node.type">
-            <span class="sr-only">{{ t(`write.kind.${r.node.type}`) }}: </span>{{ r.node.title }}
+            <span class="sr-only">{{ t(`write.kind.${nodeLabel(r.node.type)}`) }}: </span>
+            <span v-if="sceneNo(r.node.id)" class="num">{{ sceneNo(r.node.id) }}</span>
+            {{ r.node.title }}
           </span>
 
           <span
@@ -777,6 +801,11 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
   font-size: 0.8125rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.num {
+  margin-inline-end: 0.375rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 .name.part {
   font-weight: 700;

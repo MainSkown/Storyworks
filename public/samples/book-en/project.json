@@ -1,9 +1,13 @@
 {
-  "version": 12,
+  "version": 13,
   "kind": "book",
   "title": "The Last Light at Gull Point",
   "author": "Storyworks sample",
   "language": "en",
+  "titlePage": {
+    "contact": "",
+    "date": ""
+  },
   "createdAt": "2026-11-01T00:00:00.000Z",
   "dictionaries": [],
   "goals": {

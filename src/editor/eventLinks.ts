@@ -1,3 +1,4 @@
+import { ELEMENTS } from './screenplay/rules'
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey, type EditorState } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
@@ -5,7 +6,7 @@ import type { Node as PMNode } from '@tiptap/pm/model'
 import { CODEX_KIND, KNOWLEDGE_KIND, type Link } from '../project/links'
 
 /** Text blocks that take event links (list items link through their paragraph). */
-const LINKABLE = new Set(['paragraph', 'heading'])
+const LINKABLE = new Set(['paragraph', 'heading', ...ELEMENTS])
 
 export interface BlockLinkInfo {
   /** Event and entry links together. */
@@ -135,7 +136,9 @@ export const EventLinks = Extension.create<Options>({
         linkedBlocks(doc, this.options.info).map((b) =>
           Decoration.node(b.pos, b.pos + doc.nodeAt(b.pos)!.nodeSize, {
             class: [
-              (b.events ?? b.count - (b.entries ?? 0) - (b.knowledge ?? 0)) > 0 ? 'has-event-link' : '',
+              (b.events ?? b.count - (b.entries ?? 0) - (b.knowledge ?? 0)) > 0
+                ? 'has-event-link'
+                : '',
               (b.entries ?? 0) > 0 ? 'has-codex-link' : '',
               (b.knowledge ?? 0) > 0 ? 'has-knowledge-link' : '',
               b.broken ? 'has-broken-link' : '',

@@ -221,6 +221,22 @@ const v11to12: Migration = {
   },
 }
 
+/** v12 -> v13: manifest only (`titlePage`). */
+const v12to13: Migration = {
+  from: 12,
+  to: 13,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, {
+      ...manifest,
+      version: 13,
+      titlePage: manifest.titlePage ?? { contact: '', date: '' },
+    })
+    return out
+  },
+}
+
 export const migrations: Migration[] = [
   v1to2,
   v2to3,
@@ -233,6 +249,7 @@ export const migrations: Migration[] = [
   v9to10,
   v10to11,
   v11to12,
+  v12to13,
 ]
 
 export const MANIFEST_FILE = 'project.json'

@@ -3,6 +3,7 @@ import { Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/p
 import { Mapping } from '@tiptap/pm/transform'
 import type { Node as PMNode } from '@tiptap/pm/model'
 import { newId } from '../project/ids'
+import { ELEMENTS } from './screenplay/rules'
 
 /** Block node types that carry `attrs.id` (lists themselves do not, their items do). */
 export const BLOCK_ID_TYPES = [
@@ -13,6 +14,7 @@ export const BLOCK_ID_TYPES = [
   'horizontalRule',
   'sceneBreak',
   'image',
+  ...ELEMENTS,
 ]
 
 type Range = [from: number, to: number]

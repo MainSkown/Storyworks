@@ -2,6 +2,7 @@
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useProjectStore } from '../project/store'
+import { useKindProfile } from '../composables/kindProfile'
 import { writeView } from '../composables/writeView'
 import { crossSlot, groupScenes, type CorkSection } from '../project/corkboard'
 import { dropSlot, filterByStatus, keyboardMove, type Slot } from '../project/tree'
@@ -11,6 +12,7 @@ type Zone = 'before' | 'after'
 
 const { t } = useI18n()
 const store = useProjectStore()
+const { nodeLabel } = useKindProfile()
 const root = ref<HTMLElement | null>(null)
 const live = ref('')
 
@@ -231,7 +233,7 @@ async function onDrop(e: DragEvent): Promise<void> {
             size="1rem"
             aria-hidden="true"
           />
-          <span class="sr-only">{{ t(`write.kind.${sec.heading.type}`) }}: </span>
+          <span class="sr-only">{{ t(`write.kind.${nodeLabel(sec.heading.type)}`) }}: </span>
           {{ sec.heading.title }}
           <span class="words">{{ t('outline.words', { n: wordsOf(sec.heading.id) }) }}</span>
         </component>

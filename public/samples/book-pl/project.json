@@ -1,9 +1,13 @@
 {
-  "version": 12,
+  "version": 13,
   "kind": "book",
   "title": "Ostatnie światło na Mewiej Skale",
   "author": "Przykład Storyworks",
   "language": "pl",
+  "titlePage": {
+    "contact": "",
+    "date": ""
+  },
   "createdAt": "2026-11-01T00:00:00.000Z",
   "dictionaries": [],
   "goals": {

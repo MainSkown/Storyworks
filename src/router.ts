@@ -15,6 +15,7 @@ import StatsView from './views/StatsView.vue'
 import WelcomeView from './views/WelcomeView.vue'
 import WriteView from './views/WriteView.vue'
 import { useProjectStore } from './project/store'
+import { hiddenSectionRedirect } from './sections'
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -59,4 +60,5 @@ router.beforeEach((to) => {
     )
   }
   if (to.path.startsWith('/app') && !store.project) return { name: 'welcome' }
+  if (store.project) return hiddenSectionRedirect(store.project.manifest.kind, to.name) ?? undefined
 })

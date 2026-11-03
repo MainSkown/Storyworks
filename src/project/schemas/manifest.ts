@@ -1,10 +1,11 @@
 import { z } from 'zod'
 import type { Env } from '../types'
 import { defaultNames } from '../defaultNames'
+import { isKindId, type KindId } from '../kinds'
 import { defaultExportOptions, type ExportOptions } from '../../export/options'
 
-export const MANIFEST_VERSION = 12
-export const BOOK_KIND = 'book'
+export const MANIFEST_VERSION = 13
+export const BOOK_KIND: KindId = 'book'
 
 /** Index entry for one item file (or one singleton file). */
 export const itemRefSchema = z.strictObject({
@@ -78,6 +79,11 @@ export const dictionariesSchema = z.array(
   z.strictObject({ name: z.string(), scope: z.enum(['local', 'global']) }),
 )
 
+export const titlePageSchema = z.strictObject({
+  contact: z.string(),
+  date: z.string(),
+})
+
 export const manifestSchema = z.strictObject({
   version: z.literal(MANIFEST_VERSION),
   // Any string parses; callers decide what an unknown kind means (read-only).
@@ -85,6 +91,8 @@ export const manifestSchema = z.strictObject({
   title: z.string(),
   author: z.string(),
   language: z.string(),
+  // Screenplay title page; title and author are above.
+  titlePage: titlePageSchema.default({ contact: '', date: '' }),
   createdAt: z.string(),
   dictionaries: dictionariesSchema.default([]),
   goals: goalsSchema.default({ daily: null, book: null }),
@@ -129,33 +137,44 @@ export interface BookMeta {
   title: string
   author: string
   language: string
+  /** Defaults to book; fixed for the life of the project. */
+  kind?: string
 }
 
-/** Chapter 1 with one scene node; the scene file itself is written by createProject. */
+/**
+ * Book: Chapter 1 with one scene. Screenplay: Sequence 1 with one scene. Game: empty tree.
+ * The scene file itself is written by createProject.
+ */
 export function createManifest(meta: BookMeta, env: Env): Manifest {
+  const { kind: wanted, ...rest } = meta
+  if (wanted !== undefined && !isKindId(wanted)) throw new Error(`Unknown project kind: ${wanted}`)
+  const kind: KindId = wanted ?? BOOK_KIND
   const names = defaultNames(meta.language)
   const sceneId = env.newId()
   return manifestSchema.parse({
     version: MANIFEST_VERSION,
-    kind: BOOK_KIND,
-    ...meta,
+    kind,
+    ...rest,
     createdAt: new Date(env.now()).toISOString(),
-    manuscript: [
-      {
-        id: env.newId(),
-        type: 'chapter',
-        title: names.chapter,
-        children: [
-          {
-            id: sceneId,
-            type: 'scene',
-            title: names.scene,
-            path: `manuscript/${sceneId}.json`,
-            children: [],
-          },
-        ],
-      },
-    ],
+    manuscript:
+      kind === 'game'
+        ? []
+        : [
+            {
+              id: env.newId(),
+              type: 'chapter',
+              title: kind === 'screenplay' ? names.sequence : names.chapter,
+              children: [
+                {
+                  id: sceneId,
+                  type: 'scene',
+                  title: names.scene,
+                  path: `manuscript/${sceneId}.json`,
+                  children: [],
+                },
+              ],
+            },
+          ],
   })
 }
 

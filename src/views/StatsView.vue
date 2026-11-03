@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import WordsChart from '../components/stats/WordsChart.vue'
 import type { ManuscriptNode } from '../project/schemas/manifest'
 import { useProjectStore } from '../project/store'
+import { nodeKindLabel } from '../project/kinds'
 import { lastDays } from '../stats/series'
 import { useClockRefresh } from '../stats/useClockRefresh'
 import { useStatsStore, type Progress } from '../stats/store'
@@ -162,7 +163,7 @@ const liveId = computed(() => stats.liveSession?.id ?? null)
             <QIcon :name="r.open ? 'expand_more' : 'chevron_right'" aria-hidden="true" />
           </button>
           <span v-else class="chev-gap" aria-hidden="true" />
-          <span class="kind">{{ t(`stats.totals.kind.${r.node.type}`) }}</span>
+          <span class="kind">{{ t(`stats.totals.kind.${nodeKindLabel(project.project?.manifest.kind ?? 'book', r.node.type)}`) }}</span>
           <span class="name">{{ r.node.title }}</span>
           <span class="num">{{ n(r.words) }}</span>
         </li>

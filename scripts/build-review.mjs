@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const reviewDir = join(root, 'docs', 'review')
 // Already-published screenshots, not in this run's --shots dir.
-const PUBLISHED = /^shots\/(m1\/|m2\/|m3\/|m4\/|m5a\/|m5b\/|m6a\/|m6b\/|m6c\/|m7\/|m8\/|m9\/|m10\/)?[^/]+\.png$/
+const PUBLISHED = /^shots\/(m1\/|m2\/|m3\/|m4\/|m5a\/|m5b\/|m6a\/|m6b\/|m6c\/|m7\/|m8\/|m9\/|m10\/|m11\/)?[^/]+\.png$/
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 const attr = (s) => esc(s).replace(/"/g, '&quot;')
