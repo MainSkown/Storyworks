@@ -1,9 +1,9 @@
 import { fold } from './normalize'
 
-export type Area = 'manuscript' | 'rules' | 'timelines' | 'codex' | 'knowledge'
-export const AREAS: Area[] = ['manuscript', 'codex', 'rules', 'timelines', 'knowledge']
+export type Area = 'manuscript' | 'rules' | 'timelines' | 'codex' | 'knowledge' | 'gamedoc'
+export const AREAS: Area[] = ['manuscript', 'codex', 'rules', 'timelines', 'knowledge', 'gamedoc']
 
-export type ItemKind = 'scene' | 'conversation' | 'chapter' | 'rule' | 'entry' | 'knowledge' | 'timeline' | 'node'
+export type ItemKind = 'scene' | 'conversation' | 'chapter' | 'rule' | 'entry' | 'knowledge' | 'timeline' | 'node' | 'mechanic' | 'overview' | 'glossary'
 
 export interface IndexPart {
   text: string

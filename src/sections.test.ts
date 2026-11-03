@@ -17,8 +17,8 @@ describe('section registry', () => {
     }
   })
 
-  it('has the 6 main and 4 bottom sections', () => {
-    expect(sections.filter((s) => s.position === 'main')).toHaveLength(6)
+  it('has the 7 main and 4 bottom sections', () => {
+    expect(sections.filter((s) => s.position === 'main')).toHaveLength(7)
     expect(sections.filter((s) => s.position === 'bottom')).toHaveLength(4)
   })
 
@@ -32,6 +32,15 @@ describe('section registry', () => {
     expect(ids).not.toContain('export')
     expect(ids).toContain('storymap')
     expect(ids.indexOf('storymap')).toBe(ids.indexOf('write') + 1)
+  })
+
+  it('Game document is game-only and follows Story map', () => {
+    for (const kind of ['book', 'screenplay'])
+      expect(sectionsFor(kind).map((s) => s.id)).not.toContain('gamedoc')
+    const ids = sectionsFor('game').map((s) => s.id)
+    expect(ids.indexOf('gamedoc')).toBe(ids.indexOf('storymap') + 1)
+    expect(hiddenSectionRedirect('book', 'gamedoc')).toEqual({ name: 'write' })
+    expect(hiddenSectionRedirect('game', 'gamedoc')).toBeNull()
   })
 
   it('a hidden section route redirects to write; others are left alone', () => {

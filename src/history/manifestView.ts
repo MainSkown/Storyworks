@@ -5,6 +5,7 @@ export type ItemType =
   | 'timeline' | 'rule' | 'ruleCategory' | 'codexType' | 'entry' | 'relationType'
   | 'relationship' | 'group' | 'stateKind' | 'knowledge'
   | 'calendar' | 'inbox' | 'ignoredFindings' | 'relationLayout' | 'variables' | 'storyMap'
+  | 'mechanic' | 'mechanicCategory' | 'gameOverview' | 'glossary'
   | 'settings' | 'asset' | 'dictionary' | 'file'
 
 /** Manifest list → item type. */
@@ -12,10 +13,12 @@ export const LIST_AREAS: Record<string, ItemType> = {
   timelines: 'timeline', rules: 'rule', ruleCategories: 'ruleCategory', codexTypes: 'codexType',
   codexEntries: 'entry', relationTypes: 'relationType', relationships: 'relationship',
   groups: 'group', stateKinds: 'stateKind', knowledge: 'knowledge',
+  mechanics: 'mechanic', mechanicCategories: 'mechanicCategory',
 }
 /** Single-file manifest slots. */
 export const SINGLETONS: Record<string, ItemType> = {
   calendar: 'calendar', inbox: 'inbox', ignoredFindings: 'ignoredFindings', relationLayout: 'relationLayout', variables: 'variables', storyMap: 'storyMap',
+  gameOverview: 'gameOverview', glossary: 'glossary',
 }
 /** Manifest fields that are structure (or bookkeeping), not "book settings". */
 export const STRUCTURAL_FIELDS = new Set(['version', 'manuscript', 'trash', 'stats', ...Object.keys(LIST_AREAS), ...Object.keys(SINGLETONS)])

@@ -3,7 +3,9 @@ import { docToText } from '../project/plainText'
 import type { ManuscriptNode } from '../project/schemas/manifest'
 import type { Conversation } from '../project/schemas/conversation'
 import type { CodexEntry } from '../project/schemas/codexEntry'
+import type { GlossaryEntry } from '../project/schemas/glossary'
 import type { KnowledgeItem } from '../project/schemas/knowledge'
+import type { Mechanic } from '../project/schemas/mechanic'
 import type { Rule } from '../project/schemas/rule'
 import type { Timeline } from '../timeline/schema'
 import { createIndex, type Area, type IndexInput, type IndexPart, type SearchIndex } from './index'
@@ -128,6 +130,31 @@ export const ruleItem = (
   },
 })
 
+export const mechanicItem = (m: GameDocSources['mechanics'][number]): ItemEntry => ({
+  area: 'gamedoc',
+  item: {
+    id: m.id,
+    kind: 'mechanic',
+    title: m.title,
+    parts: [
+      ...(m.summary ? [{ text: m.summary }] : []),
+      ...docParts(m.description),
+      ...m.parameters.map((p) => ({ text: `${p.name}: ${p.value}` })),
+    ],
+  },
+})
+
+export const OVERVIEW_ID = 'game-overview'
+export const overviewItem = (content: unknown, title: string): ItemEntry => ({
+  area: 'gamedoc',
+  item: { id: OVERVIEW_ID, kind: 'overview', title, parts: docParts(content) },
+})
+
+export const glossaryItem = (e: GameDocSources['glossary'][number]): ItemEntry => ({
+  area: 'gamedoc',
+  item: { id: e.id, kind: 'glossary', title: e.term, parts: e.definition ? [{ text: e.definition }] : [] },
+})
+
 export const entryItem = (
   e: Pick<CodexEntry, 'id' | 'name' | 'aliases' | 'notes' | 'appendixText'>,
 ): ItemEntry => ({
@@ -174,6 +201,11 @@ export function timelineItems(t: TimelineLike): ItemEntry[] {
   ]
 }
 
+export interface GameDocSources {
+  mechanics: Pick<Mechanic, 'id' | 'title' | 'summary' | 'description' | 'parameters'>[]
+  glossary: Pick<GlossaryEntry, 'id' | 'term' | 'definition'>[]
+}
+
 export interface SearchSources {
   tree: ManuscriptNode[]
   /** Scene id -> ProseMirror body, for scenes already loaded; the rest are indexed by title until `loadBodies`. */
@@ -184,6 +216,8 @@ export interface SearchSources {
   timelines: TimelineLike[]
   entries: Pick<CodexEntry, 'id' | 'name' | 'aliases' | 'notes' | 'appendixText'>[]
   knowledge: Parameters<typeof knowledgeItem>[0][]
+  /** Game projects: the game document. */
+  gamedoc?: GameDocSources & { overview?: { content: unknown; title: string } | null }
 }
 
 /** Builds the whole index from what is listed (trashed items are simply not passed). */
@@ -195,6 +229,13 @@ export function buildIndex(src: SearchSources): SearchIndex {
     ...src.timelines.flatMap(timelineItems),
     ...src.entries.map(entryItem),
     ...src.knowledge.map(knowledgeItem),
+    ...(src.gamedoc
+      ? [
+          ...src.gamedoc.mechanics.map(mechanicItem),
+          ...src.gamedoc.glossary.map(glossaryItem),
+          ...(src.gamedoc.overview ? [overviewItem(src.gamedoc.overview.content, src.gamedoc.overview.title)] : []),
+        ]
+      : []),
   ]
   for (const { area, item } of all) ix.upsert(area, item)
   return ix

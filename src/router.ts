@@ -11,6 +11,7 @@ import TimelinesView from './views/TimelinesView.vue'
 import ExportView from './views/ExportView.vue'
 import HistoryView from './views/HistoryView.vue'
 import SettingsView from './views/SettingsView.vue'
+import GameDocView from './views/GameDocView.vue'
 import StoryMapView from './views/StoryMapView.vue'
 import StatsView from './views/StatsView.vue'
 import WelcomeView from './views/WelcomeView.vue'
@@ -29,6 +30,7 @@ export const router = createRouter({
       children: [
         { path: 'write', name: 'write', component: WriteView },
         { path: 'storymap', name: 'storymap', component: StoryMapView },
+        { path: 'gamedoc', name: 'gamedoc', component: GameDocView },
         { path: 'timelines', name: 'timelines', component: TimelinesView },
         { path: 'rules', name: 'rules', component: RulesView },
         { path: 'codex', name: 'codex', component: CodexView },

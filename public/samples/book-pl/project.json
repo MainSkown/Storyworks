@@ -1,5 +1,5 @@
 {
-  "version": 17,
+  "version": 18,
   "kind": "book",
   "title": "Ostatnie światło na Mewiej Skale",
   "author": "Przykład Storyworks",
@@ -302,6 +302,10 @@
   ],
   "variables": null,
   "storyMap": null,
+  "gameOverview": null,
+  "glossary": null,
+  "mechanics": [],
+  "mechanicCategories": [],
   "trash": [],
   "checkSettings": {},
   "exportSettings": {

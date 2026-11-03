@@ -25,6 +25,10 @@ import { groupSchema } from './schemas/group'
 import { relationLayoutSchema } from './schemas/relationLayout'
 import { relationshipSchema } from './schemas/relationship'
 import { relationTypeSchema } from './schemas/relationType'
+import { gameOverviewSchema } from './schemas/gameOverview'
+import { glossarySchema } from './schemas/glossary'
+import { mechanicSchema } from './schemas/mechanic'
+import { mechanicCategorySchema } from './schemas/mechanicCategory'
 import { ruleSchema } from './schemas/rule'
 import { ruleCategorySchema } from './schemas/ruleCategory'
 import { stateKindSchema } from './schemas/stateKind'
@@ -43,10 +47,12 @@ import {
   restoreItemImpl,
   restoreNodeImpl,
   restoreEntryImpl,
+  restoreMechanicImpl,
   restoreRuleImpl,
   trashNodeImpl,
   trashNoteImpl,
   trashEntryImpl,
+  trashMechanicImpl,
   trashRuleImpl,
   type TrashHost,
 } from './trash'
@@ -79,6 +85,10 @@ export interface ListedItem {
   conversation?: boolean
   variables?: boolean
   storyMap?: boolean
+  gameOverview?: boolean
+  glossary?: boolean
+  mechanic?: boolean
+  mechanicCategory?: boolean
   inbox?: boolean
   ignored?: boolean
   stats?: boolean
@@ -111,11 +121,13 @@ export function listedItems(m: Manifest): ListedItem[] {
     }
   }
   walk(m.manuscript)
-  const refs = [m.calendar, m.inbox, m.ignoredFindings, m.stats, m.relationLayout, m.variables, m.storyMap]
+  const refs = [m.calendar, m.inbox, m.ignoredFindings, m.stats, m.relationLayout, m.variables, m.storyMap, m.gameOverview, m.glossary]
   const lists = [
     m.timelines,
     m.rules,
     m.ruleCategories,
+    m.mechanics,
+    m.mechanicCategories,
     m.codexTypes,
     m.codexEntries,
     m.relationTypes,
@@ -144,6 +156,10 @@ export function listedItems(m: Manifest): ListedItem[] {
         relationLayout: ref === m.relationLayout,
         variables: ref === m.variables,
         storyMap: ref === m.storyMap,
+        gameOverview: ref === m.gameOverview,
+        glossary: ref === m.glossary,
+        mechanic: m.mechanics.includes(ref),
+        mechanicCategory: m.mechanicCategories.includes(ref),
         stateKind: m.stateKinds.includes(ref),
         knowledge: m.knowledge.includes(ref),
       })
@@ -262,6 +278,8 @@ function buildProject(
     trashNode: (item) => trashNodeImpl(host, item),
     restoreNode: (id, timelines) => restoreNodeImpl(host, id, timelines),
     dropTrashedNode: (id) => dropTrashedNodeImpl(host, id),
+    trashMechanic: (id, title) => trashMechanicImpl(host, id, title),
+    restoreMechanic: (id) => restoreMechanicImpl(host, id),
     trashRule: (id, title) => trashRuleImpl(host, id, title),
     restoreRule: (id) => restoreRuleImpl(host, id),
     trashEntry: (id, title) => trashEntryImpl(host, id, title),
@@ -336,6 +354,11 @@ export function parseItem(item: ListedItem, text: string): ParseResult<unknown> 
   if (item.relationLayout) return parseFile(relationLayoutSchema, text, item.path)
   if (item.variables) return parseFile(variablesSchema, text, item.path)
   if (item.storyMap) return parseFile(storyMapSchema, text, item.path)
+  if (item.gameOverview) return parseFile(gameOverviewSchema, text, item.path)
+  if (item.glossary) return parseFile(glossarySchema, text, item.path)
+  if (item.mechanic) return withIdCheck(parseFile(mechanicSchema, text, item.path), item.path, item.id)
+  if (item.mechanicCategory)
+    return withIdCheck(parseFile(mechanicCategorySchema, text, item.path), item.path, item.id)
   if (item.conversation)
     return withIdCheck(parseFile(conversationSchema, text, item.path), item.path, item.id)
   return withIdCheck(parseFile(sceneSchema, text, item.path), item.path, item.id)
@@ -359,6 +382,10 @@ export const isParsed = (item: ListedItem) =>
   item.relationLayout ||
   item.variables ||
   item.storyMap ||
+  item.gameOverview ||
+  item.glossary ||
+  item.mechanic ||
+  item.mechanicCategory ||
   item.conversation
 
 async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Promise<Issue[]> {

@@ -6,7 +6,7 @@ import { isKindId, type KindId } from '../kinds'
 import { defaultExportOptions, type ExportOptions } from '../../export/options'
 import { defaultScriptExportOptions, type ScriptExportOptions } from '../../export/scriptOptions'
 
-export const MANIFEST_VERSION = 17
+export const MANIFEST_VERSION = 18
 export const BOOK_KIND: KindId = 'book'
 
 /** Index entry for one item file (or one singleton file). */
@@ -18,7 +18,7 @@ export const itemRefSchema = z.strictObject({
 
 export const trashEntrySchema = z.strictObject({
   id: z.string(),
-  type: z.enum(['part', 'chapter', 'scene', 'conversation', 'note', 'timeline', 'node', 'rule', 'entry']),
+  type: z.enum(['part', 'chapter', 'scene', 'conversation', 'note', 'timeline', 'node', 'rule', 'entry', 'mechanic']),
   title: z.string(),
   originalPath: z.string(),
   trashPath: z.string(),
@@ -144,6 +144,11 @@ export const manifestSchema = z.strictObject({
   variables: itemRefSchema.nullable().default(null),
   // Game scripts: the story map graph.
   storyMap: itemRefSchema.nullable().default(null),
+  // Game projects: the game document (overview page, glossary, mechanics and their categories).
+  gameOverview: itemRefSchema.nullable().default(null),
+  glossary: itemRefSchema.nullable().default(null),
+  mechanics: refs(),
+  mechanicCategories: refs(),
   trash: z.array(trashEntrySchema).default([]),
   // Per-check on/off; a missing id means enabled.
   checkSettings: z.record(z.string(), z.boolean()).default({}),

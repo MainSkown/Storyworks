@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import MechanicsUsing from './gamedoc/MechanicsUsing.vue'
+import { mechanicLinkCount } from '../project/mechanicImpact'
+import { useMechanicsStore } from '../gamedoc/mechanicsStore'
 import { useVariablesStore, type VariableOutcome } from '../variables/store'
 import { VARIABLE_TYPES, type Variable, type VariableType } from '../project/schemas/variables'
 
 const { t } = useI18n()
 const vars = useVariablesStore()
+const mechanics = useMechanicsStore()
 
 const locked = computed(() => !!vars.readOnly || (vars.status !== 'none' && vars.status !== 'ok'))
 const newName = ref('')
@@ -13,6 +17,9 @@ const newType = ref<VariableType>('flag')
 const error = ref('')
 const confirmId = ref<string | null>(null)
 const confirmUses = ref(0)
+const confirmMechanics = computed(() =>
+  confirmId.value ? mechanicLinkCount('variable', confirmId.value, mechanics.mechanics) : 0,
+)
 const confirmName = computed(() => vars.variables.find((v) => v.id === confirmId.value)?.name ?? '')
 
 function report(r: VariableOutcome): boolean {
@@ -78,6 +85,7 @@ function remove(): void {
           <th scope="col">{{ t('variables.name') }}</th>
           <th scope="col">{{ t('variables.type') }}</th>
           <th scope="col">{{ t('variables.default') }}</th>
+          <th scope="col">{{ t('variables.mechanics') }}</th>
           <th scope="col"><span class="sr-only">{{ t('variables.actions') }}</span></th>
         </tr>
       </thead>
@@ -122,6 +130,9 @@ function remove(): void {
             />
           </td>
           <td>
+            <MechanicsUsing :id="v.id" kind="variable" />
+          </td>
+          <td>
             <button
               type="button"
               class="del"
@@ -143,6 +154,9 @@ function remove(): void {
           <h2 id="vars-del-title" class="confirm-title">{{ t('variables.deleteTitle') }}</h2>
           <p>{{ t('variables.deleteBody', { name: confirmName }) }}</p>
           <p v-if="confirmUses > 0">{{ t('variables.deleteUses', confirmUses) }}</p>
+          <p v-if="confirmMechanics > 0">
+            {{ t('deleteImpact.mechanics', { n: confirmMechanics }, confirmMechanics) }}
+          </p>
         </QCardSection>
         <QCardActions align="right">
           <QBtn flat no-caps autofocus :label="t('write.cancel')" @click="confirmId = null" />

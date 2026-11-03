@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useProjectStore } from '../../project/store'
 import { useCodexStore } from '../../codex/store'
 import { jumpToNode } from '../../composables/useJump'
 import { resolveNodeRules } from '../../rules/nodeRules'
 import { openRule } from '../../rules/openRule'
 import { useRulesStore } from '../../rules/store'
+import MechanicsUsing from '../gamedoc/MechanicsUsing.vue'
 import LinkCard from './LinkCard.vue'
 
 const { t } = useI18n()
 const codex = useCodexStore()
 const rules = useRulesStore()
+const isGame = computed(() => useProjectStore().project?.manifest.kind === 'game')
 
 const nodes = computed(() => (codex.selectedId ? codex.usedInNodes(codex.selectedId) : []))
 const ruleRefs = computed(() =>
@@ -56,6 +59,11 @@ const ruleRefs = computed(() =>
       </LinkCard>
     </ul>
     <p v-else class="note">{{ t('linksPanel.entryLinks.noRules') }}</p>
+
+    <template v-if="isGame">
+      <h4 class="sub">{{ t('linksPanel.entryLinks.mechanics') }}</h4>
+      <MechanicsUsing :id="codex.selected.id" kind="entry" />
+    </template>
   </template>
 </template>
 

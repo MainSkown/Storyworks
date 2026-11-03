@@ -1,5 +1,17 @@
 import type { ManuscriptNode } from '../project/schemas/manifest'
-import { entryItem, knowledgeItem, manuscriptItems, ruleItem, timelineItems, type SearchSources } from './build'
+import {
+  entryItem,
+  glossaryItem,
+  knowledgeItem,
+  manuscriptItems,
+  mechanicItem,
+  OVERVIEW_ID,
+  overviewItem,
+  ruleItem,
+  timelineItems,
+  type GameDocSources,
+  type SearchSources,
+} from './build'
 import type { Unit } from './sync'
 
 /** Chapters and scenes in tree order; scene bodies stay as they are in the index. */
@@ -13,6 +25,17 @@ export const manuscriptUnits = (tree: ManuscriptNode[]): Unit[] =>
 // Store records are replaced (never edited) on change, so the record itself is the dependency.
 export const ruleUnits = (rules: SearchSources['rules']): Unit[] =>
   rules.map((r) => ({ id: r.id, deps: [r], make: () => ruleItem(r).item }))
+
+export const mechanicUnits = (mechanics: GameDocSources['mechanics']): Unit[] =>
+  mechanics.map((m) => ({ id: m.id, deps: [m], make: () => mechanicItem(m).item }))
+
+export const glossaryUnits = (entries: GameDocSources['glossary']): Unit[] =>
+  entries.map((e) => ({ id: e.id, deps: [e], make: () => glossaryItem(e).item }))
+
+/** Always one unit when the page is readable; `title` is the translated name shown in results. */
+export const overviewUnits = (content: unknown, title: string): Unit[] => [
+  { id: OVERVIEW_ID, deps: [content, title], make: () => overviewItem(content, title).item },
+]
 
 export const entryUnits = (entries: SearchSources['entries']): Unit[] =>
   entries.map((e) => ({ id: e.id, deps: [e], make: () => entryItem(e).item }))

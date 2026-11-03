@@ -12,6 +12,9 @@ const NAMES = {
     timeline: 'Main timeline',
     // Same order as DEFAULT_RULE_CATEGORIES / DEFAULT_CODEX_TYPES.
     ruleCategories: ['Magic', 'Physics', 'Society', 'Technology', 'Religion'],
+    // Same order as DEFAULT_MECHANIC_CATEGORIES.
+    mechanicCategories: ['Core loop', 'Combat', 'Economy', 'Progression', 'Exploration', 'Interface'],
+    overviewHeadings: ['Pitch', 'Pillars', 'Audience', 'Core loop'],
     codexTypes: ['Character', 'Item', 'Place', 'Country', 'Town', 'Building'],
     // Same order as DEFAULT_RELATION_TYPES.
     relationTypes: [
@@ -32,6 +35,8 @@ const NAMES = {
     scene: 'Scena 1',
     timeline: 'Główna oś czasu',
     ruleCategories: ['Magia', 'Fizyka', 'Społeczeństwo', 'Technologia', 'Religia'],
+    mechanicCategories: ['Główna pętla', 'Walka', 'Ekonomia', 'Rozwój', 'Eksploracja', 'Interfejs'],
+    overviewHeadings: ['Założenie', 'Filary', 'Odbiorcy', 'Główna pętla'],
     codexTypes: ['Postać', 'Przedmiot', 'Miejsce', 'Kraj', 'Miasto', 'Budynek'],
     relationTypes: [
       { name: 'Przyjaciel', reverseLabel: '' },

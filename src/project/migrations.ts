@@ -334,6 +334,25 @@ const v16to17: Migration = {
   },
 }
 
+/** v17 -> v18: manifest only (game-document keys). */
+const v17to18: Migration = {
+  from: 17,
+  to: 18,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, {
+      ...manifest,
+      version: 18,
+      gameOverview: manifest.gameOverview ?? null,
+      glossary: manifest.glossary ?? null,
+      mechanics: manifest.mechanics ?? [],
+      mechanicCategories: manifest.mechanicCategories ?? [],
+    })
+    return out
+  },
+}
+
 export const migrations: Migration[] = [
   v1to2,
   v2to3,
@@ -351,6 +370,7 @@ export const migrations: Migration[] = [
   v14to15,
   v15to16,
   v16to17,
+  v17to18,
 ]
 
 export const MANIFEST_FILE = 'project.json'

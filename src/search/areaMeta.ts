@@ -6,6 +6,7 @@ export const AREA_META: Record<Area, { icon: string; color: string; on: string }
   codex: { icon: 'menu_book', color: '--section-codex', on: '--section-codex-on' },
   rules: { icon: 'checklist', color: '--section-rules', on: '--section-rules-on' },
   timelines: { icon: 'event', color: '--section-timelines', on: '--section-timelines-on' },
+  gamedoc: { icon: 'description', color: '--section-gamedoc', on: '--section-gamedoc-on' },
   knowledge: { icon: 'lightbulb', color: '--section-codex', on: '--section-codex-on' },
 }
 

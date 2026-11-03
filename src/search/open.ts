@@ -4,6 +4,7 @@ import { writeView } from '../composables/writeView'
 import { openEntry } from '../codex/openEntry'
 import { openKnowledgeItem } from '../knowledge/openItem'
 import { useProjectStore } from '../project/store'
+import { useMechanicsStore } from '../gamedoc/mechanicsStore'
 import { openRule } from '../rules/openRule'
 import { useTimelinesStore } from '../timeline/store'
 import type { ItemKind } from './index'
@@ -41,6 +42,14 @@ export async function openTarget(t: OpenTarget): Promise<void> {
       return openEntry(t.id)
     case 'rule':
       return openRule(t.id)
+    case 'mechanic':
+      useMechanicsStore().select(t.id)
+      await router.push({ name: 'gamedoc', query: { tab: 'mechanics' } })
+      return
+    case 'overview':
+    case 'glossary':
+      await router.push({ name: 'gamedoc', query: { tab: t.kind } })
+      return
     case 'knowledge':
       return openKnowledgeItem(t.id)
     case 'timeline':

@@ -9,6 +9,7 @@ import { removeBox, disconnect, setArrowCondition, setBeatText, setStart } from 
 import { useStoryMapStore } from '../../storymap/store'
 import { useConditionText } from '../../storymap/useConditionText'
 import { useStoryItems } from '../../storymap/useItems'
+import MechanicsUsing from '../gamedoc/MechanicsUsing.vue'
 import ConditionBuilder from '../conversation/ConditionBuilder.vue'
 
 const { t } = useI18n()
@@ -204,6 +205,12 @@ function deleteBox(id: string): void {
         "
         :disable="locked"
         @click="deleteBox(box.id)"
+      />
+
+      <h4 class="label">{{ t('storymap.inspector.mechanics') }}</h4>
+      <MechanicsUsing
+        :id="box.kind === 'beat' ? box.id : box.itemId"
+        :kind="box.kind === 'beat' ? 'beat' : 'item'"
       />
 
       <h4 class="label">{{ t('storymap.inspector.arrowsOut') }}</h4>

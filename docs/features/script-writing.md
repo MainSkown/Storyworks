@@ -23,7 +23,7 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - [x] New book dialog becomes "New project": choose kind, then title, author, language.
 - [ ] (S3-S5 done: game script lines, conversation graph, variables file, story map file; the game-script ones are in) Schemas (Zod) for the new item files: screenplay scene, game linear script, conversation graph, variables file, story map file.
 - [ ] Manifest indexes the new items and files with relative paths and order, like other items.
-- [x] The manuscript editor, toolbar, status bar, word count and sidebar adapt to the project kind (S1; export options follow in S2/S6); Book behaviour is unchanged.
+- [x] The manuscript editor, toolbar, status bar, word count and sidebar adapt to the project kind (S1; export options follow in S2/S7); Book behaviour is unchanged.
 
 ### Screenplay: editor
 - [x] Scene content is a list of typed element blocks: scene heading, action, character, dialogue, parenthetical, transition. Each block keeps a stable block ID (same mechanism as prose blocks, so timeline/rule links work).

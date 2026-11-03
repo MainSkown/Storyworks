@@ -86,7 +86,7 @@ describe('project kinds', () => {
   })
 
   it('profiles: book shows everything; the game hides Export and Import', () => {
-    expect(kindProfile('book').hiddenSections).toEqual(['storymap'])
+    expect(kindProfile('book').hiddenSections).toEqual(['storymap', 'gamedoc'])
     expect(kindProfile('game').hiddenSections).not.toContain('storymap')
     expect(kindProfile('screenplay').hiddenSections).not.toContain('export')
     expect(kindProfile('game').hiddenSections).toContain('export')

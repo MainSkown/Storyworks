@@ -2,23 +2,24 @@
 import type { ChangeItem } from './items'
 import type { ItemType } from './manifestView'
 
-export type ItemGroup = 'manuscript' | 'timelines' | 'rules' | 'codex' | 'other'
+export type ItemGroup = 'manuscript' | 'timelines' | 'rules' | 'codex' | 'gamedoc' | 'other'
 
 const GROUPS: Partial<Record<ItemType, ItemGroup>> = {
   part: 'manuscript', chapter: 'manuscript', scene: 'manuscript', conversation: 'manuscript',
   timeline: 'timelines', calendar: 'timelines',
   rule: 'rules', ruleCategory: 'rules',
+  mechanic: 'gamedoc', mechanicCategory: 'gamedoc', gameOverview: 'gamedoc', glossary: 'gamedoc',
   entry: 'codex', codexType: 'codex', relationType: 'codex', relationship: 'codex',
   group: 'codex', stateKind: 'codex', knowledge: 'codex',
 }
 
-export const GROUP_ORDER: ItemGroup[] = ['manuscript', 'timelines', 'rules', 'codex', 'other']
+export const GROUP_ORDER: ItemGroup[] = ['manuscript', 'timelines', 'rules', 'codex', 'gamedoc', 'other']
 
 export const itemGroup = (type: ItemType): ItemGroup => GROUPS[type] ?? 'other'
 
 /** Items whose own title says what they are (manuscript) or that have none (settings, calendar, …). */
 const NAMED_BY_TITLE = new Set<ItemType>(['part', 'chapter', 'scene', 'conversation'])
-const TYPE_ONLY = new Set<ItemType>(['settings', 'calendar', 'inbox', 'ignoredFindings', 'relationLayout', 'variables', 'storyMap'])
+const TYPE_ONLY = new Set<ItemType>(['settings', 'calendar', 'inbox', 'ignoredFindings', 'relationLayout', 'variables', 'storyMap', 'gameOverview', 'glossary'])
 
 export function itemLabel(item: ChangeItem, t: (key: string) => string): string {
   const kinds = item.kinds.map((k) => t(`history.kind.${k}`)).join(', ')

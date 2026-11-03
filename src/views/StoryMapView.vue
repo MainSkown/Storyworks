@@ -43,6 +43,8 @@ import type {
   GraphNodeModel,
   GraphStyle,
 } from '../components/graph/types'
+import { useMechanicsStore } from '../gamedoc/mechanicsStore'
+import { mechanicLinkCount } from '../project/mechanicImpact'
 import StoryBoxBody from '../components/storymap/StoryBoxBody.vue'
 import StoryPlaythroughPanel from '../components/storymap/StoryPlaythroughPanel.vue'
 
@@ -304,15 +306,17 @@ async function addBeatAfter(afterId: string | null): Promise<void> {
   }
 }
 
-const pendingDelete = ref<{ id: string; count: number } | null>(null)
+const mechanicsStore = useMechanicsStore()
+const pendingDelete = ref<{ id: string; count: number; mechanics: number } | null>(null)
 function onDelete(id: string, count: number): void {
   if (!guard()) return
   const box = view.value.boxes.find((b) => b.id === id)
   if (!box) return
   if (box.kind === 'item' && items.stateOf(box) !== 'deleted')
     return toast(t('storymap.rejected.itemBox'))
-  if (count === 0) return removeById(id)
-  pendingDelete.value = { id, count }
+  const mechanics = box.kind === 'beat' ? mechanicLinkCount('beat', id, mechanicsStore.mechanics) : 0
+  if (count === 0 && mechanics === 0) return removeById(id)
+  pendingDelete.value = { id, count, mechanics }
 }
 function removeById(id: string): void {
   pendingDelete.value = null
@@ -528,7 +532,12 @@ watch(startId, () => {
       <QCard v-if="pendingDelete" class="confirm" role="alertdialog" aria-labelledby="sm-del-title">
         <QCardSection>
           <h2 id="sm-del-title" class="confirm-title">{{ t('storymap.delete.title') }}</h2>
-          <p>{{ t('storymap.delete.body', { n: pendingDelete.count }, pendingDelete.count) }}</p>
+          <p v-if="pendingDelete.count > 0">
+            {{ t('storymap.delete.body', { n: pendingDelete.count }, pendingDelete.count) }}
+          </p>
+          <p v-if="pendingDelete.mechanics > 0">
+            {{ t('deleteImpact.mechanics', { n: pendingDelete.mechanics }, pendingDelete.mechanics) }}
+          </p>
         </QCardSection>
         <QCardActions align="right">
           <QBtn

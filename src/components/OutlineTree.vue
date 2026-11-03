@@ -13,6 +13,8 @@ import {
 } from '../composables/statusFilter'
 import { dropSlot, filterByStatus, findNode, keyboardMove, type Slot } from '../project/tree'
 import { inboundLinks } from '../game/inboundLinks'
+import { useMechanicsStore } from '../gamedoc/mechanicsStore'
+import { mechanicLinkCount } from '../project/mechanicImpact'
 
 type Zone = 'before' | 'after' | 'inside'
 interface Row {
@@ -230,6 +232,19 @@ const deleteTitle = computed(() => parents.value.get(deleteId.value ?? '')?.node
 const deleteLinks = computed(() =>
   deleteId.value ? store.linksBrokenByDeletingItem(deleteId.value) : 0,
 )
+
+const mechanicsStore = useMechanicsStore()
+const deleteMechanics = computed(() => {
+  const root = deleteId.value ? findNode(store.tree, deleteId.value) : null
+  if (!root) return 0
+  const ids: string[] = []
+  const walk = (n: ManuscriptNode) => {
+    if (n.type === 'scene' || n.type === 'conversation') ids.push(n.id)
+    n.children.forEach(walk)
+  }
+  walk(root)
+  return ids.reduce((n, id) => n + mechanicLinkCount('item', id, mechanicsStore.mechanics), 0)
+})
 
 // Cross-item links from other conversations that deleting would break.
 const deleteInbound = ref(0)
@@ -750,6 +765,9 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
           <p>{{ t('write.deleteBody', { title: deleteTitle }) }}</p>
           <p v-if="deleteLinks > 0">
             {{ t('deleteImpact.links', { n: deleteLinks }, deleteLinks) }}
+          </p>
+          <p v-if="deleteMechanics > 0">
+            {{ t('deleteImpact.mechanics', { n: deleteMechanics }, deleteMechanics) }}
           </p>
           <p v-if="deleteInbound > 0">
             {{ t('game.crossLink.deleteImpact', { n: deleteInbound }, deleteInbound) }}

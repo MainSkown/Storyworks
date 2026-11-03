@@ -21,6 +21,8 @@
   --section-write-on: #ffffff;
   --section-storymap: #12606e;
   --section-storymap-on: #ffffff;
+  --section-gamedoc: #5a4fb0;
+  --section-gamedoc-on: #ffffff;
   --section-timelines: #a4560f;
   --section-timelines-on: #ffffff;
   --section-rules: #3e7b5a;
@@ -73,6 +75,8 @@
   --section-write-on: #14120f;
   --section-storymap: #5cc3d4;
   --section-storymap-on: #14120f;
+  --section-gamedoc: #a79df0;
+  --section-gamedoc-on: #14120f;
   --section-timelines: #e58a3a;
   --section-timelines-on: #14120f;
   --section-rules: #5fb587;

@@ -1,6 +1,6 @@
 # Storyworks: milestones
 
-From an empty repository to the complete v1 described in [docs/features/storyworks-app.md](../features/storyworks-app.md) (the **spec**) and [docs/features/script-writing.md](../features/script-writing.md) (the **script spec**: screenplay and game scripts, built as the **S-track** S1–S6 after the book milestones they extend). The spec says *what* the app does; this file says *what has to exist, in what order*, so a planning agent can take one milestone and write its implementation plan. It deliberately does not say how to split work or who does it.
+From an empty repository to the complete v1 described in [docs/features/storyworks-app.md](../features/storyworks-app.md) (the **spec**) and [docs/features/script-writing.md](../features/script-writing.md) (the **script spec**: screenplay and game scripts, built as the **S-track** S1–S7 after the book milestones they extend). The spec says *what* the app does; this file says *what has to exist, in what order*, so a planning agent can take one milestone and write its implementation plan. It deliberately does not say how to split work or who does it.
 
 ## How to use this file
 - A milestone is complete only when its **Done when** list is true in the running app, its tests pass, and (for UI) screenshots were published for review (see `.claude/CLAUDE.md`).
@@ -198,7 +198,7 @@ From an empty repository to the complete v1 described in [docs/features/storywor
 
 **Scope**
 - Settle the open questions *PDF/DOCX approach* (verify `pdfmake` footnote support, fall back to numbered notes or a swap) and page furniture, and record them in the spec.
-- Format-neutral export model built from the manuscript, plus an exporter registry that drives the format dropdown and can offer different exporters per project kind (S2, S6).
+- Format-neutral export model built from the manuscript, plus an exporter registry that drives the format dropdown and can offer different exporters per project kind (S2, S7).
 - DOCX and PDF exporters: headings, lists, quotes, alignment, scene breaks, images, footnotes, title page, table of contents, page numbers (default on), optional running header, page size/margins/font/size/line spacing, chapter selection.
 - Generated appendices (dramatis personae, glossary, chronology) from opted-in codex entries and timeline data; spoilers excluded by default.
 - Margin comments and app-only annotations never exported; missing images produce a placeholder and warning.
@@ -250,7 +250,7 @@ From an empty repository to the complete v1 described in [docs/features/storywor
 ## M11 · Import, onboarding, polish and release
 **Goal:** make it adoptable and shippable.
 
-**Needs:** M0–M10 and S1–S6 (so samples, tour and audit cover the script kinds).
+**Needs:** M0–M10 and S1–S7 (so samples, tour and audit cover the script kinds).
 
 **Scope**
 - Import from Markdown and plain text (Fountain import is in S2): split into parts/chapters/scenes by headings, preview before creating.
@@ -268,7 +268,7 @@ From an empty repository to the complete v1 described in [docs/features/storywor
 
 ---
 
-## Script track (S1–S6)
+## Script track (S1–S7)
 Implements the [script spec](../features/script-writing.md). Each S milestone starts once its **Needs** are complete; S1 and later never block M0–M11 except where M11 lists them.
 
 ## S1 · Project kinds and screenplay editor
@@ -361,29 +361,48 @@ Implements the [script spec](../features/script-writing.md). Each S milestone st
 
 ---
 
-## S6 · Script checks and game export
+## S6 · Game document
+**Goal:** write down the game's design (overview, mechanics, glossary) inside the game project.
+
+**Needs:** S5, M5.
+
+**Scope**
+- Rename the project kind label to "Game" (stored value unchanged); manifest v18 with migration.
+- Game-only "Game document" sidebar section with own colour token and context-panel sections; tabs Overview, Mechanics, Glossary.
+- Overview rich-text page with starter headings; Mechanics (title, summary, category, status, tags, description, parameters, links to variables, items, codex entries, other mechanics) with categories, filters and reverse links; Glossary.
+- Shared tools (snapshots, trash, search, autosave, stats) cover the new files.
+
+**Done when**
+- A mechanic with all fields and links round-trips through close and reopen; links break on delete and repair on restore; v17 projects migrate; search finds document text.
+
+**Spec:** [Game document spec](../features/game-document.md).
+
+---
+
+## S7 · Script checks and game export
 **Goal:** catch logic mistakes in game scripts and hand the data to an engine.
 
-**Needs:** S5, M7, M8.
+**Needs:** S6, M7, M8.
 
 **Scope**
 - Checks (same finding shape, stable IDs, per-check on/off): dead end, unreachable node or item, choice with no target, undefined variable, item tagged with an unreachable route, broken speaker.
-- Game JSON export (lines with IDs and speakers, conversation nodes and edges with conditions and sets, variables, story map, routes) and CSV (one row per line).
+- Game JSON export (lines with IDs and speakers, conversation nodes and edges with conditions and sets, variables, story map, routes, game document) and CSV (one row per line).
+- Game-document checks (broken mechanic links, Implemented mechanic with no links, variable used by nothing) and a readable PDF/DOCX/Markdown export of the game document.
 
 **Done when**
 - Each check gives a finding on a bad case and none on a good one with stable IDs; exported JSON and CSV contain every line with its ID and speaker and can be re-read to the same graph.
 
-**Spec:** Script spec: Consistency checks, Export / import.
+**Spec:** Script spec: Consistency checks, Export / import; Game document spec: Handed to S7.
 
 ---
 
 ## Order at a glance
 `M0 → M1 → M2 → M3 → M4 → M5 → M6 → M7`, with `M8` after M2 (appendices after M6), `M9` after M2, `M10` after M5, and `M11` last. M2 and M3 are independent of each other once M1 exists.
 
-**Script track:** `S1` after M2 and M5 → `S2` after S1 and M8; `S3` after S1 → `S4` after S3 and M3 → `S5` → `S6` after S5, M7 and M8. S-milestones can interleave with M6–M10 as their Needs allow; M11 waits for all of them.
+**Script track:** `S1` after M2 and M5 → `S2` after S1 and M8; `S3` after S1 → `S4` after S3 and M3 → `S5` → `S6` after S5 and M5 → `S7` after S6, M7 and M8. S-milestones can interleave with M6–M10 as their Needs allow; M11 waits for all of them.
 
 ## After v1 (not part of these milestones)
 Optional local LLM consistency checking via Ollama (read-only, reuses the Checks finding shape); research library; map view; DOCX import including editor feedback; narrative-order vs story-order chart; EPUB and other export formats via the exporter registry.
 
 ## Spec coverage check
-Every "Changes" section of the spec belongs to a milestone: Project/platform → M0, M1; Manuscript editor → M2, M4; Timeline editor and Custom calendar → M3, M4; Rules page and Codex → M5; Relationships, States, Knowledge → M6; Consistency checks → M7; Export → M8; Snapshots → M9; Search, Writing goals and stats, Spellcheck dictionaries → M10; App safety and recovery → M1 (lock, external changes), M11 (crash recovery, log); UI design → M0 (shell), M2/M4/M5 (content); Comfort and accessibility → M0 (themes, zoom), M11 (audit, shortcuts); Import → M11. Script spec: project kind → M1 (field) and S1; screenplay editor → S1; screenplay export, Fountain, page count → S2; game linear scripts and variables → S3; conversations → S4; non-linear structure → S5; script checks and game export → S6; samples and audit → M11.
+Every "Changes" section of the spec belongs to a milestone: Project/platform → M0, M1; Manuscript editor → M2, M4; Timeline editor and Custom calendar → M3, M4; Rules page and Codex → M5; Relationships, States, Knowledge → M6; Consistency checks → M7; Export → M8; Snapshots → M9; Search, Writing goals and stats, Spellcheck dictionaries → M10; App safety and recovery → M1 (lock, external changes), M11 (crash recovery, log); UI design → M0 (shell), M2/M4/M5 (content); Comfort and accessibility → M0 (themes, zoom), M11 (audit, shortcuts); Import → M11. Script spec: project kind → M1 (field) and S1; screenplay editor → S1; screenplay export, Fountain, page count → S2; game linear scripts and variables → S3; conversations → S4; non-linear structure → S5; script checks and game export → S7; game document → S6 (see the game document spec); samples and audit → M11.

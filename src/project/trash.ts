@@ -5,6 +5,7 @@ import { inboxNoteSchema, type InboxNote } from './schemas/inbox'
 import type { Manifest } from './schemas/manifest'
 import type { z } from 'zod'
 import { codexEntrySchema } from './schemas/codexEntry'
+import { mechanicSchema } from './schemas/mechanic'
 import { ruleSchema } from './schemas/rule'
 import { trashedNodeSchema, type TrashedNode } from './schemas/trashedNode'
 import { parseFile, serialize } from './serialize'
@@ -144,6 +145,8 @@ export async function restoreItemImpl(host: TrashHost, id: string): Promise<void
     throw new Error(`Cannot restore ${id}: rules are restored through the store`)
   if (entry.type === 'entry')
     throw new Error(`Cannot restore ${id}: codex entries are restored through the store`)
+  if (entry.type === 'mechanic')
+    throw new Error(`Cannot restore ${id}: mechanics are restored through the store`)
   if (entry.originalPath && (await io.exists(entry.originalPath))) {
     throw new Error(`Cannot restore ${id}: ${entry.originalPath} already exists`)
   }
@@ -356,6 +359,16 @@ export class RuleRestoreError extends Error {
   }
 }
 
+export class MechanicRestoreError extends Error {
+  constructor(
+    readonly code: RuleRestoreErrorCode,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'MechanicRestoreError'
+  }
+}
+
 export class EntryRestoreError extends Error {
   constructor(
     readonly code: RuleRestoreErrorCode,
@@ -368,8 +381,8 @@ export class EntryRestoreError extends Error {
 
 /** A manifest list that holds one kind of whole-file item (rules, codex entries). */
 interface ListedKind {
-  list: 'rules' | 'codexEntries'
-  type: 'rule' | 'entry'
+  list: 'rules' | 'codexEntries' | 'mechanics'
+  type: 'rule' | 'entry' | 'mechanic'
   label: string
   schema: z.ZodType<{ id: string }>
   error: new (code: RuleRestoreErrorCode, message: string) => Error
@@ -381,6 +394,13 @@ const RULE_KIND: ListedKind = {
   label: 'rule',
   schema: ruleSchema,
   error: RuleRestoreError,
+}
+const MECHANIC_KIND: ListedKind = {
+  list: 'mechanics',
+  type: 'mechanic',
+  label: 'mechanic',
+  schema: mechanicSchema,
+  error: MechanicRestoreError,
 }
 const ENTRY_KIND: ListedKind = {
   list: 'codexEntries',
@@ -477,6 +497,10 @@ async function restoreListed(host: TrashHost, k: ListedKind, id: string): Promis
 export const trashRuleImpl = (host: TrashHost, id: string, title: string) =>
   trashListed(host, RULE_KIND, id, title)
 export const restoreRuleImpl = (host: TrashHost, id: string) => restoreListed(host, RULE_KIND, id)
+export const trashMechanicImpl = (host: TrashHost, id: string, title: string) =>
+  trashListed(host, MECHANIC_KIND, id, title)
+export const restoreMechanicImpl = (host: TrashHost, id: string) =>
+  restoreListed(host, MECHANIC_KIND, id)
 export const trashEntryImpl = (host: TrashHost, id: string, title: string) =>
   trashListed(host, ENTRY_KIND, id, title)
 export const restoreEntryImpl = (host: TrashHost, id: string) => restoreListed(host, ENTRY_KIND, id)

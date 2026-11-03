@@ -18,6 +18,8 @@ import { imageExt } from '../editor/projectImage'
 import { pickImage } from '../project/pickImage'
 import type { EntryUsage } from '../project/codex'
 import { brokenByDeletingEntry, relationImpactOfEntry } from '../project/deleteImpact'
+import { mechanicLinkCount } from '../project/mechanicImpact'
+import { useMechanicsStore } from '../gamedoc/mechanicsStore'
 import { useKnowledgeStore } from '../knowledge/store'
 import { useRelationsStore } from '../relations/store'
 import { useProjectStore } from '../project/store'
@@ -247,6 +249,10 @@ async function jump(u: EntryUsage): Promise<void> {
     })
 }
 
+const mechanicsStore = useMechanicsStore()
+const deleteMechanics = computed(() =>
+  entry.value ? mechanicLinkCount('entry', entry.value.id, mechanicsStore.mechanics) : 0,
+)
 const deleteOpen = ref(false)
 const deleteLinks = computed(() => used.value.length)
 const deletePassages = computed(() => {
@@ -717,6 +723,9 @@ const errorText = (e: (typeof invalidEntries.value)[number]) =>
           <p v-if="deleteLinks > 0" class="warn">{{ t('codex.deleteLinks', deleteLinks) }}</p>
           <p v-if="deletePassages > 0" class="warn">
             {{ t('deleteImpact.links', { n: deletePassages }, deletePassages) }}
+          </p>
+          <p v-if="deleteMechanics > 0" class="warn">
+            {{ t('deleteImpact.mechanics', { n: deleteMechanics }, deleteMechanics) }}
           </p>
           <template v-if="deleteRelations.relationships > 0">
             <p class="warn">

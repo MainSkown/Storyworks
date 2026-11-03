@@ -5,6 +5,7 @@
   "sections": {
     "write": "Pisanie",
     "storymap": "Mapa historii",
+    "gamedoc": "Dokument gry",
     "timelines": "Osie czasu",
     "rules": "Zasady",
     "codex": "Kodeks",
@@ -27,7 +28,12 @@
       "thisParagraph": "Ten akapit",
       "thisScene": "Ta scena",
       "inThisScene": "W tej scenie",
-      "problems": "Problemy"
+      "problems": "Problemy",
+      "mechanics": "Mechaniki"
+    },
+    "gamedoc": {
+      "selected": "Zaznaczone",
+      "usedBy": "Używane przez"
     },
     "storymap": {
       "selected": "Zaznaczone",
@@ -322,6 +328,7 @@
       "confirm": "Usuń"
     },
     "inspector": {
+      "mechanics": "Mechaniki",
       "none": "Zaznacz pole lub strzałkę na mapie historii.",
       "open": "Otwórz w Pisaniu",
       "openGone": "Ten element jest w koszu lub usunięty, więc nie można go otworzyć.",
@@ -352,6 +359,7 @@
     }
   },
   "variables": {
+    "mechanics": "Mechaniki",
     "title": "Zmienne",
     "hint": "Wartości całego projektu, które rozmowy będą mogły sprawdzać i zmieniać: flaga (tak lub nie), liczba albo tekst.",
     "readOnly": "Ten projekt jest tylko do odczytu, więc zmiennych nie można edytować.",
@@ -390,7 +398,7 @@
       "bookDesc": "Rozdziały i sceny prozy",
       "screenplay": "Scenariusz",
       "screenplayDesc": "Nagłówki scen, akcja i dialogi",
-      "game": "Skrypt gry",
+      "game": "Gra",
       "gameDesc": "Kwestie i rozmowy",
       "fixed": "Rodzaju nie można zmienić po utworzeniu projektu."
     },
@@ -669,7 +677,8 @@
       "codex": "Kodeks",
       "rules": "Zasady",
       "timelines": "Osie czasu",
-      "knowledge": "Wiedza"
+      "knowledge": "Wiedza",
+      "gamedoc": "Dokument gry"
     },
     "kind": {
       "scene": "Scena",
@@ -679,7 +688,10 @@
       "entry": "Hasło kodeksu",
       "knowledge": "Element wiedzy",
       "timeline": "Oś czasu",
-      "node": "Wydarzenie"
+      "node": "Wydarzenie",
+      "mechanic": "Mechanika",
+      "overview": "Przegląd",
+      "glossary": "Termin ze słowniczka"
     },
     "switcher": {
       "title": "Przejdź do…",
@@ -1273,6 +1285,7 @@
     "andMore": "i {n} więcej",
     "nodeRelationships": "Brak relacji | {n} relacja jest powiązana z tym wydarzeniem i pokaże uszkodzone powiązanie. | {n} relacje są powiązane z tym wydarzeniem i pokażą uszkodzone powiązanie. | {n} relacji jest powiązanych z tym wydarzeniem i pokaże uszkodzone powiązanie.",
     "nodeKnowledge": "Brak zdarzeń wiedzy | {n} zdarzenie wiedzy jest przypisane do tego wydarzenia i pokaże brakujące wydarzenie. | {n} zdarzenia wiedzy są przypisane do tego wydarzenia i pokażą brakujące wydarzenie. | {n} zdarzeń wiedzy jest przypisanych do tego wydarzenia i pokaże brakujące wydarzenie.",
+    "mechanics": "Brak mechanik | {n} mechanika jest z tym powiązana i pokaże uszkodzone powiązanie. | {n} mechaniki są z tym powiązane i pokażą uszkodzone powiązania. | {n} mechanik jest z tym powiązanych i pokaże uszkodzone powiązania.",
     "links": "Brak powiązanych fragmentów | {n} powiązany fragment pokaże się jako uszkodzony do czasu przywrócenia. | {n} powiązane fragmenty pokażą się jako uszkodzone do czasu przywrócenia. | {n} powiązanych fragmentów pokaże się jako uszkodzone do czasu przywrócenia."
   },
   "timelineView": {
@@ -1681,7 +1694,8 @@
       "events": "Wydarzenia",
       "noEvents": "Nie powiązano z żadnym wydarzeniem.",
       "rules": "Zasady",
-      "noRules": "Brak powiązanych zasad."
+      "noRules": "Brak powiązanych zasad.",
+      "mechanics": "Mechaniki"
     },
     "linkedRules": {
       "none": "Wybierz wydarzenie, aby zobaczyć jego zasady.",
@@ -2020,6 +2034,160 @@
       }
     }
   },
+  "gamedoc": {
+    "words": "Brak słów | {n} słowo | {n} słowa | {n} słów",
+    "tabs": "Części dokumentu gry",
+    "overviewTab": {
+      "title": "Przegląd",
+      "invalid": "Nie udało się odczytać pliku Przeglądu, więc został nietknięty i nie można go edytować.",
+      "missing": "Brakuje pliku Przeglądu. Nie został utworzony ponownie.",
+      "none": "Ten projekt nie ma strony Przeglądu.",
+      "readOnly": "Ten projekt jest tylko do odczytu."
+    },
+    "glossaryTab": {
+      "title": "Słownik",
+      "search": "Szukaj w terminach i definicjach",
+      "add": "Dodaj termin",
+      "term": "Termin",
+      "definition": "Definicja",
+      "save": "Zapisz",
+      "cancel": "Anuluj",
+      "edit": "Edytuj: {term}",
+      "delete": "Usuń: {term}",
+      "deleteTitle": "Usuń termin",
+      "deleteConfirm": "Usunąć „{term}”? Tego nie można cofnąć.",
+      "empty": "Brak terminów. Dodaj słowa używane w grze i ich znaczenie.",
+      "noMatch": "Żaden termin nie pasuje do wyszukiwania.",
+      "termRequired": "Termin jest wymagany.",
+      "saveFailed": "Nie udało się zapisać słownika.",
+      "added": "Dodano „{term}”.",
+      "saved": "Zapisano „{term}”.",
+      "deleted": "Usunięto „{term}”.",
+      "invalid": "Nie udało się odczytać pliku słownika, więc został nietknięty i nie można go edytować.",
+      "missing": "Brakuje pliku słownika. Nie został utworzony ponownie.",
+      "readOnly": "Ten projekt jest tylko do odczytu."
+    },
+    "links": {
+      "title": "Powiązania",
+      "none": "Brak powiązań. Powiąż tę mechanikę ze zmiennymi, skryptami, punktami fabuły, hasłami kodeksu i mechanikami, z którymi się łączy.",
+      "add": "Dodaj powiązanie",
+      "addTitle": "Dodaj powiązanie",
+      "kinds": {
+        "variable": "Zmienne",
+        "item": "Skrypty i rozmowy",
+        "beat": "Punkty fabuły",
+        "entry": "Hasła kodeksu",
+        "mechanic": "Mechaniki"
+      },
+      "tabs": {
+        "variable": "Zmienne",
+        "item": "Elementy",
+        "beat": "Punkty",
+        "entry": "Kodeks",
+        "mechanic": "Mechaniki"
+      },
+      "search": "Szukaj: {kind}",
+      "noMatch": "Nic nie pasuje do wyszukiwania.",
+      "nothingToLink": "Nie ma tu już nic do powiązania.",
+      "cancel": "Anuluj",
+      "missing": "Brak",
+      "trashed": "W koszu",
+      "deleted": "Usunięte",
+      "untitled": "Bez tytułu",
+      "untitledMechanic": "Mechanika bez tytułu",
+      "open": "Otwórz: {name}",
+      "remove": "Usuń powiązanie z: {name}",
+      "related": "Powiązane mechaniki",
+      "relatedNone": "Brak powiązanych mechanik.",
+      "usedBy": "Nie używa jej żadna mechanika | Używa jej {n} mechanika | Używają jej {n} mechaniki | Używa jej {n} mechanik",
+      "noneSelected": "Wybierz mechanikę, aby zobaczyć ją tutaj.",
+      "noCategory": "Brak",
+      "brokenCount": "Uszkodzone powiązania"
+    },
+    "mechanicsTab": {
+      "untitled": "Mechanika bez tytułu",
+      "listLabel": "Mechaniki",
+      "newMechanic": "Dodaj mechanikę",
+      "manageCategories": "Kategorie",
+      "search": "Szukaj mechanik",
+      "filterCategory": "Filtruj według kategorii",
+      "filterStatus": "Filtruj według statusu",
+      "filterTag": "Filtruj według tagu",
+      "clearFilter": "Wyczyść filtry",
+      "noCategories": "Brak kategorii. Dodaj jedną, aby tworzyć mechaniki.",
+      "noMechanics": "Nie ma jeszcze mechanik. Użyj „Dodaj mechanikę”, aby dodać pierwszą.",
+      "noMechanicsHint": "Mechaniki opisują, jak działa gra. Są przypisane do kategorii, więc najpierw dodaj kategorię (np. Walka lub Ekonomia) przyciskiem „Kategorie”.",
+      "noMatch": "Żadna mechanika nie pasuje do wyszukiwania ani filtrów.",
+      "selectOne": "Wybierz mechanikę, aby ją przeczytać lub edytować.",
+      "invalidHeading": "Pliki z problemami",
+      "invalidFile": "Nieprawidłowy plik",
+      "missingFile": "Brak pliku",
+      "invalidHint": "Te pliki zostały nietknięte. Napraw je lub przywróć poza aplikacją albo usuń je tutaj.",
+      "invalidOnly": "Tego pliku nie można odczytać, więc nie da się go edytować. Można go tylko usunąć.",
+      "readOnly": "Projekt jest tylko do odczytu, więc nie można zmieniać mechanik.",
+      "categoryGone": "Kategoria tej mechaniki już nie istnieje. Wybierz inną.",
+      "tagsHint": "Wpisz tag i naciśnij Enter",
+      "rowMenu": "Działania dla: {title}",
+      "moveUp": "Przesuń w górę",
+      "moveDown": "Przesuń w dół",
+      "moved": "{title}: pozycja {n} z {total}",
+      "fields": {
+        "title": "Tytuł",
+        "summary": "Podsumowanie",
+        "category": "Kategoria",
+        "status": "Status",
+        "tags": "Tagi",
+        "description": "Opis",
+        "parameters": "Parametry"
+      },
+      "status": {
+        "idea": "Pomysł",
+        "designed": "Zaprojektowane",
+        "implemented": "Zaimplementowane",
+        "cut": "Wycięte"
+      },
+      "parameters": {
+        "none": "Brak parametrów. Dodaj liczby lub ustawienia jako pary nazwa i wartość.",
+        "name": "Nazwa",
+        "value": "Wartość",
+        "nameRow": "Nazwa parametru {n}",
+        "valueRow": "Wartość parametru {n}",
+        "add": "Dodaj parametr",
+        "remove": "Usuń parametr {n}"
+      },
+      "cancel": "Anuluj",
+      "deleteMechanic": "Usuń mechanikę",
+      "deleteConfirm": "Przenieść „{title}” do kosza?",
+      "deleteLinks": "Powiązania z innych miejsc będą widoczne jako brakujące, dopóki mechanika nie zostanie przywrócona.",
+      "deleteFailed": "Nie udało się usunąć mechaniki.",
+      "deleted": "„{title}” przeniesiono do kosza.",
+      "undo": "Cofnij",
+      "restoreFailed": "Nie udało się przywrócić mechaniki.",
+      "saveFailed": "Ta zmiana nie została zapisana.",
+      "categories": {
+        "title": "Kategorie mechanik",
+        "none": "Brak kategorii.",
+        "newName": "Nazwa nowej kategorii",
+        "newColor": "Kolor nowej kategorii",
+        "add": "Dodaj",
+        "close": "Zamknij",
+        "color": "Kolor kategorii {name}",
+        "rename": "Nazwa kategorii {name}",
+        "mechanicCount": "Brak mechanik | 1 mechanika | {n} mechaniki | {n} mechanik",
+        "delete": "Usuń kategorię {name}",
+        "last": "Nie można usunąć ostatniej kategorii.",
+        "deleteTitle": "Usunąć kategorię „{name}”?",
+        "deleteEmpty": "Żadna mechanika nie używa tej kategorii.",
+        "deleteMoves": "Brak mechanik do przeniesienia. | 1 mechanika zostanie przeniesiona do innej kategorii. | {n} mechaniki zostaną przeniesione do innej kategorii. | {n} mechanik zostanie przeniesionych do innej kategorii.",
+        "moveTo": "Przenieś je do",
+        "deleteConfirm": "Usuń kategorię",
+        "failed": "To nie zadziałało."
+      }
+    },
+    "overview": "Przegląd",
+    "mechanics": "Mechaniki",
+    "glossary": "Słownik"
+  },
   "stats": {
     "title": "Statystyki",
     "intro": "Słowa napisane danego dnia, sesje i postęp wobec celów. Dzień liczy słowa netto, które dodano; usuwanie odejmuje.",
@@ -2145,6 +2313,10 @@
       "relationLayout": "Układ relacji",
       "variables": "Zmienne",
       "storyMap": "Mapa fabuły",
+      "mechanic": "Mechanika",
+      "mechanicCategory": "Kategoria mechanik",
+      "gameOverview": "Przegląd gry",
+      "glossary": "Słowniczek",
       "settings": "Ustawienia książki",
       "asset": "Obraz",
       "dictionary": "Słownik",
@@ -2162,6 +2334,7 @@
       "timelines": "Osie czasu",
       "rules": "Zasady",
       "codex": "Kodeks",
+      "gamedoc": "Dokument gry",
       "other": "Inne"
     },
     "changes": {

@@ -5,6 +5,10 @@ import { selectedItemId as selectedKnowledgeId } from '../knowledge/openItem'
 import { useKnowledgeStore } from '../knowledge/store'
 import { useProjectStore } from '../project/store'
 import { findNode } from '../project/tree'
+import { useGlossaryStore } from '../gamedoc/glossaryStore'
+import { useMechanicsStore } from '../gamedoc/mechanicsStore'
+import { useOverviewStore } from '../gamedoc/overviewStore'
+import { i18n } from '../i18n'
 import { useRulesStore } from '../rules/store'
 import { useTimelinesStore } from '../timeline/store'
 import { bodyVersions, changedBodies, conversationParts, loadBodies, sceneParts } from './build'
@@ -15,7 +19,16 @@ import { search, type SearchResults } from './query'
 import { loadRecents, saveRecents } from './recents'
 import { pushRecent, switchTo, type SwitchEntry } from './switcher'
 import { createAreaSync } from './sync'
-import { entryUnits, knowledgeUnits, manuscriptUnits, ruleUnits, timelineUnits } from './units'
+import {
+  entryUnits,
+  glossaryUnits,
+  knowledgeUnits,
+  manuscriptUnits,
+  mechanicUnits,
+  overviewUnits,
+  ruleUnits,
+  timelineUnits,
+} from './units'
 
 const EDIT_DELAY_MS = 400
 
@@ -36,6 +49,9 @@ export const useSearchStore = defineStore('search', () => {
   const codex = useCodexStore()
   const timelines = useTimelinesStore()
   const knowledge = useKnowledgeStore()
+  const mechanics = useMechanicsStore()
+  const glossary = useGlossaryStore()
+  const overview = useOverviewStore()
 
   let index = createIndex()
   let syncs = makeSyncs(index)
@@ -64,6 +80,11 @@ export const useSearchStore = defineStore('search', () => {
     syncs.codex.sync(entryUnits(codex.entries))
     syncs.timelines.sync(timelineUnits(timelines.loadedTimelines))
     syncs.knowledge.sync(knowledgeUnits(knowledge.items))
+    syncs.gamedoc.sync([
+      ...mechanicUnits(mechanics.mechanics),
+      ...glossaryUnits(glossary.entries),
+      ...(overview.content ? overviewUnits(overview.content, i18n.global.t('gamedoc.overview')) : []),
+    ])
     version.value++
     void fillBodies()
   }
@@ -183,7 +204,16 @@ export const useSearchStore = defineStore('search', () => {
   )
 
   watch(
-    () => [project.tree, rules.rules, codex.entries, timelines.loadedTimelines, knowledge.items],
+    () => [
+      project.tree,
+      rules.rules,
+      codex.entries,
+      timelines.loadedTimelines,
+      knowledge.items,
+      mechanics.mechanics,
+      glossary.entries,
+      overview.content,
+    ],
     syncAll,
   )
 
@@ -237,6 +267,7 @@ export const useSearchStore = defineStore('search', () => {
     () => project.selectedId,
     () => codex.selectedId,
     () => rules.selectedId,
+    () => mechanics.selectedId,
     () => timelines.currentId,
     () => timelines.selectedNodeId,
     () => selectedKnowledgeId.value,

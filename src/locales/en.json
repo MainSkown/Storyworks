@@ -5,6 +5,7 @@
   "sections": {
     "write": "Write",
     "storymap": "Story map",
+    "gamedoc": "Game document",
     "timelines": "Timelines",
     "rules": "Rules",
     "codex": "Codex",
@@ -27,7 +28,12 @@
       "thisParagraph": "This paragraph",
       "thisScene": "This scene",
       "inThisScene": "In this scene",
-      "problems": "Problems"
+      "problems": "Problems",
+      "mechanics": "Mechanics"
+    },
+    "gamedoc": {
+      "selected": "Selected",
+      "usedBy": "Used by"
     },
     "storymap": {
       "selected": "Selected",
@@ -322,6 +328,7 @@
       "confirm": "Delete"
     },
     "inspector": {
+      "mechanics": "Mechanics",
       "none": "Select a box or an arrow on the story map.",
       "open": "Open in Write",
       "openGone": "This item is in the trash or deleted, so it cannot be opened.",
@@ -352,6 +359,7 @@
     }
   },
   "variables": {
+    "mechanics": "Mechanics",
     "title": "Variables",
     "hint": "Project-wide values that conversations can check and change later: a flag (yes or no), a number or a text.",
     "readOnly": "This project is read-only, so variables cannot be edited.",
@@ -390,7 +398,7 @@
       "bookDesc": "Chapters and scenes of prose",
       "screenplay": "Screenplay",
       "screenplayDesc": "Scene headings, action and dialogue",
-      "game": "Game script",
+      "game": "Game",
       "gameDesc": "Lines and conversations",
       "fixed": "The type cannot be changed after the project is created."
     },
@@ -669,7 +677,8 @@
       "codex": "Codex",
       "rules": "Rules",
       "timelines": "Timelines",
-      "knowledge": "Knowledge"
+      "knowledge": "Knowledge",
+      "gamedoc": "Game document"
     },
     "kind": {
       "scene": "Scene",
@@ -679,7 +688,10 @@
       "entry": "Codex entry",
       "knowledge": "Knowledge item",
       "timeline": "Timeline",
-      "node": "Timeline event"
+      "node": "Timeline event",
+      "mechanic": "Mechanic",
+      "overview": "Overview",
+      "glossary": "Glossary term"
     },
     "switcher": {
       "title": "Go to…",
@@ -1273,6 +1285,7 @@
     "andMore": "and {n} more",
     "nodeRelationships": "No relationships | {n} relationship is linked to this event and will show a broken event link. | {n} relationships are linked to this event and will show a broken event link.",
     "nodeKnowledge": "No knowledge events | {n} knowledge event is placed on this event and will show as a missing event. | {n} knowledge events are placed on this event and will show as a missing event.",
+    "mechanics": "No mechanics | {n} mechanic links to it and will show a broken link. | {n} mechanics link to it and will show broken links.",
     "links": "No linked passages | {n} linked passage will show as broken until restored. | {n} linked passages will show as broken until restored."
   },
   "timelineView": {
@@ -1681,7 +1694,8 @@
       "events": "Events",
       "noEvents": "Not linked to any event.",
       "rules": "Rules",
-      "noRules": "No rules linked."
+      "noRules": "No rules linked.",
+      "mechanics": "Mechanics"
     },
     "linkedRules": {
       "none": "Select an event to see its rules.",
@@ -2020,6 +2034,160 @@
       }
     }
   },
+  "gamedoc": {
+    "words": "No words | {n} word | {n} words",
+    "tabs": "Game document sections",
+    "overviewTab": {
+      "title": "Overview",
+      "invalid": "The Overview file could not be read, so it was left untouched and cannot be edited.",
+      "missing": "The Overview file is missing. It was not recreated.",
+      "none": "This project has no Overview page.",
+      "readOnly": "This project is read-only."
+    },
+    "glossaryTab": {
+      "title": "Glossary",
+      "search": "Search terms and definitions",
+      "add": "Add term",
+      "term": "Term",
+      "definition": "Definition",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit {term}",
+      "delete": "Delete {term}",
+      "deleteTitle": "Delete term",
+      "deleteConfirm": "Delete \"{term}\"? This cannot be undone.",
+      "empty": "No terms yet. Add the words your game uses and what they mean.",
+      "noMatch": "No term matches the search.",
+      "termRequired": "A term is required.",
+      "saveFailed": "Could not save the glossary.",
+      "added": "Added \"{term}\".",
+      "saved": "Saved \"{term}\".",
+      "deleted": "Deleted \"{term}\".",
+      "invalid": "The glossary file could not be read, so it was left untouched and cannot be edited.",
+      "missing": "The glossary file is missing. It was not recreated.",
+      "readOnly": "This project is read-only."
+    },
+    "links": {
+      "title": "Links",
+      "none": "No links yet. Link this mechanic to the variables, scripts, beats, codex entries and mechanics it relates to.",
+      "add": "Add link",
+      "addTitle": "Add a link",
+      "kinds": {
+        "variable": "Variables",
+        "item": "Scripts and conversations",
+        "beat": "Story beats",
+        "entry": "Codex entries",
+        "mechanic": "Mechanics"
+      },
+      "tabs": {
+        "variable": "Variables",
+        "item": "Items",
+        "beat": "Beats",
+        "entry": "Codex",
+        "mechanic": "Mechanics"
+      },
+      "search": "Search {kind}",
+      "noMatch": "Nothing matches the search.",
+      "nothingToLink": "Nothing more to link here.",
+      "cancel": "Cancel",
+      "missing": "Missing",
+      "trashed": "In trash",
+      "deleted": "Deleted",
+      "untitled": "Untitled",
+      "untitledMechanic": "Untitled mechanic",
+      "open": "Open {name}",
+      "remove": "Remove link to {name}",
+      "related": "Related mechanics",
+      "relatedNone": "No related mechanics.",
+      "usedBy": "Not used by any mechanic | Used by {n} mechanic | Used by {n} mechanics",
+      "noneSelected": "Select a mechanic to see it here.",
+      "noCategory": "None",
+      "brokenCount": "Broken links"
+    },
+    "mechanicsTab": {
+      "untitled": "Untitled mechanic",
+      "listLabel": "Mechanics",
+      "newMechanic": "Add mechanic",
+      "manageCategories": "Categories",
+      "search": "Search mechanics",
+      "filterCategory": "Filter by category",
+      "filterStatus": "Filter by status",
+      "filterTag": "Filter by tag",
+      "clearFilter": "Clear filters",
+      "noCategories": "No categories yet. Add one to start creating mechanics.",
+      "noMechanics": "No mechanics yet. Use “Add mechanic” to add the first one.",
+      "noMechanicsHint": "Mechanics describe how the game plays. Mechanics are sorted into categories, so add a category first (for example Combat or Economy) with “Categories”.",
+      "noMatch": "No mechanic matches the search or filters.",
+      "selectOne": "Select a mechanic to read or edit it.",
+      "invalidHeading": "Files with problems",
+      "invalidFile": "Invalid file",
+      "missingFile": "File missing",
+      "invalidHint": "These files were left untouched. Fix or restore them outside the app, or delete them here.",
+      "invalidOnly": "This file cannot be read, so it cannot be edited. You can only delete it.",
+      "readOnly": "This project is read-only, so mechanics cannot be changed.",
+      "categoryGone": "This mechanic's category no longer exists. Pick another one.",
+      "tagsHint": "Type a tag and press Enter",
+      "rowMenu": "Actions for {title}",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "moved": "{title} moved to position {n} of {total}",
+      "fields": {
+        "title": "Title",
+        "summary": "Summary",
+        "category": "Category",
+        "status": "Status",
+        "tags": "Tags",
+        "description": "Description",
+        "parameters": "Parameters"
+      },
+      "status": {
+        "idea": "Idea",
+        "designed": "Designed",
+        "implemented": "Implemented",
+        "cut": "Cut"
+      },
+      "parameters": {
+        "none": "No parameters yet. Add tunable numbers or settings as name and value pairs.",
+        "name": "Name",
+        "value": "Value",
+        "nameRow": "Name of parameter {n}",
+        "valueRow": "Value of parameter {n}",
+        "add": "Add parameter",
+        "remove": "Remove parameter {n}"
+      },
+      "cancel": "Cancel",
+      "deleteMechanic": "Delete mechanic",
+      "deleteConfirm": "Move “{title}” to the trash?",
+      "deleteLinks": "Links from other places to it will show as missing until it is restored.",
+      "deleteFailed": "Could not delete the mechanic.",
+      "deleted": "“{title}” moved to the trash.",
+      "undo": "Undo",
+      "restoreFailed": "Could not restore the mechanic.",
+      "saveFailed": "That change was not saved.",
+      "categories": {
+        "title": "Mechanic categories",
+        "none": "No categories.",
+        "newName": "New category name",
+        "newColor": "New category colour",
+        "add": "Add",
+        "close": "Close",
+        "color": "Colour of category {name}",
+        "rename": "Name of category {name}",
+        "mechanicCount": "No mechanics | {n} mechanic | {n} mechanics",
+        "delete": "Delete category {name}",
+        "last": "The last category cannot be deleted.",
+        "deleteTitle": "Delete category “{name}”?",
+        "deleteEmpty": "No mechanic uses this category.",
+        "deleteMoves": "No mechanics to move. | 1 mechanic will be moved to another category. | {n} mechanics will be moved to another category.",
+        "moveTo": "Move them to",
+        "deleteConfirm": "Delete category",
+        "failed": "That did not work."
+      }
+    },
+    "overview": "Overview",
+    "mechanics": "Mechanics",
+    "glossary": "Glossary"
+  },
   "stats": {
     "title": "Stats",
     "intro": "Words written per day, sessions and progress toward your goals. A day counts the net words you added; deleting subtracts.",
@@ -2145,6 +2313,10 @@
       "relationLayout": "Relationship layout",
       "variables": "Variables",
       "storyMap": "Story map",
+      "mechanic": "Mechanic",
+      "mechanicCategory": "Mechanic category",
+      "gameOverview": "Game overview",
+      "glossary": "Glossary",
       "settings": "Book settings",
       "asset": "Image",
       "dictionary": "Dictionary",
@@ -2162,6 +2334,7 @@
       "timelines": "Timelines",
       "rules": "Rules",
       "codex": "Codex",
+      "gamedoc": "Game document",
       "other": "Other"
     },
     "changes": {

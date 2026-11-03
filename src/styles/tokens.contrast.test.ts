@@ -38,7 +38,7 @@ const themes = {
   dark: block(":root[data-theme='dark']"),
 }
 const surfaces = ['--bg-app', '--bg-sidebar', '--bg-panel', '--bg-sheet', '--bg-raised']
-const sections = ['write', 'storymap', 'timelines', 'rules', 'codex', 'checks'].map(
+const sections = ['write', 'storymap', 'gamedoc', 'timelines', 'rules', 'codex', 'checks'].map(
   (s) => `--section-${s}`,
 )
 const tags = ['event', 'rule', 'character', 'scene', 'problem'].map((s) => `--tag-${s}`)

@@ -73,11 +73,15 @@ import { useKnowledgeStore } from '../knowledge/store'
 import { omitKey } from '../game/omit'
 import type { RouteRef } from './schemas/route'
 import { useStoryMapStore } from '../storymap/store'
+import { useGlossaryStore } from '../gamedoc/glossaryStore'
+import { useMechanicsStore } from '../gamedoc/mechanicsStore'
+import { useOverviewStore } from '../gamedoc/overviewStore'
 import { useVariablesStore } from '../variables/store'
 import { useStatsStore } from '../stats/store'
 import { useTimelinesStore } from '../timeline/store'
 import { seedCodexTypes } from './codex'
 import { seedRelationTypes } from './relations'
+import { seedGameDocument } from './gamedoc'
 import { seedRuleCategories } from './rules'
 import { seedStateKinds } from './states'
 import { ensureDefaults } from './timelines'
@@ -768,6 +772,11 @@ export const useProjectStore = defineStore('project', () => {
       console.error('Could not create the default rule categories', e)
     }
     try {
+      await seedGameDocument(p, defaultEnv)
+    } catch (e) {
+      console.error('Could not create the starter game document', e)
+    }
+    try {
       await seedCodexTypes(p, defaultEnv)
     } catch (e) {
       console.error('Could not create the starter codex types', e)
@@ -791,6 +800,9 @@ export const useProjectStore = defineStore('project', () => {
     await useKnowledgeStore().load()
     await useVariablesStore().load()
     await useStoryMapStore().load()
+    await useMechanicsStore().load()
+    await useOverviewStore().load()
+    await useGlossaryStore().load()
   }
 
   function notifyOpened(title: string, path: string): void {
@@ -947,6 +959,9 @@ export const useProjectStore = defineStore('project', () => {
     useKnowledgeStore().reset()
     useVariablesStore().reset()
     useStoryMapStore().reset()
+    useMechanicsStore().reset()
+    useOverviewStore().reset()
+    useGlossaryStore().reset()
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -1480,6 +1495,10 @@ export const useProjectStore = defineStore('project', () => {
       await useRulesStore().restoreRule(id)
       return
     }
+    if (p.manifest.trash.some((t) => t.id === id && t.type === 'mechanic')) {
+      await useMechanicsStore().restoreMechanic(id)
+      return
+    }
     if (p.manifest.trash.some((t) => t.id === id && t.type === 'entry')) {
       await useCodexStore().restoreEntry(id)
       return
@@ -1673,6 +1692,46 @@ export const useProjectStore = defineStore('project', () => {
   /** Puts the file back and lists it. Throws RuleRestoreError; the rules store re-reads. */
   async function restoreRuleFile(id: string): Promise<void> {
     await assertWritable().restoreRule(id)
+    revision.value++
+  }
+
+  // ---- game document (the gamedoc stores hold the content) ----
+
+  /** Replaces the manifest's mechanic and/or category lists (create, rename, delete category). */
+  function setMechanicRefs(next: {
+    mechanics?: Manifest['mechanics']
+    mechanicCategories?: Manifest['mechanicCategories']
+  }): void {
+    const p = assertWritable()
+    if (next.mechanics) p.manifest.mechanics = next.mechanics
+    if (next.mechanicCategories) p.manifest.mechanicCategories = next.mechanicCategories
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
+  /** Sets the manifest's glossary file (created on the first entry). */
+  function setGlossaryRef(ref: NonNullable<Manifest['glossary']>): void {
+    const p = assertWritable()
+    p.manifest.glossary = ref
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
+  async function trashMechanic(id: string, title: string): Promise<TrashEntry> {
+    const p = assertWritable()
+    await flush() // never write to a file that is about to move
+    const entry = await p.trashMechanic(id, title)
+    session?.pending.delete(entry.originalPath)
+    issues.value = issues.value.filter(
+      (i) => !((i.kind === 'missing' || i.kind === 'invalid') && i.itemId === id),
+    )
+    revision.value++
+    return entry
+  }
+
+  /** Puts the file back and lists it. Throws MechanicRestoreError; the mechanics store re-reads. */
+  async function restoreMechanicFile(id: string): Promise<void> {
+    await assertWritable().restoreMechanic(id)
     revision.value++
   }
 
@@ -2200,6 +2259,10 @@ export const useProjectStore = defineStore('project', () => {
     setRuleRefs,
     trashRule,
     restoreRuleFile,
+    setMechanicRefs,
+    setGlossaryRef,
+    trashMechanic,
+    restoreMechanicFile,
     removeUnlistedFile,
     setCodexRefs,
     setRelationRefs,
