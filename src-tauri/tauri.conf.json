@@ -42,7 +42,7 @@
     "shortDescription": "A desktop app for writing a book",
     "longDescription": "Storyworks is a local-first desktop app for writing a book: manuscript editor, timelines, world rules, codex, consistency checks, snapshots and export to PDF and DOCX. Everything is stored in plain JSON files in a folder you choose.",
     "copyright": "Copyright (c) 2026 MainSkown",
-    "license": "UNLICENSED",
+    "license": "GPL-3.0-only",
     "licenseFile": "../LICENSE",
     "resources": {
       "../THIRD_PARTY_NOTICES.md": "licenses/THIRD_PARTY_NOTICES.md",

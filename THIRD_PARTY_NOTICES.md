@@ -1,6 +1,6 @@
 # Third-party notices
 
-Storyworks bundles the components below. Each keeps its own licence. The full text of every npm and crate
+Storyworks itself is free software under the GNU General Public License v3.0 (`LICENSE`). It bundles the components below, all under licences compatible with the GPL-3.0 (MIT, Apache-2.0, MPL-2.0, SIL OFL 1.1, BSD style). Each keeps its own licence. The full text of every npm and crate
 licence is in the respective package; the MPL-2.0 text is in `licenses/MPL-2.0.txt` (also shipped inside the app
 as a resource).
 
