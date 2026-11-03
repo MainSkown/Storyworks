@@ -70,6 +70,9 @@ import { useRelationsStore } from '../relations/store'
 import { useRulesStore } from '../rules/store'
 import { useStatesStore } from '../states/store'
 import { useKnowledgeStore } from '../knowledge/store'
+import { omitKey } from '../game/omit'
+import type { RouteRef } from './schemas/route'
+import { useStoryMapStore } from '../storymap/store'
 import { useVariablesStore } from '../variables/store'
 import { useStatsStore } from '../stats/store'
 import { useTimelinesStore } from '../timeline/store'
@@ -240,6 +243,7 @@ function liveIds(m: Manifest): Set<string> {
     m.stats,
     m.relationLayout,
     m.variables,
+    m.storyMap,
     ...lists.flat(),
   ]) {
     if (ref) ids.add(ref.id)
@@ -786,6 +790,7 @@ export const useProjectStore = defineStore('project', () => {
     await useStatesStore().load()
     await useKnowledgeStore().load()
     await useVariablesStore().load()
+    await useStoryMapStore().load()
   }
 
   function notifyOpened(title: string, path: string): void {
@@ -941,6 +946,7 @@ export const useProjectStore = defineStore('project', () => {
     useStatesStore().reset()
     useKnowledgeStore().reset()
     useVariablesStore().reset()
+    useStoryMapStore().reset()
     ignoredUnlisted.clear()
     revision.value++
     linkRevision.value++
@@ -1416,6 +1422,20 @@ export const useProjectStore = defineStore('project', () => {
     if (node.type === 'conversation') await patchConversation(id, (c) => ({ ...c, title: name }))
   }
 
+  /** Tags a script or conversation with routes (timeline branches); an empty list clears the tags. */
+  function setItemRoutes(id: string, routes: RouteRef[]): boolean {
+    const p = assertWritable()
+    const node = findNode(p.manifest.manuscript, id)
+    if (!node || (node.type !== 'scene' && node.type !== 'conversation')) return false
+    setManuscript(
+      mapNode(p.manifest.manuscript, id, (n) => {
+        const rest = omitKey(n, 'routes')
+        return routes.length ? { ...rest, routes } : rest
+      }),
+    )
+    return true
+  }
+
   /** Swaps the item with its neighbour under the same parent. false = already at the edge. */
   async function moveUpDown(id: string, dir: 'up' | 'down'): Promise<boolean> {
     const p = assertWritable()
@@ -1698,6 +1718,14 @@ export const useProjectStore = defineStore('project', () => {
   function setVariablesRef(ref: NonNullable<Manifest['variables']>): void {
     const p = assertWritable()
     p.manifest.variables = ref
+    revision.value++
+    mark(MANIFEST_FILE)
+  }
+
+  /** Sets the manifest's story map file (game scripts). */
+  function setStoryMapRef(ref: NonNullable<Manifest['storyMap']>): void {
+    const p = assertWritable()
+    p.manifest.storyMap = ref
     revision.value++
     mark(MANIFEST_FILE)
   }
@@ -2114,6 +2142,8 @@ export const useProjectStore = defineStore('project', () => {
     pageStats,
     reserveLineId,
     setVariablesRef,
+    setStoryMapRef,
+    setItemRoutes,
     speakerLinesOf,
     addFolder,
     addScript,

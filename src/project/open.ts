@@ -31,6 +31,7 @@ import { stateKindSchema } from './schemas/stateKind'
 import { knowledgeItemSchema } from './schemas/knowledge'
 import { sceneSchema, SCENE_VERSION } from './schemas/scene'
 import { conversationSchema } from './schemas/conversation'
+import { storyMapSchema } from './schemas/storyMap'
 import { variablesSchema } from './schemas/variables'
 import { timelineSchema } from '../timeline/schema'
 import { parseFile, serialize } from './serialize'
@@ -77,6 +78,7 @@ export interface ListedItem {
   scene: boolean
   conversation?: boolean
   variables?: boolean
+  storyMap?: boolean
   inbox?: boolean
   ignored?: boolean
   stats?: boolean
@@ -109,7 +111,7 @@ export function listedItems(m: Manifest): ListedItem[] {
     }
   }
   walk(m.manuscript)
-  const refs = [m.calendar, m.inbox, m.ignoredFindings, m.stats, m.relationLayout, m.variables]
+  const refs = [m.calendar, m.inbox, m.ignoredFindings, m.stats, m.relationLayout, m.variables, m.storyMap]
   const lists = [
     m.timelines,
     m.rules,
@@ -141,6 +143,7 @@ export function listedItems(m: Manifest): ListedItem[] {
         group: m.groups.includes(ref),
         relationLayout: ref === m.relationLayout,
         variables: ref === m.variables,
+        storyMap: ref === m.storyMap,
         stateKind: m.stateKinds.includes(ref),
         knowledge: m.knowledge.includes(ref),
       })
@@ -332,6 +335,7 @@ export function parseItem(item: ListedItem, text: string): ParseResult<unknown> 
     return withIdCheck(parseFile(knowledgeItemSchema, text, item.path), item.path, item.id)
   if (item.relationLayout) return parseFile(relationLayoutSchema, text, item.path)
   if (item.variables) return parseFile(variablesSchema, text, item.path)
+  if (item.storyMap) return parseFile(storyMapSchema, text, item.path)
   if (item.conversation)
     return withIdCheck(parseFile(conversationSchema, text, item.path), item.path, item.id)
   return withIdCheck(parseFile(sceneSchema, text, item.path), item.path, item.id)
@@ -354,6 +358,7 @@ export const isParsed = (item: ListedItem) =>
   item.knowledge ||
   item.relationLayout ||
   item.variables ||
+  item.storyMap ||
   item.conversation
 
 async function checkItems(io: ProjectIO, items: ListedItem[], t: Tracking): Promise<Issue[]> {

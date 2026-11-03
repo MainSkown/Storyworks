@@ -70,6 +70,8 @@ const emit = defineEmits<{
   open: [id: string]
   /** A node was clicked (id) or the empty canvas was (null). */
   select: [id: string | null]
+  /** An edge was clicked (id); cleared by a node or pane click and by deleting it. */
+  selectEdge: [id: string | null]
   /** `afterId` is the focused node, or null. The parent creates the node. */
   add: [afterId: string | null]
   /** The parent confirms first when the node still has connections. */
@@ -368,6 +370,7 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault()
     emit('disconnect', selectedEdgeId.value)
     selectedEdgeId.value = null
+    emit('selectEdge', null)
     announce(t('graph.edge.removed'))
     return
   }
@@ -423,14 +426,17 @@ function onDragStop(e: NodeDragEvent) {
 }
 function onNodeClick(e: NodeMouseEvent) {
   selectedEdgeId.value = null
+  emit('selectEdge', null)
   emit('select', e.node.id)
 }
 function onPaneClick() {
   selectedEdgeId.value = null
+  emit('selectEdge', null)
   emit('select', null)
 }
 function selectEdge(id: string) {
   selectedEdgeId.value = id
+  emit('selectEdge', id)
   rootEl.value?.focus({ preventScroll: true })
   const m = props.edges.find((x) => x.id === id)
   if (m) announce(t('graph.edge.selected', { from: nodeLabel(m.from), to: nodeLabel(m.to) }))

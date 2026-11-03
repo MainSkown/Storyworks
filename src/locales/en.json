@@ -4,6 +4,7 @@
   },
   "sections": {
     "write": "Write",
+    "storymap": "Story map",
     "timelines": "Timelines",
     "rules": "Rules",
     "codex": "Codex",
@@ -27,6 +28,10 @@
       "thisScene": "This scene",
       "inThisScene": "In this scene",
       "problems": "Problems"
+    },
+    "storymap": {
+      "selected": "Selected",
+      "routes": "Routes"
     },
     "timelines": {
       "selectedEvent": "Selected event",
@@ -63,6 +68,48 @@
     "sampleExists": "That folder already holds a book. Pick another folder."
   },
 "game": {
+    "crossLink": {
+      "mode": "Target type",
+      "thisConversation": "This conversation (node)",
+      "anotherItem": "Another item",
+      "item": "Item",
+      "node": "Node in that conversation",
+      "chooseItem": "Choose an item",
+      "start": "Start of conversation",
+      "noItems": "No other scripts or conversations yet.",
+      "deletedItem": "Deleted item",
+      "inTrashOption": "{title} (in trash)",
+      "type": { "scene": "script", "conversation": "conversation" },
+      "chip": "Goes to {title}",
+      "chipNode": "{title}: {node}",
+      "open": "Open: {title}",
+      "more": "{n} more links to other items",
+      "broken": {
+        "item-missing": "Item deleted",
+        "item-trashed": "In trash, restore it",
+        "node-missing": "Node missing"
+      },
+      "deleteImpact": "No links | {n} link from another conversation will break; restoring the item repairs it. | {n} links from other conversations will break; restoring the item repairs them."
+    },
+    "storyPlay": {
+      "log": "Story so far",
+      "stale": "The story changed since this run started.",
+      "ended": "The story ends.",
+      "next": "Where to next",
+      "continueTo": "Continue to {title}",
+      "youChose": "You chose:",
+      "beat": "Story beat:",
+      "unknownItem": "(unknown)",
+      "stop": {
+        "itemMissing": "Stopped: a link leads to an item that no longer exists.",
+        "itemTrashed": "Stopped: a link leads to \"{item}\", which is in the trash.",
+        "nodeMissing": "Stopped: a link leads to a node of \"{item}\" that does not exist.",
+        "brokenBox": "Stopped: the story map box \"{box}\" points to an item that is missing or in the trash.",
+        "noArrowPasses": "Stopped after \"{box}\": none of its arrows is open with the current variables.",
+        "arrowUndefinedVariable": "Stopped after \"{box}\": an arrow condition uses {variable}, which no longer exists.",
+        "arrowTypeMismatch": "Stopped after \"{box}\": {variable} changed type and no longer fits an arrow condition."
+      }
+    },
     "conversation": {
       "lines": {
         "label": "Lines of this node"
@@ -222,6 +269,87 @@
     "deletedTitle": "The codex entry of this speaker was deleted. Click to restore it or choose another speaker.",
     "restore": "Restore the deleted character",
     "text": "Text (description, no speaker)"
+  },
+  "routes": {
+    "title": "Routes",
+    "none": "No routes yet. Routes are the branches of your timelines.",
+    "deleted": "Deleted branch",
+    "brokenHint": "These routes no longer exist:",
+    "remove": "Remove"
+  },
+  "storymap": {
+    "title": "Story map",
+    "toolbar": "Story map tools",
+    "addBeat": "Add beat",
+    "newBeat": "New beat",
+    "emptyBeat": "(empty beat)",
+    "routeFilter": "Route filter",
+    "allRoutes": "All routes",
+    "play": "Play-through",
+    "startFrom": "Start from",
+    "startOption": "Start: {title}",
+    "implicitStart": "No start marked — the first box is used.",
+    "noBoxes": "Nothing to play yet.",
+    "emptyTitle": "No scripts or conversations yet",
+    "emptyBody": "Add a script or a conversation in Write and it appears here as a box.",
+    "invalid": "The story map file could not be read, so it was left untouched and cannot be edited:",
+    "missing": "The story map file is missing, so the story map cannot be edited.",
+    "readOnly": "This project is read-only, so the story map cannot be edited.",
+    "kind": {
+      "script": "Script",
+      "conversation": "Conversation",
+      "beat": "Beat"
+    },
+    "badge": {
+      "start": "Start box",
+      "trash": "In trash",
+      "deleted": "Deleted"
+    },
+    "box": "{kind}: {title}",
+    "boxWithState": "{kind}: {title} ({state})",
+    "jump": "Jump",
+    "more": "{text} +{n}",
+    "rejected": {
+      "duplicate": "These two boxes are already connected by an arrow.",
+      "derived": "This arrow comes from a conversation link. Change it in the conversation.",
+      "itemBox": "A box for a script or conversation cannot be removed here. Move the item to the trash in Write.",
+      "failed": "That change was not saved."
+    },
+    "delete": {
+      "title": "Delete beat?",
+      "body": "This beat has {n} arrow, which will be removed too. | This beat has {n} arrows, which will be removed too.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "inspector": {
+      "none": "Select a box or an arrow on the story map.",
+      "open": "Open in Write",
+      "openGone": "This item is in the trash or deleted, so it cannot be opened.",
+      "start": "Start of the story",
+      "startHint": "Play-through and checks begin at start boxes.",
+      "beatText": "Beat note",
+      "removeBox": "Remove box",
+      "removeBoxHint": "The item is gone for good, so its box can be removed.",
+      "arrowsOut": "Arrows from this box",
+      "noArrows": "No arrows leave this box.",
+      "arrowItem": "To {title}",
+      "autoTag": "auto",
+      "selectArrow": "Edit arrow to {title}",
+      "arrow": "Arrow",
+      "from": "From",
+      "to": "To",
+      "condition": "Unlock condition",
+      "conditionLabel": "Unlock condition of the arrow from {from} to {to}",
+      "noCondition": "No condition: the arrow is always open.",
+      "deleteArrow": "Delete arrow",
+      "autoNote": "Drawn from a conversation link. Change it in the conversation.",
+      "sources": "Made by",
+      "sourceJump": "A Jump node",
+      "sourceOption": "Choice: {text}",
+      "sourceOptionEmpty": "A choice with no text",
+      "selectBox": "Back to {title}",
+      "unknownBox": "(unknown)"
+    }
   },
   "variables": {
     "title": "Variables",
@@ -2016,6 +2144,7 @@
       "ignoredFindings": "Dismissed findings",
       "relationLayout": "Relationship layout",
       "variables": "Variables",
+      "storyMap": "Story map",
       "settings": "Book settings",
       "asset": "Image",
       "dictionary": "Dictionary",

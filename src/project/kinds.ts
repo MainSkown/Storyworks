@@ -26,7 +26,7 @@ const PROFILES: Record<KindId, KindProfile> = {
     hasParts: true,
     folderLabel: 'chapter',
     nestedFolders: false,
-    hiddenSections: [],
+    hiddenSections: ['storymap'],
     hasImport: true,
   },
   screenplay: {
@@ -34,7 +34,7 @@ const PROFILES: Record<KindId, KindProfile> = {
     hasParts: false,
     folderLabel: 'sequence',
     nestedFolders: false,
-    hiddenSections: [],
+    hiddenSections: ['storymap'],
     hasImport: true,
   },
   game: {

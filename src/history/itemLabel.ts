@@ -18,7 +18,7 @@ export const itemGroup = (type: ItemType): ItemGroup => GROUPS[type] ?? 'other'
 
 /** Items whose own title says what they are (manuscript) or that have none (settings, calendar, …). */
 const NAMED_BY_TITLE = new Set<ItemType>(['part', 'chapter', 'scene', 'conversation'])
-const TYPE_ONLY = new Set<ItemType>(['settings', 'calendar', 'inbox', 'ignoredFindings', 'relationLayout', 'variables'])
+const TYPE_ONLY = new Set<ItemType>(['settings', 'calendar', 'inbox', 'ignoredFindings', 'relationLayout', 'variables', 'storyMap'])
 
 export function itemLabel(item: ChangeItem, t: (key: string) => string): string {
   const kinds = item.kinds.map((k) => t(`history.kind.${k}`)).join(', ')

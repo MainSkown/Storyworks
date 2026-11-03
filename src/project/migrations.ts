@@ -4,6 +4,7 @@ import { defaultScriptExportOptions } from '../export/scriptOptions'
 import { manifestSchema, MANIFEST_VERSION, type Manifest } from './schemas/manifest'
 import { codexEntrySchema } from './schemas/codexEntry'
 import { sceneSchema } from './schemas/scene'
+import { conversationSchema } from './schemas/conversation'
 import { parseFile, serialize } from './serialize'
 import type { Env, ProjectIO } from './types'
 
@@ -312,6 +313,27 @@ const v15to16: Migration = {
   },
 }
 
+/**
+ * v16 -> v17: manifest `storyMap`; conversation files v2 -> v3 (optional cross-item `link`).
+ * A conversation that would not validate as v3 is left as it is and shows as invalid after opening.
+ */
+const v16to17: Migration = {
+  from: 16,
+  to: 17,
+  migrate(files) {
+    const out = new Map(files)
+    const manifest = files.get(MANIFEST_FILE) as Record<string, unknown>
+    out.set(MANIFEST_FILE, { ...manifest, version: 17, storyMap: manifest.storyMap ?? null })
+    for (const path of rawConversationPaths(manifest)) {
+      const conv = files.get(path) as Record<string, unknown> | undefined
+      if (conv?.version !== 2) continue
+      const next = { ...conv, version: 3 }
+      if (conversationSchema.safeParse(next).success) out.set(path, next)
+    }
+    return out
+  },
+}
+
 export const migrations: Migration[] = [
   v1to2,
   v2to3,
@@ -328,6 +350,7 @@ export const migrations: Migration[] = [
   v13to14,
   v14to15,
   v15to16,
+  v16to17,
 ]
 
 export const MANIFEST_FILE = 'project.json'

@@ -4,6 +4,7 @@
   },
   "sections": {
     "write": "Pisanie",
+    "storymap": "Mapa historii",
     "timelines": "Osie czasu",
     "rules": "Zasady",
     "codex": "Kodeks",
@@ -27,6 +28,10 @@
       "thisScene": "Ta scena",
       "inThisScene": "W tej scenie",
       "problems": "Problemy"
+    },
+    "storymap": {
+      "selected": "Zaznaczone",
+      "routes": "Ścieżki"
     },
     "timelines": {
       "selectedEvent": "Wybrane wydarzenie",
@@ -63,6 +68,48 @@
     "sampleExists": "W tym folderze jest już książka. Wybierz inny folder."
   },
 "game": {
+    "crossLink": {
+      "mode": "Rodzaj celu",
+      "thisConversation": "Ta rozmowa (węzeł)",
+      "anotherItem": "Inny element",
+      "item": "Element",
+      "node": "Węzeł w tej rozmowie",
+      "chooseItem": "Wybierz element",
+      "start": "Początek rozmowy",
+      "noItems": "Brak innych skryptów i rozmów.",
+      "deletedItem": "Usunięty element",
+      "inTrashOption": "{title} (w koszu)",
+      "type": { "scene": "skrypt", "conversation": "rozmowa" },
+      "chip": "Prowadzi do: {title}",
+      "chipNode": "{title}: {node}",
+      "open": "Otwórz: {title}",
+      "more": "Jeszcze {n} powiązań z innymi elementami",
+      "broken": {
+        "item-missing": "Element usunięty",
+        "item-trashed": "W koszu, przywróć go",
+        "node-missing": "Brak węzła"
+      },
+      "deleteImpact": "Brak powiązań | {n} powiązanie z innej rozmowy przestanie działać; przywrócenie elementu je naprawi. | {n} powiązania z innych rozmów przestaną działać; przywrócenie elementu je naprawi. | {n} powiązań z innych rozmów przestanie działać; przywrócenie elementu je naprawi."
+    },
+    "storyPlay": {
+      "log": "Dotychczasowa historia",
+      "stale": "Historia zmieniła się od startu tego przejścia.",
+      "ended": "Historia się kończy.",
+      "next": "Dokąd dalej",
+      "continueTo": "Przejdź do: {title}",
+      "youChose": "Wybrano:",
+      "beat": "Punkt fabuły:",
+      "unknownItem": "(nieznany)",
+      "stop": {
+        "itemMissing": "Zatrzymano: łącze prowadzi do elementu, który już nie istnieje.",
+        "itemTrashed": "Zatrzymano: łącze prowadzi do „{item}”, który jest w koszu.",
+        "nodeMissing": "Zatrzymano: łącze prowadzi do węzła w „{item}”, który nie istnieje.",
+        "brokenBox": "Zatrzymano: pole „{box}” na mapie historii wskazuje element, którego brakuje lub który jest w koszu.",
+        "noArrowPasses": "Zatrzymano po „{box}”: żadna strzałka nie jest otwarta przy obecnych zmiennych.",
+        "arrowUndefinedVariable": "Zatrzymano po „{box}”: warunek strzałki używa zmiennej {variable}, która już nie istnieje.",
+        "arrowTypeMismatch": "Zatrzymano po „{box}”: zmienna {variable} zmieniła typ i nie pasuje już do warunku strzałki."
+      }
+    },
     "conversation": {
       "lines": {
         "label": "Linie tego węzła"
@@ -222,6 +269,87 @@
     "deletedTitle": "Wpis kodeksu tego mówcy został usunięty. Kliknij, aby go przywrócić lub wybrać innego mówcę.",
     "restore": "Przywróć usuniętą postać",
     "text": "Tekst (opis, bez mówcy)"
+  },
+  "routes": {
+    "title": "Ścieżki",
+    "none": "Brak ścieżek. Ścieżki to gałęzie osi czasu.",
+    "deleted": "Usunięta gałąź",
+    "brokenHint": "Te ścieżki już nie istnieją:",
+    "remove": "Usuń"
+  },
+  "storymap": {
+    "title": "Mapa historii",
+    "toolbar": "Narzędzia mapy historii",
+    "addBeat": "Dodaj punkt fabuły",
+    "newBeat": "Nowy punkt fabuły",
+    "emptyBeat": "(pusty punkt fabuły)",
+    "routeFilter": "Filtr ścieżki",
+    "allRoutes": "Wszystkie ścieżki",
+    "play": "Przejście próbne",
+    "startFrom": "Zacznij od",
+    "startOption": "Start: {title}",
+    "implicitStart": "Nie oznaczono startu — używane jest pierwsze pole.",
+    "noBoxes": "Nie ma jeszcze czego przejść.",
+    "emptyTitle": "Brak skryptów i rozmów",
+    "emptyBody": "Dodaj skrypt lub rozmowę w Pisaniu, a pojawi się tu jako pole.",
+    "invalid": "Nie udało się odczytać pliku mapy historii, więc go nie ruszono i nie można go edytować:",
+    "missing": "Brakuje pliku mapy historii, więc nie można jej edytować.",
+    "readOnly": "Projekt jest tylko do odczytu, więc nie można edytować mapy historii.",
+    "kind": {
+      "script": "Skrypt",
+      "conversation": "Rozmowa",
+      "beat": "Punkt fabuły"
+    },
+    "badge": {
+      "start": "Pole startowe",
+      "trash": "W koszu",
+      "deleted": "Usunięty"
+    },
+    "box": "{kind}: {title}",
+    "boxWithState": "{kind}: {title} ({state})",
+    "jump": "Skok",
+    "more": "{text} +{n}",
+    "rejected": {
+      "duplicate": "Te dwa pola są już połączone strzałką.",
+      "derived": "Ta strzałka wynika z łącza w rozmowie. Zmień ją w rozmowie.",
+      "itemBox": "Pola skryptu lub rozmowy nie można tu usunąć. Przenieś element do kosza w Pisaniu.",
+      "failed": "Nie zapisano zmiany."
+    },
+    "delete": {
+      "title": "Usunąć punkt fabuły?",
+      "body": "Ten punkt ma {n} strzałkę, która też zostanie usunięta. | Ten punkt ma {n} strzałki, które też zostaną usunięte. | Ten punkt ma {n} strzałek, które też zostaną usunięte.",
+      "cancel": "Anuluj",
+      "confirm": "Usuń"
+    },
+    "inspector": {
+      "none": "Zaznacz pole lub strzałkę na mapie historii.",
+      "open": "Otwórz w Pisaniu",
+      "openGone": "Ten element jest w koszu lub usunięty, więc nie można go otworzyć.",
+      "start": "Początek historii",
+      "startHint": "Przejście próbne i sprawdzanie zaczynają się od pól startowych.",
+      "beatText": "Notatka punktu fabuły",
+      "removeBox": "Usuń pole",
+      "removeBoxHint": "Element zniknął na dobre, więc można usunąć jego pole.",
+      "arrowsOut": "Strzałki z tego pola",
+      "noArrows": "Z tego pola nie wychodzą strzałki.",
+      "arrowItem": "Do: {title}",
+      "autoTag": "auto",
+      "selectArrow": "Edytuj strzałkę do: {title}",
+      "arrow": "Strzałka",
+      "from": "Z",
+      "to": "Do",
+      "condition": "Warunek odblokowania",
+      "conditionLabel": "Warunek odblokowania strzałki z „{from}” do „{to}”",
+      "noCondition": "Bez warunku: strzałka jest zawsze otwarta.",
+      "deleteArrow": "Usuń strzałkę",
+      "autoNote": "Narysowana z łącza w rozmowie. Zmień ją w rozmowie.",
+      "sources": "Pochodzi z",
+      "sourceJump": "Węzeł skoku",
+      "sourceOption": "Wybór: {text}",
+      "sourceOptionEmpty": "Wybór bez tekstu",
+      "selectBox": "Wróć do: {title}",
+      "unknownBox": "(nieznane)"
+    }
   },
   "variables": {
     "title": "Zmienne",
@@ -2016,6 +2144,7 @@
       "ignoredFindings": "Odrzucone uwagi",
       "relationLayout": "Układ relacji",
       "variables": "Zmienne",
+      "storyMap": "Mapa fabuły",
       "settings": "Ustawienia książki",
       "asset": "Obraz",
       "dictionary": "Słownik",

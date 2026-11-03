@@ -1,6 +1,7 @@
 import type { Condition, Term } from '../project/schemas/condition'
 import type { Variable } from '../project/schemas/variables'
 import { MAX_STEPS, type StopReason } from './playthrough'
+import type { StoryStop } from './storyPlaythrough'
 import type { Values } from './conditions'
 
 export interface TextCtx {
@@ -70,6 +71,43 @@ export function describeStop(
       }
     case 'no-visible-options':
       return { key: `${PREFIX}.noVisibleOptions`, params: { node: ctx.nodeLabel(reason.nodeId) } }
+  }
+}
+
+export interface StoryTextCtx extends TextCtx {
+  itemTitle(id: string): string
+  boxTitle(id: string): string
+}
+
+const STORY_PREFIX = 'game.storyPlay.stop'
+
+/** Like describeStop, plus the reasons that only exist across items. */
+export function describeStoryStop(
+  reason: StoryStop,
+  ctx: StoryTextCtx,
+): { key: string; params: Record<string, string | number> } {
+  switch (reason.kind) {
+    case 'broken-link':
+      return reason.reason === 'item-missing'
+        ? { key: `${STORY_PREFIX}.itemMissing`, params: {} }
+        : {
+            key: `${STORY_PREFIX}.${reason.reason === 'item-trashed' ? 'itemTrashed' : 'nodeMissing'}`,
+            params: { item: ctx.itemTitle(reason.itemId) },
+          }
+    case 'broken-box':
+      return { key: `${STORY_PREFIX}.brokenBox`, params: { box: ctx.boxTitle(reason.boxId) } }
+    case 'no-arrow-passes':
+      return { key: `${STORY_PREFIX}.noArrowPasses`, params: { box: ctx.boxTitle(reason.boxId) } }
+    case 'undefined-variable':
+    case 'type-mismatch':
+      if (reason.boxId !== undefined)
+        return {
+          key: `${STORY_PREFIX}.${reason.kind === 'undefined-variable' ? 'arrowUndefinedVariable' : 'arrowTypeMismatch'}`,
+          params: { box: ctx.boxTitle(reason.boxId), variable: ctx.variableName(reason.variableId) },
+        }
+      return describeStop({ kind: reason.kind, variableId: reason.variableId, nodeId: reason.nodeId ?? '' }, ctx)
+    default:
+      return describeStop(reason, ctx)
   }
 }
 

@@ -1,5 +1,5 @@
 import type { Condition } from '../project/schemas/condition'
-import type { Conversation, ConversationNode } from '../project/schemas/conversation'
+import type { Conversation, ConversationNode, ItemLink } from '../project/schemas/conversation'
 import type { Variable } from '../project/schemas/variables'
 import { applySets, evaluateCondition, initialValues, type Values } from './conditions'
 
@@ -44,7 +44,9 @@ export interface PlayState {
   readonly steps: number
   /** The node just entered had been visited before. */
   readonly loop: boolean
-  readonly status: 'playing' | 'ended' | 'stopped'
+  readonly status: 'playing' | 'ended' | 'stopped' | 'left'
+  /** Set when the run left this conversation through a cross-item link. */
+  readonly leave: ItemLink | null
   readonly stop: StopReason | null
   /** Options shown at the current choice node. */
   readonly options: readonly VisibleOption[]
@@ -54,6 +56,7 @@ export type PlayView =
   | { kind: 'lines'; nodeId: string; lines: ShownLine[]; canContinue: boolean; loop: boolean }
   | { kind: 'choice'; nodeId: string; options: VisibleOption[]; loop: boolean }
   | { kind: 'end' }
+  | { kind: 'left'; link: ItemLink }
   | { kind: 'stopped'; reason: StopReason }
 
 type Json = { type?: string; text?: string; attrs?: Record<string, unknown>; content?: Json[] }
@@ -145,30 +148,50 @@ function enter(from: PlayState, nodeId: string, optionId?: string): PlayState {
       return { ...s, status: 'playing', options }
     }
     // jump: no screen, continue to its target
+    if (node.link) return { ...s, status: 'left', leave: node.link }
     id = node.target?.nodeId ?? null
     viaOption = undefined
   }
 }
 
-export function start(conv: Conversation, variables: readonly Variable[]): PlayState {
+export interface StartOpts {
+  /** Where to begin; the conversation's start node when omitted. */
+  nodeId?: string
+  /** Carried-over variable values (a run that came from another item). */
+  values?: Values
+  steps?: number
+  visits?: Readonly<Record<string, number>>
+}
+
+/** Starts a run, optionally mid-way through a longer play-through (see `storyPlaythrough`). */
+export function startAt(
+  conv: Conversation,
+  variables: readonly Variable[],
+  o: StartOpts = {},
+): PlayState {
   const base: PlayState = {
     conv,
     variables,
-    values: initialValues(variables),
+    values: o.values ?? initialValues(variables),
     current: null,
     log: [],
-    visits: {},
-    steps: 0,
+    visits: o.visits ?? {},
+    steps: o.steps ?? 0,
     loop: false,
     status: 'playing',
+    leave: null,
     stop: null,
     options: [],
   }
   if (!conv.nodes.length) return stopped(base, { kind: 'empty-conversation' })
-  if (!conv.startNodeId || !conv.nodes.some((n) => n.id === conv.startNodeId))
+  const first = o.nodeId ?? conv.startNodeId
+  if (o.nodeId === undefined && (!first || !conv.nodes.some((n) => n.id === first)))
     return stopped(base, { kind: 'no-start' })
-  return enter(base, conv.startNodeId)
+  return enter(base, first ?? '')
 }
+
+export const start = (conv: Conversation, variables: readonly Variable[]): PlayState =>
+  startAt(conv, variables)
 
 export const reset = (s: PlayState): PlayState => start(s.conv, s.variables)
 
@@ -195,12 +218,14 @@ export function choose(s: PlayState, optionId: string): PlayState {
       variableId: applied.reason.variableId,
       nodeId: node.id,
     })
+  if (opt.link) return { ...s, values: applied.values, status: 'left', leave: opt.link, options: [] }
   return enter({ ...s, values: applied.values }, opt.target ?? '', optionId)
 }
 
 export function view(s: PlayState): PlayView {
   if (s.status === 'stopped' && s.stop) return { kind: 'stopped', reason: s.stop }
   if (s.status === 'ended') return { kind: 'end' }
+  if (s.status === 'left' && s.leave) return { kind: 'left', link: s.leave }
   const node = nodeNow(s)
   if (node?.type === 'lines')
     return {

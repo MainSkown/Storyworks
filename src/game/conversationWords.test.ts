@@ -16,7 +16,7 @@ const lines = (id: string, ...ls: unknown[]) => ({
   content: { type: 'doc', content: ls },
 })
 const conv = (nodes: unknown[]) =>
-  conversationSchema.parse({ version: 2, id: 'c', title: 'T', startNodeId: null, nodes })
+  conversationSchema.parse({ version: 3, id: 'c', title: 'T', startNodeId: null, nodes })
 
 describe('conversationWords', () => {
   it('counts line text across all lines nodes, not speakers or options', () => {

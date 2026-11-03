@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ImportDialog from './ImportDialog.vue'
 import { useProjectStore } from '../project/store'
@@ -11,7 +11,8 @@ import {
   STATUSES,
   statusFilter as filter,
 } from '../composables/statusFilter'
-import { dropSlot, filterByStatus, keyboardMove, type Slot } from '../project/tree'
+import { dropSlot, filterByStatus, findNode, keyboardMove, type Slot } from '../project/tree'
+import { inboundLinks } from '../game/inboundLinks'
 
 type Zone = 'before' | 'after' | 'inside'
 interface Row {
@@ -229,6 +230,23 @@ const deleteTitle = computed(() => parents.value.get(deleteId.value ?? '')?.node
 const deleteLinks = computed(() =>
   deleteId.value ? store.linksBrokenByDeletingItem(deleteId.value) : 0,
 )
+
+// Cross-item links from other conversations that deleting would break.
+const deleteInbound = ref(0)
+watch(deleteId, async (id) => {
+  deleteInbound.value = 0
+  if (!id) return
+  const ids: string[] = []
+  const walk = (n: ManuscriptNode) => {
+    if (n.type === 'scene' || n.type === 'conversation') ids.push(n.id)
+    n.children.forEach(walk)
+  }
+  const root = findNode(store.tree, id)
+  if (root) walk(root)
+  if (!ids.length) return
+  const count = inboundLinks(await store.loadAllConversations(), ids)
+  if (deleteId.value === id) deleteInbound.value = count
+})
 
 async function doDelete(): Promise<void> {
   const id = deleteId.value
@@ -732,6 +750,9 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
           <p>{{ t('write.deleteBody', { title: deleteTitle }) }}</p>
           <p v-if="deleteLinks > 0">
             {{ t('deleteImpact.links', { n: deleteLinks }, deleteLinks) }}
+          </p>
+          <p v-if="deleteInbound > 0">
+            {{ t('game.crossLink.deleteImpact', { n: deleteInbound }, deleteInbound) }}
           </p>
         </QCardSection>
         <QCardActions align="right">

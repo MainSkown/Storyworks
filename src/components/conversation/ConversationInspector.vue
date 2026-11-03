@@ -13,11 +13,13 @@ import {
   updateOption,
   type OptionPatch,
 } from '../../game/conversationGraph'
+import { setJumpLink, setOptionLink } from '../../game/crossLinks'
 import { newId } from '../../project/ids'
 import type { Condition, SetOp } from '../../project/schemas/condition'
-import type { Conversation, ConversationOption } from '../../project/schemas/conversation'
+import type { Conversation, ConversationOption, ItemLink } from '../../project/schemas/conversation'
 import ConditionBuilder from './ConditionBuilder.vue'
 import ConversationLinesEditor from './ConversationLinesEditor.vue'
+import LinkTargetPicker from './LinkTargetPicker.vue'
 import { NODE_ICON, useNodeLabel } from './nodeTypes'
 import SetsEditor from './SetsEditor.vue'
 
@@ -93,6 +95,11 @@ function pickOptionTarget(optionId: string, to: string): void {
   const id = props.nodeId
   update((c) => (to ? connect(c, id, to, { optionId }) : disconnect(c, `opt:${optionId}`)))
 }
+const pickJumpLink = (link: ItemLink | null) =>
+  update((c) => setJumpLink(c, props.nodeId, link))
+const pickOptionLink = (optionId: string, link: ItemLink | null) =>
+  update((c) => setOptionLink(c, props.nodeId, optionId, link))
+const jump = computed(() => (node.value?.type === 'jump' ? node.value : null))
 const patchOption = (optionId: string, patch: OptionPatch) =>
   update((c) => updateOption(c, props.nodeId, optionId, patch))
 const newOption = () => {
@@ -144,7 +151,7 @@ const setSets = (s: SetOp[]) => update((x) => setNodeSets(x, props.nodeId, s))
       />
     </section>
 
-    <section v-if="node.type === 'lines' || node.type === 'jump'" class="block">
+    <section v-if="node.type === 'lines'" class="block">
       <label class="label" :for="`${uid}-target`">{{ t('game.conversation.target.label') }}</label>
       <select
         :id="`${uid}-target`"
@@ -159,6 +166,19 @@ const setSets = (s: SetOp[]) => update((x) => setNodeSets(x, props.nodeId, s))
         </option>
         <option v-for="x in targets" :key="x.id" :value="x.id">{{ x.label }}</option>
       </select>
+    </section>
+
+    <section v-if="jump" class="block">
+      <h3 class="label">{{ t('game.conversation.target.label') }}</h3>
+      <LinkTargetPicker
+        :target="singleTarget"
+        :link="jump.link"
+        :nodes="targets"
+        suffix=""
+        :disabled="off"
+        @node="pickSingle"
+        @link="pickJumpLink"
+      />
     </section>
 
     <section v-if="node.type === 'choice'" class="block" aria-labelledby="opt-title">
@@ -207,19 +227,15 @@ const setSets = (s: SetOp[]) => update((x) => setNodeSets(x, props.nodeId, s))
             :disabled="off"
             @input="patchOption(o.id, { text: ($event.target as HTMLInputElement).value })"
           />
-          <select
-            class="control"
-            :aria-label="t('game.conversation.options.target', { n: i + 1 })"
-            :value="o.target ?? ''"
+          <LinkTargetPicker
+            :target="o.target ?? null"
+            :link="o.link"
+            :nodes="targets"
+            :suffix="t('game.conversation.options.label', { n: i + 1 })"
             :disabled="off"
-            @change="pickOptionTarget(o.id, ($event.target as HTMLSelectElement).value)"
-          >
-            <option value="">{{ t('game.conversation.target.none') }}</option>
-            <option v-if="o.target && !ids.has(o.target)" :value="o.target">
-              {{ t('game.conversation.target.missing') }}
-            </option>
-            <option v-for="x in targets" :key="x.id" :value="x.id">{{ x.label }}</option>
-          </select>
+            @node="pickOptionTarget(o.id, $event)"
+            @link="pickOptionLink(o.id, $event)"
+          />
           <p class="label">{{ t('game.conversation.optionCondition') }}</p>
           <ConditionBuilder
             :model-value="o.condition"

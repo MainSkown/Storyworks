@@ -10,11 +10,14 @@ const props = withDefaults(
     canConnect?: CanConnect
     nodeStyle?: (node: GraphNodeModel<ND>) => GraphStyle
     edgeStyle?: (edge: GraphEdgeModel<ED>) => GraphStyle
+    /** Extra outgoing rows per node that are not edges (see the `extra-out` slot). */
+    extraOut?: (nodeId: string) => number
   }>(),
   {
     canConnect: () => ({ ok: true as const }),
     nodeStyle: () => ({}),
     edgeStyle: () => ({}),
+    extraOut: () => 0,
   },
 )
 
@@ -27,7 +30,10 @@ const emit = defineEmits<{
   rejected: [reason: string]
 }>()
 
-defineSlots<{ node?: (p: { node: GraphNodeModel<ND> }) => unknown }>()
+defineSlots<{
+  node?: (p: { node: GraphNodeModel<ND> }) => unknown
+  'extra-out'?: (p: { node: GraphNodeModel<ND>; index: number }) => unknown
+}>()
 
 const { t } = useI18n()
 
@@ -148,7 +154,18 @@ function edgeColor(e: GraphEdgeModel<ED>) {
                 @click="emit('disconnect', e.id)"
               />
             </li>
-            <li v-if="!(dir === 'out' ? row.out : row.inc).length" class="none">
+            <template v-if="dir === 'out'">
+              <li v-for="k in extraOut(row.node.id)" :key="`x${k}`" class="conn">
+                <slot name="extra-out" :node="row.node" :index="k - 1" />
+              </li>
+            </template>
+            <li
+              v-if="
+                !(dir === 'out' ? row.out : row.inc).length &&
+                !(dir === 'out' && extraOut(row.node.id))
+              "
+              class="none"
+            >
               {{ t('graph.list.none') }}
             </li>
           </ul>

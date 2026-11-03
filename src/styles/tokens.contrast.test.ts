@@ -38,7 +38,9 @@ const themes = {
   dark: block(":root[data-theme='dark']"),
 }
 const surfaces = ['--bg-app', '--bg-sidebar', '--bg-panel', '--bg-sheet', '--bg-raised']
-const sections = ['write', 'timelines', 'rules', 'codex', 'checks'].map((s) => `--section-${s}`)
+const sections = ['write', 'storymap', 'timelines', 'rules', 'codex', 'checks'].map(
+  (s) => `--section-${s}`,
+)
 const tags = ['event', 'rule', 'character', 'scene', 'problem'].map((s) => `--tag-${s}`)
 
 describe.each(Object.entries(themes))('%s theme contrast', (_name, t) => {
@@ -67,6 +69,11 @@ describe.each(Object.entries(themes))('%s theme contrast', (_name, t) => {
     for (const k of sections)
       for (const s of ['--bg-app', '--bg-sidebar'])
         expect(ratio(get(k), get(s)), `${k} on ${s}`).toBeGreaterThanOrEqual(3)
+  })
+
+  it('story map colour is readable as text on every surface', () => {
+    for (const s of surfaces)
+      expect(ratio(get('--section-storymap'), get(s)), s).toBeGreaterThanOrEqual(4.5)
   })
 
   it('strong border and focus ring meet 3:1 against surfaces', () => {

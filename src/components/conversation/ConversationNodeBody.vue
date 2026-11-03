@@ -2,8 +2,9 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { firstLineText } from '../../game/conditionEdit'
-import type { ConversationNode } from '../../project/schemas/conversation'
+import type { ConversationNode, ItemLink } from '../../project/schemas/conversation'
 import type { GraphNodeModel } from '../graph/types'
+import LinkChip from './LinkChip.vue'
 import { NODE_ICON } from './nodeTypes'
 
 const props = defineProps<{
@@ -23,6 +24,13 @@ const detail = computed(() => {
   return ''
 })
 const empty = computed(() => data.value?.type === 'lines' && !firstLineText(data.value.content))
+/** Cross-item links of the node; the card shows the first and a count of the rest. */
+const links = computed<ItemLink[]>(() => {
+  const n = data.value
+  if (n?.type === 'jump') return n.link ? [n.link] : []
+  if (n?.type === 'choice') return n.options.flatMap((o) => (o.link ? [o.link] : []))
+  return []
+})
 const setCount = computed(() => data.value?.sets.length ?? 0)
 </script>
 
@@ -42,7 +50,17 @@ const setCount = computed(() => data.value?.sets.length ?? 0)
       </span>
     </div>
     <div v-if="detail" class="detail" :class="{ empty }">{{ detail }}</div>
-    <div v-if="data?.condition || setCount || brokenTarget || brokenUse" class="badges">
+    <div v-if="data?.condition || setCount || brokenTarget || brokenUse || links.length" class="badges">
+      <LinkChip v-if="links.length" :link="links[0]!" />
+      <span
+        v-if="links.length > 1"
+        class="chip"
+        role="img"
+        :aria-label="t('game.crossLink.more', { n: links.length - 1 })"
+        :title="t('game.crossLink.more', { n: links.length - 1 })"
+      >
+        +{{ links.length - 1 }}
+      </span>
       <span
         v-if="data?.condition"
         class="chip"

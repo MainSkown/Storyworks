@@ -3,7 +3,7 @@ import { gameContentProblem, LINE_TYPE } from '../../editor/game/validate'
 import { conditionSchema, setSchema } from './condition'
 import { blockIds, sceneStatusSchema } from './scene'
 
-export const CONVERSATION_VERSION = 2
+export const CONVERSATION_VERSION = 3
 
 const nodeBase = {
   id: z.string().min(1),
@@ -13,10 +13,18 @@ const nodeBase = {
   sets: z.array(setSchema).default([]),
 }
 
+/** Cross-item link: a conversation or script, optionally a node in it. Wins over a node target. */
+export const itemLinkSchema = z.strictObject({
+  itemId: z.string().min(1),
+  nodeId: z.string().optional(),
+})
+export type ItemLink = z.infer<typeof itemLinkSchema>
+
 export const conversationOptionSchema = z.strictObject({
   id: z.string().min(1),
   text: z.string(),
   target: z.string().nullable(),
+  link: itemLinkSchema.optional(),
   condition: conditionSchema.optional(),
   sets: z.array(setSchema).default([]),
 })
@@ -38,6 +46,7 @@ export const conversationNodeSchema = z.discriminatedUnion('type', [
     ...nodeBase,
     type: z.literal('jump'),
     target: z.strictObject({ nodeId: z.string() }).nullable(),
+    link: itemLinkSchema.optional(),
   }),
   z.strictObject({ ...nodeBase, type: z.literal('end') }),
 ])
@@ -68,10 +77,12 @@ export const conversationSchema = z
     c.nodes.forEach((n, i) => {
       if (nodeIds.has(n.id)) bad(['nodes', i, 'id'], 'Duplicate node id')
       nodeIds.add(n.id)
+      if (n.type === 'jump' && n.link && n.target) bad(['nodes', i, 'link'], 'Target and link both set')
       if (n.type === 'choice')
         n.options.forEach((o, j) => {
           if (optionIds.has(o.id)) bad(['nodes', i, 'options', j, 'id'], 'Duplicate option id')
           optionIds.add(o.id)
+          if (o.link && o.target) bad(['nodes', i, 'options', j, 'link'], 'Target and link both set')
         })
       if (n.type !== 'lines') return
       const problem = gameContentProblem(n.content)

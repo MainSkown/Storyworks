@@ -21,7 +21,7 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 ### Project / platform
 - [x] `project.json` gains `kind: "book" | "screenplay" | "game"`, set at creation, immutable in v1. The field exists from the first manifest version (milestone M1), so no migration is needed; a kind this app version does not know opens read-only.
 - [x] New book dialog becomes "New project": choose kind, then title, author, language.
-- [ ] (S3 done: game script lines, conversation stub, variables file; conversation graph and story map file come in S4/S5) Schemas (Zod) for the new item files: screenplay scene, game linear script, conversation graph, variables file, story map file.
+- [ ] (S3-S5 done: game script lines, conversation graph, variables file, story map file; the game-script ones are in) Schemas (Zod) for the new item files: screenplay scene, game linear script, conversation graph, variables file, story map file.
 - [ ] Manifest indexes the new items and files with relative paths and order, like other items.
 - [x] The manuscript editor, toolbar, status bar, word count and sidebar adapt to the project kind (S1; export options follow in S2/S6); Book behaviour is unchanged.
 
@@ -53,10 +53,10 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - [x] Keyboard operation and a list view equivalent (nodes with their connections), as for other canvases.
 
 ### Game script: non-linear structure
-- [ ] Cross-links: a Jump node or a choice target can point to another conversation or script (and optionally a node in it) by stable ID. Deleted targets follow the broken-link rule.
-- [ ] Story map: one top-level graph per game project. Boxes are conversations, scripts and optional free "beat" notes; arrows mean "leads to"; an arrow can carry an unlock condition (variables). Boxes open their item.
-- [ ] Routes: named routes (e.g. "Route A") defined on the timeline branches; items can be tagged with one or more routes. Checks flag items unreachable on a route they are tagged with.
-- [ ] Play-through preview (one conversation is done in S4; from a story-map start is S5): step through a conversation or from a chosen start item on the story map as a player: read lines, pick options (options whose condition fails are hidden or shown disabled), watch variables change, reset. Nothing is written to the project.
+- [x] Cross-links: a Jump node or a choice target can point to another conversation or script (and optionally a node in it) by stable ID. Deleted targets follow the broken-link rule.
+- [x] Story map: one top-level graph per game project. Boxes are conversations, scripts and optional free "beat" notes; arrows mean "leads to"; an arrow can carry an unlock condition (variables). Boxes open their item.
+- [x] Routes: named routes (e.g. "Route A") defined on the timeline branches; items can be tagged with one or more routes. (Tagging done in S5; the check that flags an unreachable tagged item is S6.)
+- [x] Play-through preview (one conversation is done in S4; from a story-map start is S5): step through a conversation or from a chosen start item on the story map as a player: read lines, pick options (options whose condition fails are hidden or shown disabled), watch variables change, reset. Nothing is written to the project.
 
 ### Consistency checks (script projects)
 - [ ] Dead end: a node (other than End) with no way out.
@@ -77,9 +77,9 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 
 ### UI / navigation
 - [x] Sidebar for screenplay: Write (scene tree), Timelines, Rules, Codex, Checks, then Stats/History/Settings.
-- [ ] Sidebar for game: Write (tree of folders holding Scripts and Conversations), Story map (new section), Timelines, Rules, Codex, Checks, then Stats/History/Settings.
-- [ ] Story map section has its own colour token for both themes (AA contrast), and its own context-panel sections.
-- [ ] All new strings in English and Polish via vue-i18n.
+- [x] Sidebar for game: Write (tree of folders holding Scripts and Conversations), Story map (new section), Timelines, Rules, Codex, Checks, then Stats/History/Settings.
+- [x] Story map section has its own colour token for both themes (AA contrast), and its own context-panel sections.
+- [x] All new strings in English and Polish via vue-i18n.
 
 ## Behavior details
 - **Kind is fixed at creation.** To change kind the user exports to Fountain and imports into a new project. The new-project dialog says so.
@@ -136,6 +136,8 @@ Besides books, BookWriter supports writing scripts in v1. A project is created a
 - **S3 defaults:** a game folder is a `chapter` node, a Script is a `scene` node, a Conversation is a new `conversation` node (labels per kind); manifest v15 adds `lineCounter` and `variables`. A line carries `lineId` (`L000123`, counter only grows; split gives the new half a new id, merge retires one, paste gets fresh ids; snapshot restore never lowers the counter) and either `speakerId` (codex entry, name resolved live) or `speakerName` (plain text, "Add to codex" turns every line with that name into a codex speaker) or neither (narration). A new line starts without a speaker; Tab at the start of a line, the toolbar button or the chip opens the speaker picker. A deleted speaker shows a broken chip and the picker offers Restore. Variables: names unique (any case), default must match the type, changing the type resets it, delete asks for confirmation and has no trash. Words count line text only. Open limits: Stats card still says "Whole book" for games; delete-impact counts speaker lines in the codex delete dialog only.
 - **S4 decisions (user-confirmed):** a condition is a flat group `{mode: all|any, terms[]}` (AND or OR, one level, at least one term; a term is variable + operator + value); an empty condition means always true. An option whose condition fails is hidden in play-through. If a node's entry condition fails on arrival, play-through stops with a message naming the node and the failed condition (no fall-through). A Lines node's body is TipTap line blocks, the same editor kind and line-ID counter as Scripts, so comments, search, spellcheck, snapshots and block links work on conversation lines.
 - **S4 defaults:** connections are derived from `lines.next`, `jump.target` and each option's `target`, never stored as separate edges, so a connection cannot dangle in the file (a deleted node clears inbound targets; a target to a missing node shows a broken-link badge). Nodes store `x, y`; a conversation stores `startNodeId` (first node by default, the user can mark another). Sets are `set` (all types), `add` (number), `toggle` (flag); comparison operators depend on the variable type. A term or set on a deleted variable stays in the file and shows "Deleted variable"; one whose variable changed type shows "Needs review"; the play-through stops on either. The variable delete dialog counts uses in conversations. Play-through runs on one conversation, shows a loop note on a revisited node, stops after 1000 steps, never writes to the project. Manifest v16 migrates conversation files v1 to v2 (`startNodeId: null`). Open limits: backward connections are drawn as long curves across the canvas, and a search hit opens the conversation but does not select the node.
+- **S5 decisions (user-confirmed):** the Story map is a separate sidebar section for game projects (own teal colour token, own context-panel sections); story-map arrows are both derived (read-only, from cross-item links in conversations) and manual (drawn between boxes, optional unlock condition); routes come from timeline branches only; cross-item play-through follows manual arrows when an item ends (offered as "Continue to…", none open = stops with a message).
+- **S5 defaults:** a cross-link is an optional `link {itemId, nodeId?}` on a Jump node or an option (exclusive with the in-conversation target; it targets a Conversation or a Script by tree id, so trashing the target shows it broken and restoring repairs it); the story map is `story-map.json` (boxes of items and free beats, manual arrows, a Start flag per box; items get a box automatically, a trashed item's box stays); a route tag is `{timelineId, branchId}` on the manifest tree node (kept through trash and restore, a deleted branch shows as a broken chip); play-through carries variable values across items, caps at 1000 steps overall, never writes. Manifest v17 (conversation files v2 to v3, `storyMap`). Open limits: derived arrows are not drawn with a condition shown when several links share a pair of boxes; a play-through in a read-only project with no story-map file has no boxes to start from.
 - **S2 defaults:** our own paginator lays out every page (Liberation Mono 12 pt, 55 rows on Letter, 58 on A4; heading never last on a page; a cue keeps 2 speech rows; speeches split at sentence ends with (MORE)/(CONT'D), Polish (DALEJ)/(CD.)); the PDF draws exactly those pages, so the status-bar page count equals the PDF's (title page not counted). Word paginates itself and may differ slightly. Scene numbers are not written to Fountain.
 
 ## Open questions

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { advance, choose, MAX_STEPS, reset, start, view } from './playthrough'
+import { advance, choose, MAX_STEPS, reset, start, startAt, view } from './playthrough'
 import { conversationSchema, type Conversation } from '../project/schemas/conversation'
 import type { Variable } from '../project/schemas/variables'
 
@@ -52,7 +52,7 @@ const jump = (id: string, to: string | null, extra = {}) => ({
 const end = (id: string, extra = {}) => ({ id, type: 'end', x: 0, y: 0, sets: [], ...extra })
 
 const conv = (startNodeId: string | null, nodes: unknown[]): Conversation =>
-  conversationSchema.parse({ version: 2, id: 'c', title: 'C', startNodeId, nodes })
+  conversationSchema.parse({ version: 3, id: 'c', title: 'C', startNodeId, nodes })
 const all = (...terms: unknown[]) => ({ mode: 'all', terms })
 const any = (...terms: unknown[]) => ({ mode: 'any', terms })
 const metIsTrue = { variableId: 'f', op: 'isTrue' }
@@ -316,5 +316,53 @@ describe('playthrough', () => {
     const v = view(start(c, vars))
     if (v.kind !== 'choice') throw new Error('expected choice')
     expect(v.options.map((o) => o.id)).toEqual(['any'])
+  })
+})
+
+describe('playthrough: leaving the conversation', () => {
+  const link = { itemId: 'c2', nodeId: 'x' }
+
+  it('a jump with a link leaves with the link and applies its sets first', () => {
+    const c = conv('a', [
+      jump('a', null, { link, sets: [{ variableId: 'n', op: 'add', value: 5 }] }),
+    ])
+    const s = start(c, vars)
+    expect(s.status).toBe('left')
+    expect(s.leave).toEqual(link)
+    expect(s.values.n).toBe(15)
+    expect(view(s)).toEqual({ kind: 'left', link })
+  })
+
+  it('a chosen option with a link leaves, applying the option sets', () => {
+    const c = conv('a', [
+      choice('a', [opt('o1', null, { link, sets: [{ variableId: 'f', op: 'set', value: true }] })]),
+    ])
+    let s = start(c, vars)
+    expect(view(s)).toMatchObject({ kind: 'choice' })
+    s = choose(s, 'o1')
+    expect(s.status).toBe('left')
+    expect(s.leave).toEqual(link)
+    expect(s.values.f).toBe(true)
+  })
+
+  it('a left run no longer advances or chooses', () => {
+    const s = start(conv('a', [jump('a', null, { link })]), vars)
+    expect(advance(s)).toBe(s)
+    expect(choose(s, 'o1')).toBe(s)
+  })
+
+  it('startAt begins at a given node with given values, steps and visits', () => {
+    const c = conv('a', [lines('a', 'z'), lines('b', 'z'), end('z')])
+    const s = startAt(c, vars, { nodeId: 'b', values: { f: true, n: 3 }, steps: 7, visits: { b: 1 } })
+    expect(s.current).toBe('b')
+    expect(s.values).toEqual({ f: true, n: 3 })
+    expect(s.steps).toBe(8)
+    expect(s.loop).toBe(true)
+  })
+
+  it('startAt with a missing node stops with missing-target; without nodeId uses the start node', () => {
+    const c = conv('a', [lines('a', 'z'), end('z')])
+    expect(startAt(c, vars, { nodeId: 'nope' }).stop).toMatchObject({ kind: 'missing-target' })
+    expect(startAt(c, vars, {}).current).toBe('a')
   })
 })

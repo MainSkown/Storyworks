@@ -68,7 +68,7 @@ describe('game project items', () => {
     const id = await s.addConversation(null, 'Talk')
     await s.flush()
     const file = json(s.tree.find((n) => n.id === id)!.path as string)
-    expect(file).toMatchObject({ version: 2, id, title: 'Talk', startNodeId: null, nodes: [] })
+    expect(file).toMatchObject({ version: 3, id, title: 'Talk', startNodeId: null, nodes: [] })
   })
 
   it('renaming a conversation changes the tree and the file', async () => {

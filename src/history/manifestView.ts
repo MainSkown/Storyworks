@@ -4,7 +4,7 @@ export type ItemType =
   | 'part' | 'chapter' | 'scene' | 'conversation'
   | 'timeline' | 'rule' | 'ruleCategory' | 'codexType' | 'entry' | 'relationType'
   | 'relationship' | 'group' | 'stateKind' | 'knowledge'
-  | 'calendar' | 'inbox' | 'ignoredFindings' | 'relationLayout' | 'variables'
+  | 'calendar' | 'inbox' | 'ignoredFindings' | 'relationLayout' | 'variables' | 'storyMap'
   | 'settings' | 'asset' | 'dictionary' | 'file'
 
 /** Manifest list → item type. */
@@ -15,7 +15,7 @@ export const LIST_AREAS: Record<string, ItemType> = {
 }
 /** Single-file manifest slots. */
 export const SINGLETONS: Record<string, ItemType> = {
-  calendar: 'calendar', inbox: 'inbox', ignoredFindings: 'ignoredFindings', relationLayout: 'relationLayout', variables: 'variables',
+  calendar: 'calendar', inbox: 'inbox', ignoredFindings: 'ignoredFindings', relationLayout: 'relationLayout', variables: 'variables', storyMap: 'storyMap',
 }
 /** Manifest fields that are structure (or bookkeeping), not "book settings". */
 export const STRUCTURAL_FIELDS = new Set(['version', 'manuscript', 'trash', 'stats', ...Object.keys(LIST_AREAS), ...Object.keys(SINGLETONS)])

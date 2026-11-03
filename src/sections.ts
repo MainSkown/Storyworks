@@ -1,7 +1,7 @@
 import { kindProfile } from './project/kinds'
 
 export type SectionId =
-  'write' | 'timelines' | 'rules' | 'codex' | 'checks' | 'stats' | 'history' | 'export' | 'settings'
+  'write' | 'storymap' | 'timelines' | 'rules' | 'codex' | 'checks' | 'stats' | 'history' | 'export' | 'settings'
 
 export interface AppSection {
   id: SectionId
@@ -42,6 +42,7 @@ const neutral = (id: SectionId, icon: string): AppSection => ({
 
 export const sections: readonly AppSection[] = [
   coloured('write', 'edit'),
+  coloured('storymap', 'account_tree'),
   coloured('timelines', 'event'),
   coloured('rules', 'checklist'),
   coloured('codex', 'menu_book'),

@@ -168,7 +168,7 @@ function colorStyle(s: AppSection) {
               <div
                 v-else-if="
                   s.id === active.id &&
-                  !['rules', 'codex', 'checks', 'history', 'stats'].includes(s.id)
+                  !['rules', 'codex', 'checks', 'history', 'stats', 'storymap'].includes(s.id)
                 "
                 class="expand"
               >

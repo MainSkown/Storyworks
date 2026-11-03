@@ -17,21 +17,28 @@ describe('section registry', () => {
     }
   })
 
-  it('has the 5 main and 4 bottom sections', () => {
-    expect(sections.filter((s) => s.position === 'main')).toHaveLength(5)
+  it('has the 6 main and 4 bottom sections', () => {
+    expect(sections.filter((s) => s.position === 'main')).toHaveLength(6)
     expect(sections.filter((s) => s.position === 'bottom')).toHaveLength(4)
   })
 
-  it('book and screenplay show every section; game hides Export until S6', () => {
-    expect(sectionsFor('book')).toHaveLength(sections.length)
-    expect(sectionsFor('screenplay').map((s) => s.id)).toContain('export')
+  it('book and screenplay hide Story map; game hides Export until S6', () => {
+    for (const kind of ['book', 'screenplay']) {
+      const ids = sectionsFor(kind).map((s) => s.id)
+      expect(ids).not.toContain('storymap')
+      expect(ids).toContain('export')
+    }
     const ids = sectionsFor('game').map((s) => s.id)
     expect(ids).not.toContain('export')
-    expect(ids).toContain('write')
+    expect(ids).toContain('storymap')
+    expect(ids.indexOf('storymap')).toBe(ids.indexOf('write') + 1)
   })
 
   it('a hidden section route redirects to write; others are left alone', () => {
     expect(hiddenSectionRedirect('game', 'export')).toEqual({ name: 'write' })
+    expect(hiddenSectionRedirect('book', 'storymap')).toEqual({ name: 'write' })
+    expect(hiddenSectionRedirect('screenplay', 'storymap')).toEqual({ name: 'write' })
+    expect(hiddenSectionRedirect('game', 'storymap')).toBeNull()
     expect(hiddenSectionRedirect('screenplay', 'export')).toBeNull()
     expect(hiddenSectionRedirect('book', 'export')).toBeNull()
     expect(hiddenSectionRedirect('game', 'codex')).toBeNull()

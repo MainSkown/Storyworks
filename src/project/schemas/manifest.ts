@@ -1,11 +1,12 @@
 import { z } from 'zod'
 import type { Env } from '../types'
+import { routeRefSchema, type RouteRef } from './route'
 import { defaultNames } from '../defaultNames'
 import { isKindId, type KindId } from '../kinds'
 import { defaultExportOptions, type ExportOptions } from '../../export/options'
 import { defaultScriptExportOptions, type ScriptExportOptions } from '../../export/scriptOptions'
 
-export const MANIFEST_VERSION = 16
+export const MANIFEST_VERSION = 17
 export const BOOK_KIND: KindId = 'book'
 
 /** Index entry for one item file (or one singleton file). */
@@ -24,6 +25,7 @@ export const trashEntrySchema = z.strictObject({
   parentId: z.string().nullable(),
   index: z.number().int().min(0),
   deletedAt: z.string(),
+  routes: z.array(routeRefSchema).optional(),
 })
 
 export interface ManuscriptNode {
@@ -31,6 +33,8 @@ export interface ManuscriptNode {
   type: 'part' | 'chapter' | 'scene' | 'conversation'
   title: string
   path?: string
+  /** Game scripts: timeline branches this item is tagged with. */
+  routes?: RouteRef[]
   children: ManuscriptNode[]
 }
 
@@ -40,6 +44,7 @@ export const manuscriptNodeSchema: z.ZodType<ManuscriptNode> = z.lazy(() =>
     type: z.enum(['part', 'chapter', 'scene', 'conversation']),
     title: z.string(),
     path: z.string().optional(),
+    routes: z.array(routeRefSchema).optional(),
     children: z.array(manuscriptNodeSchema),
   }),
 )
@@ -137,6 +142,8 @@ export const manifestSchema = z.strictObject({
   knowledge: refs(),
   // Game scripts: the project-wide variable list.
   variables: itemRefSchema.nullable().default(null),
+  // Game scripts: the story map graph.
+  storyMap: itemRefSchema.nullable().default(null),
   trash: z.array(trashEntrySchema).default([]),
   // Per-check on/off; a missing id means enabled.
   checkSettings: z.record(z.string(), z.boolean()).default({}),

@@ -17,7 +17,7 @@ import {
 import { conversationSchema, type Conversation } from '../project/schemas/conversation'
 
 const empty = (): Conversation =>
-  conversationSchema.parse({ version: 2, id: 'c', title: 'T', startNodeId: null, nodes: [] })
+  conversationSchema.parse({ version: 3, id: 'c', title: 'T', startNodeId: null, nodes: [] })
 
 const at = (x = 0, y = 0) => ({ x, y })
 const build = (): Conversation => {

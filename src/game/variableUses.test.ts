@@ -4,7 +4,7 @@ import { conversationSchema, type Conversation } from '../project/schemas/conver
 import type { Variable } from '../project/schemas/variables'
 
 const conv = (id: string, nodes: unknown[]): Conversation =>
-  conversationSchema.parse({ version: 2, id, title: id, startNodeId: null, nodes })
+  conversationSchema.parse({ version: 3, id, title: id, startNodeId: null, nodes })
 
 const base = { x: 0, y: 0 }
 const sample = (id = 'c1') =>

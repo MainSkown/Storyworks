@@ -19,6 +19,7 @@ export const panelSections: Partial<Record<SectionId, readonly PanelSection[]>> 
     ps('write', 'inThisScene'),
     ps('write', 'problems'),
   ],
+  storymap: [ps('storymap', 'selected'), ps('storymap', 'routes')],
   timelines: [
     ps('timelines', 'selectedEvent'),
     ps('timelines', 'writtenIn'),

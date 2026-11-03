@@ -66,7 +66,7 @@ describe('migration v15 to v16', () => {
     expect(json(io, 'project.json').version).toBe(MANIFEST_VERSION)
     for (const path of ['manuscript/c1.json', '.storyworks/trash/c2.json']) {
       const f = json(io, path)
-      expect(f).toMatchObject({ version: 2, startNodeId: null, nodes: [], title: expect.any(String) })
+      expect(f).toMatchObject({ version: 3, startNodeId: null, nodes: [], title: expect.any(String) })
       expect(parseFile(conversationSchema, io.files.get(path) as string, path).ok).toBe(true)
     }
     expect(io.files.has('manuscript/gone.json')).toBe(false)

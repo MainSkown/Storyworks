@@ -2,6 +2,7 @@
 // Paths are relative to the project root, '/' separated.
 
 import type { InboxNote } from './schemas/inbox'
+import type { RouteRef } from './schemas/route'
 
 export interface ProjectIO {
   /** null when the file does not exist */
@@ -50,6 +51,8 @@ export interface TrashEntry {
   parentId: string | null
   index: number
   deletedAt: string
+  /** Game scripts: route tags the item had when it was deleted. */
+  routes?: RouteRef[]
 }
 
 export type OpenResult =

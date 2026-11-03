@@ -19,6 +19,8 @@
 
   --section-write: #2f5d8a;
   --section-write-on: #ffffff;
+  --section-storymap: #12606e;
+  --section-storymap-on: #ffffff;
   --section-timelines: #a4560f;
   --section-timelines-on: #ffffff;
   --section-rules: #3e7b5a;
@@ -69,6 +71,8 @@
   --spell-underline: #e0746b;
   --section-write: #7fb0e0;
   --section-write-on: #14120f;
+  --section-storymap: #5cc3d4;
+  --section-storymap-on: #14120f;
   --section-timelines: #e58a3a;
   --section-timelines-on: #14120f;
   --section-rules: #5fb587;

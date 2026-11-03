@@ -1,3 +1,4 @@
+import { omitKey } from './omit'
 import type { CanConnect, GraphEdgeModel, GraphNodeModel } from '../components/graph/types'
 import type { Condition, SetOp } from '../project/schemas/condition'
 import type {
@@ -15,6 +16,7 @@ export const NODE_H = 72
 const X_STEP = 320
 const Y_STEP = 120
 
+const withoutLink = <T extends object>(x: T): T => omitKey(x, 'link') as T
 const find = (c: Conversation, id: string) => c.nodes.find((n) => n.id === id)
 const mapNode = (c: Conversation, id: string, f: (n: ConversationNode) => ConversationNode) => ({
   ...c,
@@ -149,7 +151,7 @@ export function connect(c: Conversation, fromId: string, toId: string, o: Connec
   const from = find(c, fromId)!
   if (from.type === 'lines') return mapNode(c, fromId, (n) => ({ ...n, next: toId }) as typeof n)
   if (from.type === 'jump')
-    return mapNode(c, fromId, (n) => ({ ...n, target: { nodeId: toId } }) as typeof n)
+    return mapNode(c, fromId, (n) => ({ ...withoutLink(n), target: { nodeId: toId } }) as typeof n)
   if (from.type !== 'choice') return c
   if (o.optionId)
     return from.options.some((x) => x.id === o.optionId)
@@ -166,13 +168,16 @@ export function disconnect(c: Conversation, edgeId: string): Conversation {
   if (kind === 'next')
     return mapNode(c, key, (n) => (n.type === 'lines' ? { ...n, next: null } : n))
   if (kind === 'jump')
-    return mapNode(c, key, (n) => (n.type === 'jump' ? { ...n, target: null } : n))
+    return mapNode(c, key, (n) => (n.type === 'jump' ? { ...withoutLink(n), target: null } : n))
   if (kind === 'opt')
     return {
       ...c,
       nodes: c.nodes.map((n) =>
         n.type === 'choice' && n.options.some((o) => o.id === key)
-          ? { ...n, options: n.options.map((o) => (o.id === key ? { ...o, target: null } : o)) }
+          ? {
+              ...n,
+              options: n.options.map((o) => (o.id === key ? { ...withoutLink(o), target: null } : o)),
+            }
           : n,
       ),
     }
@@ -230,7 +235,11 @@ export function updateOption(
 ): Conversation {
   return mapChoice(c, nodeId, (n) => ({
     ...n,
-    options: n.options.map((o) => (o.id === optionId ? { ...o, ...patch, id: o.id } : o)),
+    options: n.options.map((o) => {
+      if (o.id !== optionId) return o
+      const next = { ...o, ...patch, id: o.id }
+      return patch.target ? withoutLink(next) : next
+    }),
   }))
 }
 

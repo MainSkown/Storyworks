@@ -46,7 +46,7 @@ const full = {
 
 const ok = (v: unknown) => conversationSchema.safeParse(v).success
 
-describe('conversation schema v2', () => {
+describe('conversation schema v3', () => {
   it('an empty conversation loads with defaults', () => {
     const r = conversationSchema.safeParse(base)
     expect(r.success).toBe(true)
@@ -58,9 +58,9 @@ describe('conversation schema v2', () => {
     }
   })
 
-  it('the version is 2', () => {
-    expect(CONVERSATION_VERSION).toBe(2)
-    expect(ok({ ...base, version: 1 })).toBe(false)
+  it('the version is 3', () => {
+    expect(CONVERSATION_VERSION).toBe(3)
+    expect(ok({ ...base, version: 2 })).toBe(false)
   })
 
   it('a full file round trips through JSON', () => {
@@ -78,7 +78,7 @@ describe('conversation schema v2', () => {
   it('rejects unknown fields, a bad status and a wrong version', () => {
     expect(ok({ ...base, extra: 1 })).toBe(false)
     expect(ok({ ...base, status: 'x' })).toBe(false)
-    expect(ok({ ...base, version: 3 })).toBe(false)
+    expect(ok({ ...base, version: 2 })).toBe(false)
   })
 
   it('rejects malformed nodes', () => {
@@ -163,5 +163,37 @@ describe('conversation schema v2', () => {
   it('a set that does not fit its variable type is not a schema matter', () => {
     const n = { id: 'a', type: 'end', ...at, sets: [{ variableId: 'text-var', op: 'add', value: 1 }] }
     expect(ok({ ...base, nodes: [n] })).toBe(true)
+  })
+})
+
+describe('cross-item links', () => {
+  const link = { itemId: 'c2', nodeId: 'x' }
+  it('a jump and an option may carry a link to another item, with or without a node', () => {
+    const j = { id: 'j', type: 'jump', ...at, target: null, link }
+    const j2 = { id: 'j2', type: 'jump', ...at, target: null, link: { itemId: 's1' } }
+    const c = choice('c', [{ ...opt('o1'), link }])
+    expect(ok({ ...base, nodes: [j, j2, c] })).toBe(true)
+  })
+
+  it('a link round trips', () => {
+    const v = conversationSchema.parse({
+      ...base,
+      nodes: [{ id: 'j', type: 'jump', ...at, target: null, link }],
+    })
+    expect(conversationSchema.parse(JSON.parse(JSON.stringify(v)))).toEqual(v)
+  })
+
+  it('rejects a link with an empty item id or unknown fields', () => {
+    const j = (l: unknown) => ({ id: 'j', type: 'jump', ...at, target: null, link: l })
+    expect(ok({ ...base, nodes: [j({ itemId: '' })] })).toBe(false)
+    expect(ok({ ...base, nodes: [j({ nodeId: 'x' })] })).toBe(false)
+    expect(ok({ ...base, nodes: [j({ itemId: 'a', junk: 1 })] })).toBe(false)
+  })
+
+  it('rejects a node target and a link set together', () => {
+    const j = { id: 'j', type: 'jump', ...at, target: { nodeId: 'a' }, link }
+    expect(ok({ ...base, nodes: [j] })).toBe(false)
+    const c = choice('c', [{ ...opt('o1', 'a'), link }])
+    expect(ok({ ...base, nodes: [c] })).toBe(false)
   })
 })

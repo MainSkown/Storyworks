@@ -139,7 +139,7 @@ describe('conversationParts', () => {
       content: text ? [{ type: 'text', text }] : [],
     })
     const c = conversationSchema.parse({
-      version: 2,
+      version: 3,
       id: 'c',
       title: 'T',
       nodes: [
@@ -178,7 +178,7 @@ describe('conversations in the index', () => {
   })
   const conv = (lineText: string, option: string) =>
     conversationSchema.parse({
-      version: 2,
+      version: 3,
       id: 'c1',
       title: 'Tavern talk',
       nodes: [

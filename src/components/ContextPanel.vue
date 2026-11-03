@@ -5,6 +5,11 @@ import { panelSections } from '../panelSections'
 import type { SectionId } from '../sections'
 import CollapsibleSection from './CollapsibleSection.vue'
 import ScenePropertiesPanel from './ScenePropertiesPanel.vue'
+import RouteTags from './routes/RouteTags.vue'
+import StoryMapInspector from './storymap/StoryMapInspector.vue'
+import StoryMapRoutes from './storymap/StoryMapRoutes.vue'
+import { useProjectStore } from '../project/store'
+import { findNode } from '../project/tree'
 import NodeInspector from './timeline/NodeInspector.vue'
 import ThisParagraphPanel from './links/ThisParagraphPanel.vue'
 import SceneProblemsPanel from './links/SceneProblemsPanel.vue'
@@ -28,6 +33,13 @@ const openTodos = ref(0)
 const tl = useTimelinesStore()
 const rulesStore = useRulesStore()
 const codexStore = useCodexStore()
+const projectStore = useProjectStore()
+/** Game scripts: the selected script or conversation can be tagged with routes. */
+const routeItemId = computed(() => {
+  if (projectStore.project?.manifest.kind !== 'game' || !projectStore.selectedId) return null
+  const n = findNode(projectStore.tree, projectStore.selectedId)
+  return n && (n.type === 'scene' || n.type === 'conversation') ? n.id : null
+})
 const list = computed(() => panelSections[props.sectionId] ?? [])
 
 const linkedRuleCount = computed(() => {
@@ -72,7 +84,10 @@ function countOf(id: string): number {
         :title="t(p.i18nKey)"
         :count="countOf(p.id)"
       >
-        <ScenePropertiesPanel v-if="p.id === 'write.thisScene'" @open-todos="openTodos = $event" />
+        <template v-if="p.id === 'write.thisScene'">
+          <ScenePropertiesPanel @open-todos="openTodos = $event" />
+          <RouteTags v-if="routeItemId" :item-id="routeItemId" />
+        </template>
         <ThisParagraphPanel v-else-if="p.id === 'write.thisParagraph'" />
         <SceneProblemsPanel v-else-if="p.id === 'write.problems'" />
         <NodeInspector v-else-if="p.id === 'timelines.selectedEvent'" />
@@ -82,6 +97,8 @@ function countOf(id: string): number {
           <LinkedRulesPanel />
           <LinkedEntriesPanel />
         </template>
+        <StoryMapInspector v-else-if="p.id === 'storymap.selected'" />
+        <StoryMapRoutes v-else-if="p.id === 'storymap.routes'" />
         <EntryLinksPanel v-else-if="p.id === 'codex.links'" />
         <RuleUsedInPanel v-else-if="p.id === 'rules.usedIn'" />
         <template v-else>{{ t('sidebar.placeholder') }}</template>

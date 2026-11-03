@@ -109,6 +109,7 @@ export async function deleteItemImpl(host: TrashHost, id: string): Promise<Trash
         parentId: f.parentId,
         index: f.index,
         deletedAt,
+        ...(node.routes?.length ? { routes: node.routes } : {}),
       })
     }
     const before = { manuscript: manifest.manuscript, trash: manifest.trash }
@@ -160,6 +161,7 @@ export async function restoreItemImpl(host: TrashHost, id: string): Promise<void
       type: entry.type,
       title: entry.title,
       ...(entry.originalPath ? { path: entry.originalPath } : {}),
+      ...(entry.routes?.length ? { routes: entry.routes } : {}),
       children: [],
     }
     const before = { manuscript: manifest.manuscript, trash: manifest.trash }

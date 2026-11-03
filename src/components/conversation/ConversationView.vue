@@ -15,18 +15,23 @@ import {
   type NodeType,
 } from '../../game/conversationGraph'
 import { pendingConversationNode } from '../../composables/conversationFocus'
+import { linksOf } from '../../game/crossLinks'
 import { brokenUses } from '../../game/variableUses'
 import { newId } from '../../project/ids'
 import { useProjectStore } from '../../project/store'
 import { findNode } from '../../project/tree'
 import type { Conversation, ConversationNode } from '../../project/schemas/conversation'
 import { useVariablesStore } from '../../variables/store'
+import type { StoryModel } from '../../game/storyPlaythrough'
+import { useStoryMapStore } from '../../storymap/store'
+import { useStoryModel } from '../../storymap/useStoryModel'
+import StoryPlaythroughPanel from '../storymap/StoryPlaythroughPanel.vue'
 import GraphCanvas from '../graph/GraphCanvas.vue'
 import GraphList from '../graph/GraphList.vue'
 import type { CanConnectResult, GraphEdgeModel, GraphNodeModel, GraphStyle } from '../graph/types'
+import { createCrossLinks, provideCrossLinks } from './crossLinkContext'
 import ConversationInspector from './ConversationInspector.vue'
 import ConversationNodeBody from './ConversationNodeBody.vue'
-import PlaythroughPanel from './PlaythroughPanel.vue'
 import { NODE_COLOR, NODE_ICON, NODE_TYPES, useNodeLabel } from './nodeTypes'
 
 interface CanvasHandle {
@@ -49,11 +54,32 @@ const labelOf = useNodeLabel()
 
 const locked = computed(() => !!project.readOnly)
 const conv = shallowRef<Conversation | null>(null)
+provideCrossLinks(createCrossLinks(conv))
 const loadError = ref('')
 const selectedId = ref<string | null>(null)
 const display = ref<'canvas' | 'list'>('canvas')
 const canvas = ref<CanvasHandle | null>(null)
 const playthroughOpen = ref(false)
+const storyMap = useStoryMapStore()
+const storyModel = shallowRef<StoryModel | null>(null)
+const { build: buildModel } = useStoryModel()
+let modelSeq = 0
+async function refreshModel(): Promise<void> {
+  const seq = ++modelSeq
+  const m = await buildModel()
+  if (seq === modelSeq && playthroughOpen.value) storyModel.value = m
+}
+// A rebuilt model while open makes the panel offer a restart instead of resetting the run.
+watch(playthroughOpen, (open) => {
+  if (open) void refreshModel()
+  else {
+    modelSeq++
+    storyModel.value = null
+  }
+})
+watch([conv, () => vars.variables, () => storyMap.map], () => {
+  if (playthroughOpen.value) void refreshModel()
+})
 
 // ---- loading ----
 async function load(): Promise<void> {
@@ -118,6 +144,19 @@ const brokenTargetIds = computed(
 const brokenUseIds = computed(
   () => new Set(conv.value ? brokenUses(conv.value, vars.variables).map((b) => b.nodeId) : []),
 )
+
+// Cross-item links are not canvas edges; the list shows them as extra outgoing rows.
+const linkRows = computed(() => {
+  const rows = new Map<string, ReturnType<typeof linksOf>>()
+  for (const l of conv.value ? linksOf(conv.value) : []) rows.set(l.nodeId, [...(rows.get(l.nodeId) ?? []), l])
+  return rows
+})
+const rowAt = (nodeId: string, i: number) => linkRows.value.get(nodeId)?.[i]
+const rowText = (nodeId: string, i: number) => optionText(nodeId, rowAt(nodeId, i)?.optionId)
+const optionText = (nodeId: string, optionId?: string) => {
+  const n = conv.value?.nodes.find((x) => x.id === nodeId)
+  return optionId && n?.type === 'choice' ? n.options.find((o) => o.id === optionId)?.text : undefined
+}
 
 function nodeStyle(n: GraphNodeModel<ConversationNode>): GraphStyle {
   return { color: n.data ? NODE_COLOR[n.data.type] : undefined }
@@ -301,6 +340,7 @@ watch(
             :edges="edges"
             :can-connect="canConnect"
             :node-style="nodeStyle"
+            :extra-out="(id) => linkRows.get(id)?.length ?? 0"
             @connect="onConnect"
             @disconnect="onDisconnect"
             @open="onOpen"
@@ -308,6 +348,10 @@ watch(
             @delete="onDelete"
             @rejected="toast"
           >
+            <template #extra-out="{ node, index }">
+              <LinkChip v-if="rowAt(node.id, index)" :link="rowAt(node.id, index)!.link" interactive />
+              <span v-if="rowText(node.id, index)" class="edge-label">({{ rowText(node.id, index) }})</span>
+            </template>
             <template #node="{ node }">
               <ConversationNodeBody
                 :node="node"
@@ -361,7 +405,12 @@ watch(
       />
       <div v-if="playthroughOpen" class="side play-panel">
         <slot name="playthrough" :conversation="conv" :close="() => (playthroughOpen = false)">
-          <PlaythroughPanel :conversation="conv" @close="playthroughOpen = false" />
+          <StoryPlaythroughPanel
+            v-if="storyModel"
+            :model="storyModel"
+            :start="{ itemId: conversationId }"
+            @close="playthroughOpen = false"
+          />
         </slot>
       </div>
     </div>
@@ -526,5 +575,8 @@ watch(
 .confirm-title {
   margin: 0 0 0.5rem;
   font-size: 1.15rem;
+}
+.edge-label {
+  color: var(--text-secondary);
 }
 </style>
