@@ -4,10 +4,11 @@ A local-first desktop app for writing a book. Manuscript, timelines, world rules
 
 Built with Tauri 2, Vue 3, TypeScript, Quasar and TipTap. The UI is available in English and Polish.
 
-> **Status:** pre-release (v0.1.0). The book features below are built; screenplay and game-script projects are designed but not implemented yet.
+> **Status:** pre-release (v0.1.0). Book, screenplay and game-script projects are built. Real-window checks on the packaged builds are still open.
 
 ## Features
 
+- **Three project kinds**: book, screenplay (elements, scene numbers, page count, PDF/Word/Fountain) and game script (speakers and line IDs, variables, branching conversations, story map, routes, game-document with mechanics and glossary, game JSON/CSV export and game checks).
 - **Manuscript editor**: parts, chapters and scenes with stable block IDs, footnotes, comments, images, scene status and synopsis, corkboard, inbox, focus mode.
 - **Timelines**: branching event graphs with a custom calendar; link any paragraph to an event.
 - **Rules**: the laws of your world, linkable from scenes and events.
@@ -17,7 +18,7 @@ Built with Tauri 2, Vue 3, TypeScript, Quasar and TipTap. The UI is available in
 - **Search and quick switcher**, writing goals, stats and streaks, spellcheck with bundled English and Polish dictionaries and your own.
 - **Import** Markdown and plain text with a preview; **export** to PDF and DOCX, with optional dramatis personae, glossary and chronology appendices.
 - **Safety**: single-writer lock, external-change detection, crash recovery, local diagnostics log.
-- **Comfort**: light and dark themes, UI zoom, rebindable shortcuts, keyboard-operable UI, guided tour and a bundled sample book.
+- **Comfort**: light and dark themes, UI zoom, rebindable shortcuts, keyboard-operable UI, guided tour per project kind and bundled sample book, screenplay and game script.
 
 ## Install
 

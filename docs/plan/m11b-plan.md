@@ -3,7 +3,7 @@
 Scope: the script-kind parts of [M11](milestones.md#m11--import-onboarding-polish-and-release). Spec: [script spec](../features/script-writing.md) (samples and audit), Comfort and accessibility.
 Tags: **T** trivial → Haiku · **N** normal → Sonnet · **H** hard → Sonnet with extra care (tests first, reviewed before accepting).
 
-**Status: ready.** S1–S7 are built (manifest v18; S6 = game document: Overview, Mechanics, Glossary, links, `gamedoc` section; S7 = game checks and exports). Steps below are updated for S6/S7; exact files and tests are filled in as each step starts. Next real work: step 1 and 2 in parallel.
+**Status:** steps 1–5 done and committed (samples, chooser and tour, a11y audit `docs/review/a11y-m11b.md`, perf `docs/review/perf-m11b.md`). Step 6: README done; screenshots pending publish. Open: real-window checks on both platforms, version bump and tag (wait for those and the name question). Perf near-miss: 301-node conversation canvas paints at ~330 ms (DOM ~220 ms); fix needs `only-render-visible-elements` in the shared GraphCanvas, which conflicts with keyboard focus of off-screen nodes.
 
 ## Carried over from M11a (do here or earlier if cheap)
 - Real-window checks on the packaged builds (Linux, Windows): import native multi-select and sibling images, marker removal on close, "Open log folder", bundled dictionaries, `stats.json`/backups in app data, 300k-word book, crash dialog after a kill. M9/M10 items too.
