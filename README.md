@@ -4,7 +4,7 @@ A local-first desktop app for writing a book. Manuscript, timelines, world rules
 
 Built with Tauri 2, Vue 3, TypeScript, Quasar and TipTap. The UI is available in English and Polish.
 
-> **Status:** pre-release (v0.1.0). Book, screenplay and game-script projects are built. Real-window checks on the packaged builds are still open.
+> **Status:** v1.0.0. Book, screenplay and game-script projects. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Features
 
@@ -52,12 +52,12 @@ The sample books in `public/samples/` are generated: run `yarn samples` after ch
 
 - Feature spec (source of truth): [docs/features/storyworks-app.md](docs/features/storyworks-app.md)
 - Milestones and plans: [docs/plan/](docs/plan/milestones.md)
-- Accessibility audit: [docs/review/a11y-m11a.md](docs/review/a11y-m11a.md)
+- Accessibility audits: [book](docs/review/a11y-m11a.md), [script kinds](docs/review/a11y-m11b.md); performance: [docs/review/perf-m11b.md](docs/review/perf-m11b.md)
 
 ## Release
 
 1. Bump `version` in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`; commit.
-2. `git tag v0.1.0 && git push origin v0.1.0`.
+2. `git tag vX.Y.Z && git push origin vX.Y.Z` (same version as above).
 3. The `Release` workflow (also runnable from the Actions tab) builds on Ubuntu 22.04 and Windows and attaches the installers to a **draft** release. Check them, then publish.
 
 `CI` runs typecheck, lint and tests on pull requests and pushes to `main`.
