@@ -1,5 +1,5 @@
 import { useCodexStore } from '../codex/store'
-import { usePositionsForBlock } from '../knowledge/uses'
+import { positionsByBlock } from '../knowledge/uses'
 import { useKnowledgeStore } from '../knowledge/store'
 import { blockSnippet, linkTargetMissing } from '../project/linkProblems'
 import { CODEX_KIND, EVENT_KIND, KNOWLEDGE_KIND, type Link } from '../project/links'
@@ -44,7 +44,9 @@ export async function gatherCheckData(): Promise<CheckData | null> {
   const ruleIds = new Set(rulesStore.ruleEntries.map((r) => r.id))
   const kinds = statesStore.kinds
   const entryKinds = new Set(kinds.filter((k) => k.valueType === 'entry').map((k) => k.id))
-  const nodeTitle = new Map(timelines.flatMap((t) => t.nodes.map((n) => [`${t.id}:${n.id}`, n.title])))
+  const nodeTitle = new Map(
+    timelines.flatMap((t) => t.nodes.map((n) => [`${t.id}:${n.id}`, n.title])),
+  )
   const entryLabel = (id: string) => entryName.get(id) ?? MISSING_ENTRY
 
   const scenes = liveScenes(project.tree).map((n) => {
@@ -77,23 +79,31 @@ export async function gatherCheckData(): Promise<CheckData | null> {
   const rawUses: { link: Link; entryId: string }[] = []
   for (const l of links) {
     if (!usable(l)) continue
-    if (l.kind === CODEX_KIND && entryName.has(l.to.item)) rawUses.push({ link: l, entryId: l.to.item })
+    if (l.kind === CODEX_KIND && entryName.has(l.to.item))
+      rawUses.push({ link: l, entryId: l.to.item })
     else if (l.kind === KNOWLEDGE_KIND && l.to.entry !== undefined && entryName.has(l.to.entry))
       rawUses.push({ link: l, entryId: l.to.entry })
   }
 
   // Scenes whose text is needed: broken-link passages and uses.
   const wanted = new Set<string>()
-  for (const l of links) if (!ix.isPassageBroken(l) && linkCheck.isBroken(l)) wanted.add(l.from.item)
+  for (const l of links)
+    if (!ix.isPassageBroken(l) && linkCheck.isBroken(l)) wanted.add(l.from.item)
   for (const u of rawUses) wanted.add(u.link.from.item)
   const snippets = new Map<string, string>()
+  const linksByScene = new Map<string, Link[]>()
+  for (const l of links) {
+    const list = linksByScene.get(l.from.item)
+    if (list) list.push(l)
+    else linksByScene.set(l.from.item, [l])
+  }
   await Promise.all(
     [...wanted].map(async (sceneId) => {
       const path = findNode(project.tree, sceneId)?.path
       const r = path ? await project.loadScene(path) : null
       if (!r?.ok) return
-      for (const l of links)
-        if (l.from.item === sceneId && l.from.block !== undefined) {
+      for (const l of linksByScene.get(sceneId) ?? [])
+        if (l.from.block !== undefined) {
           const s = blockSnippet(r.value.content, l.from.block)
           if (s !== null) snippets.set(`${sceneId}:${l.from.block}`, s)
         }
@@ -104,15 +114,17 @@ export async function gatherCheckData(): Promise<CheckData | null> {
     project.trash.find((t) => t.id === id)?.title ??
     DELETED_SCENE
   const passageText = (sceneId: string, blockId: string | undefined) =>
-    (blockId !== undefined ? snippets.get(`${sceneId}:${blockId}`) : undefined) ?? sceneTitle(sceneId)
+    (blockId !== undefined ? snippets.get(`${sceneId}:${blockId}`) : undefined) ??
+    sceneTitle(sceneId)
 
+  const positionsFor = positionsByBlock(links)
   for (const { link, entryId } of rawUses) {
     const blockId = link.from.block as string
     const base = {
       blockId,
       sceneId: link.from.item,
       entryId,
-      positions: usePositionsForBlock(links, link.from.item, blockId),
+      positions: positionsFor(link.from.item, blockId),
       label: passageText(link.from.item, blockId),
     }
     if (link.kind === CODEX_KIND) uses.push(base)
@@ -122,7 +134,12 @@ export async function gatherCheckData(): Promise<CheckData | null> {
   const brokenRefs: BrokenRef[] = []
   for (const t of timelines)
     for (const n of t.nodes) {
-      const own = { ownerKind: 'node' as const, ownerId: t.id, ownerBlockId: n.id, ownerLabel: n.title }
+      const own = {
+        ownerKind: 'node' as const,
+        ownerId: t.id,
+        ownerBlockId: n.id,
+        ownerLabel: n.title,
+      }
       for (const id of n.codexIds) if (!entryName.has(id)) brokenRefs.push({ ...own, targetId: id })
       for (const id of n.ruleIds) if (!ruleIds.has(id)) brokenRefs.push({ ...own, targetId: id })
     }
@@ -146,7 +163,9 @@ export async function gatherCheckData(): Promise<CheckData | null> {
     })
   }
 
-  const states: CheckState[] = entries.flatMap((e) => e.states.map((s) => ({ ...s, entryId: e.id })))
+  const states: CheckState[] = entries.flatMap((e) =>
+    e.states.map((s) => ({ ...s, entryId: e.id })),
+  )
   const knowledgeItems = knowledge.items.map((k) => ({
     id: k.id,
     name: k.title,
@@ -174,7 +193,14 @@ export async function gatherCheckData(): Promise<CheckData | null> {
     for (const n of nodes) walk(n.children)
   }
   walk(m.manuscript)
-  for (const list of [m.timelines, m.rules, m.ruleCategories, m.codexTypes, m.codexEntries, m.knowledge])
+  for (const list of [
+    m.timelines,
+    m.rules,
+    m.ruleCategories,
+    m.codexTypes,
+    m.codexEntries,
+    m.knowledge,
+  ])
     addTitles(list)
   const problems: FileProblem[] = project.issues.map((i) =>
     i.kind === 'unlisted' ? i : { ...i, title: titles.get(i.itemId) },

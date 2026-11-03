@@ -89,7 +89,7 @@ describe('settings store', () => {
   })
 
   it('newer version is read-only and left untouched', async () => {
-    const newer = JSON.stringify({ version: 4, whatever: true })
+    const newer = JSON.stringify({ version: 6, whatever: true })
     io.files.set(FILE, newer)
     const s = freshStore()
     await s.load()
@@ -160,6 +160,8 @@ describe('settings store', () => {
       'contextPanel',
       'recentProjects',
       'backups',
+      'shortcuts',
+      'tourSeen',
     ])
     expect(Object.keys(JSON.parse(text).contextPanel.collapsed)).toEqual(['a', 'b'])
     expect(text).toContain('\n  "theme"')
@@ -230,7 +232,7 @@ describe('settings store', () => {
     })
 
     it('is not changed when settings are read-only', async () => {
-      const newer = JSON.stringify({ version: 4 })
+      const newer = JSON.stringify({ version: 6 })
       io.files.set(FILE, newer)
       const s = freshStore()
       await s.load()
@@ -244,17 +246,17 @@ describe('settings store', () => {
     const v1: Record<string, unknown> = { ...defaultSettings, version: 1, theme: 'dark' }
     delete v1.recentProjects
 
-    it('a v1 file loads with empty recent projects and is saved as v3', async () => {
+    it('a v1 file loads with empty recent projects and is saved as v5', async () => {
       io.files.set(FILE, JSON.stringify(v1))
       const s = freshStore()
       await s.load()
       expect(s.loadError).toBeNull()
-      expect(s.settings.version).toBe(3)
+      expect(s.settings.version).toBe(5)
       expect(s.settings.theme).toBe('dark')
       expect(s.settings.recentProjects).toEqual([])
       await s.flush()
       const saved = JSON.parse(io.files.get(FILE)!)
-      expect(saved.version).toBe(3)
+      expect(saved.version).toBe(5)
       expect(saved.recentProjects).toEqual([])
       expect(saved.theme).toBe('dark')
     })
@@ -270,6 +272,36 @@ describe('settings store', () => {
       expect(s.settings.backups).toEqual({ intervalMinutes: 30, keep: 20, onClose: true })
       await s.flush()
       expect(JSON.parse(io.files.get(FILE)!).backups.keep).toBe(20)
+    })
+
+    it('a v3 file gets no shortcut overrides and keeps its values', async () => {
+      const v3: Record<string, unknown> = { ...defaultSettings, version: 3, theme: 'dark' }
+      delete v3.shortcuts
+      io.files.set(FILE, JSON.stringify(v3))
+      const s = freshStore()
+      await s.load()
+      expect(s.loadError).toBeNull()
+      expect(s.settings.theme).toBe('dark')
+      expect(s.settings.shortcuts).toEqual({})
+      await s.flush()
+      const saved = JSON.parse(io.files.get(FILE)!)
+      expect(saved.version).toBe(5)
+      expect(saved.shortcuts).toEqual({})
+    })
+
+    it('a v4 file gets the tour unseen and keeps its values', async () => {
+      const v4: Record<string, unknown> = { ...defaultSettings, version: 4, theme: 'dark' }
+      delete v4.tourSeen
+      io.files.set(FILE, JSON.stringify(v4))
+      const s = freshStore()
+      await s.load()
+      expect(s.loadError).toBeNull()
+      expect(s.settings.theme).toBe('dark')
+      expect(s.settings.tourSeen).toBe(false)
+      await s.flush()
+      const saved = JSON.parse(io.files.get(FILE)!)
+      expect(saved.version).toBe(5)
+      expect(saved.tourSeen).toBe(false)
     })
 
     it('backup settings can be changed and are validated', async () => {
@@ -290,6 +322,40 @@ describe('settings store', () => {
       s.setTheme('light')
       await s.flush()
       expect(io.files.get(FILE)).toBe(bad)
+    })
+  })
+
+  describe('shortcuts', () => {
+    it('stores a rebinding, drops it when set back to the default, and restores defaults', async () => {
+      const s = freshStore()
+      await s.load()
+      s.setShortcut('switcher', 'Mod+K')
+      expect(s.settings.shortcuts).toEqual({ switcher: 'Mod+K' })
+      s.setShortcut('search', 'Mod+Shift+G')
+      await s.flush()
+      expect(JSON.parse(io.files.get(FILE)!).shortcuts).toEqual({
+        search: 'Mod+Shift+G',
+        switcher: 'Mod+K',
+      })
+      s.setShortcut('switcher', 'Mod+P')
+      expect(s.settings.shortcuts).toEqual({ search: 'Mod+Shift+G' })
+      s.resetShortcuts()
+      expect(s.settings.shortcuts).toEqual({})
+    })
+
+    it('ignores an unknown action id', async () => {
+      const s = freshStore()
+      await s.load()
+      s.setShortcut('nope', 'Mod+K')
+      expect(s.settings.shortcuts).toEqual({})
+    })
+
+    it('keeps an unknown id found in the file', async () => {
+      io.files.set(FILE, JSON.stringify({ ...defaultSettings, shortcuts: { old: 'Mod+K' } }))
+      const s = freshStore()
+      await s.load()
+      expect(s.loadError).toBeNull()
+      expect(s.settings.shortcuts).toEqual({ old: 'Mod+K' })
     })
   })
 })

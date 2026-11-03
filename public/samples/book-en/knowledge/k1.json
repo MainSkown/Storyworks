@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "id": "k1",
+  "title": "The lantern needs salt oil",
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Pettigrew's note explains what the lantern burns."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "about": {
+    "type": "rule",
+    "id": "r1"
+  },
+  "learnings": [
+    {
+      "id": "k1-mara",
+      "entryId": "mara",
+      "at": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n1"
+        }
+      },
+      "note": "From Pettigrew's note.",
+      "forgottenAt": null,
+      "revealedIn": {
+        "sceneId": "s2",
+        "blockId": "s2-p1"
+      }
+    }
+  ]
+}

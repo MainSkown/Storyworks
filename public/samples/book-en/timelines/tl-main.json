@@ -1,0 +1,223 @@
+{
+  "version": 1,
+  "id": "tl-main",
+  "name": "Main timeline",
+  "view": "flow",
+  "branches": [
+    {
+      "id": "br-tobias",
+      "name": "Tobias at sea",
+      "color": "#2f6fb3",
+      "dashed": false
+    },
+    {
+      "id": "br-mara",
+      "name": "Mara at the tower",
+      "color": "#b3562f",
+      "dashed": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "title": "Mara arrives at Gull Point",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "The ferry drops her off and leaves."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 1887,
+        "month": 9,
+        "day": 28
+      },
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 0,
+        "y": 120
+      },
+      "codexIds": [
+        "mara",
+        "lighthouse"
+      ],
+      "ruleIds": []
+    },
+    {
+      "id": "n2",
+      "title": "The fog rolls in",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Third of November. The oath begins to matter."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 1887,
+        "month": 10,
+        "day": 3
+      },
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 260,
+        "y": 120
+      },
+      "codexIds": [
+        "mara"
+      ],
+      "ruleIds": [
+        "r2",
+        "r3"
+      ]
+    },
+    {
+      "id": "n3a",
+      "title": "Tobias rows out",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Deliberate mistake: this event is dated before the fog it follows, so the Checks page shows one warning. Change the date to clear it."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 1887,
+        "month": 10,
+        "day": 2
+      },
+      "color": null,
+      "tag": null,
+      "branchId": "br-tobias",
+      "pos": {
+        "x": 520,
+        "y": 20
+      },
+      "codexIds": [
+        "tobias"
+      ],
+      "ruleIds": []
+    },
+    {
+      "id": "n3b",
+      "title": "Mara feeds the lantern",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Undated on purpose: not every event needs a date."
+              }
+            ]
+          }
+        ]
+      },
+      "date": null,
+      "color": null,
+      "tag": null,
+      "branchId": "br-mara",
+      "pos": {
+        "x": 520,
+        "y": 220
+      },
+      "codexIds": [
+        "mara",
+        "lantern"
+      ],
+      "ruleIds": [
+        "r1"
+      ]
+    },
+    {
+      "id": "n4",
+      "title": "The ship is saved",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Both branches meet at dawn."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 1887,
+        "month": 10,
+        "day": 4
+      },
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 780,
+        "y": 120
+      },
+      "codexIds": [
+        "mara",
+        "tobias"
+      ],
+      "ruleIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "n1",
+      "to": "n2"
+    },
+    {
+      "id": "e2",
+      "from": "n2",
+      "to": "n3a"
+    },
+    {
+      "id": "e3",
+      "from": "n2",
+      "to": "n3b"
+    },
+    {
+      "id": "e4",
+      "from": "n3a",
+      "to": "n4"
+    },
+    {
+      "id": "e5",
+      "from": "n3b",
+      "to": "n4"
+    }
+  ]
+}

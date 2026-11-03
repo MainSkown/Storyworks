@@ -1,0 +1,65 @@
+{
+  "version": 3,
+  "id": "s8",
+  "title": "Dziennik pokładowy",
+  "status": "idea",
+  "synopsis": "Mara robi swój pierwszy wpis.",
+  "povId": "mara",
+  "wordCount": 27,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s8-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara otworzyła dziennik i wpisała datę. Pod nią napisała: „Mgła. Światło dotrzymane. Statek uratowany”."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s8-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Patrzyła na ten wiersz długo. Potem, bo to była prawda, dopisała imię brata."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s8-ev",
+      "from": {
+        "item": "s8",
+        "block": "s8-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n4"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s8-cx-mara",
+      "from": {
+        "item": "s8",
+        "block": "s8-p0"
+      },
+      "to": {
+        "item": "mara"
+      },
+      "kind": "codex"
+    }
+  ]
+}

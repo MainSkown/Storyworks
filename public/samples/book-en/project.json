@@ -1,0 +1,330 @@
+{
+  "version": 12,
+  "kind": "book",
+  "title": "The Last Light at Gull Point",
+  "author": "Storyworks sample",
+  "language": "en",
+  "createdAt": "2026-11-01T00:00:00.000Z",
+  "dictionaries": [],
+  "goals": {
+    "daily": null,
+    "book": null
+  },
+  "dirs": {
+    "assets": "assets",
+    "snapshots": ".storyworks/history.git",
+    "dictionaries": "dictionaries"
+  },
+  "manuscript": [
+    {
+      "id": "ch1",
+      "type": "chapter",
+      "title": "The Keeper",
+      "children": [
+        {
+          "id": "s1",
+          "type": "scene",
+          "title": "The Ferry Leaves",
+          "path": "manuscript/s1.json",
+          "children": []
+        },
+        {
+          "id": "s2",
+          "type": "scene",
+          "title": "Salt Oil",
+          "path": "manuscript/s2.json",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "ch2",
+      "type": "chapter",
+      "title": "The Fog",
+      "children": [
+        {
+          "id": "s3",
+          "type": "scene",
+          "title": "The Horn",
+          "path": "manuscript/s3.json",
+          "children": []
+        },
+        {
+          "id": "s4",
+          "type": "scene",
+          "title": "A Knock at the Door",
+          "path": "manuscript/s4.json",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "ch3",
+      "type": "chapter",
+      "title": "Two Roads",
+      "children": [
+        {
+          "id": "s5",
+          "type": "scene",
+          "title": "Tobias Rows Out",
+          "path": "manuscript/s5.json",
+          "children": []
+        },
+        {
+          "id": "s6",
+          "type": "scene",
+          "title": "Alone at the Lantern",
+          "path": "manuscript/s6.json",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "ch4",
+      "type": "chapter",
+      "title": "Morning",
+      "children": [
+        {
+          "id": "s7",
+          "type": "scene",
+          "title": "The Ship",
+          "path": "manuscript/s7.json",
+          "children": []
+        },
+        {
+          "id": "s8",
+          "type": "scene",
+          "title": "The Log Book",
+          "path": "manuscript/s8.json",
+          "children": []
+        }
+      ]
+    }
+  ],
+  "calendar": {
+    "id": "d3",
+    "path": "calendar.json"
+  },
+  "inbox": null,
+  "ignoredFindings": null,
+  "stats": null,
+  "relationLayout": null,
+  "timelines": [
+    {
+      "id": "tl-main",
+      "path": "timelines/tl-main.json",
+      "title": "Main timeline"
+    }
+  ],
+  "rules": [
+    {
+      "id": "r1",
+      "path": "rules/r1.json",
+      "title": "The lamp drinks only salt oil"
+    },
+    {
+      "id": "r2",
+      "path": "rules/r2.json",
+      "title": "A keeper never leaves the light"
+    },
+    {
+      "id": "r3",
+      "path": "rules/r3.json",
+      "title": "Fog stops the beam at a mile"
+    }
+  ],
+  "ruleCategories": [
+    {
+      "id": "d5",
+      "path": "rules/categories/d5.json",
+      "title": "Magic"
+    },
+    {
+      "id": "d6",
+      "path": "rules/categories/d6.json",
+      "title": "Physics"
+    },
+    {
+      "id": "d7",
+      "path": "rules/categories/d7.json",
+      "title": "Society"
+    },
+    {
+      "id": "d8",
+      "path": "rules/categories/d8.json",
+      "title": "Technology"
+    },
+    {
+      "id": "d9",
+      "path": "rules/categories/d9.json",
+      "title": "Religion"
+    }
+  ],
+  "codexTypes": [
+    {
+      "id": "d10",
+      "path": "codex/types/d10.json",
+      "title": "Character"
+    },
+    {
+      "id": "d11",
+      "path": "codex/types/d11.json",
+      "title": "Item"
+    },
+    {
+      "id": "d12",
+      "path": "codex/types/d12.json",
+      "title": "Place"
+    },
+    {
+      "id": "d13",
+      "path": "codex/types/d13.json",
+      "title": "Country"
+    },
+    {
+      "id": "d14",
+      "path": "codex/types/d14.json",
+      "title": "Town"
+    },
+    {
+      "id": "d15",
+      "path": "codex/types/d15.json",
+      "title": "Building"
+    }
+  ],
+  "codexEntries": [
+    {
+      "id": "mara",
+      "path": "codex/mara.json",
+      "title": "Mara"
+    },
+    {
+      "id": "tobias",
+      "path": "codex/tobias.json",
+      "title": "Tobias"
+    },
+    {
+      "id": "lighthouse",
+      "path": "codex/lighthouse.json",
+      "title": "Gull Point Lighthouse"
+    },
+    {
+      "id": "lantern",
+      "path": "codex/lantern.json",
+      "title": "Brass Lantern"
+    }
+  ],
+  "relationTypes": [
+    {
+      "id": "d16",
+      "path": "relation-types/d16.json",
+      "title": "Friend"
+    },
+    {
+      "id": "d17",
+      "path": "relation-types/d17.json",
+      "title": "Enemy"
+    },
+    {
+      "id": "d18",
+      "path": "relation-types/d18.json",
+      "title": "Parent"
+    },
+    {
+      "id": "d19",
+      "path": "relation-types/d19.json",
+      "title": "Sibling"
+    },
+    {
+      "id": "d20",
+      "path": "relation-types/d20.json",
+      "title": "Lover"
+    },
+    {
+      "id": "d21",
+      "path": "relation-types/d21.json",
+      "title": "Located in"
+    },
+    {
+      "id": "d22",
+      "path": "relation-types/d22.json",
+      "title": "Owns"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel-siblings",
+      "path": "relationships/rel-siblings.json"
+    },
+    {
+      "id": "rel-located",
+      "path": "relationships/rel-located.json"
+    },
+    {
+      "id": "rel-owns",
+      "path": "relationships/rel-owns.json"
+    }
+  ],
+  "groups": [],
+  "stateKinds": [
+    {
+      "id": "d23",
+      "path": "state-kinds/d23.json",
+      "title": "Location"
+    },
+    {
+      "id": "d24",
+      "path": "state-kinds/d24.json",
+      "title": "Owner"
+    },
+    {
+      "id": "d25",
+      "path": "state-kinds/d25.json",
+      "title": "Status"
+    },
+    {
+      "id": "d26",
+      "path": "state-kinds/d26.json",
+      "title": "Title"
+    }
+  ],
+  "knowledge": [
+    {
+      "id": "k1",
+      "path": "knowledge/k1.json",
+      "title": "The lantern needs salt oil"
+    }
+  ],
+  "trash": [],
+  "checkSettings": {},
+  "exportSettings": {
+    "titlePage": true,
+    "toc": true,
+    "pageSize": "A4",
+    "marginMm": {
+      "top": 25,
+      "bottom": 25,
+      "left": 25,
+      "right": 25
+    },
+    "font": "serif",
+    "fontSizePt": 11,
+    "lineSpacing": 1.4,
+    "pageNumbers": true,
+    "runningHeader": "none",
+    "appendices": {
+      "personae": {
+        "on": false,
+        "typeIds": []
+      },
+      "glossary": {
+        "on": false,
+        "typeIds": []
+      },
+      "chronology": {
+        "on": false,
+        "timelineId": null
+      }
+    }
+  }
+}

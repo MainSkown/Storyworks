@@ -4,6 +4,149 @@
   "intro": "Rendered from the dev build in a 1280×800 window. Click an image to open it full size. Newest milestone first.",
   "milestones": [
     {
+      "id": "m11",
+      "title": "M11a · Samples, tour, import, shortcuts, safety",
+      "sections": [
+        {
+          "type": "figures",
+          "title": "Welcome and sample book",
+          "intro": "Welcome gets Open sample book (copies a small book into a folder, then opens it) and Take the tour. The sample has one deliberate date-order warning on Checks.",
+          "figures": [
+            {
+              "img": "shots/m11/welcome-light.png",
+              "alt": "Welcome with sample and tour buttons",
+              "bold": "Welcome.",
+              "muted": "Open sample book and Take the tour under New and Open project."
+            },
+            {
+              "img": "shots/m11/sample-write-light.png",
+              "alt": "Sample book open in Write",
+              "bold": "Sample book, Write.",
+              "muted": "The Last Light at Gull Point: four chapters, 514 words."
+            },
+            {
+              "img": "shots/m11/sample-checks-light.png",
+              "alt": "Checks page with one warning",
+              "bold": "Sample book, Checks.",
+              "muted": "One warning: Tobias rows out is dated before The fog rolls in."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Import Markdown or text",
+          "intro": "The scene tree has an Import button. Pick .md or .txt files, choose how to split them, rename or untick items, then import. An automatic backup is made first.",
+          "figures": [
+            {
+              "img": "shots/m11/import-preview.png",
+              "alt": "Import preview with a renamed chapter and a skipped scene",
+              "bold": "Preview.",
+              "muted": "Heading 1 = chapter, Heading 2 = scene; one chapter and one scene renamed, Side Note unticked."
+            },
+            {
+              "img": "shots/m11/import-invalid-utf8.png",
+              "alt": "Import error for text that is not UTF-8",
+              "bold": "Not valid UTF-8.",
+              "muted": "Nothing is imported; the file is named."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Tour and Help menu",
+          "figures": [
+            {
+              "img": "shots/m11/tour-light.png",
+              "alt": "Tour step 2, light",
+              "bold": "Tour step, light.",
+              "muted": "Step 2 of 5 points at Timelines."
+            },
+            {
+              "img": "shots/m11/tour-dark.png",
+              "alt": "Tour step 2, dark",
+              "bold": "Tour step, dark."
+            },
+            {
+              "img": "shots/m11/help-menu-light.png",
+              "alt": "Help menu open",
+              "bold": "Help menu.",
+              "muted": "Take the tour, Keyboard shortcuts, Open log folder."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Keyboard shortcuts",
+          "intro": "Ctrl/Cmd+/ lists every shortcut. App shortcuts can be rebound in Settings; a clash is refused with a message.",
+          "figures": [
+            {
+              "img": "shots/m11/shortcut-overlay.png",
+              "alt": "Keyboard shortcut overlay",
+              "bold": "Overlay.",
+              "muted": "Ctrl+/ shows app, Write and fixed editor keys."
+            },
+            {
+              "img": "shots/m10/settings-goals.png",
+              "alt": "Settings before",
+              "bold": "Settings, before.",
+              "muted": "Last published Settings (M10): no shortcuts section."
+            },
+            {
+              "img": "shots/m11/settings-shortcuts-conflict.png",
+              "alt": "Settings with shortcut rebinding and a conflict",
+              "bold": "Settings, after.",
+              "muted": "Search bound to Ctrl+P: refused, already used for Quick switcher."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Safety dialogs",
+          "intro": "A marker file records that the app is running; if it is found at the next start, the app closed unexpectedly. An unreadable project.json offers the latest automatic backup.",
+          "figures": [
+            {
+              "img": "shots/m11/crash-recovery.png",
+              "alt": "Crash recovery dialog",
+              "bold": "Crash recovery.",
+              "muted": "Shown at start after an unclean exit; offers to reopen the last book."
+            },
+            {
+              "img": "shots/m11/open-error-restore.png",
+              "alt": "Open error with Restore latest backup",
+              "bold": "Cannot open, backup present.",
+              "muted": "Corrupt project.json is left unchanged; Restore latest backup copies the current files aside first."
+            }
+          ]
+        },
+        {
+          "type": "figures",
+          "title": "Focus ring (accessibility fix)",
+          "intro": "Quasar buttons, toggles and checkboxes had no visible keyboard focus. They now show a 2 px ring.",
+          "figures": [
+            {
+              "img": "shots/m11/focus-ring-light.png",
+              "alt": "Focus ring on the theme button, light",
+              "bold": "Focus ring, light.",
+              "muted": "Settings, theme control."
+            },
+            {
+              "img": "shots/m11/focus-ring-dark.png",
+              "alt": "Focus ring on the theme button, dark",
+              "bold": "Focus ring, dark."
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "title": "Checked",
+          "items": [
+            "Tests green (npm test: 193 files, 2006 tests). Screens driven in the browser build (Playwright, 1280 px wide): all of the above, no console errors, 21 checks passed.",
+            "Not verified in a real Tauri window: native multi-select import, folder copy of the sample book, marker removal on close, Open log folder."
+          ]
+        }
+      ]
+    },
+    {
       "id": "m6c",
       "title": "M6c · Knowledge",
       "sections": [

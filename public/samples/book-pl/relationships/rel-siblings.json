@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "rel-siblings",
+  "fromId": "mara",
+  "toId": "tobias",
+  "typeId": "d19",
+  "note": {
+    "type": "doc",
+    "content": []
+  },
+  "nodeRef": null
+}

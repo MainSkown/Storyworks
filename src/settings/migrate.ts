@@ -4,6 +4,8 @@ type Raw = Record<string, unknown>
 const steps: Record<number, (s: Raw) => Raw> = {
   1: (s) => ({ ...s, version: 2, recentProjects: [] }),
   2: (s) => ({ ...s, version: 3, backups: { intervalMinutes: 30, keep: 20, onClose: true } }),
+  3: (s) => ({ ...s, version: 4, shortcuts: {} }),
+  4: (s) => ({ ...s, version: 5, tourSeen: false }),
 }
 
 /** Returns the input itself when no migration was needed. Unknown shapes pass through. */

@@ -4,6 +4,8 @@ export interface FileIO {
   /** Writes to a temp file, then renames over the target. */
   writeTextAtomic(path: string, text: string): Promise<void>
   exists(path: string): Promise<boolean>
+  /** Deletes the file; no error when it does not exist. */
+  remove(path: string): Promise<void>
 }
 
 export interface MemoryFileIO extends FileIO {
@@ -23,6 +25,9 @@ export function createMemoryFileIO(initial: Record<string, string> = {}): Memory
     async exists(path) {
       return files.has(path)
     },
+    async remove(path) {
+      files.delete(path)
+    },
   }
 }
 
@@ -39,6 +44,9 @@ export function createLocalStorageFileIO(): FileIO {
     },
     async exists(path) {
       return localStorage.getItem(LS_PREFIX + path) !== null
+    },
+    async remove(path) {
+      localStorage.removeItem(LS_PREFIX + path)
     },
   }
 }
@@ -64,6 +72,12 @@ export function createTauriFileIO(): FileIO {
     async exists(path) {
       const { exists, BaseDirectory } = await fs()
       return exists(path, { baseDir: BaseDirectory.AppData })
+    },
+    async remove(path) {
+      const { remove, exists, BaseDirectory } = await fs()
+      if (await exists(path, { baseDir: BaseDirectory.AppData })) {
+        await remove(path, { baseDir: BaseDirectory.AppData })
+      }
     },
   }
 }

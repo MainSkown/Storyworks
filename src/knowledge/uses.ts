@@ -17,3 +17,18 @@ export function usePositionsForBlock(
     )
     .map((l) => ({ node: { timelineId: l.to.item, nodeId: l.to.block as string } }))
 }
+
+/** Same answers as `usePositionsForBlock`, for many lookups over one link list (one pass instead of one per lookup). */
+export function positionsByBlock(
+  links: readonly Link[],
+): (sceneId: string, blockId: string) => Position[] {
+  const byKey = new Map<string, Position[]>()
+  for (const l of links) {
+    if (l.kind !== EVENT_KIND || l.from.block === undefined || l.to.block === undefined) continue
+    const key = `${l.from.item}\u0000${l.from.block}`
+    const list = byKey.get(key) ?? []
+    list.push({ node: { timelineId: l.to.item, nodeId: l.to.block } })
+    byKey.set(key, list)
+  }
+  return (sceneId, blockId) => byKey.get(`${sceneId}\u0000${blockId}`) ?? []
+}

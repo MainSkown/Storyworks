@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "id": "mara",
+  "typeId": "d10",
+  "name": "Mara",
+  "aliases": [
+    "latarniczka",
+    "Mary",
+    "Marze"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Nowa latarniczka z Mewiej Skały. Ostrożna, uparta, nie umie prosić o pomoc."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [
+    "r2"
+  ],
+  "appendixText": "Latarniczka z Mewiej Skały.",
+  "includeInAppendices": true,
+  "states": [
+    {
+      "id": "st-mara-loc",
+      "kindId": "d23",
+      "value": "lighthouse",
+      "from": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n1"
+        }
+      },
+      "until": null,
+      "final": false
+    }
+  ]
+}

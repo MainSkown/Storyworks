@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s7",
+  "title": "The Ship",
+  "status": "idea",
+  "synopsis": "At dawn the fog lifts. The ship is safe and Tobias is laughing in the dinghy.",
+  "povId": "mara",
+  "wordCount": 48,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s7-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "At dawn the fog broke. A steamer lay on the water a cable from the rocks, safe, its crew waving."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s7-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Tobias sat in the dinghy beside it, laughing, one oar lost and both hands bleeding."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s7-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara sat down on the lamp-room step, because her legs had stopped working."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s7-ev",
+      "from": {
+        "item": "s7",
+        "block": "s7-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n4"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s7-cx-tobias",
+      "from": {
+        "item": "s7",
+        "block": "s7-p1"
+      },
+      "to": {
+        "item": "tobias"
+      },
+      "kind": "codex"
+    }
+  ]
+}

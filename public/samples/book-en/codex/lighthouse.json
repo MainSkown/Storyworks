@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "id": "lighthouse",
+  "typeId": "d12",
+  "name": "Gull Point Lighthouse",
+  "aliases": [
+    "the light",
+    "Gull Point"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A white tower on a rock, half an hour from the mainland by ferry."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "The lighthouse on Gull Point.",
+  "includeInAppendices": true,
+  "states": []
+}

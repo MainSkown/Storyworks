@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s5",
+  "title": "Tobiasz wypływa",
+  "status": "draft",
+  "synopsis": "Statek trąbi zbyt blisko. Tobiasz bierze łódkę, Mara zostaje.",
+  "povId": "mara",
+  "wordCount": 50,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s5-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Około północy rozległ się róg statku, za blisko i w złym miejscu. Tobiasz zabrał łódkę i ruszył w jego stronę, krzycząc, że zna te mielizny."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s5-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara patrzyła, jak jego mała latarka kurczy się do iskry i znika. Przysięga trzymała ją przy wieży, więc została."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s5-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nigdy tak nie nienawidziła żadnej obietnicy."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s5-ev",
+      "from": {
+        "item": "s5",
+        "block": "s5-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n3a"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s5-cx-tobias",
+      "from": {
+        "item": "s5",
+        "block": "s5-p0"
+      },
+      "to": {
+        "item": "tobias"
+      },
+      "kind": "codex"
+    }
+  ]
+}

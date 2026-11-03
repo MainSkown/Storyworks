@@ -1,0 +1,330 @@
+{
+  "version": 12,
+  "kind": "book",
+  "title": "Ostatnie światło na Mewiej Skale",
+  "author": "Przykład Storyworks",
+  "language": "pl",
+  "createdAt": "2026-11-01T00:00:00.000Z",
+  "dictionaries": [],
+  "goals": {
+    "daily": null,
+    "book": null
+  },
+  "dirs": {
+    "assets": "assets",
+    "snapshots": ".storyworks/history.git",
+    "dictionaries": "dictionaries"
+  },
+  "manuscript": [
+    {
+      "id": "ch1",
+      "type": "chapter",
+      "title": "Latarniczka",
+      "children": [
+        {
+          "id": "s1",
+          "type": "scene",
+          "title": "Prom odpływa",
+          "path": "manuscript/s1.json",
+          "children": []
+        },
+        {
+          "id": "s2",
+          "type": "scene",
+          "title": "Sól i olej",
+          "path": "manuscript/s2.json",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "ch2",
+      "type": "chapter",
+      "title": "Mgła",
+      "children": [
+        {
+          "id": "s3",
+          "type": "scene",
+          "title": "Róg mgłowy",
+          "path": "manuscript/s3.json",
+          "children": []
+        },
+        {
+          "id": "s4",
+          "type": "scene",
+          "title": "Pukanie do drzwi",
+          "path": "manuscript/s4.json",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "ch3",
+      "type": "chapter",
+      "title": "Dwie drogi",
+      "children": [
+        {
+          "id": "s5",
+          "type": "scene",
+          "title": "Tobiasz wypływa",
+          "path": "manuscript/s5.json",
+          "children": []
+        },
+        {
+          "id": "s6",
+          "type": "scene",
+          "title": "Sama przy lampie",
+          "path": "manuscript/s6.json",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "ch4",
+      "type": "chapter",
+      "title": "Poranek",
+      "children": [
+        {
+          "id": "s7",
+          "type": "scene",
+          "title": "Statek",
+          "path": "manuscript/s7.json",
+          "children": []
+        },
+        {
+          "id": "s8",
+          "type": "scene",
+          "title": "Dziennik pokładowy",
+          "path": "manuscript/s8.json",
+          "children": []
+        }
+      ]
+    }
+  ],
+  "calendar": {
+    "id": "d3",
+    "path": "calendar.json"
+  },
+  "inbox": null,
+  "ignoredFindings": null,
+  "stats": null,
+  "relationLayout": null,
+  "timelines": [
+    {
+      "id": "tl-main",
+      "path": "timelines/tl-main.json",
+      "title": "Główna oś czasu"
+    }
+  ],
+  "rules": [
+    {
+      "id": "r1",
+      "path": "rules/r1.json",
+      "title": "Lampa pije tylko solny olej"
+    },
+    {
+      "id": "r2",
+      "path": "rules/r2.json",
+      "title": "Latarnik nie opuszcza światła"
+    },
+    {
+      "id": "r3",
+      "path": "rules/r3.json",
+      "title": "Mgła zatrzymuje snop na mili"
+    }
+  ],
+  "ruleCategories": [
+    {
+      "id": "d5",
+      "path": "rules/categories/d5.json",
+      "title": "Magia"
+    },
+    {
+      "id": "d6",
+      "path": "rules/categories/d6.json",
+      "title": "Fizyka"
+    },
+    {
+      "id": "d7",
+      "path": "rules/categories/d7.json",
+      "title": "Społeczeństwo"
+    },
+    {
+      "id": "d8",
+      "path": "rules/categories/d8.json",
+      "title": "Technologia"
+    },
+    {
+      "id": "d9",
+      "path": "rules/categories/d9.json",
+      "title": "Religia"
+    }
+  ],
+  "codexTypes": [
+    {
+      "id": "d10",
+      "path": "codex/types/d10.json",
+      "title": "Postać"
+    },
+    {
+      "id": "d11",
+      "path": "codex/types/d11.json",
+      "title": "Przedmiot"
+    },
+    {
+      "id": "d12",
+      "path": "codex/types/d12.json",
+      "title": "Miejsce"
+    },
+    {
+      "id": "d13",
+      "path": "codex/types/d13.json",
+      "title": "Kraj"
+    },
+    {
+      "id": "d14",
+      "path": "codex/types/d14.json",
+      "title": "Miasto"
+    },
+    {
+      "id": "d15",
+      "path": "codex/types/d15.json",
+      "title": "Budynek"
+    }
+  ],
+  "codexEntries": [
+    {
+      "id": "mara",
+      "path": "codex/mara.json",
+      "title": "Mara"
+    },
+    {
+      "id": "tobias",
+      "path": "codex/tobias.json",
+      "title": "Tobiasz"
+    },
+    {
+      "id": "lighthouse",
+      "path": "codex/lighthouse.json",
+      "title": "Latarnia na Mewiej Skale"
+    },
+    {
+      "id": "lantern",
+      "path": "codex/lantern.json",
+      "title": "Mosiężna Lampa"
+    }
+  ],
+  "relationTypes": [
+    {
+      "id": "d16",
+      "path": "relation-types/d16.json",
+      "title": "Przyjaciel"
+    },
+    {
+      "id": "d17",
+      "path": "relation-types/d17.json",
+      "title": "Wróg"
+    },
+    {
+      "id": "d18",
+      "path": "relation-types/d18.json",
+      "title": "Rodzic"
+    },
+    {
+      "id": "d19",
+      "path": "relation-types/d19.json",
+      "title": "Rodzeństwo"
+    },
+    {
+      "id": "d20",
+      "path": "relation-types/d20.json",
+      "title": "Partner"
+    },
+    {
+      "id": "d21",
+      "path": "relation-types/d21.json",
+      "title": "Znajduje się w"
+    },
+    {
+      "id": "d22",
+      "path": "relation-types/d22.json",
+      "title": "Posiada"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel-siblings",
+      "path": "relationships/rel-siblings.json"
+    },
+    {
+      "id": "rel-located",
+      "path": "relationships/rel-located.json"
+    },
+    {
+      "id": "rel-owns",
+      "path": "relationships/rel-owns.json"
+    }
+  ],
+  "groups": [],
+  "stateKinds": [
+    {
+      "id": "d23",
+      "path": "state-kinds/d23.json",
+      "title": "Lokalizacja"
+    },
+    {
+      "id": "d24",
+      "path": "state-kinds/d24.json",
+      "title": "Właściciel"
+    },
+    {
+      "id": "d25",
+      "path": "state-kinds/d25.json",
+      "title": "Status"
+    },
+    {
+      "id": "d26",
+      "path": "state-kinds/d26.json",
+      "title": "Tytuł"
+    }
+  ],
+  "knowledge": [
+    {
+      "id": "k1",
+      "path": "knowledge/k1.json",
+      "title": "Lampa potrzebuje solnego oleju"
+    }
+  ],
+  "trash": [],
+  "checkSettings": {},
+  "exportSettings": {
+    "titlePage": true,
+    "toc": true,
+    "pageSize": "A4",
+    "marginMm": {
+      "top": 25,
+      "bottom": 25,
+      "left": 25,
+      "right": 25
+    },
+    "font": "serif",
+    "fontSizePt": 11,
+    "lineSpacing": 1.4,
+    "pageNumbers": true,
+    "runningHeader": "none",
+    "appendices": {
+      "personae": {
+        "on": false,
+        "typeIds": []
+      },
+      "glossary": {
+        "on": false,
+        "typeIds": []
+      },
+      "chronology": {
+        "on": false,
+        "timelineId": null
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "rel-located",
+  "fromId": "mara",
+  "toId": "lighthouse",
+  "typeId": "d21",
+  "note": {
+    "type": "doc",
+    "content": []
+  },
+  "nodeRef": null
+}

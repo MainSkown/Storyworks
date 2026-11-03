@@ -5,8 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { sectionByRouteName, sections, type AppSection } from '../sections'
 import { useSettingsStore } from '../settings/store'
-import { usePanelShortcut } from '../composables/panelShortcut'
-import { shortcutLabel, useSearchShortcuts } from '../composables/searchShortcuts'
+import { overlayOpen, useCombos, useShortcuts } from '../shortcuts/useShortcuts'
 import { openSearch, openSwitcher, searchOpen, switcherOpen } from '../search/ui'
 import { focusMode } from '../composables/focusMode'
 import { useProjectStore } from '../project/store'
@@ -15,11 +14,15 @@ import { useTimelinesStore } from '../timeline/store'
 import { useChecksStore } from '../checks/store'
 import ContextPanel from './ContextPanel.vue'
 import InboxNoteEditor from './InboxNoteEditor.vue'
+import HelpMenu from './HelpMenu.vue'
 import InboxPanel from './InboxPanel.vue'
 import OutlineTree from './OutlineTree.vue'
 import ProjectBanners from './ProjectBanners.vue'
 import QuickSwitcher from './QuickSwitcher.vue'
+import ShortcutOverlay from './ShortcutOverlay.vue'
 import SearchDialog from './SearchDialog.vue'
+import TourOverlay from './TourOverlay.vue'
+import { tourAnchorAttr } from '../tour/steps'
 import TimelineSidebar from './timeline/TimelineSidebar.vue'
 import SnapshotDialog from './SnapshotDialog.vue'
 import TrashDialog from './TrashDialog.vue'
@@ -38,6 +41,11 @@ const panelHidden = computed(() => settings.value.contextPanel.hidden)
 const mainEl = ref<HTMLElement | null>(null)
 const trashOpen = ref(false)
 const snapshotOpen = ref(false)
+
+// These pages have no h1 of their own: the band title is the page heading.
+const bandIsHeading = computed(() =>
+  ['write', 'timelines', 'rules', 'codex'].includes(String(route.name)),
+)
 
 // The open item named in the header band (Write shows the selected tree item).
 const openItem = computed(() => {
@@ -69,13 +77,17 @@ const bottomSections = sections.filter((s) => s.position === 'bottom')
 function togglePanel(): void {
   store.setContextPanelHidden(!panelHidden.value)
 }
-usePanelShortcut(togglePanel)
-useSearchShortcuts((which) => {
-  if (!project.project) return
-  if (which === 'search') openSearch()
-  else openSwitcher()
+useShortcuts({
+  panelToggle: togglePanel,
+  search: () => project.project && openSearch(),
+  switcher: () => project.project && openSwitcher(),
+  shortcutOverlay: () => (overlayOpen.value = !overlayOpen.value),
 })
-const searchTip = computed(() => `${t('search.open')} (${shortcutLabel('search')})`)
+const { label: keyLabel } = useCombos()
+const searchTip = computed(() => `${t('search.open')} (${keyLabel('search')})`)
+const panelLabel = computed(() =>
+  panelHidden.value ? t('contextPanel.show') : t('contextPanel.hide'),
+)
 
 // A plain "#id" link would change the hash-router route.
 function skipToContent(): void {
@@ -125,6 +137,7 @@ function colorStyle(s: AppSection) {
             <li v-for="s in group" :key="s.id" :style="colorStyle(s)">
               <RouterLink
                 :to="{ name: s.routeName }"
+                v-bind="{ [tourAnchorAttr]: s.id }"
                 class="nav-link"
                 :class="{ 'router-link-active': s.id === active.id }"
               >
@@ -152,7 +165,10 @@ function colorStyle(s: AppSection) {
                 <TimelineSidebar />
               </div>
               <div
-                v-else-if="s.id === active.id && !['rules', 'codex', 'checks', 'history', 'stats'].includes(s.id)"
+                v-else-if="
+                  s.id === active.id &&
+                  !['rules', 'codex', 'checks', 'history', 'stats'].includes(s.id)
+                "
                 class="expand"
               >
                 {{ t('sidebar.placeholder') }}
@@ -166,6 +182,9 @@ function colorStyle(s: AppSection) {
                 <span class="nav-label">{{ t('sidebar.trash') }}</span>
               </button>
             </li>
+            <li v-if="group[0]!.position === 'bottom'" class="help-item">
+              <HelpMenu />
+            </li>
           </ul>
         </template>
       </nav>
@@ -173,7 +192,11 @@ function colorStyle(s: AppSection) {
 
     <div class="main-column">
       <header v-show="!focusMode" class="band" :style="colorStyle(active)">
-        <div class="band-title">
+        <div
+          class="band-title"
+          :role="bandIsHeading ? 'heading' : undefined"
+          :aria-level="bandIsHeading ? 1 : undefined"
+        >
           <span class="band-section">{{ t(active.i18nKey) }}</span>
           <span class="band-sep" aria-hidden="true">·</span>
           <span v-if="openItem" class="band-item">{{ openItem }}</span>
@@ -209,8 +232,8 @@ function colorStyle(s: AppSection) {
             type="button"
             class="band-button"
             :aria-pressed="!panelHidden"
-            :aria-label="panelHidden ? t('contextPanel.show') : t('contextPanel.hide')"
-            :title="`${panelHidden ? t('contextPanel.show') : t('contextPanel.hide')} (Ctrl+Alt+P)`"
+            :aria-label="panelLabel"
+            :title="`${panelLabel} (${keyLabel('panelToggle')})`"
             @click="togglePanel"
           >
             <QIcon name="view_sidebar" aria-hidden="true" />
@@ -233,6 +256,8 @@ function colorStyle(s: AppSection) {
     <SnapshotDialog v-model="snapshotOpen" />
     <SearchDialog v-model="searchOpen" />
     <QuickSwitcher v-model="switcherOpen" />
+    <ShortcutOverlay v-model="overlayOpen" />
+    <TourOverlay />
   </div>
 </template>
 

@@ -11,11 +11,13 @@ import { router } from './router'
 import { i18n, setLanguage } from './i18n'
 import { useSettingsStore } from './settings/store'
 import { useChecksStore } from './checks/store'
+import { initSafety } from './safety/runtime'
 
 const pinia = createPinia()
 const settings = useSettingsStore(pinia)
 await settings.load()
 setLanguage(settings.settings.language)
+await initSafety()
 useChecksStore(pinia) // runs the checks whenever a book finishes opening
 
 createApp(App)

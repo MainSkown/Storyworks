@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "id": "lantern",
+  "typeId": "d11",
+  "name": "Mosiężna Lampa",
+  "aliases": [
+    "lampa",
+    "Mosiężnej Lampy"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Lampa na szczycie wieży. Starsza niż sama wieża."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [
+    "r1"
+  ],
+  "appendixText": "Stara lampa na szczycie wieży. Pali wyłącznie solny olej.",
+  "includeInAppendices": true,
+  "states": [
+    {
+      "id": "st-lantern-owner",
+      "kindId": "d24",
+      "value": "mara",
+      "from": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n1"
+        }
+      },
+      "until": null,
+      "final": false
+    }
+  ]
+}

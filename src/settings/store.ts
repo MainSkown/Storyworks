@@ -13,6 +13,7 @@ import {
 } from './schema'
 import { migrateSettings } from './migrate'
 import { resolveLanguage } from '../i18n/resolveLanguage'
+import { isShortcutId, SHORTCUTS } from '../shortcuts/registry'
 
 export const SETTINGS_FILE = 'settings.json'
 const SAVE_DELAY_MS = 300
@@ -58,6 +59,10 @@ function serialize(s: Settings): string {
       keep: s.backups.keep,
       onClose: s.backups.onClose,
     },
+    shortcuts: Object.fromEntries(
+      Object.entries(s.shortcuts).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)),
+    ),
+    tourSeen: s.tourSeen,
   }
   return JSON.stringify(settingsSchema.parse(ordered), null, 2) + '\n'
 }
@@ -173,6 +178,15 @@ export const useSettingsStore = defineStore('settings', () => {
     setUiZoom: (v: number) => update((d) => void (d.uiZoom = v)),
     setEditorFontSize: (v: number) => update((d) => void (d.editorFontSize = v)),
     setBackups: (v: BackupSettings) => update((d) => void (d.backups = v)),
+    /** Rebinds an app action; setting its default key removes the override. */
+    setShortcut: (id: string, combo: string) =>
+      update((d) => {
+        if (!isShortcutId(id)) return
+        if (SHORTCUTS.find((s) => s.id === id)!.combo === combo) delete d.shortcuts[id]
+        else d.shortcuts[id] = combo
+      }),
+    resetShortcuts: () => update((d) => void (d.shortcuts = {})),
+    setTourSeen: (v: boolean) => update((d) => void (d.tourSeen = v)),
     setContextPanelHidden: (v: boolean) => update((d) => void (d.contextPanel.hidden = v)),
     toggleSection: (id: string) =>
       update((d) => void (d.contextPanel.collapsed[id] = !d.contextPanel.collapsed[id])),

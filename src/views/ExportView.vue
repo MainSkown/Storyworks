@@ -15,6 +15,7 @@ import { safeFileName, saveFile, showInFolder } from '../export/saveFile'
 import { projectExportSource } from '../export/source'
 import { isTauri } from '../project/pickFolder'
 import type { ExportWarning } from '../export/model'
+import { log } from '../safety/log'
 
 const { t } = useI18n()
 const project = useProjectStore()
@@ -129,6 +130,7 @@ async function run(): Promise<void> {
     })
     if (saved) done.value = { ...saved, warnings: doc.warnings }
   } catch (e) {
+    log.error('export.failed', e)
     error.value =
       e instanceof ExportError
         ? t(`export.error.${e.code}`, { detail: e.detail ?? '' })

@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '../project/store'
+import { describeRawError } from '../safety/rawRestore'
 import type { ManuscriptNode } from '../project/schemas/manifest'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
+const router = useRouter()
 const store = useProjectStore()
 const { lockPrompt, openError, externalPrompts, manifestChanged, lockNote } = storeToRefs(store)
 
@@ -29,6 +32,34 @@ const externalName = computed(() =>
 // an already open project stays as it was.
 function dismissError(): void {
   store.openError = null
+  restoreError.value = ''
+}
+
+// A refused book can be brought back from its latest automatic backup, when it has one.
+const canRestore = ref(false)
+const restoring = ref(false)
+const restoreError = ref('')
+const refusedRoot = computed(() => (openError.value?.kind === 'refused' ? (openError.value.root ?? null) : null))
+watch(
+  refusedRoot,
+  async (root) => {
+    canRestore.value = false
+    if (root) canRestore.value = await store.hasBackupFor(root)
+  },
+  { immediate: true },
+)
+async function restoreFromBackup(): Promise<void> {
+  const root = refusedRoot.value
+  if (!root) return
+  restoring.value = true
+  restoreError.value = ''
+  try {
+    if ((await store.restoreUnopenable(root)) === 'opened') await router.push({ name: 'write' })
+  } catch (e) {
+    restoreError.value = describeRawError(e, t, te) ?? t('history.error.generic')
+  } finally {
+    restoring.value = false
+  }
 }
 
 const TAKEOVER_NOTE_MS = 8000
@@ -114,6 +145,8 @@ onBeforeUnmount(() => clearTimeout(noteTimer))
             <dd>{{ openError.error.message }}</dd>
           </dl>
           <p>{{ t('project.error.untouched') }}</p>
+          <p v-if="canRestore">{{ t('safety.rawRestore.offer') }}</p>
+          <p v-if="restoreError" class="dlg-err" role="alert">{{ restoreError }}</p>
         </template>
         <template v-else-if="openError.kind === 'migration-failed'">
           <p>{{ openError.message }}</p>
@@ -123,10 +156,19 @@ onBeforeUnmount(() => clearTimeout(noteTimer))
       </QCardSection>
       <QCardActions align="right">
         <QBtn
+          v-if="canRestore && refusedRoot"
+          flat
+          no-caps
+          :loading="restoring"
+          :label="t('safety.crash.restore')"
+          @click="restoreFromBackup"
+        />
+        <QBtn
           unelevated
           no-caps
           color="primary"
           autofocus
+          :disable="restoring"
           :label="t('project.close')"
           @click="dismissError"
         />
@@ -202,6 +244,9 @@ onBeforeUnmount(() => clearTimeout(noteTimer))
 .dlg-title {
   margin: 0 0 0.5rem;
   font-size: 1.125rem;
+}
+.dlg-err {
+  color: var(--section-checks);
 }
 .dlg-path,
 .dlg-facts code {

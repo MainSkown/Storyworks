@@ -1,0 +1,48 @@
+{
+  "version": 2,
+  "id": "tobias",
+  "typeId": "d10",
+  "name": "Tobias",
+  "aliases": [
+    "Toby"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara's younger brother. A sailor who turns up when least expected."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "Mara's brother, a sailor.",
+  "includeInAppendices": true,
+  "states": [
+    {
+      "id": "st-tobias-status",
+      "kindId": "d25",
+      "value": "At sea in the dinghy",
+      "from": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n3a"
+        }
+      },
+      "until": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n4"
+        }
+      },
+      "final": false
+    }
+  ]
+}

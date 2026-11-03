@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "id": "lantern",
+  "typeId": "d11",
+  "name": "Brass Lantern",
+  "aliases": [
+    "the lamp"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "The lamp at the top of the tower. Older than the tower itself."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [
+    "r1"
+  ],
+  "appendixText": "The old lamp at the top of the tower. It burns salt oil only.",
+  "includeInAppendices": true,
+  "states": [
+    {
+      "id": "st-lantern-owner",
+      "kindId": "d24",
+      "value": "mara",
+      "from": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n1"
+        }
+      },
+      "until": null,
+      "final": false
+    }
+  ]
+}

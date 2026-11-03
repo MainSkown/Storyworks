@@ -74,4 +74,21 @@ describe.each(Object.entries(themes))('%s theme contrast', (_name, t) => {
       for (const k of ['--border-strong', '--focus-ring'])
         expect(ratio(get(k), get(s)), `${k} on ${s}`).toBeGreaterThanOrEqual(3)
   })
+
+  it('text meets 4.5:1 on the selected background', () => {
+    for (const tx of ['--text-primary', '--text-secondary'])
+      expect(ratio(get(tx), get('--bg-selected')), tx).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('status colours (dots and diff text) meet 4.5:1 on every surface', () => {
+    for (const k of ['idea', 'draft', 'revising', 'final'].map((x) => `--status-${x}`))
+      for (const s of surfaces)
+        expect(ratio(get(k), get(s)), `${k} on ${s}`).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('gutter marker, tag and spell-underline colours meet 3:1 on the sheet and app background', () => {
+    for (const k of [...tags, '--spell-underline'])
+      for (const s of ['--bg-sheet', '--bg-app'])
+        expect(ratio(get(k), get(s)), `${k} on ${s}`).toBeGreaterThanOrEqual(3)
+  })
 })

@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "vue-tsc --noEmit",
+    "samples": "SAMPLES_WRITE=1 vitest run src/samples/write.test.ts",
     "test": "vitest run"
   },
   "dependencies": {
@@ -29,6 +30,8 @@
     "@tiptap/vue-3": "^3.32.2",
     "@vue-flow/core": "^1.48.2",
     "docx": "^9.15.1",
+    "markdown-it": "^15.0.3",
+    "markdown-it-footnote": "^4.0.0",
     "nspell": "^2.1.5",
     "pdfmake": "^0.3.13",
     "pinia": "^4.1.0",
@@ -42,6 +45,7 @@
     "@eslint/js": "^10.0.1",
     "@quasar/vite-plugin": "^2.0.2",
     "@tauri-apps/cli": "^2.12.4",
+    "@types/markdown-it": "^14.2.0",
     "@types/node": "^26.6.5",
     "@types/nspell": "^2.1.6",
     "@types/pdfmake": "^0.3.3",

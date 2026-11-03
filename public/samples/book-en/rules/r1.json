@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "id": "r1",
+  "title": "The lamp drinks only salt oil",
+  "categoryId": "d5",
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "The Brass Lantern burns salt oil and nothing else. Any other fuel makes the flame sputter and die."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [
+    "lamp"
+  ],
+  "exceptions": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "None known."
+          }
+        ]
+      }
+    ]
+  }
+}

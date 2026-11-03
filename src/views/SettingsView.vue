@@ -8,6 +8,7 @@ import ChecksSettings from '../components/ChecksSettings.vue'
 import GoalsSettings from '../components/stats/GoalsSettings.vue'
 import DictionarySettings from '../components/spell/DictionarySettings.vue'
 import NumberField from '../components/NumberField.vue'
+import ShortcutSettings from '../components/ShortcutSettings.vue'
 import { useSettingsStore } from '../settings/store'
 import type { BackupSettings, Language, Theme } from '../settings/schema'
 
@@ -222,6 +223,7 @@ function step(current: number, delta: number, r: { min: number; max: number }): 
       />
     </div>
 
+    <ShortcutSettings />
     <GoalsSettings />
     <DictionarySettings />
     <CalendarEditor />

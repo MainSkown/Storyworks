@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "id": "tobias",
+  "typeId": "d10",
+  "name": "Tobiasz",
+  "aliases": [
+    "Tobiasza",
+    "Tobiaszu"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Młodszy brat Mary. Żeglarz, który pojawia się wtedy, gdy nikt się go nie spodziewa."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "Brat Mary, żeglarz.",
+  "includeInAppendices": true,
+  "states": [
+    {
+      "id": "st-tobias-status",
+      "kindId": "d25",
+      "value": "Na morzu w łódce",
+      "from": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n3a"
+        }
+      },
+      "until": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n4"
+        }
+      },
+      "final": false
+    }
+  ]
+}

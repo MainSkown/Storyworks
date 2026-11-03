@@ -1,0 +1,65 @@
+{
+  "version": 3,
+  "id": "s8",
+  "title": "The Log Book",
+  "status": "idea",
+  "synopsis": "Mara writes the first entry of her own.",
+  "povId": "mara",
+  "wordCount": 37,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s8-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara opened the log book and wrote the date. Under it she wrote: \"Fog. Light kept. Ship saved.\""
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s8-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "She looked at the line for a long time. Then, because it was true, she added her brother's name."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s8-ev",
+      "from": {
+        "item": "s8",
+        "block": "s8-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n4"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s8-cx-mara",
+      "from": {
+        "item": "s8",
+        "block": "s8-p0"
+      },
+      "to": {
+        "item": "mara"
+      },
+      "kind": "codex"
+    }
+  ]
+}

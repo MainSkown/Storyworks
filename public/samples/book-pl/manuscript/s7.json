@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s7",
+  "title": "Statek",
+  "status": "idea",
+  "synopsis": "O świcie mgła opada. Statek jest cały, a Tobiasz śmieje się w łódce.",
+  "povId": "mara",
+  "wordCount": 48,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s7-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "O świcie mgła się rozstąpiła. Parowiec stał na wodzie o kabel od skał, cały i zdrowy, a załoga machała rękami."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s7-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Tobiasz siedział obok w łódce i śmiał się, z jednym wiosłem mniej i obiema rękami poobcieranymi do krwi."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s7-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara usiadła na stopniu lampowni, bo nogi odmówiły jej posłuszeństwa."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s7-ev",
+      "from": {
+        "item": "s7",
+        "block": "s7-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n4"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s7-cx-tobias",
+      "from": {
+        "item": "s7",
+        "block": "s7-p1"
+      },
+      "to": {
+        "item": "tobias"
+      },
+      "kind": "codex"
+    }
+  ]
+}

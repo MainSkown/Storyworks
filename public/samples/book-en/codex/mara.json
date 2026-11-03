@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "id": "mara",
+  "typeId": "d10",
+  "name": "Mara",
+  "aliases": [
+    "the keeper"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "The new keeper of Gull Point. Careful, stubborn, bad at asking for help."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [
+    "r2"
+  ],
+  "appendixText": "Keeper of the Gull Point light.",
+  "includeInAppendices": true,
+  "states": [
+    {
+      "id": "st-mara-loc",
+      "kindId": "d23",
+      "value": "lighthouse",
+      "from": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n1"
+        }
+      },
+      "until": null,
+      "final": false
+    }
+  ]
+}

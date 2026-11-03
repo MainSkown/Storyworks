@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="224" fill="#2f5d8a"/>
+  <rect x="64" y="64" width="896" height="896" rx="176" fill="none" stroke="#f1efea" stroke-opacity="0.25" stroke-width="12"/>
+  <text x="512" y="512" text-anchor="middle" dominant-baseline="central" font-family="Liberation Serif, DejaVu Serif, serif" font-weight="700" font-size="680" fill="#fbfaf7">S</text>
+  <rect x="312" y="800" width="400" height="28" rx="14" fill="#a4560f"/>
+</svg>

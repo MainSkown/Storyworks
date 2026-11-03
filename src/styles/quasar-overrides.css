@@ -127,3 +127,13 @@ h3 {
   color: var(--text-primary);
   background: var(--bg-selected);
 }
+
+/* Quasar adds `no-outline` (outline: 0 !important) to buttons, toggles and checkboxes; restore the ring. */
+.no-outline:focus-visible {
+  outline: 2px solid var(--focus-ring) !important;
+  outline-offset: 2px;
+}
+/* Text fields show focus on the field border instead. */
+.q-field--focused .q-field__control:after {
+  border-width: 2px;
+}

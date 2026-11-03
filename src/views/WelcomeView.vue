@@ -4,11 +4,15 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import NewProjectDialog from '../components/NewProjectDialog.vue'
 import { listBrowserProjects } from '../project/io/browser'
+import { createProjectIO } from '../project/io'
 import { isTauri, pickFolder } from '../project/pickFolder'
 import { useProjectStore } from '../project/store'
 import { useSettingsStore } from '../settings/store'
+import { installSample, SampleExistsError } from '../samples/install'
+import { startTour } from '../tour/state'
+import { defaultLang } from '../project/defaultNames'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const router = useRouter()
 const store = useProjectStore()
 const settings = useSettingsStore()
@@ -16,6 +20,7 @@ const settings = useSettingsStore()
 const newOpen = ref(false)
 const browserOpen = ref(false)
 const browserProjects = ref<string[]>([])
+const sampleError = ref('')
 
 // Also fires after the "open elsewhere" dialog is resolved.
 watch(
@@ -38,6 +43,35 @@ async function openProject(): Promise<void> {
   }
   browserProjects.value = listBrowserProjects()
   browserOpen.value = true
+}
+
+/** Copies the bundled sample (UI language) into a picked folder, then opens the copy. */
+async function openSample(): Promise<void> {
+  sampleError.value = ''
+  let root: string | null
+  if (isTauri()) {
+    root = await pickFolder()
+  } else {
+    const taken = new Set(listBrowserProjects())
+    let n = 1
+    while (taken.has(n === 1 ? 'sample-book' : `sample-book-${n}`)) n++
+    root = n === 1 ? 'sample-book' : `sample-book-${n}`
+  }
+  if (!root) return
+  try {
+    await installSample(createProjectIO(root), defaultLang(locale.value))
+    await store.open(root)
+  } catch (e) {
+    sampleError.value =
+      e instanceof SampleExistsError
+        ? t('welcome.sampleExists')
+        : t('welcome.sampleFailed', { message: e instanceof Error ? e.message : String(e) })
+  }
+}
+
+async function takeTour(): Promise<void> {
+  if (!store.project) await openSample()
+  if (store.project) startTour()
 }
 </script>
 
@@ -64,7 +98,22 @@ async function openProject(): Promise<void> {
           :label="t('welcome.openProject')"
           @click="openProject"
         />
+        <QBtn
+          flat
+          no-caps
+          icon="auto_stories"
+          :label="t('welcome.openSample')"
+          @click="openSample"
+        />
+        <QBtn
+          flat
+          no-caps
+          icon="tour"
+          :label="t('welcome.takeTour')"
+          @click="takeTour"
+        />
       </div>
+      <p v-if="sampleError" class="error" role="alert">{{ sampleError }}</p>
 
       <h2 id="recent-heading">{{ t('welcome.recent') }}</h2>
       <p v-if="settings.settings.recentProjects.length === 0" class="empty">
@@ -162,6 +211,12 @@ h2 {
   padding-top: 1rem;
   border-top: 1px solid var(--border);
   font-size: 1rem;
+}
+
+.error {
+  margin: 0.75rem 0 0;
+  color: var(--section-checks);
+  font-size: 0.875rem;
 }
 
 .empty {

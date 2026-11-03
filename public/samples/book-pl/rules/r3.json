@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "id": "r3",
+  "title": "Mgła zatrzymuje snop na mili",
+  "categoryId": "d6",
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "W gęstej mgle snop światła sięga najwyżej na milę. Dalej statki polegają na rogu mgłowym."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [
+    "mgła"
+  ],
+  "exceptions": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Mosiężna Lampa, gdy płonie na biało, sięga dalej."
+          }
+        ]
+      }
+    ]
+  }
+}

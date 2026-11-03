@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "id": "d3",
+  "months": [
+    {
+      "name": "styczeń",
+      "days": 31
+    },
+    {
+      "name": "luty",
+      "days": 28
+    },
+    {
+      "name": "marzec",
+      "days": 31
+    },
+    {
+      "name": "kwiecień",
+      "days": 30
+    },
+    {
+      "name": "maj",
+      "days": 31
+    },
+    {
+      "name": "czerwiec",
+      "days": 30
+    },
+    {
+      "name": "lipiec",
+      "days": 31
+    },
+    {
+      "name": "sierpień",
+      "days": 31
+    },
+    {
+      "name": "wrzesień",
+      "days": 30
+    },
+    {
+      "name": "październik",
+      "days": 31
+    },
+    {
+      "name": "listopad",
+      "days": 30
+    },
+    {
+      "name": "grudzień",
+      "days": 31
+    }
+  ],
+  "weekdays": [
+    "poniedziałek",
+    "wtorek",
+    "środa",
+    "czwartek",
+    "piątek",
+    "sobota",
+    "niedziela"
+  ],
+  "eras": [],
+  "leap": {
+    "month": 1,
+    "extraDays": 1,
+    "every": 4,
+    "exceptEvery": 100,
+    "unlessEvery": 400
+  }
+}

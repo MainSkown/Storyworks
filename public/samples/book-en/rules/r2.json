@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "id": "r2",
+  "title": "A keeper never leaves the light",
+  "categoryId": "d7",
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A sworn keeper does not leave the tower while fog lies on the water."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [
+    "oath"
+  ],
+  "exceptions": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Only the head keeper can release a keeper from the oath."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -19,14 +19,39 @@
         "minHeight": 600
       }
     ],
-    "security": { "csp": null }
+    "security": {
+      "csp": null
+    }
   },
   "bundle": {
     "active": true,
-    "targets": "all",
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"]
+    "targets": [
+      "deb",
+      "appimage",
+      "nsis",
+      "msi"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Productivity",
+    "shortDescription": "A desktop app for writing a book",
+    "longDescription": "Storyworks is a local-first desktop app for writing a book: manuscript editor, timelines, world rules, codex, consistency checks, snapshots and export to PDF and DOCX. Everything is stored in plain JSON files in a folder you choose.",
+    "copyright": "Copyright (c) 2026 MainSkown",
+    "license": "UNLICENSED",
+    "licenseFile": "../LICENSE",
+    "resources": {
+      "../THIRD_PARTY_NOTICES.md": "licenses/THIRD_PARTY_NOTICES.md",
+      "../licenses/MPL-2.0.txt": "licenses/MPL-2.0.txt"
+    }
   },
   "plugins": {
-    "fs": { "requireLiteralLeadingDot": false }
+    "fs": {
+      "requireLiteralLeadingDot": false
+    }
   }
 }

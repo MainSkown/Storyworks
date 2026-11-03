@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Link } from '../project/links'
-import { usePositionsForBlock } from './uses'
+import { positionsByBlock, usePositionsForBlock } from './uses'
 
 const ev = (id: string, scene: string, block: string, tl: string, node: string): Link => ({
   id,
@@ -39,5 +39,24 @@ describe('usePositionsForBlock', () => {
 
   it('no event link: empty', () => {
     expect(usePositionsForBlock(links, 's1', 'zz')).toEqual([])
+  })
+})
+
+describe('positionsByBlock', () => {
+  it('gives the same answers as usePositionsForBlock', () => {
+    const links: Link[] = [
+      ev('l1', 's1', 'b1', 't1', 'n1'),
+      ev('l2', 's1', 'b1', 't2', 'n9'),
+      ev('l3', 's2', 'b1', 't1', 'n3'),
+      { id: 'c', kind: 'codex', from: { item: 's1', block: 'b1' }, to: { item: 'e1' } },
+    ]
+    const lookup = positionsByBlock(links)
+    for (const [s, b] of [
+      ['s1', 'b1'],
+      ['s2', 'b1'],
+      ['s1', 'b2'],
+      ['s3', 'b1'],
+    ])
+      expect(lookup(s, b)).toEqual(usePositionsForBlock(links, s, b))
   })
 })

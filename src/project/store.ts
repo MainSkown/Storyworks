@@ -49,6 +49,8 @@ import type { TrashedNode } from './schemas/trashedNode'
 import { NodeRestoreError } from './trash'
 import { parseFile } from './serialize'
 import { useSettingsStore } from '../settings/store'
+import { log } from '../safety/log'
+import { findLatestAutoBackup, restoreLatestBackupRaw } from '../safety/rawRestore'
 import { startBackupScheduler, type BackupScheduler } from '../history/backups'
 import { useCodexStore } from '../codex/store'
 import { useRelationsStore } from '../relations/store'
@@ -103,7 +105,8 @@ export function resetProjectIOFactory(): void {
 }
 
 export type OpenError =
-  | { kind: 'refused'; reason: 'invalid-json' | 'invalid-schema'; error: FileError }
+  /** root is set when the book was being opened (not reloaded), so a backup restore can be offered. */
+  | { kind: 'refused'; reason: 'invalid-json' | 'invalid-schema'; error: FileError; root?: string }
   | { kind: 'migration-failed'; message: string }
   | { kind: 'failed'; message: string }
 
@@ -305,7 +308,10 @@ export const useProjectStore = defineStore('project', () => {
       return
     }
     for (const p of s.touched) if (!s.autosaver.isDirty(p)) s.touched.delete(p)
-    if (s.autosaver.status === 'error') saveStatus.value = 'error'
+    if (s.autosaver.status === 'error') {
+      if (saveStatus.value !== 'error') log.error('save.failed')
+      saveStatus.value = 'error'
+    }
     else if (s.autosaver.status === 'saving' || s.touched.size > 0) saveStatus.value = 'saving'
     else saveStatus.value = 'saved'
   }
@@ -595,7 +601,7 @@ export const useProjectStore = defineStore('project', () => {
     })
     if (!opened.project.readOnly) {
       const settings = useSettingsStore()
-      s.backup = startBackupScheduler({ io, env: defaultEnv, getSettings: () => settings.settings.backups })
+      s.backup = startBackupScheduler({ io, env: defaultEnv, getSettings: () => settings.settings.backups, onError: (e) => log.error('backup.failed', e) })
     }
     try {
       await s.watcher.start()
@@ -666,16 +672,19 @@ export const useProjectStore = defineStore('project', () => {
   ): Promise<OpenOutcome> {
     const r = await openProject(io, defaultEnv, forceReadOnly ? { forceReadOnly } : {})
     if (r.status === 'refused') {
+      log.error('open.refused', { code: r.reason })
       await lock?.release()
-      openError.value = { kind: 'refused', reason: r.reason, error: r.error }
+      openError.value = { kind: 'refused', reason: r.reason, error: r.error, root }
       return 'failed'
     }
     if (r.status === 'migration-failed') {
+      log.error('migrate.failed')
       await lock?.release()
       openError.value = { kind: 'migration-failed', message: r.error }
       return 'failed'
     }
     await attach(io, root, r, lock)
+    log.info('book.opened')
     return 'opened'
   }
 
@@ -701,9 +710,22 @@ export const useProjectStore = defineStore('project', () => {
       lockNote.value = res.tookOverStale ? 'took-over-stale' : null
       return await finishOpen(io, root, lock)
     } catch (e) {
+      log.error('open.failed', e)
       openError.value = { kind: 'failed', message: message(e) }
       return 'failed'
     }
+  }
+
+  /** Is there an automatic backup to restore into a book that would not open? */
+  const hasBackupFor = async (root: string): Promise<boolean> =>
+    !!(await findLatestAutoBackup(ioFactory(root)).catch(() => null))
+
+  /** Replaces the files of a book whose project.json is unusable with the latest automatic backup, then opens it. */
+  async function restoreUnopenable(root: string): Promise<OpenOutcome> {
+    await restoreLatestBackupRaw(ioFactory(root), defaultEnv)
+    log.info('restore.from-backup')
+    openError.value = null
+    return open(root)
   }
 
   async function resolveLockPrompt(
@@ -862,7 +884,12 @@ export const useProjectStore = defineStore('project', () => {
     mark(MANIFEST_FILE)
   }
 
-  async function addScene(parentId: string | null, title = 'New scene'): Promise<string> {
+  /** `init` fills the scene at creation (import); unlike setSceneContent it does not count as writing progress. */
+  async function addScene(
+    parentId: string | null,
+    title = 'New scene',
+    init?: { content: Scene['content']; wordCount: number },
+  ): Promise<string> {
     const p = assertWritable()
     const manuscript = p.manifest.manuscript
     if (parentId !== null) {
@@ -876,7 +903,8 @@ export const useProjectStore = defineStore('project', () => {
       version: SCENE_VERSION,
       id,
       title,
-      content: { type: 'doc', content: [] },
+      content: init?.content ?? { type: 'doc', content: [] },
+      wordCount: init?.wordCount ?? 0,
     })
     await p.saveItem(path, sceneSchema, scene)
     if (session && putMeta(id, scene)) triggerRef(sceneMeta)
@@ -1628,10 +1656,12 @@ export const useProjectStore = defineStore('project', () => {
     const force = p.readOnly?.reason === 'locked-elsewhere' ? 'locked-elsewhere' : undefined
     const r = await openProject(s.io, defaultEnv, force ? { forceReadOnly: force } : {})
     if (r.status === 'refused') {
+      log.error('reload.refused', { code: r.reason })
       openError.value = { kind: 'refused', reason: r.reason, error: r.error }
       return false
     }
     if (r.status === 'migration-failed') {
+      log.error('migrate.failed')
       openError.value = { kind: 'migration-failed', message: r.error }
       return false
     }
@@ -1730,6 +1760,8 @@ export const useProjectStore = defineStore('project', () => {
     readOnly,
     saveStatus,
     openError,
+    hasBackupFor,
+    restoreUnopenable,
     lockPrompt,
     lockNote,
     externalPrompts,

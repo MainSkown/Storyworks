@@ -261,9 +261,10 @@ const kindOptions = computed(() => [
           <QBanner v-if="importError" rounded class="warn-banner banner" role="alert">
             {{ importError }}
           </QBanner>
-          <p class="label">{{ t('spell.import.kind') }}</p>
+          <p id="dict-import-kind" class="label">{{ t('spell.import.kind') }}</p>
           <QBtnToggle
             v-model="importKind"
+            aria-labelledby="dict-import-kind"
             :options="kindOptions"
             unelevated
             no-caps
@@ -303,9 +304,10 @@ const kindOptions = computed(() => [
             dense
             class="field"
           />
-          <p class="label">{{ t('spell.import.scope') }}</p>
+          <p id="dict-import-scope" class="label">{{ t('spell.import.scope') }}</p>
           <QBtnToggle
             v-model="importScope"
+            aria-labelledby="dict-import-scope"
             :options="scopeOptions"
             unelevated
             no-caps

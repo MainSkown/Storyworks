@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s3",
+  "title": "The Horn",
+  "status": "draft",
+  "synopsis": "On the third of November the fog comes in and Mara keeps her oath.",
+  "povId": "mara",
+  "wordCount": 89,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s3-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "On the third of November the fog came in before supper. It rolled over the water like spilled milk, and within minutes Mara could not see the rocks below the tower."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s3-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "The oath she had sworn at the mainland office was short: never leave the light unattended while fog lies on the water. She repeated it under her breath as she climbed."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s3-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "The beam reached out a mile and no further. Beyond that the fog swallowed it whole, and any ship out there would have to trust the horn."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s3-ev",
+      "from": {
+        "item": "s3",
+        "block": "s3-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s3-cx-mara",
+      "from": {
+        "item": "s3",
+        "block": "s3-p0"
+      },
+      "to": {
+        "item": "mara"
+      },
+      "kind": "codex"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s4",
+  "title": "Pukanie do drzwi",
+  "status": "draft",
+  "synopsis": "Brat Mary, Tobiasz, wyłania się z mgły.",
+  "povId": "mara",
+  "wordCount": 56,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s4-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Ktoś pukał, choć nie słychać było żadnej łodzi. Mara otworzyła drzwi z podniesioną lampą."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s4-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "To był Tobiasz, jej brat, przemoczony do kolan i uśmiechnięty od ucha do ucha. – Wyglądasz jak duch latarnika – powiedział. – Jest herbata?"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s4-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nie widziała go od sześciu lat. Wpuściła go do środka i nie pytała, jak znalazł wyspę we mgle."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s4-ev",
+      "from": {
+        "item": "s4",
+        "block": "s4-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s4-cx-tobias",
+      "from": {
+        "item": "s4",
+        "block": "s4-p1"
+      },
+      "to": {
+        "item": "tobias"
+      },
+      "kind": "codex"
+    }
+  ]
+}

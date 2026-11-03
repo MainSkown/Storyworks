@@ -69,7 +69,7 @@ export interface OpenOptions {
   forceReadOnly?: ReadOnlyReason
 }
 
-interface ListedItem {
+export interface ListedItem {
   id: string
   path: string
   scene: boolean
@@ -90,7 +90,7 @@ interface ListedItem {
 }
 
 /** Every item file the manifest points at (trash excluded). */
-function listedItems(m: Manifest): ListedItem[] {
+export function listedItems(m: Manifest): ListedItem[] {
   const out: ListedItem[] = []
   const walk = (nodes: Manifest['manuscript']) => {
     for (const n of nodes) {
@@ -292,7 +292,7 @@ function withIdCheck<T extends { id: string }>(
   return r
 }
 
-function parseItem(item: ListedItem, text: string): ParseResult<unknown> {
+export function parseItem(item: ListedItem, text: string): ParseResult<unknown> {
   if (item.inbox) return parseFile(inboxSchema, text, item.path)
   if (item.ignored) return parseFile(ignoredSchema, text, item.path)
   if (item.stats) return parseFile(statsSchema, text, item.path)
@@ -317,7 +317,7 @@ function parseItem(item: ListedItem, text: string): ParseResult<unknown> {
   return withIdCheck(parseFile(sceneSchema, text, item.path), item.path, item.id)
 }
 
-const isParsed = (item: ListedItem) =>
+export const isParsed = (item: ListedItem) =>
   item.scene ||
   item.inbox ||
   item.ignored ||

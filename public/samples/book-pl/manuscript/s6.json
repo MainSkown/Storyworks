@@ -1,0 +1,89 @@
+{
+  "version": 3,
+  "id": "s6",
+  "title": "Sama przy lampie",
+  "status": "revising",
+  "synopsis": "Płomień się dławi. Mara przypomina sobie list i dolewa solnego oleju.",
+  "povId": "mara",
+  "wordCount": 52,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s6-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Gdy Tobiasza nie było, płomień zaczął się dławić i chylić na bok."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s6-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara przypomniała sobie list. Przyniosła z piwnicy solny olej i dolewała go do Mosiężnej Lampy powoli, tak jak karmi się płochliwe zwierzę."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s6-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Płomień się uspokoił i z żółtego zrobił się biały. Po raz pierwszy snop światła przeszył mgłę jak włócznia."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s6-ev",
+      "from": {
+        "item": "s6",
+        "block": "s6-p1"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n3b"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s6-cx-lantern",
+      "from": {
+        "item": "s6",
+        "block": "s6-p1"
+      },
+      "to": {
+        "item": "lantern"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s6-kn",
+      "from": {
+        "item": "s6",
+        "block": "s6-p1"
+      },
+      "to": {
+        "item": "k1",
+        "entry": "mara"
+      },
+      "kind": "knowledge"
+    }
+  ]
+}

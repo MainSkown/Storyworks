@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "id": "k1",
+  "title": "Lampa potrzebuje solnego oleju",
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "List Wiktora wyjaśnia, czym pali lampa."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "about": {
+    "type": "rule",
+    "id": "r1"
+  },
+  "learnings": [
+    {
+      "id": "k1-mara",
+      "entryId": "mara",
+      "at": {
+        "node": {
+          "timelineId": "tl-main",
+          "nodeId": "n1"
+        }
+      },
+      "note": "Z listu Wiktora.",
+      "forgottenAt": null,
+      "revealedIn": {
+        "sceneId": "s2",
+        "blockId": "s2-p1"
+      }
+    }
+  ]
+}

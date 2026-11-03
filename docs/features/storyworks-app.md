@@ -172,8 +172,8 @@ A greenfield desktop application for planning and writing a book. It combines a 
 ### App safety and recovery
 - [x] Single-writer lock: opening a book writes a lock file (`.storyworks/project.lock`: machine name, process id, timestamp), refreshed every 30 seconds and removed on close. Opening a book whose lock is fresh (under 2 minutes old, or its process is alive on this machine) shows "This book is open elsewhere" with options "Open read-only" and "Cancel". A stale lock is taken over silently with a note.
 - [x] External-change detection: while a book is open, watch the project folder. If an open item's file changes on disk (cloud sync, git pull, hand edit): with no unsaved in-app edits, reload it silently; with unsaved edits, ask "Reload from disk" or "Keep my version". App's own writes are ignored (compare content hash). If `project.json` changes externally, offer to reload the book structure.
-- [ ] Crash-safe startup: the app writes a "running" marker in its data directory and removes it on clean exit. If the marker is found at startup, show "The app closed unexpectedly", offer to reopen the last book, verify its files against their schemas, and offer the latest automatic backup if any file is invalid.
-- [ ] Local diagnostics log: rolling log files in the app data directory (last 5 files, up to 1 MB each) recording errors and key events (no manuscript text). Help menu: "Open log folder". Nothing is ever sent anywhere.
+- [x] Crash-safe startup: the app writes a "running" marker in its data directory and removes it on clean exit. If the marker is found at startup, show "The app closed unexpectedly", offer to reopen the last book, verify its files against their schemas, and offer the latest automatic backup if any file is invalid.
+- [x] Local diagnostics log: rolling log files in the app data directory (last 5 files, up to 1 MB each) recording errors and key events (no manuscript text). Help menu: "Open log folder". Nothing is ever sent anywhere.
 
 ### UI design (direction "C · Workshop", chosen by the user)
 Reference mockups: the Artifact "BookWriter UI Directions" (boards "C · Workshop", plus the dark variant). Layout and look:
@@ -189,18 +189,18 @@ Reference mockups: the Artifact "BookWriter UI Directions" (boards "C · Worksho
 
 ### Comfort and accessibility
 - [ ] Themes: Light, Dark, Follow system (default), implemented as design tokens, with the Workshop look in both: warm light greys with the section colours, and a dark variant using darker warm-grey surfaces and lightened section colours that keep WCAG AA contrast. The theme switches immediately for everything, including the editor sheet and the timeline and relationship canvases. Separate settings for UI zoom (80–150%) and editor font size.
-- [ ] Keyboard shortcut reference overlay (Ctrl/Cmd+/) listing all shortcuts; shortcuts can be rebound in settings with conflict detection and "Restore defaults".
-- [ ] App-level settings (language, theme, zoom, editor font size, shortcuts) are stored in one JSON file in the app data directory, not in the book.
-- [ ] Sample book: bundled in English and Polish; the welcome screen offers "Open sample book", which copies it to a folder the user picks (the bundle itself stays read-only). It contains a short story with a branching timeline, a few rules, codex entries with relationships, links, and one deliberate date-order warning so the Checks page shows something.
-- [ ] First-run tour: short dismissable steps (manuscript, timelines and linking, rules, codex, checks); can be re-run from the Help menu.
+- [x] Keyboard shortcut reference overlay (Ctrl/Cmd+/) listing all shortcuts; shortcuts can be rebound in settings with conflict detection and "Restore defaults".
+- [x] App-level settings (language, theme, zoom, editor font size, shortcuts) are stored in one JSON file in the app data directory, not in the book.
+- [x] Sample book: bundled in English and Polish; the welcome screen offers "Open sample book", which copies it to a folder the user picks (the bundle itself stays read-only). It contains a short story with a branching timeline, a few rules, codex entries with relationships, links, and one deliberate date-order warning so the Checks page shows something.
+- [x] First-run tour: short dismissable steps (manuscript, timelines and linking, rules, codex, checks); can be re-run from the Help menu.
 - [ ] Accessibility baseline: all UI operable by keyboard (tree, editor toolbar, dialogs, menus); labels for icon-only buttons and screen-reader names for controls; visible focus ring; WCAG AA contrast in light and dark themes; honour the OS reduced-motion setting.
-- [ ] Canvases (timelines, relationship graph) are keyboard-operable (Tab/arrows to move between nodes, Enter to open, shortcuts to add and connect nodes) and each has an equivalent list view (nodes with their connections; relationships as a table) usable with a screen reader.
+- [x] Canvases (timelines, relationship graph) are keyboard-operable (Tab/arrows to move between nodes, Enter to open, shortcuts to add and connect nodes) and each has an equivalent list view (nodes with their connections; relationships as a table) usable with a screen reader.
 
 ### Import (Markdown / plain text)
-- [ ] File > Import accepts one or more `.md` or `.txt` files. A preview dialog shows the resulting tree (chapters and scenes with word counts) before anything is created; the user can rename items and untick ones to skip.
-- [ ] Split rules (selectable): Markdown H1 = chapter and H2 = scene (default); H1 only; or a scene-break line (`***`, `---`, `* * *`) = new scene. Plain text: each file is one chapter; scenes split at blank-line-separated scene-break lines.
-- [ ] Markdown mapping: headings (deeper than H3 clamp to H3), bold, italic, lists, quotes, scene breaks, images (local files copied into `assets/`; missing ones skipped with a warning), footnotes (`[^1]`) to footnotes.
-- [ ] Imported items are appended to the end of the manuscript tree (or after the selected item). An automatic backup is made before the import.
+- [x] File > Import accepts one or more `.md` or `.txt` files. A preview dialog shows the resulting tree (chapters and scenes with word counts) before anything is created; the user can rename items and untick ones to skip.
+- [x] Split rules (selectable): Markdown H1 = chapter and H2 = scene (default); H1 only; or a scene-break line (`***`, `---`, `* * *`) = new scene. Plain text: each file is one chapter; scenes split at blank-line-separated scene-break lines.
+- [x] Markdown mapping: headings (deeper than H3 clamp to H3), bold, italic, lists, quotes, scene breaks, images (local files copied into `assets/`; missing ones skipped with a warning), footnotes (`[^1]`) to footnotes.
+- [x] Imported items are appended to the end of the manuscript tree (or after the selected item). An automatic backup is made before the import.
 
 ### Spellcheck dictionaries
 - [ ] Book language setting drives which spellcheck dictionary is used.
@@ -360,6 +360,11 @@ Reference mockups: the Artifact "BookWriter UI Directions" (boards "C · Worksho
 - **Stats (M10)**: `stats.json` (listed in `project.json` as `stats`, created on the first edit, not tracked by snapshots) holds net words per local day and the sessions. A day shows max(0, net); goal and streaks use that. A session ends after a 10-minute gap (the next edit starts a new one); the open session is saved on every edit. Only real editor edits count, not loading or restoring. The manual timer is not saved.
 - **Search (M10)**: overlays, not a section: Ctrl/Cmd+Shift+F search, Ctrl/Cmd+P switcher; Focus mode moved to Ctrl/Cmd+Alt+F. In-memory index, matching ignores case and accents (`ł` = `l`), one hit per item opening at its first match. Switcher recents are kept in `localStorage` per book folder (no per-book slot in app settings).
 - **Spellcheck (M10)**: JS Hunspell (`nspell`) in a worker; English and Polish bundled in `public/dictionaries/` (Polish used under MPL-2.0). Manifest `dictionaries` is `[{name, scope}]` (v12; old names became `global`). Only UTF-8 Hunspell imports. An empty selection means the book-language default (no way to switch spellcheck off yet). Custom words are one file in the book's `dictionaries/`; "Ignore" lasts for the session.
+- **Import (M11a)**: `markdown-it` + footnote plugin; UTF-8 only (any bad file rejects the whole import); `.txt` single newlines become line breaks; tables import as plain text, links keep their text, remote images are skipped with a warning; imported words do not count as writing progress; an automatic backup is made first.
+- **Shortcuts (M11a)**: only app-level actions are rebindable (search, switcher, panel, focus mode, overlay); editor formatting keys are fixed and listed in the overlay; rebinding needs Ctrl/Cmd and rejects fixed, reserved and duplicate combos. Settings v5 stores `shortcuts` and `tourSeen`.
+- **Crash recovery and log (M11a)**: `running.json` marker in app data (pid, start, last book); a live other instance is not a crash. Recovery verifies the book and can restore the latest automatic backup even when `project.json` is invalid (raw restore keeps a safety copy). Log: `logs/storyworks-1..5.log`, 1 MB each, event names only, never text or paths.
+- **Packaging (M11a)**: Linux deb + AppImage, Windows nsis + msi via GitHub Actions on `v*` tags, unsigned (personal use). Sample books are generated by `yarn samples` into `public/samples/`.
+- **Accessibility (M11a)**: audit in `docs/review/a11y-m11a.md`; deferred: editor toolbar tab stops, nested dialog roles, screen-reader pass in a real window. Accessibility baseline line stays open until then.
 
 ## Open questions
 - Should staging go below item level (per paragraph / per change hunk) later? Assumed no for v1.

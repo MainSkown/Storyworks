@@ -1,0 +1,88 @@
+{
+  "version": 3,
+  "id": "s1",
+  "title": "The Ferry Leaves",
+  "status": "final",
+  "synopsis": "Mara arrives at the lighthouse to take over from the old keeper.",
+  "povId": "mara",
+  "wordCount": 92,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s1-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "The ferry did not wait. Mara climbed the wet steps of Gull Point with one bag on her shoulder, and by the time she reached the door the boat was only a grey smudge on the water."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s1-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "The lighthouse stood above her, white once and streaked with salt now. Old Pettigrew had kept it for forty years, and the letter in her pocket said he had gone to the mainland to rest."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s1-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "She pushed the door open with her shoulder. Inside it smelled of lamp oil, damp rope and tea gone cold."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s1-ev",
+      "from": {
+        "item": "s1",
+        "block": "s1-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s1-cx-mara",
+      "from": {
+        "item": "s1",
+        "block": "s1-p0"
+      },
+      "to": {
+        "item": "mara"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s1-cx-lighthouse",
+      "from": {
+        "item": "s1",
+        "block": "s1-p1"
+      },
+      "to": {
+        "item": "lighthouse"
+      },
+      "kind": "codex"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import ImportDialog from './ImportDialog.vue'
 import { useProjectStore } from '../project/store'
 import type { ManuscriptNode } from '../project/schemas/manifest'
 import { isFiltering as filtering, STATUSES, statusFilter as filter } from '../composables/statusFilter'
@@ -28,6 +29,7 @@ const root = ref<HTMLElement | null>(null)
 
 const locked = computed(() => !!store.readOnly)
 const filterOpen = ref(false)
+const importOpen = ref(false)
 const collapsed = ref(new Set<string>())
 const statusOptions = computed(() =>
   STATUSES.map((value) => ({ value, label: t(`outline.status.${value}`) })),
@@ -399,6 +401,17 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
       <button
         type="button"
         class="tool"
+        aria-haspopup="dialog"
+        :aria-label="t('import.open')"
+        :title="t('import.open')"
+        :disabled="locked"
+        @click="importOpen = true"
+      >
+        <QIcon name="upload_file" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="tool"
         :class="{ on: filtering }"
         aria-haspopup="dialog"
         :aria-label="filtering ? t('outline.filterActive', { n: filter.length }) : t('outline.filter')"
@@ -554,6 +567,8 @@ const statusText = (id: string) => t(`outline.status.${statusOf(id)}`)
     </ul>
 
     <div class="sr-only" role="status" aria-live="polite">{{ live }}</div>
+
+    <ImportDialog v-model="importOpen" />
 
     <QDialog v-model="filterOpen">
       <QCard class="confirm" role="dialog" aria-labelledby="outline-filter-title">

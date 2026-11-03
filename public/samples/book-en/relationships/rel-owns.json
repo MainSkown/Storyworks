@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "rel-owns",
+  "fromId": "mara",
+  "toId": "lantern",
+  "typeId": "d22",
+  "note": {
+    "type": "doc",
+    "content": []
+  },
+  "nodeRef": null
+}

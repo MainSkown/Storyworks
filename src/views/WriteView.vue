@@ -4,7 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import CorkboardView from '../components/CorkboardView.vue'
 import ManuscriptEditor from '../components/ManuscriptEditor.vue'
-import { focusMode, isFocusShortcut } from '../composables/focusMode'
+import { focusMode } from '../composables/focusMode'
+import { useCombos, useShortcuts } from '../shortcuts/useShortcuts'
 import { writeView } from '../composables/writeView'
 import { useHistoryStore } from '../history/store'
 import { useProjectStore } from '../project/store'
@@ -77,13 +78,11 @@ const timer = useSessionTimer()
 const clockText = computed(() => formatClock(timer.elapsed()))
 
 // ---- focus mode ----
+const { label: keyLabel } = useCombos()
+useShortcuts({ focusMode: () => (focusMode.value = !focusMode.value) })
+// Escape leaving focus mode is fixed, not rebindable.
 function onKeydown(e: KeyboardEvent): void {
-  if (isFocusShortcut(e)) {
-    e.preventDefault()
-    focusMode.value = !focusMode.value
-  } else if (e.key === 'Escape' && focusMode.value && !e.defaultPrevented) {
-    focusMode.value = false
-  }
+  if (e.key === 'Escape' && focusMode.value && !e.defaultPrevented) focusMode.value = false
 }
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onBeforeUnmount(() => {
@@ -132,7 +131,7 @@ watch(corkboard, (v) => {
         class="band-focus"
         :aria-pressed="focusMode"
         :disabled="!editable || corkboard"
-        :title="t('write.focusTitle')"
+        :title="t('write.focusTitle', { key: keyLabel('focusMode') })"
         @click="focusMode = !focusMode"
       >
         <QIcon name="center_focus_strong" aria-hidden="true" />

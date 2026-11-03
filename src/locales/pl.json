@@ -56,7 +56,11 @@
     "removeRecent": "Usuń {title} z ostatnich projektów",
     "browserProjects": "Projekty w tej przeglądarce",
     "noBrowserProjects": "Brak projektów w tej przeglądarce",
-    "close": "Zamknij"
+    "close": "Zamknij",
+    "takeTour": "Zobacz wycieczkę",
+    "openSample": "Otwórz przykładową książkę",
+    "sampleFailed": "Nie udało się otworzyć przykładowej książki: {message}",
+    "sampleExists": "W tym folderze jest już książka. Wybierz inny folder."
   },
   "newProject": {
     "title": "Nowy projekt",
@@ -404,7 +408,7 @@
     "cancel": "Anuluj",
     "focus": "Skupienie",
     "exitFocus": "Zakończ skupienie",
-    "focusTitle": "Tryb skupienia (Ctrl+Alt+F, Esc kończy)",
+    "focusTitle": "Tryb skupienia ({key}, Esc kończy)",
     "status": "Status sceny",
     "readOnlyNotice": "Ta książka jest tylko do odczytu, więc nie można edytować tekstu.",
     "statusBar": "Liczba słów i stan zapisu",
@@ -441,6 +445,50 @@
     "moved": "Przeniesiono: {title}",
     "filtered": "Widoczne tylko: {statuses}. Zmiana kolejności jest wyłączona podczas filtrowania.",
     "keyboardHint": "Enter otwiera scenę. Alt+strzałka w lewo lub w prawo przesuwa ją wcześniej lub później, Alt+strzałka w górę lub w dół przenosi ją do poprzedniego lub następnego rozdziału."
+  },
+  "import": {
+    "open": "Importuj…",
+    "title": "Import z Markdown lub tekstu",
+    "hint": "Wybierz jeden lub więcej plików .md albo .txt (UTF-8).",
+    "choose": "Wybierz pliki…",
+    "chooseOther": "Wybierz inne pliki…",
+    "fileCount": "Brak plików | {n} plik | {n} pliki | {n} plików",
+    "rule": {
+      "label": "Podział na rozdziały i sceny",
+      "h1h2": "Nagłówek 1 = rozdział, nagłówek 2 = scena",
+      "h1": "Tylko nagłówek 1 = rozdział",
+      "break": "Linia rozdzielająca sceny (***, ---, * * *) = nowa scena"
+    },
+    "placement": {
+      "label": "Gdzie dodać",
+      "end": "Na końcu manuskryptu",
+      "after": "Po „{title}”"
+    },
+    "preview": "Podgląd tego, co zostanie utworzone",
+    "include": "Uwzględnij „{title}”",
+    "renameChapter": "Nazwa rozdziału: {title}",
+    "renameScene": "Nazwa sceny: {title}",
+    "words": "Brak słów | {n} słowo | {n} słowa | {n} słów",
+    "sceneName": "Scena {n}",
+    "nothing": "W tych plikach nie ma nic do zaimportowania.",
+    "warnings": "Ostrzeżenia",
+    "warning": {
+      "remote-image": "Obraz „{ref}” w pliku {file} jest w internecie i nie jest importowany.",
+      "unsupported-image": "Obraz „{ref}” w pliku {file} ma nieobsługiwany typ i nie jest importowany.",
+      "missing-image": "Obrazu „{ref}” z pliku {file} nie znaleziono i został pominięty."
+    },
+    "invalidUtf8": "{files} nie jest poprawnym tekstem UTF-8. Nic nie zaimportowano. | {files} nie jest poprawnym tekstem UTF-8. Nic nie zaimportowano. | {files} nie są poprawnym tekstem UTF-8. Nic nie zaimportowano. | {files} nie są poprawnym tekstem UTF-8. Nic nie zaimportowano.",
+    "readFailed": "Nie udało się odczytać plików. {message}",
+    "failed": "Import nie powiódł się. {message}",
+    "summary": "Wybrano: rozdziałów {chapters}, scen {scenes}, słów {words}",
+    "cancel": "Anuluj",
+    "import": "Importuj",
+    "done": "Gotowe",
+    "chapters": "0 rozdziałów | {n} rozdział | {n} rozdziały | {n} rozdziałów",
+    "scenes": "0 scen | {n} scena | {n} sceny | {n} scen",
+    "result": "Zaimportowano: {chapters}, {scenes}, {words} słów.",
+    "backupMade": "Najpierw wykonano automatyczną kopię zapasową.",
+    "backupExisting": "Najnowsza automatyczna kopia zapasowa była już aktualna."
   },
   "outline": {
     "addPart": "Dodaj część",
@@ -1871,6 +1919,119 @@
       "hint": "Imiona i wymyślone terminy dodane przez „Dodaj do słownika”. Zapisane razem z książką.",
       "empty": "Brak słów. Kliknij prawym przyciskiem podkreślone słowo w edytorze i wybierz „Dodaj do słownika”.",
       "remove": "Usuń słowo"
+    }
+  },
+  "shortcuts": {
+    "overlayTitle": "Skróty klawiszowe",
+    "close": "Zamknij",
+    "groups": {
+      "app": "W całej aplikacji",
+      "write": "Widok Pisanie",
+      "editor": "Edytor (stałe)"
+    },
+    "rebindHint": "Skróty aplikacji można zmienić w Ustawieniach. Klawisze edytora są stałe.",
+    "actions": {
+      "search": "Szukaj w książce",
+      "switcher": "Szybki przełącznik",
+      "panelToggle": "Pokaż lub ukryj panel boczny",
+      "shortcutOverlay": "Pokaż skróty klawiszowe",
+      "focusMode": "Tryb skupienia"
+    },
+    "fixed": {
+      "bold": "Pogrubienie",
+      "italic": "Kursywa",
+      "underline": "Podkreślenie",
+      "heading1": "Nagłówek 1",
+      "heading2": "Nagłówek 2",
+      "heading3": "Nagłówek 3",
+      "bulletList": "Lista punktowana",
+      "orderedList": "Lista numerowana",
+      "blockquote": "Cytat",
+      "alignLeft": "Do lewej",
+      "alignCenter": "Do środka",
+      "alignRight": "Do prawej",
+      "alignJustify": "Wyjustuj",
+      "eventLink": "Powiąż ze zdarzeniem na osi czasu",
+      "undo": "Cofnij",
+      "redo": "Ponów"
+    },
+    "settings": {
+      "title": "Skróty klawiszowe",
+      "hint": "Wybierz działanie i naciśnij nowe klawisze. Esc anuluje. Klawisze edytora są stałe.",
+      "capturing": "Naciśnij nowe klawisze…",
+      "reset": "Przywróć",
+      "resetOne": "Przywróć domyślny skrót: {name}",
+      "restoreDefaults": "Przywróć domyślne",
+      "showAll": "Pokaż wszystkie skróty",
+      "error": {
+        "invalid": "Tego klawisza nie można użyć.",
+        "needsModifier": "Użyj Ctrl (Cmd na Macu) razem z innym klawiszem.",
+        "shortcut": "{combo} jest już używany dla: „{name}”.",
+        "fixed": "{combo} to stały klawisz edytora („{name}”).",
+        "reserved": "{combo} jest zarezerwowany przez system lub przeglądarkę."
+      }
+    }
+  },
+
+  "tour": {
+    "label": "Wycieczka po aplikacji",
+    "progress": "Krok {current} z {total}",
+    "next": "Dalej",
+    "back": "Wstecz",
+    "skip": "Pomiń wycieczkę",
+    "done": "Gotowe",
+    "steps": {
+      "manuscript": {
+        "title": "Pisz rękopis",
+        "body": "Rozdziały i sceny są w drzewie w sekcji Pisanie. Przeciągaj, by zmieniać kolejność, a notatki trzymaj w skrzynce."
+      },
+      "timelines": {
+        "title": "Osie czasu i powiązania",
+        "body": "Umieszczaj wydarzenia na jednej lub kilku osiach czasu i łącz z nimi sceny, by historia zachowała porządek."
+      },
+      "rules": {
+        "title": "Zasady twojego świata",
+        "body": "Zapisuj to, co ma zawsze być prawdą, na przykład jak działa magia, i łącz zasady ze scenami, których dotyczą."
+      },
+      "codex": {
+        "title": "Kodeks",
+        "body": "Postacie, miejsca i przedmioty, z relacjami oraz tym, co każda z nich wie i od kiedy."
+      },
+      "checks": {
+        "title": "Kontrole",
+        "body": "Storyworks wyszukuje potknięcia w datach, stanach i wiedzy. Plakietka pokazuje liczbę otwartych ustaleń."
+      }
+    }
+  },
+  "help": {
+    "title": "Pomoc",
+    "tour": "Zobacz wycieczkę",
+    "shortcuts": "Skróty klawiszowe",
+    "openLogFolder": "Otwórz folder dziennika",
+    "logOnlyInApp": "Folder dziennika można otworzyć tylko w aplikacji desktopowej.",
+    "logFailed": "Nie udało się otworzyć folderu dziennika."
+  },
+  "safety": {
+    "rawRestore": {
+      "offer": "Ta książka ma automatyczną kopię zapasową. Przywrócenie jej przywraca pliki książki; obecne pliki zostaną najpierw skopiowane na bok i nic nie zostanie usunięte.",
+      "no-backup": "Ta książka nie ma automatycznej kopii zapasowej. Nic nie zostało zmienione.",
+      "backup-invalid": "Najnowsza kopia zapasowa też jest nieużyteczna. Nic nie zostało zmienione.",
+      "failed": "Nie udało się dokończyć przywracania."
+    },
+    "crash": {
+      "title": "Aplikacja zamknęła się nieoczekiwanie",
+      "body": "Storyworks nie zamknął się poprawnie ostatnim razem. Twoja praca jest zapisana do ostatniego automatycznego zapisu.",
+      "lastBook": "Ostatnio otwarta książka: {name}",
+      "reopen": "Otwórz ostatnią książkę",
+      "dismiss": "Odrzuć",
+      "damagedTitle": "Niektóre pliki książki są uszkodzone",
+      "damagedBody": "Wszystkie pliki mają oczekiwany format. | Jeden plik nie pasuje do oczekiwanego formatu. | {n} pliki nie pasują do oczekiwanego formatu. | {n} plików nie pasuje do oczekiwanego formatu.",
+      "moreFiles": "i {n} więcej",
+      "backupOffer": "Przywrócić najnowszą automatyczną kopię z {when}? Bieżące pliki zostaną najpierw skopiowane na bok.",
+      "noBackup": "Ta książka nie ma automatycznej kopii zapasowej.",
+      "restore": "Przywróć najnowszą kopię",
+      "openAnyway": "Otwórz mimo to",
+      "verifyFailed": "Nie udało się sprawdzić plików książki."
     }
   }
 }

@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s2",
+  "title": "Salt Oil",
+  "status": "final",
+  "synopsis": "Pettigrew left a note about the lantern. Mara learns what it burns.",
+  "povId": "mara",
+  "wordCount": 70,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s2-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Pettigrew had left a note on the lamp-room table, written in a shaky hand and weighed down with a brass key."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s2-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "The Brass Lantern burns no kerosene and no whale oil. Feed it salt oil, and only salt oil, or it will go dark."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s2-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara read the last line twice. Whoever built the lantern had wanted its keeper to understand one thing: the light was not hers to improvise with."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s2-ev",
+      "from": {
+        "item": "s2",
+        "block": "s2-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s2-cx-lantern",
+      "from": {
+        "item": "s2",
+        "block": "s2-p1"
+      },
+      "to": {
+        "item": "lantern"
+      },
+      "kind": "codex"
+    }
+  ]
+}

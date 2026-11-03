@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const SETTINGS_VERSION = 3
+export const SETTINGS_VERSION = 5
 export const MAX_RECENT_PROJECTS = 10
 
 export const backupSettingsSchema = z.strictObject({
@@ -26,6 +26,10 @@ export const settingsSchema = z.strictObject({
     .array(z.strictObject({ path: z.string(), title: z.string(), openedAt: z.string() }))
     .max(MAX_RECENT_PROJECTS),
   backups: backupSettingsSchema,
+  /** Rebound app shortcuts: action id -> combo (e.g. "Mod+K"). Missing = default. */
+  shortcuts: z.record(z.string(), z.string().max(40)),
+  /** The first-run tour was finished or skipped. */
+  tourSeen: z.boolean(),
 })
 
 export type Settings = z.infer<typeof settingsSchema>
@@ -41,4 +45,6 @@ export const defaultSettings: Settings = {
   contextPanel: { hidden: false, collapsed: {} },
   recentProjects: [],
   backups: { intervalMinutes: 30, keep: 20, onClose: true },
+  shortcuts: {},
+  tourSeen: false,
 }

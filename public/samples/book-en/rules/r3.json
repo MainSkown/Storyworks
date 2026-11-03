@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "id": "r3",
+  "title": "Fog stops the beam at a mile",
+  "categoryId": "d6",
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "In thick fog the beam carries a mile at most. Beyond that, ships rely on the horn."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [
+    "fog"
+  ],
+  "exceptions": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "The Brass Lantern burning white cuts further."
+          }
+        ]
+      }
+    ]
+  }
+}

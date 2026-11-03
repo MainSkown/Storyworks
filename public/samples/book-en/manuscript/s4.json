@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s4",
+  "title": "A Knock at the Door",
+  "status": "draft",
+  "synopsis": "Her brother Tobias turns up out of the fog.",
+  "povId": "mara",
+  "wordCount": 66,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s4-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Someone was knocking, though no boat had been heard. Mara opened the door with the lamp raised."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s4-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "It was Tobias, her brother, soaked to the knees and grinning. \"You look like the ghost of a keeper,\" he said. \"Is there tea?\""
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s4-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "She had not seen him in six years. She let him in and did not ask how he had found the island in the fog."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s4-ev",
+      "from": {
+        "item": "s4",
+        "block": "s4-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s4-cx-tobias",
+      "from": {
+        "item": "s4",
+        "block": "s4-p1"
+      },
+      "to": {
+        "item": "tobias"
+      },
+      "kind": "codex"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s3",
+  "title": "Róg mgłowy",
+  "status": "draft",
+  "synopsis": "Trzeciego listopada nadciąga mgła, a Mara dotrzymuje przysięgi.",
+  "povId": "mara",
+  "wordCount": 73,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s3-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Trzeciego listopada mgła przyszła jeszcze przed kolacją. Przelewała się nad wodą jak rozlane mleko i po kilku minutach Mara nie widziała już skał pod wieżą."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s3-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Przysięga, którą złożyła w urzędzie na lądzie, była krótka: nigdy nie opuszczać światła, gdy mgła leży na wodzie. Powtarzała ją pod nosem, wchodząc po schodach."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s3-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Snop światła sięgał na milę i ani kroku dalej. Dalej mgła połykała go w całości, a każdy statek na morzu musiał zaufać rogowi."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s3-ev",
+      "from": {
+        "item": "s3",
+        "block": "s3-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n2"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s3-cx-mara",
+      "from": {
+        "item": "s3",
+        "block": "s3-p0"
+      },
+      "to": {
+        "item": "mara"
+      },
+      "kind": "codex"
+    }
+  ]
+}

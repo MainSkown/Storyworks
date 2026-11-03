@@ -190,13 +190,20 @@ function ensureVisible(id: string) {
     sy >= 0 &&
     sx + b.w * zoom <= root.clientWidth &&
     sy + b.h * zoom <= root.clientHeight
-  if (!inside) void setCenter(b.x + b.w / 2, b.y + b.h / 2, { zoom, duration: 150 })
+  if (!inside) void setCenter(b.x + b.w / 2, b.y + b.h / 2, { zoom, duration: ms(150) })
 }
+
+/** Viewport animation length; none when the user prefers reduced motion. */
+const ms = (n: number) => (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : n)
 
 /** Centres the viewport on a node (keeps the zoom). */
 function centerOn(id: string, duration = 200) {
   const b = boxes.value.find((x) => x.id === id)
-  if (b) void setCenter(b.x + b.w / 2, b.y + b.h / 2, { zoom: viewport.value.zoom, duration })
+  if (b)
+    void setCenter(b.x + b.w / 2, b.y + b.h / 2, {
+      zoom: viewport.value.zoom,
+      duration: ms(duration),
+    })
 }
 
 async function focusNode(id: string) {
@@ -362,14 +369,14 @@ watch(
   },
 )
 
-const fit = () => fitView({ padding: 0.2, maxZoom: 1, duration: 150 })
+const fit = () => fitView({ padding: 0.2, maxZoom: 1, duration: ms(150) })
 defineExpose({
   focusNode,
   centerOn,
   announce,
   fit,
-  zoomIn: () => zoomIn({ duration: 100 }),
-  zoomOut: () => zoomOut({ duration: 100 }),
+  zoomIn: () => zoomIn({ duration: ms(100) }),
+  zoomOut: () => zoomOut({ duration: ms(100) }),
 })
 </script>
 

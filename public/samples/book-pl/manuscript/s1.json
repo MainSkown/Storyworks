@@ -1,0 +1,88 @@
+{
+  "version": 3,
+  "id": "s1",
+  "title": "Prom odpływa",
+  "status": "final",
+  "synopsis": "Mara przybywa do latarni, żeby zastąpić starego latarnika.",
+  "povId": "mara",
+  "wordCount": 69,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s1-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Prom nie czekał. Mara wspięła się po mokrych schodach Mewiej Skały z jedną torbą na ramieniu, a gdy dotarła do drzwi, łódź była już tylko szarą plamą na wodzie."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s1-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Latarnia wznosiła się nad nią, kiedyś biała, teraz poznaczona solą. Stary Wiktor pilnował jej od czterdziestu lat, a list w kieszeni Mary mówił, że wyjechał na kontynent odpocząć."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s1-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Pchnęła drzwi ramieniem. W środku pachniało olejem, wilgotną liną i zimną herbatą."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s1-ev",
+      "from": {
+        "item": "s1",
+        "block": "s1-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s1-cx-mara",
+      "from": {
+        "item": "s1",
+        "block": "s1-p0"
+      },
+      "to": {
+        "item": "mara"
+      },
+      "kind": "codex"
+    },
+    {
+      "id": "s1-cx-lighthouse",
+      "from": {
+        "item": "s1",
+        "block": "s1-p1"
+      },
+      "to": {
+        "item": "lighthouse"
+      },
+      "kind": "codex"
+    }
+  ]
+}

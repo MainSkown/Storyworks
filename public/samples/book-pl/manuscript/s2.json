@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s2",
+  "title": "Sól i olej",
+  "status": "final",
+  "synopsis": "Wiktor zostawił list o lampie. Mara dowiaduje się, czym ona płonie.",
+  "povId": "mara",
+  "wordCount": 59,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s2-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Wiktor zostawił list na stole w lampowni, napisany drżącą ręką i przyciśnięty mosiężnym kluczem."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s2-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mosiężna Lampa nie pali ani nafty, ani tranu. Karm ją solnym olejem i tylko solnym olejem, bo inaczej zgaśnie."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s2-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara przeczytała ostatnie zdanie dwa razy. Ktokolwiek zbudował tę lampę, chciał, żeby latarnik zrozumiał jedno: to światło nie należy do niego, żeby je zmieniać po swojemu."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s2-ev",
+      "from": {
+        "item": "s2",
+        "block": "s2-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n1"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s2-cx-lantern",
+      "from": {
+        "item": "s2",
+        "block": "s2-p1"
+      },
+      "to": {
+        "item": "lantern"
+      },
+      "kind": "codex"
+    }
+  ]
+}

@@ -9,6 +9,8 @@ import { useTheme } from './theme/useTheme'
 import { useProjectStore } from './project/store'
 import { isTauri } from './project/pickFolder'
 import ProjectDialogs from './components/ProjectDialogs.vue'
+import CrashRecoveryDialog from './components/CrashRecoveryDialog.vue'
+import { endSafety, rememberBook } from './safety/runtime'
 
 const { t } = useI18n()
 const { settings, loadError } = storeToRefs(useSettingsStore())
@@ -18,11 +20,15 @@ useTheme({
   uiZoom: computed(() => settings.value.uiZoom),
   editorFontSize: computed(() => settings.value.editorFontSize),
 })
-watch(() => settings.value.language, setLanguage)
+watch(() => settings.value.language, setLanguage, { immediate: true })
 const dismissed = ref(false)
 
 // Release the lock and flush pending saves before the window goes away.
 const project = useProjectStore()
+watch(
+  () => project.rootPath,
+  (path) => path && rememberBook(path),
+)
 let unlistenClose: (() => void) | undefined
 let disposed = false
 onMounted(async () => {
@@ -34,6 +40,7 @@ onMounted(async () => {
     try {
       await project.close()
     } finally {
+      await endSafety().catch(() => {})
       await win.destroy()
     }
   })
@@ -62,6 +69,7 @@ onBeforeUnmount(() => {
   </QBanner>
   <RouterView />
   <ProjectDialogs />
+  <CrashRecoveryDialog />
 </template>
 
 <style scoped>

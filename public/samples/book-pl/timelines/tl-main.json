@@ -1,0 +1,223 @@
+{
+  "version": 1,
+  "id": "tl-main",
+  "name": "Główna oś czasu",
+  "view": "flow",
+  "branches": [
+    {
+      "id": "br-tobias",
+      "name": "Tobiasz na morzu",
+      "color": "#2f6fb3",
+      "dashed": false
+    },
+    {
+      "id": "br-mara",
+      "name": "Mara w wieży",
+      "color": "#b3562f",
+      "dashed": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "title": "Mara przybywa na Mewią Skałę",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Prom zostawia ją na brzegu i odpływa."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 1887,
+        "month": 9,
+        "day": 28
+      },
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 0,
+        "y": 120
+      },
+      "codexIds": [
+        "mara",
+        "lighthouse"
+      ],
+      "ruleIds": []
+    },
+    {
+      "id": "n2",
+      "title": "Nadciąga mgła",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trzeci listopada. Przysięga zaczyna mieć znaczenie."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 1887,
+        "month": 10,
+        "day": 3
+      },
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 260,
+        "y": 120
+      },
+      "codexIds": [
+        "mara"
+      ],
+      "ruleIds": [
+        "r2",
+        "r3"
+      ]
+    },
+    {
+      "id": "n3a",
+      "title": "Tobiasz wypływa",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Celowy błąd: to wydarzenie ma datę wcześniejszą niż mgła, po której następuje, więc strona Kontroli pokazuje jedno ostrzeżenie. Zmień datę, żeby je usunąć."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 1887,
+        "month": 10,
+        "day": 2
+      },
+      "color": null,
+      "tag": null,
+      "branchId": "br-tobias",
+      "pos": {
+        "x": 520,
+        "y": 20
+      },
+      "codexIds": [
+        "tobias"
+      ],
+      "ruleIds": []
+    },
+    {
+      "id": "n3b",
+      "title": "Mara dolewa oleju do lampy",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Celowo bez daty: nie każde wydarzenie jej potrzebuje."
+              }
+            ]
+          }
+        ]
+      },
+      "date": null,
+      "color": null,
+      "tag": null,
+      "branchId": "br-mara",
+      "pos": {
+        "x": 520,
+        "y": 220
+      },
+      "codexIds": [
+        "mara",
+        "lantern"
+      ],
+      "ruleIds": [
+        "r1"
+      ]
+    },
+    {
+      "id": "n4",
+      "title": "Statek jest uratowany",
+      "description": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Obie gałęzie spotykają się o świcie."
+              }
+            ]
+          }
+        ]
+      },
+      "date": {
+        "year": 1887,
+        "month": 10,
+        "day": 4
+      },
+      "color": null,
+      "tag": null,
+      "branchId": null,
+      "pos": {
+        "x": 780,
+        "y": 120
+      },
+      "codexIds": [
+        "mara",
+        "tobias"
+      ],
+      "ruleIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "n1",
+      "to": "n2"
+    },
+    {
+      "id": "e2",
+      "from": "n2",
+      "to": "n3a"
+    },
+    {
+      "id": "e3",
+      "from": "n2",
+      "to": "n3b"
+    },
+    {
+      "id": "e4",
+      "from": "n3a",
+      "to": "n4"
+    },
+    {
+      "id": "e5",
+      "from": "n3b",
+      "to": "n4"
+    }
+  ]
+}

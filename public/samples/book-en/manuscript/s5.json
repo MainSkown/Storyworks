@@ -1,0 +1,77 @@
+{
+  "version": 3,
+  "id": "s5",
+  "title": "Tobias Rows Out",
+  "status": "draft",
+  "synopsis": "A ship sounds its horn too close. Tobias takes the dinghy; Mara stays.",
+  "povId": "mara",
+  "wordCount": 54,
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s5-p0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Near midnight a ship sounded its horn, close and wrong. Tobias took the dinghy and rowed out toward it, shouting that he knew the shoals."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s5-p1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Mara watched his small lantern shrink to a spark and vanish. The oath held her to the tower, so she stayed."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "id": "s5-p2"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "She had never hated a promise so much."
+          }
+        ]
+      }
+    ]
+  },
+  "todos": [],
+  "comments": [],
+  "links": [
+    {
+      "id": "s5-ev",
+      "from": {
+        "item": "s5",
+        "block": "s5-p0"
+      },
+      "to": {
+        "item": "tl-main",
+        "block": "n3a"
+      },
+      "kind": "event"
+    },
+    {
+      "id": "s5-cx-tobias",
+      "from": {
+        "item": "s5",
+        "block": "s5-p0"
+      },
+      "to": {
+        "item": "tobias"
+      },
+      "kind": "codex"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "id": "d25",
+  "name": "Status",
+  "valueType": "text",
+  "exclusive": true
+}

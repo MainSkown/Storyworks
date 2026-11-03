@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "id": "r2",
+  "title": "Latarnik nie opuszcza światła",
+  "categoryId": "d7",
+  "description": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Zaprzysiężony latarnik nie schodzi z wieży, dopóki mgła leży na wodzie."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [
+    "przysięga"
+  ],
+  "exceptions": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Tylko naczelny latarnik może zwolnić latarnika z przysięgi."
+          }
+        ]
+      }
+    ]
+  }
+}

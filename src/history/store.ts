@@ -15,6 +15,7 @@ import { viewManifest, type ManifestView } from './manifestView'
 import { restoreBackup, restoreItem, restoreProject, type RestoreDeps, type RestoreResult } from './restore'
 import { createSnapshot, loadChanges, snapshotChanges, type SnapshotResult } from './snapshot'
 import { createTauriEngine } from './tauriEngine'
+import { log } from '../safety/log'
 
 const REFRESH_DELAY_MS = 1500
 const HISTORY_DIR = '.storyworks/history.git'
@@ -235,7 +236,10 @@ export const useHistoryStore = defineStore('history', () => {
     if (project.readOnly) throw new HistoryError('read-only', 'This book is open read-only.')
     return guarded(async () => {
       await project.flush()
-      const r = await run(ctx)
+      const r = await run(ctx).catch((e) => {
+        log.error('restore.failed', e)
+        throw e
+      })
       await project.reloadManifest()
       await Promise.all([refresh(), refreshBackups()])
       return r

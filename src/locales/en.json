@@ -56,7 +56,11 @@
     "removeRecent": "Remove {title} from recent projects",
     "browserProjects": "Projects in this browser",
     "noBrowserProjects": "No projects in this browser yet",
-    "close": "Close"
+    "close": "Close",
+    "takeTour": "Take the tour",
+    "openSample": "Open sample book",
+    "sampleFailed": "Could not open the sample book: {message}",
+    "sampleExists": "That folder already holds a book. Pick another folder."
   },
   "newProject": {
     "title": "New project",
@@ -404,7 +408,7 @@
     "cancel": "Cancel",
     "focus": "Focus",
     "exitFocus": "Exit focus",
-    "focusTitle": "Focus mode (Ctrl+Alt+F, Esc exits)",
+    "focusTitle": "Focus mode ({key}, Esc exits)",
     "status": "Scene status",
     "readOnlyNotice": "This book is read-only, so the text cannot be edited.",
     "statusBar": "Word counts and save state",
@@ -441,6 +445,50 @@
     "moved": "{title} moved",
     "filtered": "Showing only: {statuses}. Reordering is off while filtered.",
     "keyboardHint": "Enter opens a scene. Alt+Left or Right moves it earlier or later, Alt+Up or Down moves it to the previous or next chapter."
+  },
+  "import": {
+    "open": "Import…",
+    "title": "Import Markdown or text",
+    "hint": "Choose one or more .md or .txt files (UTF-8).",
+    "choose": "Choose files…",
+    "chooseOther": "Choose other files…",
+    "fileCount": "No files | {n} file | {n} files",
+    "rule": {
+      "label": "Split into chapters and scenes",
+      "h1h2": "Heading 1 = chapter, Heading 2 = scene",
+      "h1": "Heading 1 = chapter only",
+      "break": "Scene-break line (***, ---, * * *) = new scene"
+    },
+    "placement": {
+      "label": "Where to add",
+      "end": "At the end of the manuscript",
+      "after": "After “{title}”"
+    },
+    "preview": "Preview of what will be created",
+    "include": "Include “{title}”",
+    "renameChapter": "Chapter name: {title}",
+    "renameScene": "Scene name: {title}",
+    "words": "No words | {n} word | {n} words",
+    "sceneName": "Scene {n}",
+    "nothing": "Nothing to import in these files.",
+    "warnings": "Warnings",
+    "warning": {
+      "remote-image": "Image “{ref}” in {file} is online and is not imported.",
+      "unsupported-image": "Image “{ref}” in {file} has an unsupported type and is not imported.",
+      "missing-image": "Image “{ref}” in {file} was not found and was skipped."
+    },
+    "invalidUtf8": "{files} is not valid UTF-8 text. Nothing was imported. | {files} is not valid UTF-8 text. Nothing was imported. | {files} are not valid UTF-8 text. Nothing was imported.",
+    "readFailed": "Could not read the files. {message}",
+    "failed": "Import failed. {message}",
+    "summary": "{chapters} chapters, {scenes} scenes, {words} words selected",
+    "cancel": "Cancel",
+    "import": "Import",
+    "done": "Done",
+    "chapters": "No chapters | {n} chapter | {n} chapters",
+    "scenes": "no scenes | {n} scene | {n} scenes",
+    "result": "Imported {chapters}, {scenes}, {words} words.",
+    "backupMade": "An automatic backup was made first.",
+    "backupExisting": "The latest automatic backup was already up to date."
   },
   "outline": {
     "addPart": "Add part",
@@ -1871,6 +1919,119 @@
       "hint": "Names and invented terms you added with \"Add to dictionary\". Stored with the book.",
       "empty": "No words yet. Right-click an underlined word in the editor and choose \"Add to dictionary\".",
       "remove": "Remove word"
+    }
+  },
+  "shortcuts": {
+    "overlayTitle": "Keyboard shortcuts",
+    "close": "Close",
+    "groups": {
+      "app": "Anywhere in the app",
+      "write": "Write view",
+      "editor": "Editor (fixed)"
+    },
+    "rebindHint": "App shortcuts can be changed in Settings. Editor keys are fixed.",
+    "actions": {
+      "search": "Search the book",
+      "switcher": "Quick switcher",
+      "panelToggle": "Show or hide the side panel",
+      "shortcutOverlay": "Show keyboard shortcuts",
+      "focusMode": "Focus mode"
+    },
+    "fixed": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "heading1": "Heading 1",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "bulletList": "Bullet list",
+      "orderedList": "Numbered list",
+      "blockquote": "Quote",
+      "alignLeft": "Align left",
+      "alignCenter": "Align center",
+      "alignRight": "Align right",
+      "alignJustify": "Justify",
+      "eventLink": "Link to a timeline event",
+      "undo": "Undo",
+      "redo": "Redo"
+    },
+    "settings": {
+      "title": "Keyboard shortcuts",
+      "hint": "Choose an action, then press the new keys. Esc cancels. Editor keys are fixed.",
+      "capturing": "Press new keys…",
+      "reset": "Reset",
+      "resetOne": "Reset {name} to its default",
+      "restoreDefaults": "Restore defaults",
+      "showAll": "Show all shortcuts",
+      "error": {
+        "invalid": "That key cannot be used.",
+        "needsModifier": "Use Ctrl (Cmd on Mac) together with another key.",
+        "shortcut": "{combo} is already used for \"{name}\".",
+        "fixed": "{combo} is a fixed editor key (\"{name}\").",
+        "reserved": "{combo} is reserved by the system or the browser."
+      }
+    }
+  },
+
+  "tour": {
+    "label": "Guided tour",
+    "progress": "Step {current} of {total}",
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip tour",
+    "done": "Done",
+    "steps": {
+      "manuscript": {
+        "title": "Write your manuscript",
+        "body": "Chapters and scenes live in the tree under Write. Drag to reorder, and keep notes in the inbox."
+      },
+      "timelines": {
+        "title": "Timelines and linking",
+        "body": "Place events on one or more timelines, then link scenes to events so the story keeps its order."
+      },
+      "rules": {
+        "title": "Rules of your world",
+        "body": "Write down what must stay true, such as how magic works, and link the rules to the scenes they affect."
+      },
+      "codex": {
+        "title": "The codex",
+        "body": "Characters, places and things, with relationships and what each of them knows and when."
+      },
+      "checks": {
+        "title": "Checks",
+        "body": "Storyworks looks for slips in dates, states and knowledge. The badge counts open findings."
+      }
+    }
+  },
+  "help": {
+    "title": "Help",
+    "tour": "Take the tour",
+    "shortcuts": "Keyboard shortcuts",
+    "openLogFolder": "Open log folder",
+    "logOnlyInApp": "The log folder can only be opened in the desktop app.",
+    "logFailed": "Could not open the log folder."
+  },
+  "safety": {
+    "rawRestore": {
+      "offer": "There is an automatic backup of this book. Restoring it brings back its files; the current ones are copied aside first and nothing is deleted.",
+      "no-backup": "This book has no automatic backup. Nothing was changed.",
+      "backup-invalid": "The latest backup cannot be used either. Nothing was changed.",
+      "failed": "The restore could not finish."
+    },
+    "crash": {
+      "title": "The app closed unexpectedly",
+      "body": "Storyworks did not close properly last time. Your work is saved as of the last automatic save.",
+      "lastBook": "Last open book: {name}",
+      "reopen": "Reopen last book",
+      "dismiss": "Dismiss",
+      "damagedTitle": "Some book files are damaged",
+      "damagedBody": "All files match the expected format. | One file does not match the expected format. | {n} files do not match the expected format.",
+      "moreFiles": "and {n} more",
+      "backupOffer": "Restore the latest automatic backup from {when}? Your current files are copied aside first.",
+      "noBackup": "There is no automatic backup for this book.",
+      "restore": "Restore latest backup",
+      "openAnyway": "Open anyway",
+      "verifyFailed": "Could not check the book files."
     }
   }
 }

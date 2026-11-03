@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "id": "lighthouse",
+  "typeId": "d12",
+  "name": "Latarnia na Mewiej Skale",
+  "aliases": [
+    "Mewia Skała",
+    "latarnia"
+  ],
+  "image": null,
+  "notes": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Biała wieża na skale, pół godziny promem od lądu."
+          }
+        ]
+      }
+    ]
+  },
+  "tags": [],
+  "ruleIds": [],
+  "appendixText": "Latarnia na Mewiej Skale.",
+  "includeInAppendices": true,
+  "states": []
+}
