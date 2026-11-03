@@ -12,4 +12,10 @@ describe('sample location', () => {
   it('in the browser skips existing virtual folders', async () => {
     expect(await newSampleRoot(false, () => ['sample-book'], async () => false)).toBe('sample-book-2')
   })
+  it('names the folder after the kind', async () => {
+    expect(await freeSampleName(async () => false, 'screenplay')).toBe('sample-screenplay')
+    const taken = new Set(['sample-game'])
+    expect(await freeSampleName(async (n) => taken.has(n), 'game')).toBe('sample-game-2')
+    expect(await newSampleRoot(false, () => ['sample-game'], async () => false, 'screenplay')).toBe('sample-screenplay')
+  })
 })

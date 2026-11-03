@@ -69,9 +69,24 @@
     "noBrowserProjects": "Brak projektów w tej przeglądarce",
     "close": "Zamknij",
     "takeTour": "Zobacz wycieczkę",
-    "openSample": "Otwórz przykładową książkę",
-    "sampleFailed": "Nie udało się otworzyć przykładowej książki: {message}",
-    "sampleExists": "W tym folderze jest już książka. Wybierz inny folder."
+    "openSample": "Otwórz przykład",
+    "sampleTitle": "Otwórz przykład",
+    "sample": {
+      "book": {
+        "title": "Książka",
+        "hint": "Krótka powieść z rozdziałami, osiami czasu, zasadami i kodeksem."
+      },
+      "screenplay": {
+        "title": "Scenariusz",
+        "hint": "Kilka scen z numerami, dialogami i stroną tytułową."
+      },
+      "game": {
+        "title": "Skrypt gry",
+        "hint": "Rozmowy z wyborami, mapa historii i dokument gry."
+      }
+    },
+    "sampleFailed": "Nie udało się otworzyć przykładu: {message}",
+    "sampleExists": "W tym folderze jest już projekt. Wybierz inny folder."
   },
 "game": {
     "crossLink": {
@@ -2655,6 +2670,50 @@
       "checks": {
         "title": "Kontrole",
         "body": "Storyworks wyszukuje potknięcia w datach, stanach i wiedzy. Plakietka pokazuje liczbę otwartych ustaleń."
+      },
+      "screenplayElements": {
+        "title": "Elementy scenariusza",
+        "body": "Każda linia to element: nagłówek sceny, opis akcji, postać, dialog. Tab przechodzi do następnego elementu, a Enter zaczyna nową linię."
+      },
+      "screenplaySceneNumbers": {
+        "title": "Numery scen",
+        "body": "Sceny numerują się same, także po zmianie kolejności. Nie trzeba niczego wpisywać ani poprawiać."
+      },
+      "screenplayPages": {
+        "title": "Liczba stron",
+        "body": "Strony i czas trwania liczą się według układu wydruku, więc zawsze wiesz mniej więcej, jak długi jest scenariusz."
+      },
+      "screenplayFountain": {
+        "title": "Fountain i PDF",
+        "body": "Wyeksportuj scenariusz do PDF albo do tekstowego formatu Fountain. Plik .fountain możesz też zaimportować na stronie Pisanie."
+      },
+      "screenplayChecks": {
+        "title": "Kontrole",
+        "body": "Storyworks szuka potknięć w datach, stanach, wiedzy i powtórzonych nazwach w całym scenariuszu. Plakietka pokazuje liczbę otwartych ustaleń."
+      },
+      "gameVariables": {
+        "title": "Zmienne",
+        "body": "Flagi, liczby i teksty dla całego projektu, które rozmowy mogą sprawdzać i zmieniać. Dodasz je na stronie Pisanie."
+      },
+      "gameConversations": {
+        "title": "Rozmowy",
+        "body": "Rysuj rozmowę jako płótno z kwestiami i wyborami. Łącz węzły, dodawaj warunki i pozwól, by wybór zmieniał zmienną."
+      },
+      "gameStoryMap": {
+        "title": "Mapa historii",
+        "body": "Rozmieść zadania, lokacje i przedmioty gry oraz ustal, co co odblokowuje."
+      },
+      "gameRoutes": {
+        "title": "Ścieżki",
+        "body": "Ścieżki to gałęzie osi czasu. Oznaczaj skrypty i rozmowy ścieżkami, do których należą."
+      },
+      "gameDocument": {
+        "title": "Dokument gry",
+        "body": "Opisz grę w jednym miejscu: przegląd, mechaniki z parametrami i słowniczek. Łącz mechaniki ze zmiennymi, przedmiotami, wydarzeniami i hasłami kodeksu."
+      },
+      "gameChecks": {
+        "title": "Kontrole i eksport",
+        "body": "Kontrole znajdują nieosiągalne węzły, błędne warunki i nieużywane zmienne. Wyeksportuj grę do JSON lub CSV dla silnika, a dokument do PDF, Worda lub Markdowna."
       }
     }
   },

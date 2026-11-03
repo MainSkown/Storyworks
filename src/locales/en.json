@@ -69,9 +69,24 @@
     "noBrowserProjects": "No projects in this browser yet",
     "close": "Close",
     "takeTour": "Take the tour",
-    "openSample": "Open sample book",
-    "sampleFailed": "Could not open the sample book: {message}",
-    "sampleExists": "That folder already holds a book. Pick another folder."
+    "openSample": "Open a sample",
+    "sampleTitle": "Open a sample",
+    "sample": {
+      "book": {
+        "title": "Book",
+        "hint": "A short novel with chapters, timelines, rules and a codex."
+      },
+      "screenplay": {
+        "title": "Screenplay",
+        "hint": "A few scenes with scene numbers, dialogue and a title page."
+      },
+      "game": {
+        "title": "Game script",
+        "hint": "Conversations with choices, a story map and a game document."
+      }
+    },
+    "sampleFailed": "Could not open the sample: {message}",
+    "sampleExists": "That folder already holds a project. Pick another folder."
   },
 "game": {
     "crossLink": {
@@ -2655,6 +2670,50 @@
       "checks": {
         "title": "Checks",
         "body": "Storyworks looks for slips in dates, states and knowledge. The badge counts open findings."
+      },
+      "screenplayElements": {
+        "title": "Screenplay elements",
+        "body": "Each line is an element: scene heading, action, character, dialogue. Press Tab to move to the next element and Enter to start a new line."
+      },
+      "screenplaySceneNumbers": {
+        "title": "Scene numbers",
+        "body": "Scenes are numbered automatically as you reorder them. Nothing to type, nothing to renumber."
+      },
+      "screenplayPages": {
+        "title": "Page count",
+        "body": "Pages and runtime are counted as the script is laid out for print, so you always know roughly how long it is."
+      },
+      "screenplayFountain": {
+        "title": "Fountain and PDF",
+        "body": "Export the script as a PDF or as plain-text Fountain. You can also import a .fountain file from the Write page."
+      },
+      "screenplayChecks": {
+        "title": "Checks",
+        "body": "Storyworks looks for slips in dates, states, knowledge and duplicate names across the whole script. The badge counts open findings."
+      },
+      "gameVariables": {
+        "title": "Variables",
+        "body": "Project-wide flags, numbers and texts that conversations can check and change. Add them from the Write page."
+      },
+      "gameConversations": {
+        "title": "Conversations",
+        "body": "Draw a conversation as a canvas of lines and choices. Connect nodes, add conditions and let a choice change a variable."
+      },
+      "gameStoryMap": {
+        "title": "Story map",
+        "body": "Lay out the quests, areas and items of your game and set what unlocks what."
+      },
+      "gameRoutes": {
+        "title": "Routes",
+        "body": "Routes are the branches of your timelines. Tag scripts and conversations with the routes they belong to."
+      },
+      "gameDocument": {
+        "title": "Game document",
+        "body": "Describe the game in one place: an overview, mechanics with parameters, and a glossary. Link mechanics to variables, items, beats and codex entries."
+      },
+      "gameChecks": {
+        "title": "Checks and export",
+        "body": "Checks find unreachable nodes, broken conditions and unused variables. Export the game as JSON or CSV for your engine, or the document as PDF, Word or Markdown."
       }
     }
   },

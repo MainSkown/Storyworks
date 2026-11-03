@@ -8,7 +8,7 @@ import { createProjectIO } from '../project/io'
 import { isTauri, pickFolder } from '../project/pickFolder'
 import { useProjectStore } from '../project/store'
 import { useSettingsStore } from '../settings/store'
-import { installSample, SampleExistsError } from '../samples/install'
+import { installSample, SAMPLE_KINDS, SampleExistsError, type SampleKind } from '../samples/install'
 import { newSampleRoot } from '../samples/location'
 import { MANIFEST_FILE } from '../project/migrations'
 import { startTour } from '../tour/state'
@@ -23,6 +23,12 @@ const newOpen = ref(false)
 const browserOpen = ref(false)
 const browserProjects = ref<string[]>([])
 const sampleError = ref('')
+const chooserOpen = ref(false)
+const sampleIcons: Record<SampleKind, string> = {
+  book: 'auto_stories',
+  screenplay: 'movie',
+  game: 'sports_esports',
+}
 
 // Also fires after the "open elsewhere" dialog is resolved.
 watch(
@@ -48,15 +54,17 @@ async function openProject(): Promise<void> {
 }
 
 /** Copies the bundled sample (UI language) into a new folder (app data in the app), then opens the copy. */
-async function openSample(): Promise<void> {
+async function openSample(kind: SampleKind = 'book'): Promise<void> {
+  chooserOpen.value = false
   sampleError.value = ''
   const root = await newSampleRoot(
     isTauri(),
     listBrowserProjects,
     (r) => createProjectIO(r).exists(MANIFEST_FILE),
+    kind,
   )
   try {
-    await installSample(createProjectIO(root), defaultLang(locale.value))
+    await installSample(createProjectIO(root), defaultLang(locale.value), undefined, undefined, kind)
     await store.open(root)
   } catch (e) {
     sampleError.value =
@@ -67,7 +75,7 @@ async function openSample(): Promise<void> {
 }
 
 async function takeTour(): Promise<void> {
-  if (!store.project) await openSample()
+  if (!store.project) await openSample('book')
   if (store.project) startTour()
 }
 </script>
@@ -100,7 +108,8 @@ async function takeTour(): Promise<void> {
           no-caps
           icon="auto_stories"
           :label="t('welcome.openSample')"
-          @click="openSample"
+          aria-haspopup="dialog"
+          @click="chooserOpen = true"
         />
         <QBtn
           flat
@@ -135,6 +144,32 @@ async function takeTour(): Promise<void> {
     </section>
 
     <NewProjectDialog v-model="newOpen" />
+
+    <QDialog v-model="chooserOpen">
+      <QCard class="browser-card sample-card" role="dialog" :aria-label="t('welcome.sampleTitle')">
+        <QCardSection>
+          <h2>{{ t('welcome.sampleTitle') }}</h2>
+        </QCardSection>
+        <QCardSection class="sample-list">
+          <button
+            v-for="k in SAMPLE_KINDS"
+            :key="k"
+            type="button"
+            class="sample-option"
+            @click="openSample(k)"
+          >
+            <QIcon :name="sampleIcons[k]" size="1.5rem" aria-hidden="true" />
+            <span class="sample-text">
+              <span class="recent-title">{{ t(`welcome.sample.${k}.title`) }}</span>
+              <span class="recent-path">{{ t(`welcome.sample.${k}.hint`) }}</span>
+            </span>
+          </button>
+        </QCardSection>
+        <QCardActions align="right">
+          <QBtn flat no-caps :label="t('welcome.close')" @click="chooserOpen = false" />
+        </QCardActions>
+      </QCard>
+    </QDialog>
 
     <QDialog v-model="browserOpen">
       <QCard class="browser-card" role="dialog" :aria-label="t('welcome.browserProjects')">
@@ -277,6 +312,48 @@ h2 {
   width: min(100vw - 2rem, 24rem);
   background: var(--bg-raised);
   color: var(--text-primary);
+}
+
+.sample-card {
+  width: min(100vw - 2rem, 28rem);
+}
+
+.sample-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sample-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.sample-option:hover {
+  background: var(--bg-selected);
+}
+
+.sample-option:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.sample-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sample-text .recent-path {
+  white-space: normal;
 }
 
 .browser-card h2 {

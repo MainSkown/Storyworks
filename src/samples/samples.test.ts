@@ -9,14 +9,14 @@ import { openProject } from '../project/open'
 import { resetFileIOFactory, setFileIOFactory } from '../settings/store'
 import { resetProjectIOFactory, setProjectIOFactory, useProjectStore } from '../project/store'
 import { sampleDir, SAMPLE_INDEX } from './build'
-import { installSample, SampleExistsError } from './install'
+import { installSample, SampleExistsError, sampleDirFor, type SampleKind } from './install'
 import type { SampleLang } from './text'
 
 const LANGS: SampleLang[] = ['en', 'pl']
 const PUBLIC = join(__dirname, '../../public/samples')
 
-function committed(lang: SampleLang): Record<string, string> {
-  const root = join(PUBLIC, sampleDir(lang))
+function committed(lang: SampleLang, kind: SampleKind = 'book'): Record<string, string> {
+  const root = join(PUBLIC, sampleDirFor(kind, lang))
   const out: Record<string, string> = {}
   const walk = (dir: string, prefix: string) => {
     for (const name of readdirSync(dir).sort()) {
@@ -74,5 +74,14 @@ describe.each(LANGS)('sample book (%s)', (lang) => {
     await installSample(io, lang, readBundled, '/')
     expect(Object.fromEntries(io.files)).toEqual(committed(lang))
     await expect(installSample(io, lang, readBundled, '/')).rejects.toBeInstanceOf(SampleExistsError)
+  })
+})
+
+describe.each(['screenplay', 'game'] as const)('%s sample install', (kind) => {
+  it.each(LANGS)('installs a copy equal to the committed files and refuses an existing project (%s)', async (lang) => {
+    const io = createMemoryProjectIO()
+    await installSample(io, lang, readBundled, '/', kind)
+    expect(Object.fromEntries(io.files)).toEqual(committed(lang, kind))
+    await expect(installSample(io, lang, readBundled, '/', kind)).rejects.toBeInstanceOf(SampleExistsError)
   })
 })

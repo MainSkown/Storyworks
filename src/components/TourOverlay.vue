@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useProjectStore } from '../project/store'
 import { useSettingsStore } from '../settings/store'
-import { tourSteps } from '../tour/steps'
+import { tourStepsFor } from '../tour/steps'
 import { dismissTour, shouldAutoStart, tourOpen } from '../tour/state'
 
 const { t } = useI18n()
@@ -16,9 +16,10 @@ const anchor = ref<DOMRect | null>(null)
 const pos = ref({ top: 0, left: 0 })
 let returnFocus: HTMLElement | null = null
 
-const step = computed(() => tourSteps[index.value]!)
+const steps = computed(() => tourStepsFor(project.project?.manifest.kind))
+const step = computed(() => steps.value[index.value] ?? steps.value[0]!)
 const isFirst = computed(() => index.value === 0)
-const isLast = computed(() => index.value === tourSteps.length - 1)
+const isLast = computed(() => index.value === steps.value.length - 1)
 
 watch(
   () => ({
@@ -159,7 +160,7 @@ function refocus(): void {
         :style="{ top: `${pos.top}px`, left: `${pos.left}px` }"
       >
         <p class="tour-progress">
-          {{ t('tour.progress', { current: index + 1, total: tourSteps.length }) }}
+          {{ t('tour.progress', { current: index + 1, total: steps.length }) }}
         </p>
         <h2 id="tour-title" class="tour-title">{{ t(step.titleKey) }}</h2>
         <p id="tour-body" class="tour-text" role="status" aria-live="polite">
